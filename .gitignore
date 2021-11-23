@@ -1,0 +1,20 @@
+# Add any directories, files, or patterns you don't want to be tracked by version control
+.vs/
+x64/
+*.ilk
+*.pdb
+*.idb
+*.vcxproj.user
+*.exe
+*.iobj
+*.ipdb
+assets/
+*.aux
+*.bbl
+*.blg
+*.log
+*.spl
+*.toc
+*.lof
+*.lot
+*.out
