@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2019 Orthrus Group.                         |
+//| Copyright (C) 2014, 2021 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for quadtree/octree base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 20/11/2021
+// Last revision: 06/12/2021
 
 #ifndef __TreeBase_h
 #define __TreeBase_h
@@ -653,11 +653,13 @@ public:
   const leaf_iterator pickLeaf(const vec_type& p) const
   {
     if (!_bounds.contains(p))
-      return leaf_iterator{nullptr, key_type{}};
-    {
-      auto k = this->key(p);
-      return leaf_iterator{(TreeLeafNode<D, LT>*)this->findLeaf(k), k};
-    }
+      return leaf_iterator{nullptr, {}};
+
+    auto k = this->key(p);
+    auto node = this->findLeaf(k);
+
+    k.popChildren(this->_maxDepth - node->depth());
+    return leaf_iterator{(TreeLeafNode<D, LT>*)node, k};
   }
 
   const auto& bounds() const

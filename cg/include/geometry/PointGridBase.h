@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2016, 2020 Orthrus Group.                         |
+//| Copyright (C) 2016, 2021 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for point grid base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 30/05/2020
+// Last revision: 06/12/2021
 
 #ifndef __PointGridBase_h
 #define __PointGridBase_h
@@ -141,27 +141,6 @@ PointGrid<D, real, PointArray>::PointGrid(const PointArray& points,
 
   for (index_type n = points.size(), i = 0; i < n; ++i)
     addPoint(points[i], (int)i);
-}
-
-template <typename real>
-inline real
-searchSize2(real d2, real r2)
-{
-  return d2 * real(0.25) + r2 + sqrt(d2 * r2);
-}
-
-template <typename real>
-inline constexpr real
-epsilon()
-{
-  return std::numeric_limits<real>::epsilon();
-}
-
-template <typename real>
-inline constexpr real
-inf()
-{
-  return std::numeric_limits<real>::max();
 }
 
 template <size_t D, typename real, typename PointArray>

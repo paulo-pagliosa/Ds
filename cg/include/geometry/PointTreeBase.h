@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2016, 2019 Orthrus Group.                         |
+//| Copyright (C) 2016, 2021 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for point quadtree/octree base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/03/2019
+// Last revision: 06/12/2021
 
 #ifndef __PointTreeBase_h
 #define __PointTreeBase_h
@@ -255,6 +255,32 @@ PointTree<D, real, PointArray>::moveDataToChildren(LeafNode*leaf,
   }
 }
 
+namespace pth
+{ // begin namespace pth
+
+template <typename real>
+inline real
+searchSize2(real d2, real r2)
+{
+  return d2 * real(0.25) + r2 + sqrt(d2 * r2);
+}
+
+template <typename real>
+inline constexpr real
+epsilon()
+{
+  return std::numeric_limits<real>::epsilon();
+}
+
+template <typename real>
+inline constexpr real
+inf()
+{
+  return std::numeric_limits<real>::max();
+}
+
+} // end namespace pth
+
 template <size_t D, typename real, typename PointArray>
 size_t
 PointTree<D, real, PointArray>::findNeighbors(const vec_type& p,
@@ -277,7 +303,7 @@ PointTree<D, real, PointArray>::radiusSearch(const vec_type& p,
   IndexList& list) const
 {
   auto depth = branch->depth() + 1;
-  auto s2 = searchSize2(this->nodeSize(depth).squaredNorm(), r2);
+  auto s2 = pth::searchSize2(this->nodeSize(depth).squaredNorm(), r2);
   constexpr auto N = (int)ipow2<D>();
 
   for (int i = 0; i < N; i++)
@@ -286,7 +312,7 @@ PointTree<D, real, PointArray>::radiusSearch(const vec_type& p,
       auto childKey = key_type(key).pushChild(i);
       auto d2 = (p - this->center(childKey, depth)).squaredNorm();
 
-      if (epsilon<real>() + d2 > s2)
+      if (pth::epsilon<real>() + d2 > s2)
         continue;
       if (!child->isLeaf())
         radiusSearch(p, r2, childKey, (BranchNode*)child, list);
@@ -317,7 +343,7 @@ PointTree<D, real, PointArray>::findNearestNeighbors(const vec_type& p,
     for (int i = 0; i < n; ++i)
       knn.test(this->_points[i], i);
   else
-    knnSearch(knn, inf<real>(), key_type{0LL}, this->root());
+    knnSearch(knn, pth::inf<real>(), key_type{0LL}, this->root());
   return knn.results(indices, distances);
 }
 
@@ -359,7 +385,7 @@ PointTree<D, real, PointArray>::knnSearch(KNN& knn,
       nq.insert(d2, NodeEntry{child, childKey});
     }
   for (auto n = nq.size(), i = 0;
-    i < n && epsilon<real>() + nq.key(i) <= searchSize2(n2, r2);
+    i < n && pth::epsilon<real>() + nq.key(i) <= searchSize2(n2, r2);
     ++i)
   {
     const auto& e = nq.value(i);

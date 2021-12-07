@@ -28,7 +28,7 @@
 // Class definition for generic octree.
 //
 // Author: Paulo Pagliosa
-// Last revision: 20/01/2021
+// Last revision: 06/12/2021
 
 //         Octree children configuration
 //           ________________________
@@ -80,6 +80,14 @@ public:
     x >>= 1;
     y >>= 1;
     z >>= 1;
+    return *this;
+  }
+
+  auto& popChildren(int n)
+  {
+    x >>= n;
+    y >>= n;
+    z >>= n;
     return *this;
   }
 

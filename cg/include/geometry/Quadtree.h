@@ -28,7 +28,7 @@
 // Class definition for generic quadtree.
 //
 // Author: Paulo Pagliosa
-// Last revision: 20/01/2021
+// Last revision: 06/12/2021
 
 // Quadtree children configuration
 //     ______________________
@@ -61,10 +61,10 @@ class TreeKey<2> final: public Index<2>
 public:
   using Index<2>::Index;
 
-  auto& pushChild(int _index)
+  auto& pushChild(int index)
   {
-    x = (x << 1) | (!!(_index & (1 << 1)));
-    y = (y << 1) | (!!(_index & (1 << 0)));
+    x = (x << 1) | (!!(index & (1 << 1)));
+    y = (y << 1) | (!!(index & (1 << 0)));
     return *this;
   }
 
@@ -72,6 +72,13 @@ public:
   {
     x >>= 1;
     y >>= 1;
+    return *this;
+  }
+
+  auto& popChildren(int n)
+  {
+    x >>= n;
+    y >>= n;
     return *this;
   }
 
