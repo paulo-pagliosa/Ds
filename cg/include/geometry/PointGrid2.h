@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2020 Orthrus Group.                         |
+//| Copyright (C) 2019, 2021 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for generic 2D point grid.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/07/2020
+// Last revision: 08/12/2021
 
 #ifndef __PointGrid2_h
 #define __PointGrid2_h
@@ -44,11 +44,11 @@ namespace cg
 //
 // PointGrid2: generic 2D point grid class
 // ==========
-template <typename real, typename PointArray>
-class PointGridSearcher<2, real, PointArray>
+template <typename real, typename PA, typename IL>
+class PointGridSearcher<2, real, PA, IL>
 {
 public:
-  using Grid = PointGrid<2, real, PointArray>;
+  using Grid = PointGrid<2, real, PA, IL>;
   using vec_type = typename Grid::vec_type;
 
   static size_t findNeighbors(const Grid& grid,
@@ -57,9 +57,9 @@ public:
 
 }; // PointGridSearcher
 
-template <typename real, typename PointArray>
+template <typename real, typename PA, typename IL>
 size_t
-PointGridSearcher<2, real, PointArray>::findNeighbors(const Grid& grid,
+PointGridSearcher<2, real, PA, IL>::findNeighbors(const Grid& grid,
   const vec_type& point,
   IndexList& nids)
 {
@@ -91,8 +91,8 @@ PointGridSearcher<2, real, PointArray>::findNeighbors(const Grid& grid,
   return nids.size();
 }
 
-template <typename real, typename PointArray>
-using PointGrid2 = PointGrid<2, real, PointArray>;
+template <typename real, typename PA, typename IL = IndexList>
+using PointGrid2 = PointGrid<2, real, PA, IL>;
 
 } // namespace cg
 

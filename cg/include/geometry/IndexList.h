@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2020 Orthrus Group.                         |
+//| Copyright (C) 2014, 2021 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for index list.
 //
 // Author: Paulo Pagliosa
-// Last revision: 30/05/2020
+// Last revision: 08/12/2021
 
 #ifndef __IndexList_h
 #define __IndexList_h
@@ -211,6 +211,14 @@ private:
   friend iterator;
 
 }; // IndexList
+
+template <typename T>
+inline constexpr bool isIndexList()
+{
+  return std::is_assignable_v<IndexList, T>;
+}
+
+#define ASSERT_INDEX_LIST(T, msg) static_assert(isIndexList<T>(), msg)
 
 } // end namespace cg
 
