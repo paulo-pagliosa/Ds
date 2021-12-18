@@ -28,7 +28,7 @@
 // Class definition for quadtree/octree base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 06/12/2021
+// Last revision: 18/12/2021
 
 #ifndef __TreeBase_h
 #define __TreeBase_h
@@ -577,6 +577,11 @@ private:
     Base{node, key}
   {
     // do nothing
+  }
+
+  auto leafNode() const
+  {
+    return (LeafNode*)this->_node;
   }
 
   auto leafNode()
