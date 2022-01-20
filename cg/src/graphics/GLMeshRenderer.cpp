@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2019 Orthrus Group.                         |
+//| Copyright (C) 2018, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for OpenGL mesh renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/06/2019
+// Last revision: 19/01/2022
 
 #include "graphics/GLMeshRenderer.h"
 
@@ -327,7 +327,7 @@ GLMeshRenderer::setLight(int i, const Light& light)
 {
   if (!light.isTurnedOn())
     return false;
-  if (light.isDirectional())
+  if (light.type() == Light::Directional)
   {
     const auto d = vec4f{lightDirection(light, _camera)};
 
@@ -353,7 +353,7 @@ GLMeshRenderer::initProgram()
   _program.use();
   initUniformLocations();
   initSubroutineIndices();
-  setMaterial(Material{});
+  setMaterial(*Material::defaultMaterial());
   _program.setUniform(_lineWidthLoc, 0.5f);
   _program.setUniformVec4(_lineColorLoc, Color::gray);
   _program.setUniformVec4(_ambientLightLoc, Color::darkGray);
@@ -428,10 +428,10 @@ GLMeshRenderer::setMaterial(const Material& material)
   _program.setUniformVec4(_OdLoc, material.diffuse);
   _program.setUniformVec4(_OsLoc, material.spot);
   _program.setUniform(_nsLoc, material.shine);
-  if (material.texture == nullptr)
+  //if (material.texture == nullptr)
     _texture = 0;
-  else
-    _texture = (GLuint)(intptr_t)material.texture; // TODO
+  //else
+    //_texture = (GLuint)(intptr_t)material.texture; // TODO
 }
 
 inline auto

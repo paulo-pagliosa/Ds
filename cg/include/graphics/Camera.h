@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2020 Orthrus Group.                         |
+//| Copyright (C) 2018, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for camera.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/07/2020
+// Last revision: 19/01/2022
 
 #ifndef __Camera_h
 #define __Camera_h
@@ -40,14 +40,6 @@
 namespace cg
 { // begin namespace cg
 
-#define MIN_HEIGHT      0.01f
-#define MIN_ASPECT      0.1f
-#define MIN_DISTANCE    0.01f
-#define MIN_ANGLE       1.0f
-#define MAX_ANGLE       179.0f
-#define MIN_DEPTH       0.01f
-#define MIN_FRONT_PLANE 0.01f
-
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -56,13 +48,21 @@ namespace cg
 class Camera: public NameableObject
 {
 public:
+  static constexpr float minAngle = 1;
+  static constexpr float maxAngle = 179;
+  static constexpr float minHeight = 0.01f;
+  static constexpr float minAspect = 0.1f;
+  static constexpr float minDistance = 0.01f;
+  static constexpr float minFrontPlane = 0.01f;
+  static constexpr float minDepth = 0.01f;
+
   enum ProjectionType
   {
     Perspective,
     Parallel
   };
 
-  Camera();
+  Camera(float aspect = 1);
 
   vec3f position() const;
   vec3f eulerAngles() const;
@@ -92,7 +92,7 @@ public:
   void setProjectionType(ProjectionType value);
   void setDistance(float value);
 
-  void setDefaultView(float aspect = 1.0f);
+  void setDefaultView(float aspect = 1);
   uint32_t update();
   void changeProjectionType();
 
@@ -133,8 +133,8 @@ private:
   ProjectionType _projectionType;
   vec3f _focalPoint;
   float _distance;
-  mat4f _matrix; // view matrix
-  mat4f _inverseMatrix;
+  mat4f _worldToCamera;
+  mat4f _cameraToWorld;
   mat4f _projectionMatrix;
   uint32_t _timestamp;
   bool _modified;
@@ -174,7 +174,7 @@ Camera::rotation() const
 inline vec3f
 Camera::viewPlaneNormal() const
 {
-  return vec3f{_inverseMatrix[2]};
+  return vec3f{_cameraToWorld[2]};
 
 }
 inline vec3f
@@ -186,7 +186,7 @@ Camera::directionOfProjection() const
 inline vec3f
 Camera::viewUp() const
 {
-  return vec3f{_inverseMatrix[1]};
+  return vec3f{_cameraToWorld[1]};
 }
 
 inline Camera::ProjectionType
@@ -282,13 +282,13 @@ Camera::changeProjectionType()
 inline const mat4f&
 Camera::worldToCameraMatrix() const
 {
-  return _matrix;
+  return _worldToCamera;
 }
 
 inline const mat4f&
 Camera::cameraToWorldMatrix() const
 {
-  return _inverseMatrix;
+  return _cameraToWorld;
 }
 
 inline const mat4f&
@@ -300,13 +300,13 @@ Camera::projectionMatrix() const
 inline vec3f
 Camera::worldToCamera(const vec3f& p) const
 {
-  return _matrix.transform3x4(p);
+  return _worldToCamera.transform3x4(p);
 }
 
 inline vec3f
 Camera::cameraToWorld(const vec3f& p) const
 {
-  return _inverseMatrix.transform3x4(p);
+  return _cameraToWorld.transform3x4(p);
 }
 
 //

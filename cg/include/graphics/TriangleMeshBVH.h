@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Orthrus Group.                         |
+//| Copyright (C) 2019, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,89 +23,45 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: GLMesh.h
+// OVERVIEW: TriangleMeshBVH.h
 // ========
-// Class definition for OpenGL mesh array object.
+// Class definition for triangle mesh BVH.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2022
+// Last revision: 17/01/2022
 
-#ifndef __GLMesh_h
-#define __GLMesh_h
+#ifndef __TriangleMeshBVH_h
+#define __TriangleMeshBVH_h
 
-#include "geometry/TriangleMesh.h"
-#include "graphics/GLBuffer.h"
+#include "graphics/BVH.h"
+#include "graphics/TriangleMeshShape.h"
 
 namespace cg
 { // begin namespace cg
 
-using GLColorBuffer = GLBuffer<Color>;
-
 
 /////////////////////////////////////////////////////////////////////
 //
-// GLMesh: OpenGL mesh array object class
-// ======
-class GLMesh: public SharedObject
+// TriangleMeshBVH: triangle mesh BVH class
+// ===============
+class TriangleMeshBVH final: public BVHBase
 {
 public:
-  // Constructor.
-  GLMesh(const TriangleMesh& mesh);
+  TriangleMeshBVH(const Primitive&, uint32_t = 64);
 
-  // Destructor.
-  ~GLMesh()
-  {
-    glDeleteBuffers(4, _buffers);
-    glDeleteVertexArrays(1, &_vao);
-  }
-
-  void bind()
-  {
-    glBindVertexArray(_vao);
-  }
-
-  auto vertexCount() const
-  {
-    return _vertexCount;
-  }
-
-  void setColors(GLColorBuffer* colors, int location = 3);
+  const TriangleMesh* mesh() const override;
 
 private:
-  GLuint _vao;
-  GLuint _buffers[4];
-  int _vertexCount;
+  Reference<Primitive> _primitive;
+  Reference<TriangleMesh> _mesh;
 
-  template <typename T>
-  static auto size(int n)
-  {
-    return sizeof(T) * n;
-  }
+  void intersectPrimitives(uint32_t first,
+    uint32_t count,
+    const Ray3f& ray,
+    Intersection& hit) const override;
 
-}; // GLMesh
-
-inline GLMesh*
-asGLMesh(SharedObject* object)
-{
-  return dynamic_cast<GLMesh*>(object);
-}
-
-inline GLMesh*
-glMesh(const TriangleMesh* mesh)
-{
-  if (nullptr == mesh)
-    return nullptr;
-
-  auto ma = asGLMesh(mesh->userData);
-
-  if (nullptr == ma)
-  {
-    ma = new GLMesh{*mesh};
-    mesh->userData = ma;
-  }
-  return ma;
-}
+}; // TriangleMeshBVH
 
 } // end namespace cg
 
-#endif // __GLMesh_h
+#endif // __TriangleMeshBVH_h

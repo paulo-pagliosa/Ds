@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Orthrus Group.                         |
+//| Copyright (C) 2022 Orthrus Group.                               |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,89 +23,38 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: GLMesh.h
+// OVERVIEW: PrimitiveMapper.h
 // ========
-// Class definition for OpenGL mesh array object.
+// Class definition for generic primitive mapper.
 //
 // Author: Paulo Pagliosa
 // Last revision: 19/01/2022
 
-#ifndef __GLMesh_h
-#define __GLMesh_h
+#ifndef __PrimitiveMapper_h
+#define __PrimitiveMapper_h
 
-#include "geometry/TriangleMesh.h"
-#include "graphics/GLBuffer.h"
+#include "graphics/Primitive.h"
 
 namespace cg
 { // begin namespace cg
 
-using GLColorBuffer = GLBuffer<Color>;
+class GLRenderer;
 
 
 /////////////////////////////////////////////////////////////////////
 //
-// GLMesh: OpenGL mesh array object class
-// ======
-class GLMesh: public SharedObject
+// PrimitiveMapper: generic primitive mapper class
+// ===============
+class PrimitiveMapper abstract: public SharedObject
 {
 public:
-  // Constructor.
-  GLMesh(const TriangleMesh& mesh);
+  virtual void update();
 
-  // Destructor.
-  ~GLMesh()
-  {
-    glDeleteBuffers(4, _buffers);
-    glDeleteVertexArrays(1, &_vao);
-  }
+  virtual bool render(GLRenderer&) const;
+  virtual const Primitive* primitive() const;
 
-  void bind()
-  {
-    glBindVertexArray(_vao);
-  }
-
-  auto vertexCount() const
-  {
-    return _vertexCount;
-  }
-
-  void setColors(GLColorBuffer* colors, int location = 3);
-
-private:
-  GLuint _vao;
-  GLuint _buffers[4];
-  int _vertexCount;
-
-  template <typename T>
-  static auto size(int n)
-  {
-    return sizeof(T) * n;
-  }
-
-}; // GLMesh
-
-inline GLMesh*
-asGLMesh(SharedObject* object)
-{
-  return dynamic_cast<GLMesh*>(object);
-}
-
-inline GLMesh*
-glMesh(const TriangleMesh* mesh)
-{
-  if (nullptr == mesh)
-    return nullptr;
-
-  auto ma = asGLMesh(mesh->userData);
-
-  if (nullptr == ma)
-  {
-    ma = new GLMesh{*mesh};
-    mesh->userData = ma;
-  }
-  return ma;
-}
+}; // PrimitiveMapper
 
 } // end namespace cg
 
-#endif // __GLMesh_h
+#endif // __PrimitiveMapper_h

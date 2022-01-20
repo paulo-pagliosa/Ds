@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Orthrus Group.                         |
+//| Copyright (C) 2022 Orthrus Group.                               |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,89 +23,79 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: GLMesh.h
+// OVERVIEW: CameraProxy.h
 // ========
-// Class definition for OpenGL mesh array object.
+// Class definition for camera proxy.
 //
 // Author: Paulo Pagliosa
 // Last revision: 19/01/2022
 
-#ifndef __GLMesh_h
-#define __GLMesh_h
+#ifndef __CameraProxy_h
+#define __CameraProxy_h
 
-#include "geometry/TriangleMesh.h"
-#include "graphics/GLBuffer.h"
+#include "graph/ComponentProxy.h"
+#include "graphics/Camera.h"
 
 namespace cg
 { // begin namespace cg
 
-using GLColorBuffer = GLBuffer<Color>;
+namespace graph
+{ // begin namespace graph
 
 
 /////////////////////////////////////////////////////////////////////
 //
-// GLMesh: OpenGL mesh array object class
-// ======
-class GLMesh: public SharedObject
+// CameraProxy: camera proxy class
+// ===========
+class CameraProxy final: public ComponentProxy<Camera>
 {
 public:
-  // Constructor.
-  GLMesh(const TriangleMesh& mesh);
-
-  // Destructor.
-  ~GLMesh()
+  /// Constructs a default camera.
+  static auto New(float aspect = 1)
   {
-    glDeleteBuffers(4, _buffers);
-    glDeleteVertexArrays(1, &_vao);
+    return new CameraProxy{aspect};
   }
 
-  void bind()
+  static auto New(const Camera& camera)
   {
-    glBindVertexArray(_vao);
+    return new CameraProxy{camera};
   }
 
-  auto vertexCount() const
+  static Camera* current()
   {
-    return _vertexCount;
+    return _current;
   }
 
-  void setColors(GLColorBuffer* colors, int location = 3);
+  static void setCurrent(Camera* camera);
+
+  ~CameraProxy() override;
+
+  Camera* camera() const
+  {
+    return _object;
+  }
+
+  void reset(float aspect = 1);
 
 private:
-  GLuint _vao;
-  GLuint _buffers[4];
-  int _vertexCount;
+  static Camera* _current;
 
-  template <typename T>
-  static auto size(int n)
+  CameraProxy(float aspect):
+    CameraProxy{*new Camera{aspect}}
   {
-    return sizeof(T) * n;
+    // do nothing
   }
 
-}; // GLMesh
-
-inline GLMesh*
-asGLMesh(SharedObject* object)
-{
-  return dynamic_cast<GLMesh*>(object);
-}
-
-inline GLMesh*
-glMesh(const TriangleMesh* mesh)
-{
-  if (nullptr == mesh)
-    return nullptr;
-
-  auto ma = asGLMesh(mesh->userData);
-
-  if (nullptr == ma)
+  CameraProxy(const Camera& camera):
+    ComponentProxy<Camera>{"Camera", camera}
   {
-    ma = new GLMesh{*mesh};
-    mesh->userData = ma;
+    // do nothing
   }
-  return ma;
-}
+
+}; // CameraProxy
+
+} // end namespace graph
 
 } // end namespace cg
 
-#endif // __GLMesh_h
+#endif // __CameraProxy_h

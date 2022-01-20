@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2019 Orthrus Group.                         |
+//| Copyright (C) 2018, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for light.
 //
 // Author: Paulo Pagliosa
-// Last revision: 27/05/2019
+// Last revision: 18/01/2022
 
 #include "graphics/Light.h"
 
@@ -47,12 +47,13 @@ nextLightId()
   return ++lid;
 }
 
-Light::Light()
+Light::Light():
+  _type{Light::Directional},
+  flags{Light::TurnedOn},
+  color{Color::white},
+  position{vec3f::null()}
 {
   setName("Light %d", nextLightId());
-  flags = TurnedOn;
-  color = Color::white;
-  position = vec3f::null();
   direction = quatf::eulerAngles(50, -30, 0) * vec3f{0, 0, -1};
 }
 

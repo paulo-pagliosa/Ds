@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Orthrus Group.                         |
+//| Copyright (C) 2018, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,89 +23,93 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: GLMesh.h
+// OVERVIEW: RayTracer.h
 // ========
-// Class definition for OpenGL mesh array object.
+// Class definition for simple ray tracer.
 //
 // Author: Paulo Pagliosa
 // Last revision: 19/01/2022
 
-#ifndef __GLMesh_h
-#define __GLMesh_h
+#ifndef __RayTracer_h
+#define __RayTracer_h
 
-#include "geometry/TriangleMesh.h"
-#include "graphics/GLBuffer.h"
+#include "graphics/Image.h"
+#include "graphics/Intersection.h"
+#include "graphics/Renderer.h"
 
 namespace cg
 { // begin namespace cg
 
-using GLColorBuffer = GLBuffer<Color>;
-
 
 /////////////////////////////////////////////////////////////////////
 //
-// GLMesh: OpenGL mesh array object class
-// ======
-class GLMesh: public SharedObject
+// RayTracer: simple ray tracer class
+// =========
+class RayTracer: public Renderer
 {
 public:
-  // Constructor.
-  GLMesh(const TriangleMesh& mesh);
+  static constexpr auto minMinWeight = float(0.001);
+  static constexpr auto maxMaxRecursionLevel = uint32_t(20);
 
-  // Destructor.
-  ~GLMesh()
+  RayTracer(SceneBase&, Camera&);
+
+  auto minWeight() const
   {
-    glDeleteBuffers(4, _buffers);
-    glDeleteVertexArrays(1, &_vao);
+    return _minWeight;
   }
 
-  void bind()
+  void setMinWeight(float w)
   {
-    glBindVertexArray(_vao);
+    _minWeight = math::max(w, minMinWeight);
   }
 
-  auto vertexCount() const
+  auto maxRecursionLevel() const
   {
-    return _vertexCount;
+    return _maxRecursionLevel;
   }
 
-  void setColors(GLColorBuffer* colors, int location = 3);
+  void setMaxRecursionLevel(uint32_t rl)
+  {
+    _maxRecursionLevel = math::min(rl, maxMaxRecursionLevel);
+  }
+
+  void render();
+  virtual void renderImage(Image&);
 
 private:
-  GLuint _vao;
-  GLuint _buffers[4];
-  int _vertexCount;
-
-  template <typename T>
-  static auto size(int n)
+  struct VRC
   {
-    return sizeof(T) * n;
+    vec3f u;
+    vec3f v;
+    vec3f n;
+
+  } _vrc;
+  float _minWeight;
+  uint32_t _maxRecursionLevel;
+  uint64_t _numberOfRays;
+  uint64_t _numberOfHits;
+  Ray3f _pixelRay;
+  float _Vh;
+  float _Vw;
+  float _Ih;
+  float _Iw;
+
+  void scan(Image& image);
+  void setPixelRay(float x, float y);
+  Color shoot(float x, float y);
+  bool intersect(const Ray3f&, Intersection&);
+  Color trace(const Ray3f& ray, uint32_t level, float weight);
+  Color shade(const Ray3f&, Intersection&, int, float);
+  bool shadow(const Ray3f&);
+  Color background() const;
+
+  vec3f imageToWindow(float x, float y) const
+  {
+    return _Vw * (x * _Iw - 0.5f) * _vrc.u + _Vh * (y * _Ih - 0.5f) * _vrc.v;
   }
 
-}; // GLMesh
-
-inline GLMesh*
-asGLMesh(SharedObject* object)
-{
-  return dynamic_cast<GLMesh*>(object);
-}
-
-inline GLMesh*
-glMesh(const TriangleMesh* mesh)
-{
-  if (nullptr == mesh)
-    return nullptr;
-
-  auto ma = asGLMesh(mesh->userData);
-
-  if (nullptr == ma)
-  {
-    ma = new GLMesh{*mesh};
-    mesh->userData = ma;
-  }
-  return ma;
-}
+}; // RayTracer
 
 } // end namespace cg
 
-#endif // __GLMesh_h
+#endif // __RayTracer_h

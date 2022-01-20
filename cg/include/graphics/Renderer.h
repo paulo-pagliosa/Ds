@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Orthrus Group.                         |
+//| Copyright (C) 2018, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,89 +23,83 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: GLMesh.h
+// OVERVIEW: Renderer.h
 // ========
-// Class definition for OpenGL mesh array object.
+// Class definition for generic renderer.
 //
 // Author: Paulo Pagliosa
 // Last revision: 19/01/2022
 
-#ifndef __GLMesh_h
-#define __GLMesh_h
+#ifndef __Renderer_h
+#define __Renderer_h
 
-#include "geometry/TriangleMesh.h"
-#include "graphics/GLBuffer.h"
+#include "graphics/Camera.h"
+#include "graphics/SceneBase.h"
 
 namespace cg
 { // begin namespace cg
 
-using GLColorBuffer = GLBuffer<Color>;
+struct Viewport
+{
+  int x;
+  int y;
+  int w;
+  int h;
+
+}; // Viewport
 
 
-/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
 //
-// GLMesh: OpenGL mesh array object class
-// ======
-class GLMesh: public SharedObject
+// Renderer: generic renderer class
+// ========
+class Renderer abstract: public virtual SharedObject
 {
 public:
-  // Constructor.
-  GLMesh(const TriangleMesh& mesh);
+  // Constructors
+  Renderer() = default;
 
-  // Destructor.
-  ~GLMesh()
+  Renderer(SceneBase&, Camera&);
+
+  Renderer(const Renderer& other):
+    Renderer{*other.scene(), *other.camera()}
   {
-    glDeleteBuffers(4, _buffers);
-    glDeleteVertexArrays(1, &_vao);
+    // do nothing
   }
 
-  void bind()
+  SceneBase* scene() const
   {
-    glBindVertexArray(_vao);
+    return _scene;
   }
 
-  auto vertexCount() const
+  Camera* camera() const
   {
-    return _vertexCount;
+    return _camera;
   }
 
-  void setColors(GLColorBuffer* colors, int location = 3);
-
-private:
-  GLuint _vao;
-  GLuint _buffers[4];
-  int _vertexCount;
-
-  template <typename T>
-  static auto size(int n)
+  void imageSize(int& w, int& h) const
   {
-    return sizeof(T) * n;
+    w = _viewport.w;
+    h = _viewport.h;
   }
 
-}; // GLMesh
+  void setScene(SceneBase&);
+  void setCamera(Camera&);
+  void setImageSize(int, int);
 
-inline GLMesh*
-asGLMesh(SharedObject* object)
-{
-  return dynamic_cast<GLMesh*>(object);
-}
+  vec3f project(const vec3f&) const;
+  vec3f unproject(const vec3f&) const;
 
-inline GLMesh*
-glMesh(const TriangleMesh* mesh)
-{
-  if (nullptr == mesh)
-    return nullptr;
+  virtual void update();
+  virtual void render() = 0;
 
-  auto ma = asGLMesh(mesh->userData);
+protected:
+  Reference<SceneBase> _scene;
+  Reference<Camera> _camera;
+  Viewport _viewport{0, 0, 1, 1};
 
-  if (nullptr == ma)
-  {
-    ma = new GLMesh{*mesh};
-    mesh->userData = ma;
-  }
-  return ma;
-}
+}; // Renderer
 
 } // end namespace cg
 
-#endif // __GLMesh_h
+#endif // __Renderer_h

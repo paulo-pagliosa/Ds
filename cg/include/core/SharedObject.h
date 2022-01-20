@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2020 Orthrus Group.                         |
+//| Copyright (C) 2018, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for shared object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 30/05/2020
+// Last revision: 19/01/2022
 
 #ifndef __SharedObject_h
 #define __SharedObject_h
@@ -44,7 +44,8 @@ namespace cg
 class SharedObject;
 
 template <typename T>
-inline constexpr bool isSharedObject()
+inline constexpr bool
+isSharedObject()
 {
   return std::is_assignable_v<SharedObject, T>;
 }
@@ -69,12 +70,12 @@ public:
   }
 
   template <typename T>
-  static T* makeUse(T* ptr)
+  static auto makeUse(const T* ptr)
   {
     ASSERT_SHARED(T, "Pointer to shared object expected");
     if (ptr != nullptr)
       ++ptr->_referenceCount;
-    return ptr;
+    return (T*)ptr;
   }
 
   template <typename T>
@@ -90,7 +91,7 @@ protected:
   SharedObject() = default;
 
 private:
-  int _referenceCount{};
+  mutable int _referenceCount{};
   
 }; // SharedObject
 
@@ -117,7 +118,7 @@ public:
     // do nothing
   }
 
-  Reference(T* ptr):
+  Reference(const T* ptr):
     _ptr{SharedObject::makeUse(ptr)}
   {
     // do nothing
@@ -133,7 +134,7 @@ public:
     return operator =(other._ptr);
   }
 
-  reference& operator =(T* ptr)
+  reference& operator =(const T* ptr)
   {
     SharedObject::release(_ptr);
     _ptr = SharedObject::makeUse(ptr);

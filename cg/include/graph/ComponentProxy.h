@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Orthrus Group.                         |
+//| Copyright (C) 2022 Orthrus Group.                               |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,89 +23,46 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: GLMesh.h
+// OVERVIEW: Component.h
 // ========
-// Class definition for OpenGL mesh array object.
+// Class definition for generic component proxy.
 //
 // Author: Paulo Pagliosa
 // Last revision: 19/01/2022
 
-#ifndef __GLMesh_h
-#define __GLMesh_h
+#ifndef __ComponentProxy_h
+#define __ComponentProxy_h
 
-#include "geometry/TriangleMesh.h"
-#include "graphics/GLBuffer.h"
+#include "graph/Component.h"
 
 namespace cg
 { // begin namespace cg
 
-using GLColorBuffer = GLBuffer<Color>;
+namespace graph
+{ // begin namespace graph
 
 
 /////////////////////////////////////////////////////////////////////
 //
-// GLMesh: OpenGL mesh array object class
-// ======
-class GLMesh: public SharedObject
+// ComponentProxy: generic component proxy class
+// ==============
+template <typename T>
+class ComponentProxy abstract: public Component
 {
-public:
-  // Constructor.
-  GLMesh(const TriangleMesh& mesh);
+protected:
+  Reference<T> _object;
 
-  // Destructor.
-  ~GLMesh()
+  ComponentProxy(const char* const typeName, const T& object):
+    Component{typeName},
+    _object{&object}
   {
-    glDeleteBuffers(4, _buffers);
-    glDeleteVertexArrays(1, &_vao);
+    // do nothing
   }
 
-  void bind()
-  {
-    glBindVertexArray(_vao);
-  }
+}; // ComponentProxy
 
-  auto vertexCount() const
-  {
-    return _vertexCount;
-  }
-
-  void setColors(GLColorBuffer* colors, int location = 3);
-
-private:
-  GLuint _vao;
-  GLuint _buffers[4];
-  int _vertexCount;
-
-  template <typename T>
-  static auto size(int n)
-  {
-    return sizeof(T) * n;
-  }
-
-}; // GLMesh
-
-inline GLMesh*
-asGLMesh(SharedObject* object)
-{
-  return dynamic_cast<GLMesh*>(object);
-}
-
-inline GLMesh*
-glMesh(const TriangleMesh* mesh)
-{
-  if (nullptr == mesh)
-    return nullptr;
-
-  auto ma = asGLMesh(mesh->userData);
-
-  if (nullptr == ma)
-  {
-    ma = new GLMesh{*mesh};
-    mesh->userData = ma;
-  }
-  return ma;
-}
+} // end namepace graph
 
 } // end namespace cg
 
-#endif // __GLMesh_h
+#endif // __ComponentProxy_h

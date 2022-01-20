@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Orthrus Group.                         |
+//| Copyright (C) 2022 Orthrus Group.                               |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,89 +23,66 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: GLMesh.h
+// OVERVIEW: Component.h
 // ========
-// Class definition for OpenGL mesh array object.
+// Class definition for light proxy.
 //
 // Author: Paulo Pagliosa
 // Last revision: 19/01/2022
 
-#ifndef __GLMesh_h
-#define __GLMesh_h
+#ifndef __LightProxy_h
+#define __LightProxy_h
 
-#include "geometry/TriangleMesh.h"
-#include "graphics/GLBuffer.h"
+#include "graph/ComponentProxy.h"
+#include "graphics/Light.h"
 
 namespace cg
 { // begin namespace cg
 
-using GLColorBuffer = GLBuffer<Color>;
+namespace graph
+{ // begin namespace graph
 
 
 /////////////////////////////////////////////////////////////////////
 //
-// GLMesh: OpenGL mesh array object class
-// ======
-class GLMesh: public SharedObject
+// LightProxy: light proxy class
+// ==========
+class LightProxy final: public ComponentProxy<Light>
 {
 public:
-  // Constructor.
-  GLMesh(const TriangleMesh& mesh);
-
-  // Destructor.
-  ~GLMesh()
+  /// Constructs a default light.
+  static auto New()
   {
-    glDeleteBuffers(4, _buffers);
-    glDeleteVertexArrays(1, &_vao);
+    return new LightProxy;
   }
 
-  void bind()
+  static auto New(const Light& light)
   {
-    glBindVertexArray(_vao);
+    return new LightProxy{light};
   }
 
-  auto vertexCount() const
+  Light* light() const
   {
-    return _vertexCount;
+    return _object;
   }
-
-  void setColors(GLColorBuffer* colors, int location = 3);
 
 private:
-  GLuint _vao;
-  GLuint _buffers[4];
-  int _vertexCount;
-
-  template <typename T>
-  static auto size(int n)
+  LightProxy():
+    LightProxy{*new Light}
   {
-    return sizeof(T) * n;
+    // do nothing
   }
 
-}; // GLMesh
-
-inline GLMesh*
-asGLMesh(SharedObject* object)
-{
-  return dynamic_cast<GLMesh*>(object);
-}
-
-inline GLMesh*
-glMesh(const TriangleMesh* mesh)
-{
-  if (nullptr == mesh)
-    return nullptr;
-
-  auto ma = asGLMesh(mesh->userData);
-
-  if (nullptr == ma)
+  LightProxy(const Light& light):
+    ComponentProxy<Light>{"Light", light}
   {
-    ma = new GLMesh{*mesh};
-    mesh->userData = ma;
+    // do nothing
   }
-  return ma;
-}
+
+}; // LightProxy
+
+} // end namepace graph
 
 } // end namespace cg
 
-#endif // __GLMesh_h
+#endif // __LightProxy_h

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Orthrus Group.                         |
+//| Copyright (C) 2018, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,89 +23,70 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: GLMesh.h
+// OVERVIEW: GLRenderer.h
 // ========
-// Class definition for OpenGL mesh array object.
+// Class definition for OpenGL Renderer.
 //
 // Author: Paulo Pagliosa
 // Last revision: 19/01/2022
 
-#ifndef __GLMesh_h
-#define __GLMesh_h
+#ifndef __GLRenderer_h
+#define __GLRenderer_h
 
-#include "geometry/TriangleMesh.h"
-#include "graphics/GLBuffer.h"
+#include "graphics/GLGraphics3.h"
+#include "graphics/GLRendererBase.h"
 
 namespace cg
-{ // begin namespace cg
+{ // begin namespace Graphics
 
-using GLColorBuffer = GLBuffer<Color>;
+#define MAX_LIGHTS 8
 
 
-/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
 //
-// GLMesh: OpenGL mesh array object class
-// ======
-class GLMesh: public SharedObject
+// GLRenderer: OpenGL renderer class
+// ==========
+class GLRenderer: public GLRendererBase, public GLGraphics3
 {
 public:
-  // Constructor.
-  GLMesh(const TriangleMesh& mesh);
+  using RenderFunction = void (*)(GLRenderer&);
 
-  // Destructor.
-  ~GLMesh()
+  /// Constructs a GL renderer object.
+  GLRenderer(SceneBase& scene, Camera& camera);
+
+  /// Destructor.
+  ~GLRenderer();
+
+  void update();
+  void render();
+
+  using GLGraphics3::drawAxes;
+
+  bool drawMesh(const Primitive& primitive) sealed;
+  void renderMaterial(const Material& material) sealed;
+
+  void setRenderFunction(RenderFunction f)
   {
-    glDeleteBuffers(4, _buffers);
-    glDeleteVertexArrays(1, &_vao);
+    _renderFunction = f;
   }
 
-  void bind()
-  {
-    glBindVertexArray(_vao);
-  }
+protected:
+  RenderFunction _renderFunction{};
 
-  auto vertexCount() const
-  {
-    return _vertexCount;
-  }
+  virtual void beginRender();
+  virtual void endRender();
+  virtual void renderActors();
+  virtual void renderLights();
 
-  void setColors(GLColorBuffer* colors, int location = 3);
+  void drawAxes(const mat4f&);
 
 private:
-  GLuint _vao;
-  GLuint _buffers[4];
-  int _vertexCount;
+  struct GLData;
 
-  template <typename T>
-  static auto size(int n)
-  {
-    return sizeof(T) * n;
-  }
+  GLData* _gl;
 
-}; // GLMesh
-
-inline GLMesh*
-asGLMesh(SharedObject* object)
-{
-  return dynamic_cast<GLMesh*>(object);
-}
-
-inline GLMesh*
-glMesh(const TriangleMesh* mesh)
-{
-  if (nullptr == mesh)
-    return nullptr;
-
-  auto ma = asGLMesh(mesh->userData);
-
-  if (nullptr == ma)
-  {
-    ma = new GLMesh{*mesh};
-    mesh->userData = ma;
-  }
-  return ma;
-}
+}; // GLRenderer
 
 } // end namespace cg
 
-#endif // __GLMesh_h
+#endif // __GLRenderer_h

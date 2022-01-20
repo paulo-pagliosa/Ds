@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Orthrus Group.                         |
+//| Copyright (C) 2018, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,89 +23,85 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: GLMesh.h
+// OVERVIEW: Renderer.cpp
 // ========
-// Class definition for OpenGL mesh array object.
+// Source file for generic renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2022
+// Last revision: 18/01/2022
 
-#ifndef __GLMesh_h
-#define __GLMesh_h
-
-#include "geometry/TriangleMesh.h"
-#include "graphics/GLBuffer.h"
+#include "graphics/Renderer.h"
 
 namespace cg
 { // begin namespace cg
 
-using GLColorBuffer = GLBuffer<Color>;
-
 
 /////////////////////////////////////////////////////////////////////
 //
-// GLMesh: OpenGL mesh array object class
-// ======
-class GLMesh: public SharedObject
+// Renderer implementation
+// ========
+Renderer::Renderer(SceneBase& scene, Camera& camera):
+  _scene{&scene},
+  _camera{&camera}
 {
-public:
-  // Constructor.
-  GLMesh(const TriangleMesh& mesh);
-
-  // Destructor.
-  ~GLMesh()
-  {
-    glDeleteBuffers(4, _buffers);
-    glDeleteVertexArrays(1, &_vao);
-  }
-
-  void bind()
-  {
-    glBindVertexArray(_vao);
-  }
-
-  auto vertexCount() const
-  {
-    return _vertexCount;
-  }
-
-  void setColors(GLColorBuffer* colors, int location = 3);
-
-private:
-  GLuint _vao;
-  GLuint _buffers[4];
-  int _vertexCount;
-
-  template <typename T>
-  static auto size(int n)
-  {
-    return sizeof(T) * n;
-  }
-
-}; // GLMesh
-
-inline GLMesh*
-asGLMesh(SharedObject* object)
-{
-  return dynamic_cast<GLMesh*>(object);
+  // do nothing
 }
 
-inline GLMesh*
-glMesh(const TriangleMesh* mesh)
+void
+Renderer::setScene(SceneBase& scene)
 {
-  if (nullptr == mesh)
-    return nullptr;
+  if (&scene != _scene)
+    _scene = &scene;
+}
 
-  auto ma = asGLMesh(mesh->userData);
+void
+Renderer::setCamera(Camera& camera)
+{
+  if (&camera != _camera)
+    _camera = &camera;
+}
 
-  if (nullptr == ma)
-  {
-    ma = new GLMesh{*mesh};
-    mesh->userData = ma;
-  }
-  return ma;
+void
+Renderer::setImageSize(int w, int h)
+{
+  _viewport.w = w;
+  _viewport.h = h;
+  _camera->setAspectRatio((float)(w) / (float)(h));
+}
+
+void
+Renderer::update()
+{
+  // do nothing
+}
+
+inline vec3f
+normalize(const vec4f& p)
+{
+  return vec3f{p} * math::inverse(p.w);
+}
+
+vec3f
+Renderer::project(const vec3f& p) const
+{
+  // TODO: consider viewport origin
+  auto w = normalize(vpMatrix(_camera) * vec4f{p, 1});
+
+  w.x = (w.x * 0.5f + 0.5f) * _viewport.w;
+  w.y = (w.y * 0.5f + 0.5f) * _viewport.h;
+  w.z = (w.z * 0.5f + 0.5f);
+  return w;
+}
+
+vec3f
+Renderer::unproject(const vec3f& w) const
+{
+  // TODO: consider viewport origin
+  vec3f p{w.x / _viewport.w * 2 - 1, w.y / _viewport.h * 2 - 1, w.z * 2 - 1};
+  mat4f m{vpMatrix(_camera)};
+
+  m.invert();
+  return normalize(m * vec4f{p, 1});
 }
 
 } // end namespace cg
-
-#endif // __GLMesh_h

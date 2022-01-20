@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2020 Orthrus Group.                         |
+//| Copyright (C) 2018, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for camera.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/01/2020
+// Last revision: 19/01/2022
 
 #include "graphics/Camera.h"
 #include <algorithm>
@@ -37,9 +37,9 @@
 namespace cg
 { // begin namespace cg
 
-//
-// Auxiliary functions
-//
+namespace
+{
+
 inline mat4f
 lookAt(const vec3f& p, const vec3f& u, const vec3f& v, const vec3f& n)
 {
@@ -70,6 +70,8 @@ transformDirection(vec3f& v, const mat4f& m)
   v = m.transformVector(v).versor();
 }
 
+}
+
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -92,11 +94,11 @@ Camera::error(const std::string& message)
   throw std::runtime_error(message);
 }
 
-Camera::Camera():
+Camera::Camera(float aspect):
   NameableObject{defaultName()},
   _timestamp{0}
 {
-  setDefaultView();
+  setDefaultView(aspect);
 }
 
 inline void
@@ -108,8 +110,8 @@ Camera::updateFocalPoint()
 inline void
 Camera::updateView(const mat3f& r)
 {
-  _matrix = lookAt(_position, r);
-  _inverseMatrix.set(r, _position);
+  _worldToCamera = lookAt(_position, r);
+  _cameraToWorld.set(r, _position);
   _modified = true;
 }
 
@@ -236,7 +238,7 @@ Camera::setDistance(float value)
     error("Distance must be positive");
   if (!math::isEqual(_distance, value))
   {
-    _distance = std::max(value, MIN_DISTANCE);
+    _distance = std::max(value, minDistance);
     updateFocalPoint();
   }
 }
@@ -251,7 +253,7 @@ Camera::setViewAngle(float value)
     error("View angle must be positive");
   if (!math::isEqual(_viewAngle, value))
   {
-    _viewAngle = std::min(std::max(value, MIN_ANGLE), MAX_ANGLE);
+    _viewAngle = std::min(std::max(value, minAngle), maxAngle);
     if (_projectionType == Perspective)
       updateProjection();
   }
@@ -267,7 +269,7 @@ Camera::setHeight(float value)
     error("Height of the view window must be positive");
   if (!math::isEqual(_height, value))
   {
-    _height = std::max(value, MIN_HEIGHT);
+    _height = std::max(value, minHeight);
     if (_projectionType == Parallel)
       updateProjection();
   }
@@ -283,7 +285,7 @@ Camera::setAspectRatio(float value)
     error("Aspect ratio must be positive");
   if (!math::isEqual(_aspectRatio, value))
   {
-    _aspectRatio = std::max(value, MIN_ASPECT);
+    _aspectRatio = std::max(value, minAspect);
     updateProjection();
   }
 }
@@ -298,10 +300,10 @@ Camera::setClippingPlanes(float F, float B)
     error("Clipping plane distance must be positive");
   if (F > B)
     std::swap(F, B);
-  if (F < MIN_FRONT_PLANE)
-    F = MIN_FRONT_PLANE;
-  if ((B - F) < MIN_DEPTH)
-    B = F + MIN_DEPTH;
+  if (F < minFrontPlane)
+    F = minFrontPlane;
+  if ((B - F) < minDepth)
+    B = F + minDepth;
   if (!math::isEqual(_F, F) || !math::isEqual(_B, B))
   {
     _F = F;
@@ -316,7 +318,7 @@ Camera::setNearPlane(float F)
 //|  Set the distance of the near clipping plane        |
 //[]---------------------------------------------------[]
 {
-  if (F > MIN_FRONT_PLANE && _B - F > MIN_DEPTH && !math::isEqual(_F, F))
+  if (F > minFrontPlane && _B - F > minDepth && !math::isEqual(_F, F))
   {
     _F = F;
     updateProjection();
@@ -479,11 +481,11 @@ Camera::translate(float dx, float dy, float dz)
 //[]---------------------------------------------------[]
 {
   if (!math::isZero(dx))
-    _position += vec3f{_inverseMatrix[0]} * dx;
+    _position += vec3f{_cameraToWorld[0]} * dx;
   if (!math::isZero(dy))
-    _position += vec3f{_inverseMatrix[1]} * dy;
+    _position += vec3f{_cameraToWorld[1]} * dy;
   if (!math::isZero(dz))
-    _position += vec3f{_inverseMatrix[2]} * dz;
+    _position += vec3f{_cameraToWorld[2]} * dz;
   updateView();
   updateFocalPoint();
   _modified = true;

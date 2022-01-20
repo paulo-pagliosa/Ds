@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Orthrus Group.                         |
+//| Copyright (C) 2018, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,89 +23,67 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: GLMesh.h
+// OVERVIEW: Assets.cpp
 // ========
-// Class definition for OpenGL mesh array object.
+// Source file for assets.
 //
 // Author: Paulo Pagliosa
 // Last revision: 19/01/2022
 
-#ifndef __GLMesh_h
-#define __GLMesh_h
-
-#include "geometry/TriangleMesh.h"
-#include "graphics/GLBuffer.h"
+#include "graphics/Application.h"
+#include "graphics/Assets.h"
+#include <filesystem>
 
 namespace cg
 { // begin namespace cg
 
-using GLColorBuffer = GLBuffer<Color>;
+namespace fs = std::filesystem;
 
 
 /////////////////////////////////////////////////////////////////////
 //
-// GLMesh: OpenGL mesh array object class
+// Assets implementation
 // ======
-class GLMesh: public SharedObject
+MeshMap Assets::_meshes;
+MaterialMap Assets::_materials;
+
+void
+Assets::initialize()
 {
-public:
-  // Constructor.
-  GLMesh(const TriangleMesh& mesh);
-
-  // Destructor.
-  ~GLMesh()
   {
-    glDeleteBuffers(4, _buffers);
-    glDeleteVertexArrays(1, &_vao);
-  }
+    fs::path mp{Application::assetFilePath("meshes/")};
 
-  void bind()
+    if (fs::is_directory(mp))
+    {
+      auto p = fs::directory_iterator(mp);
+
+      for (auto e = fs::directory_iterator(); p != e; ++p)
+        if (fs::is_regular_file(p->status()))
+          _meshes[p->path().filename().string()] = nullptr;
+    }
+  }
   {
-    glBindVertexArray(_vao);
+    auto dm = Material::defaultMaterial();
+    _materials[dm->name()] = dm;
   }
-
-  auto vertexCount() const
-  {
-    return _vertexCount;
-  }
-
-  void setColors(GLColorBuffer* colors, int location = 3);
-
-private:
-  GLuint _vao;
-  GLuint _buffers[4];
-  int _vertexCount;
-
-  template <typename T>
-  static auto size(int n)
-  {
-    return sizeof(T) * n;
-  }
-
-}; // GLMesh
-
-inline GLMesh*
-asGLMesh(SharedObject* object)
-{
-  return dynamic_cast<GLMesh*>(object);
 }
 
-inline GLMesh*
-glMesh(const TriangleMesh* mesh)
+TriangleMesh*
+Assets::loadMesh(MeshMapIterator mit)
 {
-  if (nullptr == mesh)
+  if (mit == _meshes.end())
     return nullptr;
 
-  auto ma = asGLMesh(mesh->userData);
+  TriangleMesh* m{mit->second};
 
-  if (nullptr == ma)
+  if (m == nullptr)
   {
-    ma = new GLMesh{*mesh};
-    mesh->userData = ma;
+    auto filename = "meshes/" + mit->first;
+
+    m = Application::loadMesh(filename.c_str());
+    _meshes[mit->first] = m;
   }
-  return ma;
+  return m;
 }
 
 } // end namespace cg
-
-#endif // __GLMesh_h

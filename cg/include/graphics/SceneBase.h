@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Orthrus Group.                         |
+//| Copyright (C) 2018, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,89 +23,109 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: GLMesh.h
+// OVERVIEW: SceneBase.h
 // ========
-// Class definition for OpenGL mesh array object.
+// Class definition for scene base.
 //
 // Author: Paulo Pagliosa
 // Last revision: 19/01/2022
 
-#ifndef __GLMesh_h
-#define __GLMesh_h
+#ifndef __SceneBase_h
+#define __SceneBase_h
 
-#include "geometry/TriangleMesh.h"
-#include "graphics/GLBuffer.h"
+#include "core/List.h"
+#include "graphics/Actor.h"
+#include "graphics/Light.h"
 
 namespace cg
 { // begin namespace cg
 
-using GLColorBuffer = GLBuffer<Color>;
-
 
 /////////////////////////////////////////////////////////////////////
 //
-// GLMesh: OpenGL mesh array object class
-// ======
-class GLMesh: public SharedObject
+// SceneBase: scene base class
+// =========
+class SceneBase: public virtual NameableObject
 {
 public:
-  // Constructor.
-  GLMesh(const TriangleMesh& mesh);
+  Color backgroundColor{Color::gray};
+  Color ambientLight{Color::black};
 
-  // Destructor.
-  ~GLMesh()
+  auto actorCount() const
   {
-    glDeleteBuffers(4, _buffers);
-    glDeleteVertexArrays(1, &_vao);
+    return (int)_actors.size();
   }
 
-  void bind()
+  const auto& actors() const
   {
-    glBindVertexArray(_vao);
+    return _actors;
   }
 
-  auto vertexCount() const
+  auto& actors()
   {
-    return _vertexCount;
+    return _actors;
   }
 
-  void setColors(GLColorBuffer* colors, int location = 3);
+  auto lightCount() const
+  {
+    return (int)_lights.size();
+  }
+
+  const auto& lights() const
+  {
+    return _lights;
+  }
+
+  auto& lights()
+  {
+    return _lights;
+  }
+
+  void addActor(Actor* actor)
+  {
+    _actors.add(actor);
+  }
+
+  void removeActor(Actor* actor)
+  {
+    _actors.remove(actor);
+  }
+
+  void removeActors()
+  {
+    _actors.clear();
+  }
+
+  void addLight(Light* light)
+  {
+    _lights.add(light);
+  }
+
+  void removeLight(Light* light)
+  {
+    _lights.remove(light);
+  }
+
+  void removeLights()
+  {
+    _lights.clear();
+  }
+
+  void removeAll()
+  {
+    removeActors();
+    removeLights();
+  }
 
 private:
-  GLuint _vao;
-  GLuint _buffers[4];
-  int _vertexCount;
+  using Actors = List<Reference<Actor>>;
+  using Lights = List<Reference<Light>>;
 
-  template <typename T>
-  static auto size(int n)
-  {
-    return sizeof(T) * n;
-  }
+  Actors _actors;
+  Lights _lights;
 
-}; // GLMesh
-
-inline GLMesh*
-asGLMesh(SharedObject* object)
-{
-  return dynamic_cast<GLMesh*>(object);
-}
-
-inline GLMesh*
-glMesh(const TriangleMesh* mesh)
-{
-  if (nullptr == mesh)
-    return nullptr;
-
-  auto ma = asGLMesh(mesh->userData);
-
-  if (nullptr == ma)
-  {
-    ma = new GLMesh{*mesh};
-    mesh->userData = ma;
-  }
-  return ma;
-}
+}; // SceneBase
 
 } // end namespace cg
 
-#endif // __GLMesh_h
+#endif // __Scene_h

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Orthrus Group.                         |
+//| Copyright (C) 2022 Orthrus Group.                               |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,89 +23,48 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: GLMesh.h
+// OVERVIEW: TriangleMeshShape.h
 // ========
-// Class definition for OpenGL mesh array object.
+// Class definition for triangle mesh shape.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2022
+// Last revision: 18/01/2022
 
-#ifndef __GLMesh_h
-#define __GLMesh_h
+#ifndef __TriangleMeshShape_h
+#define __TriangleMeshShape_h
 
 #include "geometry/TriangleMesh.h"
-#include "graphics/GLBuffer.h"
+#include "graphics/Shape.h"
 
 namespace cg
 { // begin namespace cg
 
-using GLColorBuffer = GLBuffer<Color>;
 
-
-/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
 //
-// GLMesh: OpenGL mesh array object class
-// ======
-class GLMesh: public SharedObject
+// TriangleMeshShape: triangle mesh shape class
+// =================
+class TriangleMeshShape final: public Shape
 {
 public:
-  // Constructor.
-  GLMesh(const TriangleMesh& mesh);
-
-  // Destructor.
-  ~GLMesh()
+  TriangleMeshShape(const TriangleMesh& mesh):
+    _mesh{&mesh},
+    _bounds{mesh.bounds()}
   {
-    glDeleteBuffers(4, _buffers);
-    glDeleteVertexArrays(1, &_vao);
+    // do nothing
   }
 
-  void bind()
-  {
-    glBindVertexArray(_vao);
-  }
-
-  auto vertexCount() const
-  {
-    return _vertexCount;
-  }
-
-  void setColors(GLColorBuffer* colors, int location = 3);
+  const TriangleMesh* mesh() const override;
+  bool canIntersect() const override;
+  vec3f normal(const Intersection&) const override;
+  Bounds3f bounds() const override;
 
 private:
-  GLuint _vao;
-  GLuint _buffers[4];
-  int _vertexCount;
+  Reference<TriangleMesh> _mesh;
+  Bounds3f _bounds;
 
-  template <typename T>
-  static auto size(int n)
-  {
-    return sizeof(T) * n;
-  }
-
-}; // GLMesh
-
-inline GLMesh*
-asGLMesh(SharedObject* object)
-{
-  return dynamic_cast<GLMesh*>(object);
-}
-
-inline GLMesh*
-glMesh(const TriangleMesh* mesh)
-{
-  if (nullptr == mesh)
-    return nullptr;
-
-  auto ma = asGLMesh(mesh->userData);
-
-  if (nullptr == ma)
-  {
-    ma = new GLMesh{*mesh};
-    mesh->userData = ma;
-  }
-  return ma;
-}
+}; // TriangleMeshShape
 
 } // end namespace cg
 
-#endif // __GLMesh_h
+#endif // __TriangleMeshShape_h

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2019 Orthrus Group.                         |
+//| Copyright (C) 2018, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,42 +28,59 @@
 // Class definition for material.
 //
 // Author: Paulo Pagliosa
-// Last revision: 27/05/2019
+// Last revision: 17/01/2022
 
 #ifndef __Material_h
 #define __Material_h
 
-#include "graphics/Image.h"
+#include "core/NameableObject.h"
+#include "graphics/Color.h"
 
 namespace cg
 { // begin namespace cg
-
-using TextureId = void*;
 
 
 /////////////////////////////////////////////////////////////////////
 //
 // Material: material class
 // ========
-class Material
+class Material: public NameableObject
 {
 public:
   Color ambient; // ambient color
   Color diffuse; // diffuse color
   Color spot; // specular spot color
   float shine; // specular spot exponent
-  TextureId texture{}; // TODO
+  Color specular; // specular color
 
-  Material(const Color& color = Color::white):
+  static const Material* defaultMaterial();
+
+  Material(const Color& color):
     ambient{0.2f * color},
     diffuse{0.8f * color},
-    spot{Color::black},
     shine{100}
   {
-    // do nothing
+    spot = specular = Color::white;
+  }
+
+private:
+  Material():
+    Material{Color::white}
+  {
+    setName("Default");
   }
 
 }; // Material
+
+inline const Material*
+Material::defaultMaterial()
+{
+  static const Material* dm{};
+
+  if (dm == nullptr)
+    dm = Material::makeUse(new Material);
+  return dm;
+}
 
 } // end namespace cg
 

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2019 Orthrus Group.                         |
+//| Copyright (C) 2018, 2012 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for light.
 //
 // Author: Paulo Pagliosa
-// Last revision: 02/06/2019
+// Last revision: 19/01/2022
 
 #ifndef __Light_h
 #define __Light_h
@@ -49,15 +49,20 @@ namespace cg
 class Light: public NameableObject
 {
 public:
+  enum Type
+  {
+    Directional,
+    Point,
+    Spot
+  };
+
   enum LightBits
   {
     Linear = 1,
     Squared = 2,
     Falloff = Linear | Squared,
-    Directional = 4,
-    Spot = 8, // TODO
-    Camera = 16,
-    TurnedOn = 32
+    Camera = 4,
+    TurnedOn = 8
   };
 
   using LightFlags = Flags<LightBits>;
@@ -70,14 +75,14 @@ public:
   // Constructor
   Light();
 
-  bool isDirectional() const
+  auto type() const
   {
-    return flags.isSet(Directional);
+    return _type;
   }
 
-  void setDirectional(bool state)
+  void setType(Type type)
   {
-    flags.enable(Directional, state);
+    _type = type;
   }
 
   bool isTurnedOn() const
@@ -85,7 +90,7 @@ public:
     return flags.isSet(TurnedOn);
   }
 
-  void setSwitch(bool state)
+  void turnOn(bool state = true)
   {
     flags.enable(TurnedOn, state);
   }
@@ -96,12 +101,15 @@ public:
   /// Returns the incident vector at a point.
   void lightVector(const vec3f& P, vec3f& L, float& distance) const;
 
+private:
+  Type _type;
+
 }; // Light
 
 inline Color
 Light::lightColor(float distance) const
 {
-  if (flags.test(Light::Directional))
+  if (_type == Light::Directional)
     return color;
   if (flags.test(Light::Falloff) == false)
     return color;
@@ -116,7 +124,7 @@ Light::lightColor(float distance) const
 inline void
 Light::lightVector(const vec3f& P, vec3f& L, float& distance) const
 {
-  if (flags.test(Light::Directional))
+  if (_type == Light::Directional)
   {
     L = direction;
     distance = math::Limits<float>::inf();

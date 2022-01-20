@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2021 Orthrus Group.                         |
+//| Copyright (C) 2014, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Math macros/static functions.
 //
 // Author: Paulo Pagliosa
-// Last revision: 03/04/2021
+// Last revision: 18/01/2022
 
 #ifndef __Real_h
 #define __Real_h
@@ -72,7 +72,7 @@ sign(real x)
 
 /// Returns the greater of x and y.
 template <typename real>
-HOST DEVICE inline real
+HOST DEVICE inline constexpr real
 max(real x, real y)
 {
   return x > y ? x : y;
@@ -80,7 +80,7 @@ max(real x, real y)
 
 /// Returns the smaller of x and y.
 template <typename real>
-HOST DEVICE inline real
+HOST DEVICE inline constexpr real
 min(real x, real y)
 {
   return x < y ? x : y;
@@ -144,16 +144,16 @@ isNull(real x, real y, real z, real w, real eps)
 
 /// Returns 1 / x.
 template <typename real>
-HOST DEVICE constexpr inline
-real inverse(real x)
+HOST DEVICE inline constexpr real
+inverse(real x)
 {
   return static_cast<real>(1 / x);
 }
 
 /// Returns x in radians.
 template <typename real>
-HOST DEVICE constexpr inline
-real toRadians(real x)
+HOST DEVICE inline constexpr real
+toRadians(real x)
 {
   return static_cast<real>(x * M_PI / 180);
 }

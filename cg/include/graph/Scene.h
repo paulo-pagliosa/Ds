@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Orthrus Group.                         |
+//| Copyright (C) 2018, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,89 +23,65 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: GLMesh.h
+// OVERVIEW: Scene.h
 // ========
-// Class definition for OpenGL mesh array object.
+// Class definition for scene.
 //
 // Author: Paulo Pagliosa
 // Last revision: 19/01/2022
 
-#ifndef __GLMesh_h
-#define __GLMesh_h
+#ifndef __Scene_h
+#define __Scene_h
 
-#include "geometry/TriangleMesh.h"
-#include "graphics/GLBuffer.h"
+#include "graph/SceneObject.h"
+#include "graphics/SceneBase.h"
+#include <cassert>
 
 namespace cg
 { // begin namespace cg
 
-using GLColorBuffer = GLBuffer<Color>;
+namespace graph
+{ // begin namespace graph
+
+class SceneObject;
 
 
 /////////////////////////////////////////////////////////////////////
 //
-// GLMesh: OpenGL mesh array object class
-// ======
-class GLMesh: public SharedObject
+// Scene: scene class
+// =====
+class Scene: public SceneNode, public SceneBase
 {
 public:
-  // Constructor.
-  GLMesh(const TriangleMesh& mesh);
-
-  // Destructor.
-  ~GLMesh()
+  /// Constructs an empty scene.
+  static auto New(const char* name = "")
   {
-    glDeleteBuffers(4, _buffers);
-    glDeleteVertexArrays(1, &_vao);
+    assert(name != nullptr);
+    return new Scene{name};
   }
 
-  void bind()
+  /// Returns the root scene object of this scene.
+  const auto root() const
   {
-    glBindVertexArray(_vao);
+    return &_root;
   }
 
-  auto vertexCount() const
+  auto root()
   {
-    return _vertexCount;
+    return &_root;
   }
-
-  void setColors(GLColorBuffer* colors, int location = 3);
 
 private:
-  GLuint _vao;
-  GLuint _buffers[4];
-  int _vertexCount;
+  SceneObject _root;
 
-  template <typename T>
-  static auto size(int n)
-  {
-    return sizeof(T) * n;
-  }
+  Scene(const char* name); // implemented in SceneObject.cpp
 
-}; // GLMesh
+  friend SceneObject;
 
-inline GLMesh*
-asGLMesh(SharedObject* object)
-{
-  return dynamic_cast<GLMesh*>(object);
-}
+}; // Scene
 
-inline GLMesh*
-glMesh(const TriangleMesh* mesh)
-{
-  if (nullptr == mesh)
-    return nullptr;
-
-  auto ma = asGLMesh(mesh->userData);
-
-  if (nullptr == ma)
-  {
-    ma = new GLMesh{*mesh};
-    mesh->userData = ma;
-  }
-  return ma;
-}
+} // end namespace graph
 
 } // end namespace cg
 
-#endif // __GLMesh_h
+#endif // __Scene_h

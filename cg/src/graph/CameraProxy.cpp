@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Orthrus Group.                         |
+//| Copyright (C) 2022 Orthrus Group.                               |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,89 +23,67 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: GLMesh.h
+// OVERVIEW: CameraProxy.cpp
 // ========
-// Class definition for OpenGL mesh array object.
+// Source file for camera proxy.
 //
 // Author: Paulo Pagliosa
 // Last revision: 19/01/2022
 
-#ifndef __GLMesh_h
-#define __GLMesh_h
-
-#include "geometry/TriangleMesh.h"
-#include "graphics/GLBuffer.h"
+#include "graph/CameraProxy.h"
+#include <algorithm>
 
 namespace cg
 { // begin namespace cg
 
-using GLColorBuffer = GLBuffer<Color>;
+namespace graph
+{ // begin namespace graph
 
 
 /////////////////////////////////////////////////////////////////////
 //
-// GLMesh: OpenGL mesh array object class
-// ======
-class GLMesh: public SharedObject
+// CameraProxy implementation
+// ===========
+Camera* CameraProxy::_current;
+
+CameraProxy::~CameraProxy()
 {
-public:
-  // Constructor.
-  GLMesh(const TriangleMesh& mesh);
-
-  // Destructor.
-  ~GLMesh()
-  {
-    glDeleteBuffers(4, _buffers);
-    glDeleteVertexArrays(1, &_vao);
-  }
-
-  void bind()
-  {
-    glBindVertexArray(_vao);
-  }
-
-  auto vertexCount() const
-  {
-    return _vertexCount;
-  }
-
-  void setColors(GLColorBuffer* colors, int location = 3);
-
-private:
-  GLuint _vao;
-  GLuint _buffers[4];
-  int _vertexCount;
-
-  template <typename T>
-  static auto size(int n)
-  {
-    return sizeof(T) * n;
-  }
-
-}; // GLMesh
-
-inline GLMesh*
-asGLMesh(SharedObject* object)
-{
-  return dynamic_cast<GLMesh*>(object);
+  if (camera() == _current)
+    _current = nullptr;
 }
 
-inline GLMesh*
-glMesh(const TriangleMesh* mesh)
+/*
+void
+CameraProxy::updateView() const
 {
-  if (nullptr == mesh)
-    return nullptr;
+  auto t = const_cast<Camera*>(this)->transform();
 
-  auto ma = asGLMesh(mesh->userData);
+  if (!t->changed)
+    return;
 
-  if (nullptr == ma)
-  {
-    ma = new GLMesh{*mesh};
-    mesh->userData = ma;
-  }
-  return ma;
+  const auto& p = t->position();
+  auto r = mat3f{t->rotation()};
+
+  _worldToCameraMatrix = lookAt(p, r[0], r[1], r[2]);
+  _cameraToWorldMatrix.set(r, p);
+  t->changed = false;
 }
+*/
+
+void
+CameraProxy::reset(float aspect)
+{
+  // TODO: check!
+  camera()->setDefaultView(aspect);
+}
+
+void
+CameraProxy::setCurrent(Camera* camera)
+{
+  if (camera != _current)
+    _current = camera;
+}
+
+} // end namespace graph
 
 } // end namespace cg
-
-#endif // __GLMesh_h

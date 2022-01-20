@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Orthrus Group.                         |
+//| Copyright (C) 2018, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,89 +23,58 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: GLMesh.h
+// OVERVIEW: Assets.h
 // ========
-// Class definition for OpenGL mesh array object.
+// Class definition for assets.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2022
+// Last revision: 19/19/2022
 
-#ifndef __GLMesh_h
-#define __GLMesh_h
+#ifndef __Assets_h
+#define __Assets_h
 
-#include "geometry/TriangleMesh.h"
-#include "graphics/GLBuffer.h"
+#include "graphics/Material.h"
+#include "utils/MeshReader.h"
+#include <map>
+#include <string>
 
 namespace cg
 { // begin namespace cg
 
-using GLColorBuffer = GLBuffer<Color>;
+using MeshRef = Reference<TriangleMesh>;
+using MeshMap = std::map<std::string, MeshRef>;
+using MeshMapIterator = typename MeshMap::const_iterator;
+using MaterialRef = Reference<Material>;
+using MaterialMap = std::map<std::string, MaterialRef>;
 
 
 /////////////////////////////////////////////////////////////////////
 //
-// GLMesh: OpenGL mesh array object class
+// Assets: assets class
 // ======
-class GLMesh: public SharedObject
+class Assets
 {
 public:
-  // Constructor.
-  GLMesh(const TriangleMesh& mesh);
+  static void initialize();
 
-  // Destructor.
-  ~GLMesh()
+  static MeshMap& meshes()
   {
-    glDeleteBuffers(4, _buffers);
-    glDeleteVertexArrays(1, &_vao);
+    return _meshes;
   }
 
-  void bind()
-  {
-    glBindVertexArray(_vao);
-  }
+  static TriangleMesh* loadMesh(MeshMapIterator mit);
 
-  auto vertexCount() const
+  static MaterialMap& materials()
   {
-    return _vertexCount;
+    return _materials;
   }
-
-  void setColors(GLColorBuffer* colors, int location = 3);
 
 private:
-  GLuint _vao;
-  GLuint _buffers[4];
-  int _vertexCount;
+  static MeshMap _meshes;
+  static MaterialMap _materials;
 
-  template <typename T>
-  static auto size(int n)
-  {
-    return sizeof(T) * n;
-  }
-
-}; // GLMesh
-
-inline GLMesh*
-asGLMesh(SharedObject* object)
-{
-  return dynamic_cast<GLMesh*>(object);
-}
-
-inline GLMesh*
-glMesh(const TriangleMesh* mesh)
-{
-  if (nullptr == mesh)
-    return nullptr;
-
-  auto ma = asGLMesh(mesh->userData);
-
-  if (nullptr == ma)
-  {
-    ma = new GLMesh{*mesh};
-    mesh->userData = ma;
-  }
-  return ma;
-}
+}; // Assets
 
 } // end namespace cg
 
-#endif // __GLMesh_h
+#endif // __Assets_h

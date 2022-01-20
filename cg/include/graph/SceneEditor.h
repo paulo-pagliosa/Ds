@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Orthrus Group.                         |
+//| Copyright (C) 2019, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,89 +23,87 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: GLMesh.h
+// OVERVIEW: SceneEditor.h
 // ========
-// Class definition for OpenGL mesh array object.
+// Class definition for scene editor.
 //
 // Author: Paulo Pagliosa
 // Last revision: 19/01/2022
 
-#ifndef __GLMesh_h
-#define __GLMesh_h
+#ifndef __SceneEditor_h
+#define __SceneEditor_h
 
-#include "geometry/TriangleMesh.h"
-#include "graphics/GLBuffer.h"
+#include "graph/Scene.h"
+#include "graphics/Camera.h"
+#include "graphics/GLGraphics3.h"
 
 namespace cg
 { // begin namespace cg
 
-using GLColorBuffer = GLBuffer<Color>;
+namespace graph
+{ // begin namespace graph
 
 
 /////////////////////////////////////////////////////////////////////
 //
-// GLMesh: OpenGL mesh array object class
-// ======
-class GLMesh: public SharedObject
+// SceneEditor: scene editor class
+// ===========
+class SceneEditor: public GLGraphics3
 {
 public:
-  // Constructor.
-  GLMesh(const TriangleMesh& mesh);
+  bool showGround{true};
 
-  // Destructor.
-  ~GLMesh()
+  const Camera* camera() const
   {
-    glDeleteBuffers(4, _buffers);
-    glDeleteVertexArrays(1, &_vao);
+    return _camera;
   }
 
-  void bind()
+  Camera* camera()
   {
-    glBindVertexArray(_vao);
+    return _camera;
   }
 
-  auto vertexCount() const
+  void setViewportSize(int width, int height)
   {
-    return _vertexCount;
+    _camera->setAspectRatio((float)width / height);
   }
 
-  void setColors(GLColorBuffer* colors, int location = 3);
+  void setDefaultView(float aspect = 1);
+  void zoom(float s);
+  void rotateView(float ax, float ay);
+  void orbit(float ax, float ay);
+  void pan(const vec3f& d);
+
+  void pan(float dx, float dy, float dz)
+  {
+    pan({dx, dy, dz});
+  }
+
+  auto orbitDistance() const
+  {
+    return _orbitDistance;
+  }
+
+  void newFrame();
 
 private:
-  GLuint _vao;
-  GLuint _buffers[4];
-  int _vertexCount;
+  Reference<Scene> _scene;
+  Reference<Camera> _camera;
+  float _orbitDistance{10};
 
-  template <typename T>
-  static auto size(int n)
+  SceneEditor(Scene& scene):
+    _scene{&scene},
+    _camera{new Camera}
   {
-    return sizeof(T) * n;
+    // do nothing
   }
 
-}; // GLMesh
+  friend class SceneWindow;
 
-inline GLMesh*
-asGLMesh(SharedObject* object)
-{
-  return dynamic_cast<GLMesh*>(object);
-}
+}; // SceneEditor
 
-inline GLMesh*
-glMesh(const TriangleMesh* mesh)
-{
-  if (nullptr == mesh)
-    return nullptr;
-
-  auto ma = asGLMesh(mesh->userData);
-
-  if (nullptr == ma)
-  {
-    ma = new GLMesh{*mesh};
-    mesh->userData = ma;
-  }
-  return ma;
-}
+} // end namespace graph
 
 } // end namespace cg
 
-#endif // __GLMesh_h
+#endif // __SceneEditor_h

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Orthrus Group.                         |
+//| Copyright (C) 2020, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,89 +23,65 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: GLMesh.h
+// OVERVIEW: GLRendererBase.h
 // ========
-// Class definition for OpenGL mesh array object.
+// Class definition for OpenGL renderer base.
 //
 // Author: Paulo Pagliosa
 // Last revision: 19/01/2022
 
-#ifndef __GLMesh_h
-#define __GLMesh_h
+#ifndef __GLRendererBase_h
+#define __GLRendererBase_h
 
+#include "core/Flags.h"
 #include "geometry/TriangleMesh.h"
-#include "graphics/GLBuffer.h"
+#include "graphics/Renderer.h"
+#include "graphics/Material.h"
 
 namespace cg
 { // begin namespace cg
 
-using GLColorBuffer = GLBuffer<Color>;
 
-
-/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
 //
-// GLMesh: OpenGL mesh array object class
-// ======
-class GLMesh: public SharedObject
+// GLRendererBase: OpenGL renderer base class
+// ==============
+class GLRendererBase abstract: public Renderer
 {
 public:
-  // Constructor.
-  GLMesh(const TriangleMesh& mesh);
-
-  // Destructor.
-  ~GLMesh()
+  enum class RenderMode
   {
-    glDeleteBuffers(4, _buffers);
-    glDeleteVertexArrays(1, &_vao);
-  }
+    Wireframe = 1,
+    HiddenLines = 2,
+    Flat = 4,
+    Smooth = 0
+  };
 
-  void bind()
+  enum RenderBits
   {
-    glBindVertexArray(_vao);
-  }
+    UseLights = 1,
+    UseVertexColors = 2,
+    DrawActorBounds = 4,
+    DrawNormals = 8
+  };
 
-  auto vertexCount() const
-  {
-    return _vertexCount;
-  }
+  using RenderFlags = Flags<RenderBits>;
 
-  void setColors(GLColorBuffer* colors, int location = 3);
+  RenderMode renderMode;
+  RenderFlags flags;
+  Color boundsColor;
 
-private:
-  GLuint _vao;
-  GLuint _buffers[4];
-  int _vertexCount;
+  using Renderer::Renderer;
 
-  template <typename T>
-  static auto size(int n)
-  {
-    return sizeof(T) * n;
-  }
+  virtual bool drawMesh(const Primitive& primitive) abstract;
+  virtual void renderMaterial(const Material& material) abstract;
 
-}; // GLMesh
+protected:
+  /// Constructs a GL renderer object.
+  GLRendererBase(SceneBase& scene, Camera& camera);
 
-inline GLMesh*
-asGLMesh(SharedObject* object)
-{
-  return dynamic_cast<GLMesh*>(object);
-}
-
-inline GLMesh*
-glMesh(const TriangleMesh* mesh)
-{
-  if (nullptr == mesh)
-    return nullptr;
-
-  auto ma = asGLMesh(mesh->userData);
-
-  if (nullptr == ma)
-  {
-    ma = new GLMesh{*mesh};
-    mesh->userData = ma;
-  }
-  return ma;
-}
+}; // GLRendererBase
 
 } // end namespace cg
 
-#endif // __GLMesh_h
+#endif // __GLRendererBase_h
