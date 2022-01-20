@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2020 Orthrus Group.                         |
+//| Copyright (C) 2014, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for OpenGL 3D graphics.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/06/2020
+// Last revision: 20/01/2022
 
 #ifndef __GLGraphics3_h
 #define __GLGraphics3_h
@@ -108,10 +108,10 @@ public:
     setLineColor(_meshColor = color);
   }
 
-  void drawMesh(TriangleMesh&, const mat4f&, const mat3f&);
-  void drawMesh(TriangleMesh&, const vec3f&, const mat3f&, const vec3f&);
+  void drawMesh(const TriangleMesh&, const mat4f&, const mat3f&);
+  void drawMesh(const TriangleMesh&, const vec3f&, const mat3f&, const vec3f&);
 
-  void drawMesh(TriangleMesh& mesh)
+  void drawMesh(const TriangleMesh& mesh)
   {
     drawMesh(mesh, mat4f::identity(), mat3f::identity());
   }
@@ -121,7 +121,7 @@ public:
   void drawTriangle(const vec3f&, const vec3f&, const vec3f&);
   void drawCircle(const vec3f&, float, const vec3f&);
   void drawVector(const vec3f&, const vec3f&, float);
-  void drawNormals(TriangleMesh&, const mat4f&, const mat3f&);
+  void drawNormals(const TriangleMesh&, const mat4f&, const mat3f&);
   void drawAxes(const vec3f&, const mat3f&, float = 1.0f);
   void drawBounds(const Bounds3f&, const mat4f&);
   void drawBounds(const Bounds3f&);

@@ -28,7 +28,7 @@
 // Class definition for BVH.
 //
 // Author: Paulo Pagliosa
-// Last revision: 18/01/2022
+// Last revision: 20/01/2022
 
 #ifndef __BVH_h
 #define __BVH_h
@@ -68,6 +68,7 @@ public:
     return (size_t)_nodeCount;
   }
 
+  bool intersect(const Ray3f&) const override;
   bool intersect(const Ray3f&, Intersection&) const override;
   Bounds3f bounds() const override;
 

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022 Orthrus Group.                               |
+//| Copyright (C) 2018, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,49 +23,44 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: Shape.h
+// OVERVIEW: Component.cpp
 // ========
-// Class definition for generic shape.
+// Source file for scene object component.
 //
 // Author: Paulo Pagliosa
 // Last revision: 20/01/2022
 
-#ifndef __Shape_h
-#define __Shape_h
-
-#include "core/Array.h"
-#include "core/SharedObject.h"
-#include "geometry/Bounds3.h"
-#include "graphics/Intersection.h"
+#include "graph/Component.h"
 
 namespace cg
 { // begin namespace cg
 
-class Shape;
-class TriangleMesh;
-
-using ShapeArray = Array<Reference<Shape>>;
-
-std::logic_error bad_invocation(const char*, const char*);
+namespace graph
+{ // begin namespace graph
 
 
 /////////////////////////////////////////////////////////////////////
 //
-// Shape: generic shape class
-// =====
-class Shape abstract: public SharedObject
+// Component implementation
+// =========
+bool
+Component::canBeSiblingOf(Component* component) const
 {
-public:
-  virtual const TriangleMesh* mesh() const;
-  virtual bool canIntersect() const;
-  virtual ShapeArray refine() const;
-  virtual bool intersect(const Ray3f&) const;
-  virtual bool intersect(const Ray3f&, Intersection&) const;
-  virtual vec3f normal(const Intersection&) const;
-  virtual Bounds3f bounds() const;
+  return component != this && component->_typeName != _typeName;
+}
 
-}; // Shape
+void
+Component::onAfterAdded()
+{
+  // do nothing
+}
+
+void
+Component::onBeforeRemoved()
+{
+  // do nothing
+}
+
+} // end namespace graph
 
 } // end namespace cg
-
-#endif // __Shape_h

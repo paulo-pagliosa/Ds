@@ -28,7 +28,7 @@
 // Class definition for generic shape.
 //
 // Author: Paulo Pagliosa
-// Last revision: 18/01/2022
+// Last revision: 20/01/2022
 
 #include "graphics/Shape.h"
 
@@ -64,6 +64,12 @@ Shape::canIntersect() const
 
 ShapeArray
 Shape::refine() const
+{
+  throw bad_invocation("Shape", __func__);
+}
+
+bool
+Shape::intersect(const Ray3f&) const
 {
   throw bad_invocation("Shape", __func__);
 }

@@ -23,49 +23,46 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: Shape.h
+// OVERVIEW: PrimitiveProxy.cpp
 // ========
-// Class definition for generic shape.
+// Source file for primitive proxy.
 //
 // Author: Paulo Pagliosa
 // Last revision: 20/01/2022
 
-#ifndef __Shape_h
-#define __Shape_h
-
-#include "core/Array.h"
-#include "core/SharedObject.h"
-#include "geometry/Bounds3.h"
-#include "graphics/Intersection.h"
+#include "graph/PrimitiveProxy.h"
+#include "graph/Scene.h"
 
 namespace cg
 { // begin namespace cg
 
-class Shape;
-class TriangleMesh;
-
-using ShapeArray = Array<Reference<Shape>>;
-
-std::logic_error bad_invocation(const char*, const char*);
+namespace graph
+{ // begin namespace graph
 
 
 /////////////////////////////////////////////////////////////////////
 //
-// Shape: generic shape class
-// =====
-class Shape abstract: public SharedObject
+// PrimitiveProxy implementation
+// ==============
+void
+PrimitiveProxy::onAfterAdded()
 {
-public:
-  virtual const TriangleMesh* mesh() const;
-  virtual bool canIntersect() const;
-  virtual ShapeArray refine() const;
-  virtual bool intersect(const Ray3f&) const;
-  virtual bool intersect(const Ray3f&, Intersection&) const;
-  virtual vec3f normal(const Intersection&) const;
-  virtual Bounds3f bounds() const;
+  assert(sceneObject() != nullptr);
+  _actor = new Actor{*_object};
+  sceneObject()->scene()->addActor(_actor);
+}
 
-}; // Shape
+void
+PrimitiveProxy::onBeforeRemoved()
+{
+  if (_actor != nullptr)
+  {
+    assert(sceneObject() != nullptr);
+    sceneObject()->scene()->removeActor(_actor);
+    _actor = nullptr;
+  }
+}
+
+} // end namepace graph
 
 } // end namespace cg
-
-#endif // __Shape_h

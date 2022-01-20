@@ -23,49 +23,49 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: Shape.h
+// OVERVIEW: TriangleMeshMapper.cpp
 // ========
-// Class definition for generic shape.
+// Source file for triangle mesh mapper.
 //
 // Author: Paulo Pagliosa
 // Last revision: 20/01/2022
 
-#ifndef __Shape_h
-#define __Shape_h
-
-#include "core/Array.h"
-#include "core/SharedObject.h"
-#include "geometry/Bounds3.h"
-#include "graphics/Intersection.h"
+#include "graphics/GLRenderer.h"
+#include "graphics/TriangleMeshBVH.h"
+#include "graphics/TriangleMeshMapper.h"
 
 namespace cg
 { // begin namespace cg
 
-class Shape;
-class TriangleMesh;
-
-using ShapeArray = Array<Reference<Shape>>;
-
-std::logic_error bad_invocation(const char*, const char*);
-
 
 /////////////////////////////////////////////////////////////////////
 //
-// Shape: generic shape class
-// =====
-class Shape abstract: public SharedObject
+// TriangleMeshMapper implementation
+// ==================
+TriangleMeshMapper::TriangleMeshMapper(const TriangleMesh& mesh):
+  _mesh{&mesh},
+  _shape{new TriangleMeshShape{mesh}}
 {
-public:
-  virtual const TriangleMesh* mesh() const;
-  virtual bool canIntersect() const;
-  virtual ShapeArray refine() const;
-  virtual bool intersect(const Ray3f&) const;
-  virtual bool intersect(const Ray3f&, Intersection&) const;
-  virtual vec3f normal(const Intersection&) const;
-  virtual Bounds3f bounds() const;
+  _primitive = new ShapeInstance{*_shape};
+}
 
-}; // Shape
+void
+TriangleMeshMapper::setMesh(const TriangleMesh& mesh)
+{
+  _shape->setMesh(mesh);
+}
+
+bool
+TriangleMeshMapper::render(GLRenderer& renderer) const
+{
+  renderer.drawMesh(*_primitive);
+  return true;
+}
+
+const Primitive*
+TriangleMeshMapper::primitive() const
+{
+  return _primitive;
+}
 
 } // end namespace cg
-
-#endif // __Shape_h

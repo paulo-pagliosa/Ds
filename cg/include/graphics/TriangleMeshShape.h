@@ -28,7 +28,7 @@
 // Class definition for triangle mesh shape.
 //
 // Author: Paulo Pagliosa
-// Last revision: 18/01/2022
+// Last revision: 20/01/2022
 
 #ifndef __TriangleMeshShape_h
 #define __TriangleMeshShape_h
@@ -58,6 +58,11 @@ public:
   bool canIntersect() const override;
   vec3f normal(const Intersection&) const override;
   Bounds3f bounds() const override;
+
+  void setMesh(const TriangleMesh& mesh)
+  {
+    _mesh = &mesh;
+  }
 
 private:
   Reference<TriangleMesh> _mesh;

@@ -28,7 +28,7 @@
 // Source file for primitive.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2022
+// Last revision: 20/01/2022
 
 #include "graphics/Primitive.h"
 
@@ -69,7 +69,7 @@ Aggregate::normal(const Intersection&) const
   throw bad_invocation("Primitive", __func__);
 }
 
-const Material*
+Material*
 Aggregate::material() const
 {
   throw bad_invocation("Primitive", __func__);
@@ -80,7 +80,7 @@ Aggregate::material() const
 //
 // Primitive implementation
 // =========
-const Material*
+Material*
 Primitive::material() const
 {
   return _material;
@@ -94,9 +94,6 @@ Primitive::setMaterial(Material* m)
 
 void
 Primitive::setTransform(const vec3f& p, const quatf& q, const vec3f& s)
-//[]---------------------------------------------------[]
-//|  Set transform                                      |
-//[]---------------------------------------------------[]
 {
   mat3f r{q};
 
@@ -120,16 +117,38 @@ Primitive::setTransform(const vec3f& p, const quatf& q, const vec3f& s)
 
 /////////////////////////////////////////////////////////////////////
 //
-// PrimitiveInstance implementation
-// =================
+// ShapeInstance implementation
+// =============
 const TriangleMesh*
-PrimitiveInstance::mesh() const
+ShapeInstance::mesh() const
 {
   return _shape->mesh();
 }
 
 bool
-PrimitiveInstance::intersect(const Ray3f& ray, Intersection& hit) const
+ShapeInstance::canIntersect() const
+{
+  return _shape->canIntersect();
+}
+
+PrimitiveArray
+ShapeInstance::refine() const
+{
+  // TODO
+  return PrimitiveArray{0};
+}
+
+bool
+ShapeInstance::intersect(const Ray3f& ray) const
+{
+  Ray3f localRay{ray, _worldToLocal};
+
+  localRay.direction.normalize();
+  return _shape->intersect(localRay);
+}
+
+bool
+ShapeInstance::intersect(const Ray3f& ray, Intersection& hit) const
 {
   Ray3f localRay{ray, _worldToLocal};
   auto d = math::inverse(localRay.direction.length());
@@ -143,13 +162,13 @@ PrimitiveInstance::intersect(const Ray3f& ray, Intersection& hit) const
 }
 
 vec3f
-PrimitiveInstance::normal(const Intersection& hit) const
+ShapeInstance::normal(const Intersection& hit) const
 {
   return _normalMatrix.transform(_shape->normal(hit)).versor();
 }
 
 Bounds3f
-PrimitiveInstance::bounds() const
+ShapeInstance::bounds() const
 {
   return {_shape->bounds(), _localToWorld};
 }

@@ -28,7 +28,7 @@
 // Source file for BVH.
 //
 // Author: Paulo Pagliosa
-// Last revision: 18/01/2022
+// Last revision: 20/01/2022
 
 #include "graphics/BVH.h"
 #include <algorithm>
@@ -202,6 +202,13 @@ BVHBase::makeNode(PrimitiveInfoArray& primitiveInfo,
 BVHBase::~BVHBase()
 {
   delete _root;
+}
+
+bool
+BVHBase::intersect(const Ray3f& ray) const
+{
+  // TODO
+  return false;
 }
 
 bool

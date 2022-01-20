@@ -28,7 +28,7 @@
 // Class definition for scene object component.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2022
+// Last revision: 20/01/2022
 
 #ifndef __SceneObjectComponent_h
 #define __SceneObjectComponent_h
@@ -81,10 +81,10 @@ protected:
     // do nothing
   }
 
-  virtual bool acceptComponent(Component* component) const
-  {
-    return component != this && component->_typeName != _typeName;
-  }
+  virtual bool canBeSiblingOf(Component* component) const;
+
+  virtual void onAfterAdded();
+  virtual void onBeforeRemoved();
 
 private:
   const char* const _typeName;

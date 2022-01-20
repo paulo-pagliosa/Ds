@@ -28,7 +28,7 @@
 // Class definition for OpenGL Renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2022
+// Last revision: 20/01/2022
 
 #ifndef __GLRenderer_h
 #define __GLRenderer_h
@@ -50,6 +50,7 @@ class GLRenderer: public GLRendererBase, public GLGraphics3
 {
 public:
   using RenderFunction = void (*)(GLRenderer&);
+  using GLGraphics3::drawMesh;
 
   /// Constructs a GL renderer object.
   GLRenderer(SceneBase& scene, Camera& camera);

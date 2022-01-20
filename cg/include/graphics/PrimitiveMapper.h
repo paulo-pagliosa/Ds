@@ -28,12 +28,13 @@
 // Class definition for generic primitive mapper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2022
+// Last revision: 20/01/2022
 
 #ifndef __PrimitiveMapper_h
 #define __PrimitiveMapper_h
 
 #include "graphics/Primitive.h"
+#include "graphics/TriangleMeshBVH.h"
 
 namespace cg
 { // begin namespace cg

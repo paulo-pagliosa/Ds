@@ -74,6 +74,8 @@ public:
     return new SceneObject{scene, name};
   }
 
+  ~SceneObject() override;
+
   /// Returns the scene which this scene object belong to.
   auto scene() const
   {

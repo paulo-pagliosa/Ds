@@ -28,7 +28,7 @@
 // Source file for scene editor.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2022
+// Last revision: 20/01/2022
 
 #include "graph/SceneEditor.h"
 
@@ -80,7 +80,6 @@ SceneEditor::newFrame()
 
   glClearColor(bc.r, bc.g, bc.b, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  setView(_camera->position(), vpMatrix(_camera));
 }
 
 } // end namespace graph

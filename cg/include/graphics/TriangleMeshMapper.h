@@ -23,49 +23,50 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: Shape.h
+// OVERVIEW: TriangleMeshMapper.h
 // ========
-// Class definition for generic shape.
+// Class definition for triangle mesh mapper.
 //
 // Author: Paulo Pagliosa
 // Last revision: 20/01/2022
 
-#ifndef __Shape_h
-#define __Shape_h
+#ifndef __TriangleMeshMapper_h
+#define __TriangleMeshMapper_h
 
-#include "core/Array.h"
-#include "core/SharedObject.h"
-#include "geometry/Bounds3.h"
-#include "graphics/Intersection.h"
+#include "graphics/PrimitiveMapper.h"
 
 namespace cg
 { // begin namespace cg
 
-class Shape;
 class TriangleMesh;
-
-using ShapeArray = Array<Reference<Shape>>;
-
-std::logic_error bad_invocation(const char*, const char*);
 
 
 /////////////////////////////////////////////////////////////////////
 //
-// Shape: generic shape class
-// =====
-class Shape abstract: public SharedObject
+// TriangleMeshMapper: triangle mesh mapper class
+// ==================
+class TriangleMeshMapper: public PrimitiveMapper
 {
 public:
-  virtual const TriangleMesh* mesh() const;
-  virtual bool canIntersect() const;
-  virtual ShapeArray refine() const;
-  virtual bool intersect(const Ray3f&) const;
-  virtual bool intersect(const Ray3f&, Intersection&) const;
-  virtual vec3f normal(const Intersection&) const;
-  virtual Bounds3f bounds() const;
+  TriangleMeshMapper(const TriangleMesh& mesh);
 
-}; // Shape
+  bool render(GLRenderer&) const override;
+  const Primitive* primitive() const override;
+
+  const TriangleMesh* mesh() const
+  {
+    return _mesh;
+  }
+
+  void setMesh(const TriangleMesh& mesh);
+
+private:
+  Reference<TriangleMesh> _mesh;
+  Reference<TriangleMeshShape> _shape;
+  Reference<Primitive> _primitive;
+
+}; // TriangleMeshMapper
 
 } // end namespace cg
 
-#endif // __Shape_h
+#endif // __TriangleMeshMapper_h

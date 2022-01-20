@@ -28,9 +28,8 @@
 // Source file for scene object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2022
+// Last revision: 20/01/2022
 
-#include "graph/LightProxy.h"
 #include "graph/Scene.h"
 
 namespace cg
@@ -51,6 +50,12 @@ SceneObject::SceneObject(Scene& scene, const char* name, bool movable):
 {
   (_parent = scene.root())->_children.insert(this);
   addComponent(makeUse(&_transform));
+}
+
+SceneObject::~SceneObject()
+{
+  for (auto& component : _components)
+    component->onBeforeRemoved();
 }
 
 inline void
@@ -117,7 +122,7 @@ inline bool
 SceneObject::canAddComponent(Component* newComponent) const
 {
   for (auto& component : _components)
-    if (!component->acceptComponent(newComponent))
+    if (!component->canBeSiblingOf(newComponent))
       return false;
   return true;
 }
@@ -130,9 +135,8 @@ SceneObject::insertComponent(Component* newComponent)
   if (!canAddComponent(newComponent))
     return Component::release(newComponent), nullptr;
   _components.add(newComponent);
-  if (auto proxy = dynamic_cast<LightProxy*>(newComponent))
-    _scene->addLight(proxy->light());
   newComponent->_sceneObject = this;
+  newComponent->onAfterAdded();
   return newComponent;
 }
 
@@ -142,9 +146,8 @@ SceneObject::removeComponent(const char* typeName)
   for (auto& component : _components)
     if (component->_erasable && component->_typeName == typeName)
     {
+      component->onBeforeRemoved();
       component->_sceneObject = nullptr;
-      if (auto proxy = dynamic_cast<LightProxy*>(component.get()))
-        _scene->removeLight(proxy->light());
       _components.remove(component);
       return true;
     }

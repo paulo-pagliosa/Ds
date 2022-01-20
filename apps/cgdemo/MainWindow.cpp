@@ -7,35 +7,29 @@ MeshMap MainWindow::_defaultMeshes;
 inline void
 MainWindow::buildDefaultMeshes()
 {
-  _defaultMeshes["None"] = nullptr;
   _defaultMeshes["Box"] = GLGraphics3::box();
   _defaultMeshes["Sphere"] = GLGraphics3::sphere();
 }
 
-/*
-inline Primitive*
-makePrimitive(MeshMapIterator mit)
-{
-  return new Primitive(mit->second, mit->first);
-}
-*/
-
 void
 MainWindow::initializeScene()
 {
-  makeLight(Light::Directional);
-  makeCamera();
+  makeCamera("Main Camera");
+  makeLight(Light::Directional, "Directional Light");
+  makeDefaultPrimitive("Box");
 }
 
 void
 MainWindow::beginInitialize()
 {
+  Assets::initialize();
+  buildDefaultMeshes();
+  Assets::meshes().insert(_defaultMeshes.begin(), _defaultMeshes.end());
+
   constexpr auto ffn = "fonts/Roboto-Regular.ttf";
   auto fonts = ImGui::GetIO().Fonts;
 
   fonts->AddFontFromFileTTF(Application::assetFilePath(ffn).c_str(), 16);
-  Assets::initialize();
-  buildDefaultMeshes();
 }
 
 void
@@ -44,65 +38,12 @@ MainWindow::createObjectMenu()
   if (ImGui::BeginMenu("3D Object"))
   {
     if (ImGui::MenuItem("Box"))
-    {
-      // TODO: create a new box
-    }
+      makeDefaultPrimitive("Box");
     if (ImGui::MenuItem("Sphere"))
-    {
-      // TODO: create a new sphere
-    }
+      makeDefaultPrimitive("Sphere");
     ImGui::EndMenu();
   }
 }
-
-/*
-inline void
-MainWindow::inspectShape(Primitive& primitive)
-{
-  char buffer[16];
-
-  snprintf(buffer, 16, "%s", primitive.meshName());
-  ImGui::InputText("Mesh", buffer, 16, ImGuiInputTextFlags_ReadOnly);
-  if (ImGui::BeginDragDropTarget())
-  {
-    if (auto* payload = ImGui::AcceptDragDropPayload("PrimitiveMesh"))
-    {
-      auto mit = *(MeshMapIterator*)payload->Data;
-      primitive.setMesh(mit->second, mit->first);
-    }
-    ImGui::EndDragDropTarget();
-  }
-  ImGui::SameLine();
-  if (ImGui::Button("...###PrimitiveMesh"))
-    ImGui::OpenPopup("PrimitiveMeshPopup");
-  if (ImGui::BeginPopup("PrimitiveMeshPopup"))
-  {
-    auto& meshes = Assets::meshes();
-
-    if (!meshes.empty())
-    {
-      for (auto mit = meshes.begin(); mit != meshes.end(); ++mit)
-        if (ImGui::Selectable(mit->first.c_str()))
-          primitive.setMesh(Assets::loadMesh(mit), mit->first);
-      ImGui::Separator();
-    }
-    for (auto mit = _defaultMeshes.begin(); mit != _defaultMeshes.end(); ++mit)
-      if (ImGui::Selectable(mit->first.c_str()))
-        primitive.setMesh(mit->second, mit->first);
-    ImGui::EndPopup();
-  }
-}
-inline void
-MainWindow::inspectPrimitive(Primitive& primitive)
-{
-  //const auto flag = ImGuiTreeNodeFlags_NoTreePushOnOpen;
-
-  //if (ImGui::TreeNodeEx("Shape", flag))
-    inspectShape(primitive);
-  //if (ImGui::TreeNodeEx("Material", flag))
-    inspectMaterial(primitive.material);
-}
-*/
 
 inline void
 MainWindow::fileMenu()

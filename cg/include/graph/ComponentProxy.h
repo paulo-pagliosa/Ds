@@ -23,12 +23,12 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: Component.h
+// OVERVIEW: ComponentProxy.h
 // ========
 // Class definition for generic component proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2022
+// Last revision: 20/01/2022
 
 #ifndef __ComponentProxy_h
 #define __ComponentProxy_h

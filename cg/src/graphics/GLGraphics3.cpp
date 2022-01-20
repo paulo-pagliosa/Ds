@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2020 Orthrus Group.                         |
+//| Copyright (C) 2014, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for OpenGL 3D graphics.
 //
 // Author: Paulo Pagliosa
-// Last revision: 15/06/2020
+// Last revision: 20/01/2022
 
 #include "geometry/MeshSweeper.h"
 #include "graphics/GLGraphics3.h"
@@ -43,7 +43,7 @@ static const char* vertexShader = STRINGIFY(
   uniform mat3 normalMatrix;
   uniform mat4 vpMatrix;
   uniform vec3 lightPosition;
-  uniform vec4 lightColor = vec4(1, 1, 1, 1);
+  uniform vec4 lightColor = vec4(1);
   uniform vec4 color;
   uniform int flatMode;
 
@@ -217,7 +217,7 @@ GLGraphics3::GLGraphics3():
 }
 
 void
-GLGraphics3::drawMesh(TriangleMesh& mesh, const mat4f& t, const mat3f& n)
+GLGraphics3::drawMesh(const TriangleMesh& mesh, const mat4f& t, const mat3f& n)
 {
   auto cp = GLSL::Program::current();
 
@@ -237,7 +237,7 @@ GLGraphics3::drawMesh(TriangleMesh& mesh, const mat4f& t, const mat3f& n)
 }
 
 void
-GLGraphics3::drawMesh(TriangleMesh& mesh,
+GLGraphics3::drawMesh(const TriangleMesh& mesh,
   const vec3f& p,
   const mat3f& r,
   const vec3f& s)
@@ -369,7 +369,9 @@ GLGraphics3::drawBounds(const Bounds3f& box, const mat4f& m)
 }
 
 void
-GLGraphics3::drawNormals(TriangleMesh& mesh, const mat4f& t, const mat3f& n)
+GLGraphics3::drawNormals(const TriangleMesh& mesh,
+  const mat4f& t,
+  const mat3f& n)
 {
   const auto& data = mesh.data();
 

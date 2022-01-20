@@ -39,9 +39,9 @@ namespace ImGui
 void
 objectNameInput(cg::NameableObject& object)
 {
-  constexpr int bufferSize{128};
-  static cg::NameableObject* current;
+  constexpr auto bufferSize = 64;
   static char buffer[bufferSize];
+  static NameableObject* current;
 
   if (&object != current)
   {
@@ -50,6 +50,16 @@ objectNameInput(cg::NameableObject& object)
   }
   if (InputText("Name", buffer, bufferSize))
     object.setName(buffer);
+}
+
+inline void
+inputText(const char* label, const char* text)
+{
+  constexpr auto bufferSize = 64;
+  char buffer[bufferSize];
+
+  snprintf(buffer, bufferSize, "%s", text);
+  InputText(label, buffer, bufferSize, ImGuiInputTextFlags_ReadOnly);
 }
 
 } // end namespace ImGui
@@ -76,12 +86,34 @@ SceneWindow::makeEmptyObject()
 }
 
 SceneObject*
-SceneWindow::makeLight(Light::Type type)
+SceneWindow::makeCamera(const char* name)
+{
+  static int cameraId;
+  auto object = SceneObject::New(*_scene);
+
+  if (name != nullptr)
+    object->setName(name);
+  else
+    object->setName("Camera %d", ++cameraId);
+
+  auto aspect = (float)width() / (float)height();
+  auto camera = new Camera{aspect};
+
+  object->addComponent(CameraProxy::New(*camera));
+  CameraProxy::setCurrent(camera);
+  return object;
+}
+
+SceneObject*
+SceneWindow::makeLight(Light::Type type, const char* name)
 {
   static int lightId;
   auto object = SceneObject::New(*_scene);
 
-  object->setName("Light %d", ++lightId);
+  if (name != nullptr)
+    object->setName(name);
+  else
+    object->setName("Light %d", ++lightId);
 
   auto light = new Light;
 
@@ -91,18 +123,14 @@ SceneWindow::makeLight(Light::Type type)
 }
 
 SceneObject*
-SceneWindow::makeCamera()
+SceneWindow::makePrimitive(const TriangleMesh& mesh,
+  const std::string& meshName)
 {
-  static int cameraId;
+  static int primitiveId;
   auto object = SceneObject::New(*_scene);
 
-  object->setName("Camera %d", ++cameraId);
-
-  auto aspect = (float)width() / (float)height();
-  auto camera = new Camera{aspect};
-
-  object->addComponent(CameraProxy::New(*camera));
-  CameraProxy::setCurrent(camera);
+  object->setName("Object %d", ++primitiveId);
+  object->addComponent(TriangleMeshProxy::New(mesh, meshName));
   return object;
 }
 
@@ -133,9 +161,8 @@ SceneWindow::initialize()
 
   auto w = width(), h = height();
 
+  _editor->setImageSize(w, h);
   _editor->setDefaultView((float)w / (float)h);
-  _renderer = new GLRenderer{*_scene, *_editor->camera()};
-  _renderer->setImageSize(w, h);
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_POLYGON_OFFSET_FILL);
   glPolygonOffset(1.0f, 1.0f);
@@ -151,6 +178,32 @@ SceneWindow::renderScene()
 }
 
 void
+SceneWindow::drawComponents(const SceneObject& object)
+{
+  for (auto& component : object.components())
+  {
+    // TODO
+    if (auto proxy = dynamic_cast<PrimitiveProxy*>(&*component))
+    {
+      auto p = proxy->mapper()->primitive();
+
+      if (auto mesh = p->mesh())
+        _editor->drawMesh(*mesh, p->localToWorldMatrix(), p->normalMatrix());
+    }
+  }
+}
+
+void
+SceneWindow::drawObject(const SceneObject& object)
+{
+  if (!object.flags.visible)
+    return;
+  drawComponents(object);
+  for (auto& child : object.children())
+    drawObject(*child);
+}
+
+void
 SceneWindow::render()
 {
   if (_viewMode != ViewMode::Editor)
@@ -159,11 +212,16 @@ SceneWindow::render()
     return;
   }
   _editor->newFrame();
-  _renderer->render();
+  _editor->render();
   if (_editor->showGround)
     _editor->drawXZPlane(10, 1);
   if (auto object = _currentNode->as<SceneObject>())
   {
+    _editor->setMeshColor(_selectedWireframeColor);
+    _editor->setPolygonMode(GLGraphics3::LINE);
+    drawObject(*object);
+    _editor->setPolygonMode(GLGraphics3::FILL);
+
     auto t = object->transform();
     _editor->drawAxes(t->position(), mat3f{t->rotation()});
   }
@@ -474,12 +532,44 @@ SceneWindow::inspectLight(LightProxy& proxy)
 void
 SceneWindow::inspectMaterial(Material& material)
 {
-  ImGui::objectNameInput(material);
+  ImGui::inputText("Material", material.name());
   ImGui::colorEdit3("Ambient", material.ambient);
   ImGui::colorEdit3("Diffuse", material.diffuse);
   ImGui::colorEdit3("Spot", material.spot);
   ImGui::DragFloat("Shine", &material.shine, 1, 0, 1000);
   ImGui::colorEdit3("Specular", material.specular);
+}
+
+void
+SceneWindow::inspectPrimitive(TriangleMeshProxy& proxy)
+{
+  ImGui::inputText("Mesh", proxy.meshName());
+  if (ImGui::BeginDragDropTarget())
+  {
+    if (auto* payload = ImGui::AcceptDragDropPayload("TriangleMesh"))
+    {
+      auto mit = *(MeshMapIterator*)payload->Data;
+
+      assert(mit->second != nullptr);
+      proxy.setMesh(*mit->second, mit->first);
+    }
+    ImGui::EndDragDropTarget();
+  }
+  ImGui::SameLine();
+  if (ImGui::Button("...###PrimitiveMesh"))
+    ImGui::OpenPopup("PrimitiveMeshPopup");
+  if (ImGui::BeginPopup("PrimitiveMeshPopup"))
+  {
+    if (auto& meshes = Assets::meshes(); !meshes.empty())
+    {
+      for (auto mit = meshes.begin(); mit != meshes.end(); ++mit)
+        if (ImGui::Selectable(mit->first.c_str()))
+          proxy.setMesh(*Assets::loadMesh(mit), mit->first);
+    }
+    ImGui::EndPopup();
+  }
+  ImGui::Separator();
+  inspectMaterial(*proxy.mapper()->primitive()->material());
 }
 
 void
@@ -542,6 +632,8 @@ SceneWindow::addComponentButton(SceneObject& object)
     if (ImGui::MenuItem("Camera"))
     {
       // TODO
+      if (!object.addComponent(CameraProxy::New()))
+        puts("Unable to add Camera");
     }
     // TODO
     ImGui::EndPopup();
@@ -659,7 +751,7 @@ SceneWindow::onResize(int width, int height)
 bool
 SceneWindow::windowResizeEvent(int width, int height)
 {
-  _renderer->setImageSize(width, height);
+  _editor->setImageSize(width, height);
   return onResize(width, height);
 }
 

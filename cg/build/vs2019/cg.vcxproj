@@ -163,11 +163,13 @@
     <ClInclude Include="..\..\include\graphics\SceneBase.h" />
     <ClInclude Include="..\..\include\graphics\Shape.h" />
     <ClInclude Include="..\..\include\graphics\TriangleMeshBVH.h" />
+    <ClInclude Include="..\..\include\graphics\TriangleMeshMapper.h" />
     <ClInclude Include="..\..\include\graphics\TriangleMeshShape.h" />
     <ClInclude Include="..\..\include\graph\CameraProxy.h" />
     <ClInclude Include="..\..\include\graph\Component.h" />
     <ClInclude Include="..\..\include\graph\ComponentProxy.h" />
     <ClInclude Include="..\..\include\graph\LightProxy.h" />
+    <ClInclude Include="..\..\include\graph\PrimitiveProxy.h" />
     <ClInclude Include="..\..\include\graph\Scene.h" />
     <ClInclude Include="..\..\include\graph\SceneEditor.h" />
     <ClInclude Include="..\..\include\graph\SceneNode.h" />
@@ -193,6 +195,7 @@
     <ClCompile Include="..\..\externals\src\imgui_impl_opengl3.cpp" />
     <ClCompile Include="..\..\externals\src\imgui_tables.cpp" />
     <ClCompile Include="..\..\externals\src\imgui_widgets.cpp" />
+    <ClCompile Include="..\..\include\graphics\TriangleMeshMapper.cpp" />
     <ClCompile Include="..\..\src\core\BlockAllocator.cpp" />
     <ClCompile Include="..\..\src\core\NameableObject.cpp" />
     <ClCompile Include="..\..\src\debug\AnimatedAlgorithm.cpp" />
@@ -225,6 +228,9 @@
     <ClCompile Include="..\..\src\graphics\TriangleMeshBVH.cpp" />
     <ClCompile Include="..\..\src\graphics\TriangleMeshShape.cpp" />
     <ClCompile Include="..\..\src\graph\CameraProxy.cpp" />
+    <ClCompile Include="..\..\src\graph\Component.cpp" />
+    <ClCompile Include="..\..\src\graph\LightProxy.cpp" />
+    <ClCompile Include="..\..\src\graph\PrimitiveProxy.cpp" />
     <ClCompile Include="..\..\src\graph\SceneEditor.cpp" />
     <ClCompile Include="..\..\src\graph\SceneObject.cpp" />
     <ClCompile Include="..\..\src\graph\SceneWindow.cpp" />

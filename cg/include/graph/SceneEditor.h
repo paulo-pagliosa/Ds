@@ -28,14 +28,14 @@
 // Class definition for scene editor.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2022
+// Last revision: 20/01/2022
 
 #ifndef __SceneEditor_h
 #define __SceneEditor_h
 
 #include "graph/Scene.h"
 #include "graphics/Camera.h"
-#include "graphics/GLGraphics3.h"
+#include "graphics/GLRenderer.h"
 
 namespace cg
 { // begin namespace cg
@@ -48,25 +48,10 @@ namespace graph
 //
 // SceneEditor: scene editor class
 // ===========
-class SceneEditor: public GLGraphics3
+class SceneEditor: public GLRenderer
 {
 public:
   bool showGround{true};
-
-  const Camera* camera() const
-  {
-    return _camera;
-  }
-
-  Camera* camera()
-  {
-    return _camera;
-  }
-
-  void setViewportSize(int width, int height)
-  {
-    _camera->setAspectRatio((float)width / height);
-  }
 
   void setDefaultView(float aspect = 1);
   void zoom(float s);
@@ -87,13 +72,10 @@ public:
   void newFrame();
 
 private:
-  Reference<Scene> _scene;
-  Reference<Camera> _camera;
   float _orbitDistance{10};
 
   SceneEditor(Scene& scene):
-    _scene{&scene},
-    _camera{new Camera}
+    GLRenderer{scene, *new Camera}
   {
     // do nothing
   }

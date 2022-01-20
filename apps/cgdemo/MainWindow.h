@@ -29,6 +29,11 @@ private:
 
   static MeshMap _defaultMeshes;
 
+  auto makeDefaultPrimitive(const char* const meshName)
+  {
+    return makePrimitive(*_defaultMeshes[meshName], meshName);
+  }
+
   void beginInitialize() override;
   void initializeScene() override;
   void renderScene() override;
@@ -39,9 +44,6 @@ private:
   void mainMenu();
   void fileMenu();
   void showOptions();
-
-  //void inspectPrimitive(Primitive&);
-  //void inspectShape(Primitive&);
 
   //void drawPrimitive(Primitive&);
   void drawLight(Light&);

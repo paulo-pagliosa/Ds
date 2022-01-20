@@ -23,12 +23,12 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: Component.h
+// OVERVIEW: LightProxy
 // ========
 // Class definition for light proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2022
+// Last revision: 20/01/2022
 
 #ifndef __LightProxy_h
 #define __LightProxy_h
@@ -78,6 +78,9 @@ private:
   {
     // do nothing
   }
+
+  void onAfterAdded() override;
+  void onBeforeRemoved() override;
 
 }; // LightProxy
 

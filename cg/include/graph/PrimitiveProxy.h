@@ -23,49 +23,101 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: Shape.h
+// OVERVIEW: PrimitiveProxy.h
 // ========
-// Class definition for generic shape.
+// Class definition for primitive proxy.
 //
 // Author: Paulo Pagliosa
 // Last revision: 20/01/2022
 
-#ifndef __Shape_h
-#define __Shape_h
+#ifndef __PrimitiveProxy_h
+#define __PrimitiveProxy_h
 
-#include "core/Array.h"
-#include "core/SharedObject.h"
-#include "geometry/Bounds3.h"
-#include "graphics/Intersection.h"
+#include "graph/ComponentProxy.h"
+#include "graphics/Actor.h"
+#include "graphics/TriangleMeshMapper.h"
 
 namespace cg
 { // begin namespace cg
 
-class Shape;
-class TriangleMesh;
-
-using ShapeArray = Array<Reference<Shape>>;
-
-std::logic_error bad_invocation(const char*, const char*);
+namespace graph
+{ // begin namespace graph
 
 
 /////////////////////////////////////////////////////////////////////
 //
-// Shape: generic shape class
-// =====
-class Shape abstract: public SharedObject
+// PrimitiveProxy: primitive proxy class
+// ==============
+class PrimitiveProxy: public ComponentProxy<PrimitiveMapper>
 {
 public:
-  virtual const TriangleMesh* mesh() const;
-  virtual bool canIntersect() const;
-  virtual ShapeArray refine() const;
-  virtual bool intersect(const Ray3f&) const;
-  virtual bool intersect(const Ray3f&, Intersection&) const;
-  virtual vec3f normal(const Intersection&) const;
-  virtual Bounds3f bounds() const;
+  static auto New(const PrimitiveMapper& mapper)
+  {
+    return new PrimitiveProxy{mapper};
+  }
 
-}; // Shape
+  PrimitiveMapper* mapper() const
+  {
+    return _object;
+  }
+
+  Actor* actor() const
+  {
+    return _actor;
+  }
+
+protected:
+  Reference<Actor> _actor;
+
+  PrimitiveProxy(const PrimitiveMapper& mapper):
+    ComponentProxy<PrimitiveMapper>{"Primitive", mapper}
+  {
+    // do nothing
+  }
+
+  void onAfterAdded() override;
+  void onBeforeRemoved() override;
+
+}; // PrimitiveProxy
+
+
+/////////////////////////////////////////////////////////////////////
+//
+// TriangleMeshProxy: triangle mesh proxy class
+// =================
+class TriangleMeshProxy final: public PrimitiveProxy
+{
+public:
+  static auto New(const TriangleMesh& mesh, const std::string& meshName)
+  {
+    return new TriangleMeshProxy{mesh, meshName};
+  }
+
+  const char* const meshName() const
+  {
+    return _meshName.c_str();
+  }
+
+  void setMesh(const TriangleMesh& mesh, const std::string& meshName)
+  {
+    ((TriangleMeshMapper*)PrimitiveProxy::mapper())->setMesh(mesh);
+    _meshName = meshName;
+  }
+
+private:
+  std::string _meshName;
+
+  TriangleMeshProxy(const TriangleMesh& mesh, const std::string& meshName):
+    PrimitiveProxy{*new TriangleMeshMapper{mesh}},
+    _meshName{meshName}
+  {
+    // do nothing
+  }
+
+}; // TriangleMeshProxy
+
+} // end namepace graph
 
 } // end namespace cg
 
-#endif // __Shape_h
+#endif // __PrimitiveProxy_h

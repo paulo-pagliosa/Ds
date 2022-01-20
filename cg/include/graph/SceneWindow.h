@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2022
+// Last revision: 20/01/2022
 
 #ifndef __SceneWindow_h
 #define __SceneWindow_h
@@ -36,8 +36,8 @@
 #include "geometry/Ray.h"
 #include "graph/CameraProxy.h"
 #include "graph/LightProxy.h"
+#include "graph/PrimitiveProxy.h"
 #include "graph/SceneEditor.h"
-#include "graphics/GLRenderer.h"
 #include "graphics/GLWindow.h"
 #include <typeinfo>
 #include <unordered_map>
@@ -69,7 +69,7 @@ public:
 
   GLRenderer* renderer() const
   {
-    return _renderer;
+    return _editor;
   }
 
   template <typename C>
@@ -96,6 +96,7 @@ protected:
   {
     registerInspectFunction<CameraProxy>(inspectCamera);
     registerInspectFunction<LightProxy>(inspectLight);
+    registerInspectFunction<TriangleMeshProxy>(inspectPrimitive);
   }
 
   void initialize() override;
@@ -106,11 +107,12 @@ protected:
   virtual void initializeScene();
   virtual void renderScene();
   virtual void createObjectMenu();
-  virtual bool onResize(int width, int height);
+  virtual bool onResize(int, int);
 
   SceneObject* makeEmptyObject();
-  SceneObject* makeLight(Light::Type type);
-  SceneObject* makeCamera();
+  SceneObject* makeCamera(const char* = nullptr);
+  SceneObject* makeLight(Light::Type, const char* = nullptr);
+  SceneObject* makePrimitive(const TriangleMesh&, const std::string&);
 
   SceneObject* makeObject(const char* name, Component* component)
   {
@@ -122,6 +124,10 @@ protected:
     return object;
   }
 
+  void drawObject(const SceneObject&);
+  void drawComponents(const SceneObject&);
+
+  // TODO
   virtual Component* pickComponent(int, int) const;
 
   SceneEditor* editor() const
@@ -129,8 +135,8 @@ protected:
     return _editor;
   }
 
-  void hierarchyWindow(const char* title = "Hierarchy");
-  void inspectorWindow(const char* title = "Inspector");
+  void hierarchyWindow(const char* = "Hierarchy");
+  void inspectorWindow(const char* = "Inspector");
   void editorView();
   void assetsWindow();
 
@@ -140,6 +146,7 @@ protected:
   static void inspectLight(Light&);
   static void inspectLight(LightProxy&);
   static void inspectMaterial(Material&);
+  static void inspectPrimitive(TriangleMeshProxy&);
 
 private:
   using InspectMap = std::unordered_map<size_t, InspectFunction<>>;
@@ -163,7 +170,6 @@ private:
   Reference<Scene> _scene;
   Reference<SceneEditor> _editor;
   SceneNode* _currentNode{};
-  Reference<GLRenderer> _renderer;
   Flags<MoveBits> _moveFlags{};
   Flags<DragBits> _dragFlags{};
   InspectMap _inspectMap;
@@ -194,7 +200,6 @@ private:
 
   void inspectSceneObject(SceneObject&);
   void inspectScene();
-  void inspectEditor();
   void inspectCurrentNode();
   void inspectComponent(Component&);
 

@@ -28,7 +28,7 @@
 // Class definition for primitive.
 //
 // Author: Paulo Pagliosa
-// Last revision: 18/01/2022
+// Last revision: 20/01/2022
 
 #ifndef __Primitive_h
 #define __Primitive_h
@@ -55,10 +55,11 @@ public:
   virtual const TriangleMesh* mesh() const;
   virtual bool canIntersect() const;
   virtual PrimitiveArray refine() const;
+  virtual bool intersect(const Ray3f&) const abstract;
   virtual bool intersect(const Ray3f&, Intersection&) const abstract;
   virtual vec3f normal(const Intersection&) const abstract;
   virtual Bounds3f bounds() const abstract;
-  virtual const Material* material() const abstract;
+  virtual Material* material() const;
 
   auto& localToWorldMatrix() const
   {
@@ -105,34 +106,46 @@ class Aggregate abstract: public Primitive
 {
 public:
   vec3f normal(const Intersection&) const override;
-  const Material* material() const override;
+  Material* material() const override;
 
 }; // Aggregate
 
 
 /////////////////////////////////////////////////////////////////////
 //
-// PrimitiveInstance: primitive instance class
-// =================
-class PrimitiveInstance: public Primitive
+// ShapeInstance: shape instance class
+// =============
+class ShapeInstance: public Primitive
 {
 public:
-  PrimitiveInstance(Shape& shape, const Primitive& primitive):
-    Primitive{primitive},
+  ShapeInstance(const Shape& shape):
     _shape(&shape)
   {
     // do nothing
   }
 
   const TriangleMesh* mesh() const override;
+  bool canIntersect() const override;
+  PrimitiveArray refine() const override;
+  bool intersect(const Ray3f&) const override;
   bool intersect(const Ray3f&, Intersection&) const override;
   vec3f normal(const Intersection&) const override;
   Bounds3f bounds() const override;
 
+  const Shape* shape() const
+  {
+    return _shape;
+  }
+
+  void setShape(const Shape& shape)
+  {
+    _shape = &shape;
+  }
+
 private:
   Reference<Shape> _shape;
 
-}; // PrimitiveInstance
+}; // ShapeInstance
 
 } // end namespace cg
 
