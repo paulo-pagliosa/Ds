@@ -161,7 +161,7 @@ SceneWindow::render()
   _editor->newFrame();
   _renderer->render();
   if (_editor->showGround)
-    _renderer->drawXZPlane(10, 1);
+    _editor->drawXZPlane(10, 1);
   if (auto object = _currentNode->as<SceneObject>())
   {
     auto t = object->transform();
