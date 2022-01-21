@@ -28,7 +28,7 @@
 // Class definition for generic primitive mapper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 20/01/2022
+// Last revision: 21/01/2022
 
 #ifndef __PrimitiveMapper_h
 #define __PrimitiveMapper_h
@@ -52,7 +52,7 @@ public:
   virtual void update();
 
   virtual bool render(GLRenderer&) const;
-  virtual const Primitive* primitive() const;
+  virtual Primitive* primitive() const;
 
 }; // PrimitiveMapper
 

@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 20/01/2022
+// Last revision: 21/01/2022
 
 #ifndef __SceneWindow_h
 #define __SceneWindow_h
@@ -107,14 +107,15 @@ protected:
   virtual void initializeScene();
   virtual void renderScene();
   virtual void createObjectMenu();
+  virtual Component* addComponentMenu();
   virtual bool onResize(int, int);
 
-  SceneObject* makeEmptyObject();
-  SceneObject* makeCamera(const char* = nullptr);
-  SceneObject* makeLight(Light::Type, const char* = nullptr);
-  SceneObject* makePrimitive(const TriangleMesh&, const std::string&);
+  SceneObject* createEmptyObject();
+  SceneObject* createCameraObject(const char* = nullptr);
+  SceneObject* createLightObject(Light::Type, const char* = nullptr);
+  SceneObject* createPrimitiveObject(const TriangleMesh&, const std::string&);
 
-  SceneObject* makeObject(const char* name, Component* component)
+  SceneObject* createObject(const char* name, Component* component)
   {
     assert(name != nullptr);
     
@@ -122,6 +123,13 @@ protected:
 
     object->addComponent(component);
     return object;
+  }
+
+  Material* createMaterial();
+
+  auto makePrimitive(const TriangleMesh& mesh, const std::string& meshName)
+  {
+    return TriangleMeshProxy::New(mesh, meshName);
   }
 
   void drawObject(const SceneObject&);
@@ -139,6 +147,8 @@ protected:
   void inspectorWindow(const char* = "Inspector");
   void editorView();
   void assetsWindow();
+
+  void showErrorMessage(const char*) const;
 
   static void inspectTransform(Transform&);
   static void inspectCamera(Camera&);

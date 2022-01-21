@@ -28,7 +28,7 @@
 // Class definition for triangle mesh mapper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 20/01/2022
+// Last revision: 21/01/2022
 
 #ifndef __TriangleMeshMapper_h
 #define __TriangleMeshMapper_h
@@ -51,7 +51,7 @@ public:
   TriangleMeshMapper(const TriangleMesh& mesh);
 
   bool render(GLRenderer&) const override;
-  const Primitive* primitive() const override;
+  Primitive* primitive() const override;
 
   const TriangleMesh* mesh() const
   {

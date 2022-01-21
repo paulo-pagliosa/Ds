@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2022
+// Last revision: 21/01/2022
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
@@ -76,7 +76,7 @@ namespace graph
 // SceneWindow implementation
 // ===========
 SceneObject*
-SceneWindow::makeEmptyObject()
+SceneWindow::createEmptyObject()
 {
   static int objectId;
   auto object = SceneObject::New(*_scene);
@@ -86,7 +86,7 @@ SceneWindow::makeEmptyObject()
 }
 
 SceneObject*
-SceneWindow::makeCamera(const char* name)
+SceneWindow::createCameraObject(const char* name)
 {
   static int cameraId;
   auto object = SceneObject::New(*_scene);
@@ -105,7 +105,7 @@ SceneWindow::makeCamera(const char* name)
 }
 
 SceneObject*
-SceneWindow::makeLight(Light::Type type, const char* name)
+SceneWindow::createLightObject(Light::Type type, const char* name)
 {
   static int lightId;
   auto object = SceneObject::New(*_scene);
@@ -123,15 +123,26 @@ SceneWindow::makeLight(Light::Type type, const char* name)
 }
 
 SceneObject*
-SceneWindow::makePrimitive(const TriangleMesh& mesh,
+SceneWindow::createPrimitiveObject(const TriangleMesh& mesh,
   const std::string& meshName)
 {
   static int primitiveId;
   auto object = SceneObject::New(*_scene);
 
   object->setName("Object %d", ++primitiveId);
-  object->addComponent(TriangleMeshProxy::New(mesh, meshName));
+  object->addComponent(makePrimitive(mesh, meshName));
   return object;
+}
+
+Material*
+SceneWindow::createMaterial()
+{
+  static int materialId;
+  auto material = new Material{Color::white};
+
+  material->setName("Material %d", ++materialId);
+  Assets::materials().emplace(material->name(), material);
+  return material;
 }
 
 void
@@ -228,6 +239,22 @@ SceneWindow::render()
 }
 
 void
+SceneWindow::showErrorMessage(const char* message) const
+{
+  ImGui::OpenPopup("Error Message");
+  if (ImGui::BeginPopupModal("Error Message",
+    nullptr,
+    ImGuiWindowFlags_AlwaysAutoResize))
+  {
+    ImGui::Text(message);
+    ImGui::Separator();
+    if (ImGui::Button("Close"))
+      ImGui::CloseCurrentPopup();
+    ImGui::EndPopup();
+  }
+}
+
+void
 SceneWindow::createObjectMenu()
 {
   // do nothing
@@ -241,21 +268,21 @@ SceneWindow::createObjectButton()
   if (ImGui::BeginPopup("CreateObjectPopup"))
   {
     if (ImGui::MenuItem("Empty Object"))
-      makeEmptyObject();
+      createEmptyObject();
     ImGui::Separator();
     createObjectMenu();
     if (ImGui::BeginMenu("Light"))
     {
       if (ImGui::MenuItem("Directional Light"))
-        makeLight(Light::Directional);
+        createLightObject(Light::Directional);
       if (ImGui::MenuItem("Point Light"))
-        makeLight(Light::Point);
+        createLightObject(Light::Point);
       if (ImGui::MenuItem("Spotlight"))
-        makeLight(Light::Spot);
+        createLightObject(Light::Spot);
       ImGui::EndMenu();
     }
     if (ImGui::MenuItem("Camera"))
-      makeCamera();
+      createCameraObject();
     ImGui::EndPopup();
   }
 }
@@ -532,7 +559,6 @@ SceneWindow::inspectLight(LightProxy& proxy)
 void
 SceneWindow::inspectMaterial(Material& material)
 {
-  ImGui::inputText("Material", material.name());
   ImGui::colorEdit3("Ambient", material.ambient);
   ImGui::colorEdit3("Diffuse", material.diffuse);
   ImGui::colorEdit3("Spot", material.spot);
@@ -569,7 +595,23 @@ SceneWindow::inspectPrimitive(TriangleMeshProxy& proxy)
     ImGui::EndPopup();
   }
   ImGui::Separator();
-  inspectMaterial(*proxy.mapper()->primitive()->material());
+
+  auto primitive = proxy.mapper()->primitive();
+  auto material = primitive->material();
+
+  ImGui::inputText("Material", material->name());
+  if (ImGui::BeginDragDropTarget())
+  {
+    if (auto* payload = ImGui::AcceptDragDropPayload("Material"))
+    {
+      auto mit = *(MaterialMapIterator*)payload->Data;
+
+      assert(mit->second != nullptr);
+      primitive->setMaterial(material = mit->second);
+    }
+    ImGui::EndDragDropTarget();
+  }
+  inspectMaterial(*material);
 }
 
 void
@@ -618,26 +660,33 @@ SceneWindow::editorView()
   ImGui::End();
 }
 
+Component*
+SceneWindow::addComponentMenu()
+{
+  return nullptr;
+}
+
 inline void
 SceneWindow::addComponentButton(SceneObject& object)
 {
+  auto ok = true;
+
   if (ImGui::Button("Add Component"))
     ImGui::OpenPopup("AddComponentPopup");
   if (ImGui::BeginPopup("AddComponentPopup"))
   {
+    auto component = addComponentMenu();
+
     if (ImGui::MenuItem("Light"))
-    {
-      // TODO
-    }
+      component = LightProxy::New();
     if (ImGui::MenuItem("Camera"))
-    {
-      // TODO
-      if (!object.addComponent(CameraProxy::New()))
-        puts("Unable to add Camera");
-    }
-    // TODO
+      component = CameraProxy::New();
+    if (nullptr != component)
+      ok = object.addComponent(component);
     ImGui::EndPopup();
   }
+  if (!ok)
+    showErrorMessage("Unable to add this component type.");
 }
 
 inline void

@@ -28,7 +28,7 @@
 // Class definition for assets.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/19/2022
+// Last revision: 21/19/2022
 
 #ifndef __Assets_h
 #define __Assets_h
@@ -46,6 +46,7 @@ using MeshMap = std::map<std::string, MeshRef>;
 using MeshMapIterator = typename MeshMap::const_iterator;
 using MaterialRef = Reference<Material>;
 using MaterialMap = std::map<std::string, MaterialRef>;
+using MaterialMapIterator = typename MaterialMap::const_iterator;
 
 
 /////////////////////////////////////////////////////////////////////

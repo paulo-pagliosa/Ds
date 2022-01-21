@@ -28,7 +28,7 @@
 // Source file for triangle mesh mapper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 20/01/2022
+// Last revision: 21/01/2022
 
 #include "graphics/GLRenderer.h"
 #include "graphics/TriangleMeshBVH.h"
@@ -62,7 +62,7 @@ TriangleMeshMapper::render(GLRenderer& renderer) const
   return true;
 }
 
-const Primitive*
+Primitive*
 TriangleMeshMapper::primitive() const
 {
   return _primitive;

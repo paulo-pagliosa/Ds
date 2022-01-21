@@ -1,3 +1,35 @@
+//[]---------------------------------------------------------------[]
+//|                                                                 |
+//| Copyright (C) 2022 Orthrus Group.                               |
+//|                                                                 |
+//| This software is provided 'as-is', without any express or       |
+//| implied warranty. In no event will the authors be held liable   |
+//| for any damages arising from the use of this software.          |
+//|                                                                 |
+//| Permission is granted to anyone to use this software for any    |
+//| purpose, including commercial applications, and to alter it and |
+//| redistribute it freely, subject to the following restrictions:  |
+//|                                                                 |
+//| 1. The origin of this software must not be misrepresented; you  |
+//| must not claim that you wrote the original software. If you use |
+//| this software in a product, an acknowledgment in the product    |
+//| documentation would be appreciated but is not required.         |
+//|                                                                 |
+//| 2. Altered source versions must be plainly marked as such, and  |
+//| must not be misrepresented as being the original software.      |
+//|                                                                 |
+//| 3. This notice may not be removed or altered from any source    |
+//| distribution.                                                   |
+//|                                                                 |
+//[]---------------------------------------------------------------[]
+//
+// OVERVIEW: MainWindow.cpp
+// ========
+// Source file for cg demo main window.
+//
+// Author: Paulo Pagliosa
+// Last revision: 21/01/2022
+
 #include "geometry/MeshSweeper.h"
 #include "graphics/Application.h"
 #include "MainWindow.h"
@@ -9,14 +41,15 @@ MainWindow::buildDefaultMeshes()
 {
   _defaultMeshes["Box"] = GLGraphics3::box();
   _defaultMeshes["Sphere"] = GLGraphics3::sphere();
+  _defaultMeshes["Cone"] = GLGraphics3::cone();
 }
 
 void
 MainWindow::initializeScene()
 {
-  makeCamera("Main Camera");
-  makeLight(Light::Directional, "Directional Light");
-  makeDefaultPrimitive("Box");
+  createCameraObject("Main Camera");
+  createLightObject(Light::Directional, "Directional Light");
+  createDefaultPrimitiveObject("Box");
 }
 
 void
@@ -38,37 +71,74 @@ MainWindow::createObjectMenu()
   if (ImGui::BeginMenu("3D Object"))
   {
     if (ImGui::MenuItem("Box"))
-      makeDefaultPrimitive("Box");
+      createDefaultPrimitiveObject("Box");
     if (ImGui::MenuItem("Sphere"))
-      makeDefaultPrimitive("Sphere");
+      createDefaultPrimitiveObject("Sphere");
+    if (ImGui::MenuItem("Cone"))
+      createDefaultPrimitiveObject("Cone");
     ImGui::EndMenu();
   }
+}
+
+Component*
+MainWindow::addComponentMenu()
+{
+  Component* component = nullptr;
+
+  if (ImGui::BeginMenu("3D Object"))
+  {
+    if (ImGui::MenuItem("Box"))
+      component = makeDefaultPrimitive("Box");
+    if (ImGui::MenuItem("Sphere"))
+      component = makeDefaultPrimitive("Sphere");
+    if (ImGui::MenuItem("Cone"))
+      component = makeDefaultPrimitive("Cone");
+    ImGui::EndMenu();
+  }
+  return component;
 }
 
 inline void
 MainWindow::fileMenu()
 {
-  if (ImGui::MenuItem("New"))
+  if (ImGui::BeginMenu("File"))
   {
-    // TODO
+    if (ImGui::MenuItem("New"))
+    {
+      // TODO
+    }
+    if (ImGui::MenuItem("Open...", "Ctrl+O"))
+    {
+      // TODO
+    }
+    ImGui::Separator();
+    if (ImGui::MenuItem("Save", "Ctrl+S"))
+    {
+      // TODO
+    }
+    if (ImGui::MenuItem("Save As..."))
+    {
+      // TODO
+    }
+    ImGui::Separator();
+    if (ImGui::MenuItem("Exit", "Alt+F4"))
+    {
+      shutdown();
+    }
+    ImGui::EndMenu();
   }
-  if (ImGui::MenuItem("Open...", "Ctrl+O"))
+}
+
+inline void
+MainWindow::createMenu()
+{
+  if (ImGui::BeginMenu("Create"))
   {
-    // TODO
-  }
-  ImGui::Separator();
-  if (ImGui::MenuItem("Save", "Ctrl+S"))
-  {
-    // TODO
-  }
-  if (ImGui::MenuItem("Save As..."))
-  {
-    // TODO
-  }
-  ImGui::Separator();
-  if (ImGui::MenuItem("Exit", "Alt+F4"))
-  {
-    shutdown();
+    if (ImGui::MenuItem("Material"))
+      createMaterial();
+    ImGui::Separator();
+    createObjectMenu();
+    ImGui::EndMenu();
   }
 }
 
@@ -105,11 +175,8 @@ MainWindow::mainMenu()
 {
   if (ImGui::BeginMainMenuBar())
   {
-    if (ImGui::BeginMenu("File"))
-    {
-      fileMenu();
-      ImGui::EndMenu();
-    }
+    fileMenu();
+    createMenu();
     if (ImGui::BeginMenu("View"))
     {
       if (CameraProxy::current() == nullptr)

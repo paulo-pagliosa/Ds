@@ -28,7 +28,7 @@
 // Source file for generic primitive mapper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2022
+// Last revision: 21/01/2022
 
 #include "graphics/PrimitiveMapper.h"
 
@@ -52,7 +52,7 @@ PrimitiveMapper::render(GLRenderer&) const
   return false;
 }
 
-const Primitive*
+Primitive*
 PrimitiveMapper::primitive() const
 {
   return nullptr;
