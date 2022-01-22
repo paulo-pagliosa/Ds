@@ -28,7 +28,7 @@
 // Source file for OpenGL 3D graphics.
 //
 // Author: Paulo Pagliosa
-// Last revision: 20/01/2022
+// Last revision: 22/01/2022
 
 #include "geometry/MeshSweeper.h"
 #include "graphics/GLGraphics3.h"
@@ -271,6 +271,21 @@ GLGraphics3::drawTriangle(const vec3f& p1, const vec3f& p2, const vec3f& p3)
   points[1] = _vpMatrix.transform(vec4f{p2, 1});
   points[2] = _vpMatrix.transform(vec4f{p3, 1});
   Base::drawTriangle(points);
+}
+
+void
+GLGraphics3::drawQuad(const vec3f& p1,
+  const vec3f& p2,
+  const vec3f& p3,
+  const vec3f& p4)
+{
+  vec4f points[4];
+
+  points[0] = _vpMatrix.transform(vec4f{p1, 1});
+  points[1] = _vpMatrix.transform(vec4f{p2, 1});
+  points[2] = _vpMatrix.transform(vec4f{p3, 1});
+  points[3] = _vpMatrix.transform(vec4f{p4, 1});
+  Base::drawQuad(points);
 }
 
 inline void

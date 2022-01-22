@@ -28,7 +28,7 @@
 // Class definition for primitive.
 //
 // Author: Paulo Pagliosa
-// Last revision: 20/01/2022
+// Last revision: 22/01/2022
 
 #ifndef __Primitive_h
 #define __Primitive_h
@@ -62,34 +62,43 @@ public:
   virtual Bounds3f bounds() const abstract;
   virtual Material* material() const;
 
-  const auto& localToWorldMatrix() const
+  auto& localToWorldMatrix() const
   {
     return _localToWorld;
   }
 
-  const auto& worldToLocalMatrix() const
+  auto& worldToLocalMatrix() const
   {
     return _worldToLocal;
   }
 
-  auto normalMatrix() const
+  auto& normalMatrix() const
   {
-    return mat3f{_worldToLocal}.transposed();
+    return  _normalMatrix;
   }
+ 
+  void setMaterial(Material*);
+  void setTransform(const vec3f&, const quatf&, const vec3f&);
 
-  virtual void setMaterial(Material*);
-  virtual void setTransform(const vec3f&, const quatf&, const vec3f&);
+  void setTransform(const mat4f& l2w, const mat4f& w2l)
+  {
+    _localToWorld = l2w;
+    _worldToLocal = w2l;
+    _normalMatrix = w2l.transposed();
+  }
 
 protected:
   Reference<Material> _material;
   mat4f _localToWorld;
   mat4f _worldToLocal;
+  mat3f _normalMatrix;
 
   // Protected constructor
   Primitive():
     _material{Material::defaultMaterial()},
-    _localToWorld{1.0f},
-    _worldToLocal{1.0f}
+    _localToWorld{1},
+    _worldToLocal{1},
+    _normalMatrix{1}
   {
     // do nothing
   }

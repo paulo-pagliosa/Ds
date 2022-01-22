@@ -28,7 +28,7 @@
 // Class definition for scene object transform.
 //
 // Author: Paulo Pagliosa
-// Last revision: 21/01/2022
+// Last revision: 22/01/2022
 
 #ifndef __Transform_h
 #define __Transform_h
@@ -92,7 +92,7 @@ public:
   void setLocalPosition(const vec3f& position)
   {
     _localPosition = position;
-    update();
+    updateSceneObject();
   }
 
   /// Sets the local rotation of this transform.
@@ -100,7 +100,7 @@ public:
   {
     _localEulerAngles = rotation.eulerAngles();
     _localRotation = rotation;
-    update();
+    updateSceneObject();
   }
 
   /// Sets the local Euler angles (in degrees) of this transform.
@@ -108,14 +108,14 @@ public:
   {
     _localEulerAngles = angles;
     _localRotation = quatf::eulerAngles(angles);
-    update();
+    updateSceneObject();
   }
 
   /// Sets the local scale of this transform.
   void setLocalScale(const vec3f& scale)
   {
     _localScale = scale;
-    update();
+    updateSceneObject();
   }
 
   /// Sets the local uniform scale of this transform.
@@ -251,8 +251,10 @@ private:
   mat4f inverseLocalMatrix() const;
 
   void rotate(const quatf&, Space = Space::Local);
-  void update();
   void parentChanged();
+  void updateSceneObject();
+
+  void update() override;
 
   friend class SceneObject;
 

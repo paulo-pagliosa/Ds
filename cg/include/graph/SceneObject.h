@@ -158,6 +158,8 @@ public:
     return _movable;
   }
 
+  void transformChanged();
+
 private:
   using SceneObjects = ObjectList<SceneObject>;
   using Components = List<Reference<Component>>;

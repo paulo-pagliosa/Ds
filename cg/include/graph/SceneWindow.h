@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 21/01/2022
+// Last revision: 22/01/2022
 
 #ifndef __SceneWindow_h
 #define __SceneWindow_h
@@ -132,7 +132,7 @@ protected:
     return TriangleMeshProxy::New(mesh, meshName);
   }
 
-  void drawObject(const SceneObject&);
+  void drawSelectedObject(const SceneObject&);
   void drawComponents(const SceneObject&);
 
   virtual SceneObject* pickObject(int, int) const;

@@ -28,7 +28,7 @@
 // Source file for scene object transform.
 //
 // Author: Paulo Pagliosa
-// Last revision: 21/01/2022
+// Last revision: 22/01/2022
 
 #include "graph/SceneObject.h"
 
@@ -162,7 +162,13 @@ Transform::reset()
   _localPosition = _localEulerAngles = vec3f{0};
   _localRotation = quatf::identity();
   _localScale = vec3f{1};
-  update();
+  updateSceneObject();
+}
+
+void
+Transform::updateSceneObject()
+{
+  sceneObject()->transformChanged();
 }
 
 void
@@ -174,8 +180,6 @@ Transform::update()
   _position = translation(_localToWorld);
   _rotation = p->_rotation * _localRotation;
   _worldToLocal = inverseLocalMatrix() * p->_worldToLocal;
-  for (auto& child : sceneObject()->children())
-    child.transform()->update();
   changed = true;
 }
 

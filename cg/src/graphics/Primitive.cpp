@@ -28,7 +28,7 @@
 // Source file for primitive.
 //
 // Author: Paulo Pagliosa
-// Last revision: 21/01/2022
+// Last revision: 22/01/2022
 
 #include "graphics/Primitive.h"
 

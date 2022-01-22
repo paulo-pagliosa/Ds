@@ -28,7 +28,7 @@
 // Source file for scene editor.
 //
 // Author: Paulo Pagliosa
-// Last revision: 20/01/2022
+// Last revision: 22/01/2022
 
 #include "graph/SceneEditor.h"
 
@@ -80,6 +80,50 @@ SceneEditor::newFrame()
 
   glClearColor(bc.r, bc.g, bc.b, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void
+SceneEditor::drawCamera(const Camera& camera)
+{
+  float F, B;
+
+  camera.clippingPlanes(F, B);
+  B = math::min(F + 10.0f, B);
+
+  auto h2 = camera.windowHeight() / 2;
+  auto w2 = h2 * camera.aspectRatio();
+  // front (projection) plane
+  auto p1 = camera.cameraToWorld({-w2, -h2, -F});
+  auto p2 = camera.cameraToWorld({+w2, -h2, -F});
+  auto p3 = camera.cameraToWorld({+w2, +h2, -F});
+  auto p4 = camera.cameraToWorld({-w2, +h2, -F});
+
+  if (camera.projectionType() == Camera::Perspective)
+  {
+    const auto z = B / F;
+
+    h2 *= z;
+    w2 *= z;
+  }
+
+  // back plane
+  auto p5 = camera.cameraToWorld({-w2, -h2, -B});
+  auto p6 = camera.cameraToWorld({+w2, -h2, -B});
+  auto p7 = camera.cameraToWorld({+w2, +h2, -B});
+  auto p8 = camera.cameraToWorld({-w2, +h2, -B});
+
+  setPolygonMode(LINE);
+  setQuadColor(_cameraLineColor);
+  drawQuad(p1, p2, p3, p4);
+  drawQuad(p6, p5, p8, p7);
+  drawQuad(p5, p1, p4, p8);
+  drawQuad(p2, p6, p7, p3);
+}
+
+void
+SceneEditor::drawLight(const Light& light)
+{
+
 }
 
 } // end namespace graph

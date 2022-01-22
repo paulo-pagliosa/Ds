@@ -28,10 +28,11 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 21/01/2022
+// Last revision: 22/01/2022
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
+#include <cassert>
 
 namespace ImGui
 { // begin namespace ImGui
@@ -191,27 +192,42 @@ SceneWindow::renderScene()
 void
 SceneWindow::drawComponents(const SceneObject& object)
 {
-  for (auto& component : object.components())
+  const auto& components = object.components();
+
+  // Iterate the object components skipping its transform
+  for (auto end = components.end(), cit = ++components.begin(); cit != end;)
   {
-    // TODO
-    if (auto proxy = dynamic_cast<PrimitiveProxy*>(&*component))
+    Component* c{*cit++};
+
+    if (auto proxy = dynamic_cast<CameraProxy*>(c))
+      _editor->drawCamera(*proxy->camera());
+    else if (auto proxy = dynamic_cast<PrimitiveProxy*>(c))
     {
       auto p = proxy->mapper()->primitive();
 
+      assert(p != nullptr);
       if (auto mesh = p->tesselate())
+      {
+        _editor->setPolygonMode(GLGraphics3::LINE);
+        _editor->setMeshColor(_selectedWireframeColor);
         _editor->drawMesh(*mesh, p->localToWorldMatrix(), p->normalMatrix());
+      }
     }
   }
+
+  auto t = object.transform();
+
+  _editor->drawAxes(t->position(), mat3f{t->rotation()});
 }
 
 void
-SceneWindow::drawObject(const SceneObject& object)
+SceneWindow::drawSelectedObject(const SceneObject& object)
 {
   if (!object.flags.visible)
     return;
   drawComponents(object);
   for (auto& child : object.children())
-    drawObject(*child);
+    drawSelectedObject(*child);
 }
 
 void
@@ -227,15 +243,7 @@ SceneWindow::render()
   if (_editor->showGround)
     _editor->drawXZPlane(10, 1);
   if (auto object = _currentNode->as<SceneObject>())
-  {
-    _editor->setMeshColor(_selectedWireframeColor);
-    _editor->setPolygonMode(GLGraphics3::LINE);
-    drawObject(*object);
-    _editor->setPolygonMode(GLGraphics3::FILL);
-
-    auto t = object->transform();
-    _editor->drawAxes(t->position(), mat3f{t->rotation()});
-  }
+    drawSelectedObject(*object);
 }
 
 void
@@ -548,6 +556,38 @@ SceneWindow::inspectLight(Light& light)
   }
   light.setType(lt);
   ImGui::colorEdit3("Color", light.color);
+  if (lt == Light::Type::Directional)
+    return;
+
+  static const char* falloff[]{"Constant", "Linear", "Quadratic"};
+  auto f = light.falloff;
+
+  if (ImGui::BeginCombo("Falloff", falloff[f]))
+  {
+    for (auto i = 0; i < IM_ARRAYSIZE(falloff); ++i)
+    {
+      bool selected = f == i;
+
+      if (ImGui::Selectable(falloff[i], selected))
+        f = (Light::Falloff)i;
+      if (selected)
+        ImGui::SetItemDefaultFocus();
+    }
+    ImGui::EndCombo();
+  }
+  light.falloff = f;
+  if (lt == Light::Type::Point)
+    return;
+
+  auto angle = light.spotAngle();
+
+  if (ImGui::SliderFloat("Spot Angle",
+    &angle,
+    Light::minSpotAngle,
+    Light::maxSpotAngle,
+    "%.0f deg",
+    1.0f))
+    light.setSpotAngle(angle);
 }
 
 void

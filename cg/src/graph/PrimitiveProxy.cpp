@@ -28,7 +28,7 @@
 // Source file for primitive proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 20/01/2022
+// Last revision: 22/01/2022
 
 #include "graph/PrimitiveProxy.h"
 #include "graph/Scene.h"
@@ -45,7 +45,7 @@ namespace graph
 // PrimitiveProxy implementation
 // ==============
 void
-PrimitiveProxy::onAfterAdded()
+PrimitiveProxy::afterAdded()
 {
   assert(sceneObject() != nullptr);
   _actor = new Actor{*_object};
@@ -53,13 +53,23 @@ PrimitiveProxy::onAfterAdded()
 }
 
 void
-PrimitiveProxy::onBeforeRemoved()
+PrimitiveProxy::beforeRemoved()
 {
   if (_actor != nullptr)
   {
     assert(sceneObject() != nullptr);
     sceneObject()->scene()->removeActor(_actor);
     _actor = nullptr;
+  }
+}
+
+void
+PrimitiveProxy::update()
+{
+  if (auto p = _object->primitive())
+  {
+    auto t = transform();
+    p->setTransform(t->localToWorldMatrix(), t->worldToLocalMatrix());
   }
 }
 

@@ -48,7 +48,10 @@ void
 MainWindow::initializeScene()
 {
   createCameraObject("Main Camera");
-  createLightObject(Light::Directional, "Directional Light");
+
+  auto s = createLightObject(Light::Directional, "Directional Light");
+
+  s->transform()->setLocalEulerAngles({50, -30, 0});
   createDefaultPrimitiveObject("Box");
 }
 

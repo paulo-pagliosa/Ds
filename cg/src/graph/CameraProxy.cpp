@@ -28,10 +28,10 @@
 // Source file for camera proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2022
+// Last revision: 22/01/2022
 
 #include "graph/CameraProxy.h"
-#include <algorithm>
+#include "graph/Transform.h"
 
 namespace cg
 { // begin namespace cg
@@ -52,29 +52,17 @@ CameraProxy::~CameraProxy()
     _current = nullptr;
 }
 
-/*
 void
-CameraProxy::updateView() const
+CameraProxy::update()
 {
-  auto t = const_cast<Camera*>(this)->transform();
-
-  if (!t->changed)
-    return;
-
-  const auto& p = t->position();
-  auto r = mat3f{t->rotation()};
-
-  _worldToCameraMatrix = lookAt(p, r[0], r[1], r[2]);
-  _cameraToWorldMatrix.set(r, p);
-  t->changed = false;
+  if (auto t = transform(); t->changed)
+    _object->setTransform(t->position(), t->rotation());
 }
-*/
 
 void
 CameraProxy::reset(float aspect)
 {
-  // TODO: check!
-  camera()->setDefaultView(aspect);
+  _object->setDefaultView(aspect);
 }
 
 void

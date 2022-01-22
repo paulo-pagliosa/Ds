@@ -28,7 +28,7 @@
 // Source file for scene object component.
 //
 // Author: Paulo Pagliosa
-// Last revision: 20/01/2022
+// Last revision: 22/01/2022
 
 #include "graph/Component.h"
 
@@ -50,13 +50,19 @@ Component::canBeSiblingOf(Component* component) const
 }
 
 void
-Component::onAfterAdded()
+Component::afterAdded()
 {
   // do nothing
 }
 
 void
-Component::onBeforeRemoved()
+Component::beforeRemoved()
+{
+  // do nothing
+}
+
+void
+Component::update()
 {
   // do nothing
 }

@@ -28,7 +28,7 @@
 // Source file for light proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 20/01/2022
+// Last revision: 22/01/2022
 
 #include "graph/LightProxy.h"
 #include "graph/Scene.h"
@@ -45,17 +45,23 @@ namespace graph
 // LightProxy implementation
 // ==========
 void
-LightProxy::onAfterAdded()
+LightProxy::afterAdded()
 {
   assert(sceneObject() != nullptr);
   sceneObject()->scene()->addLight(_object);
 }
 
 void
-LightProxy::onBeforeRemoved()
+LightProxy::beforeRemoved()
 {
   assert(sceneObject() != nullptr);
   sceneObject()->scene()->removeLight(_object);
+}
+
+void
+LightProxy::update()
+{
+
 }
 
 } // end namepace graph

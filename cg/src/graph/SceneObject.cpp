@@ -28,7 +28,7 @@
 // Source file for scene object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 20/01/2022
+// Last revision: 21/01/2022
 
 #include "graph/Scene.h"
 
@@ -55,7 +55,7 @@ SceneObject::SceneObject(Scene& scene, const char* name, bool movable):
 SceneObject::~SceneObject()
 {
   for (auto& component : _components)
-    component->onBeforeRemoved();
+    component->beforeRemoved();
 }
 
 inline void
@@ -136,7 +136,8 @@ SceneObject::insertComponent(Component* newComponent)
     return Component::release(newComponent), nullptr;
   _components.add(newComponent);
   newComponent->_sceneObject = this;
-  newComponent->onAfterAdded();
+  newComponent->afterAdded();
+  newComponent->update();
   return newComponent;
 }
 
@@ -146,7 +147,7 @@ SceneObject::removeComponent(const char* typeName)
   for (auto& component : _components)
     if (component->_erasable && component->_typeName == typeName)
     {
-      component->onBeforeRemoved();
+      component->beforeRemoved();
       component->_sceneObject = nullptr;
       _components.remove(component);
       return true;
@@ -161,6 +162,16 @@ SceneObject::findComponent(const char* typeName) const
     if (component->_typeName == typeName)
       return component;
   return nullptr;
+}
+
+void
+SceneObject::transformChanged()
+{
+  for (auto& component : _components)
+    component->update();
+  _transform.changed = false;
+  for (auto& child : children())
+    child.transformChanged();
 }
 
 namespace

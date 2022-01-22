@@ -28,7 +28,7 @@
 // Class definition for scene editor.
 //
 // Author: Paulo Pagliosa
-// Last revision: 20/01/2022
+// Last revision: 22/01/2022
 
 #ifndef __SceneEditor_h
 #define __SceneEditor_h
@@ -71,8 +71,13 @@ public:
 
   void newFrame();
 
+  void drawCamera(const Camera&);
+  void drawLight(const Light&);
+
 private:
   float _orbitDistance{10};
+  Color _lightGismoColor{Color::yellow};
+  Color _cameraLineColor{Color::yellow};
 
   SceneEditor(Scene& scene):
     GLRenderer{scene, *new Camera}

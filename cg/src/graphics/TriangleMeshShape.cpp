@@ -28,7 +28,7 @@
 // Class definition for triangle mesh shape.
 //
 // Author: Paulo Pagliosa
-// Last revision: 21/01/2022
+// Last revision: 22/01/2022
 
 #include "graphics/TriangleMeshShape.h"
 #include <cassert>
@@ -59,7 +59,7 @@ public:
     printf("**Building BVH for mesh %d\n", mesh.id);
 #endif // _DEBUG
 
-    TriangleMeshBVH* bvh = new TriangleMeshBVH{mesh};
+    auto* bvh = new TriangleMeshBVH{mesh};
 
     _map.emplace(mesh.id, bvh);
     return bvh;

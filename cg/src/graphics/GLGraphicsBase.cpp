@@ -28,7 +28,7 @@
 // Source file for OpenGL graphics base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 16/02/2019
+// Last revision: 22/01/2012
 
 #include "graphics/GLGraphicsBase.h"
 
@@ -65,6 +65,16 @@ static const char* triangleVertexShader =
   "color = vertexColors[gl_VertexID];\n"
   "}";
 
+static const char* quadVertexShader =
+  "#version 400\n"
+  "uniform vec4 p[4];\n"
+  "uniform vec4 vertexColors[4];\n"
+  "out vec4 color;\n"
+  "void main() {\n"
+  "gl_Position = p[gl_VertexID];\n"
+  "color = vertexColors[gl_VertexID];\n"
+  "}";
+
 static const char* fragmentShader =
   "#version 400\n"
   "in vec4 color;\n"
@@ -82,6 +92,7 @@ GLGraphicsBase::GLGraphicsBase():
   _pointDrawer{"Point Drawer"},
   _lineDrawer{"Line Drawer"},
   _triangleDrawer{"Triangle Drawer"},
+  _quadDrawer{"Quad Drawer"},
   _polygonMode{FILL}
 {
   using namespace GLSL;
@@ -98,12 +109,16 @@ GLGraphicsBase::GLGraphicsBase():
   _triangleDrawer.use();
   _trianglePointsLoc = _triangleDrawer.uniformLocation("p[0]");
   _triangleColorsLoc = _triangleDrawer.uniformLocation("vertexColors[0]");
+  _quadDrawer.setShaders(quadVertexShader, fragmentShader);
+  _quadDrawer.use();
+  _quadPointsLoc = _quadDrawer.uniformLocation("p[0]");
+  _quadColorsLoc = _quadDrawer.uniformLocation("vertexColors[0]");
   glGenVertexArrays(1, &_vao);
   setPointSize(4);
   setPointColor(Color::red);
   setLineWidth(1);
   setLineColor(Color::white);
-  setTriangleColor(Color::white);
+  setQuadColor(Color::white);
 }
 
 GLGraphicsBase::~GLGraphicsBase()
@@ -152,9 +167,25 @@ GLGraphicsBase::drawTriangle(const vec4f* points)
 
   _triangleDrawer.use();
   glBindVertexArray(_vao);
-  glUniform4fv(_triangleColorsLoc, 3, (float*)_triangleColors);
+  glUniform4fv(_triangleColorsLoc, 3, (float*)_polygonColors);
   glUniform4fv(_trianglePointsLoc, 3, (float*)points);
   glDrawArrays(GL_TRIANGLES, 0, 3);
+  Program::setCurrent(cp);
+}
+
+void
+GLGraphicsBase::drawQuad(const vec4f* points)
+{
+  using namespace GLSL;
+
+  auto cp = Program::current();
+
+  _quadDrawer.use();
+  glBindVertexArray(_vao);
+  glUniform4fv(_quadColorsLoc, 4, (float*)_polygonColors);
+  glUniform4fv(_quadPointsLoc, 4, (float*)points);
+
+  glDrawArrays(_polygonMode == LINE ? GL_LINE_LOOP : GL_TRIANGLE_FAN, 0, 4);
   Program::setCurrent(cp);
 }
 

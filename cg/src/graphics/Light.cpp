@@ -28,7 +28,7 @@
 // Source file for light.
 //
 // Author: Paulo Pagliosa
-// Last revision: 18/01/2022
+// Last revision: 22/01/2022
 
 #include "graphics/Light.h"
 
@@ -48,13 +48,21 @@ nextLightId()
 }
 
 Light::Light():
-  _type{Light::Directional},
-  flags{Light::TurnedOn},
+  _type{Type::Directional},
+  flags{LightBits::TurnedOn},
   color{Color::white},
-  position{vec3f::null()}
+  position{vec3f::null()},
+  falloff{Falloff::Constant},
+  _spotAngle{60}
 {
   setName("Light %d", nextLightId());
   direction = quatf::eulerAngles(50, -30, 0) * vec3f{0, 0, -1};
+}
+
+void
+Light::setSpotAngle(float value)
+{
+  _spotAngle = math::clamp(value, minSpotAngle, maxSpotAngle);
 }
 
 } // end namespace cg

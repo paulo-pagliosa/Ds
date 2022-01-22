@@ -28,7 +28,7 @@
 // Source file for camera.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2022
+// Last revision: 22/01/2022
 
 #include "graphics/Camera.h"
 #include <algorithm>
@@ -149,8 +149,7 @@ Camera::setEulerAngles(const vec3f& value)
 {
   if (value != _eulerAngles)
   {
-    _eulerAngles = value;
-    _rotation = quatf::eulerAngles(value);
+    _rotation = quatf::eulerAngles(_eulerAngles = value);
     updateView();
     updateFocalPoint();
   }
@@ -161,11 +160,19 @@ Camera::setRotation(const quatf& value)
 {
   if (value != _rotation)
   {
-    _rotation = value;
-    _eulerAngles = _rotation.eulerAngles();
+    _eulerAngles = (_rotation = value).eulerAngles();
     updateView();
     updateFocalPoint();
   }
+}
+
+void
+Camera::setTransform(const vec3f& p, const quatf& q)
+{
+  _position = p;
+  _eulerAngles = (_rotation = q).eulerAngles();
+  updateView();
+  updateFocalPoint();
 }
 
 void
