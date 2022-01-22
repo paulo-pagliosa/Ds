@@ -52,28 +52,29 @@ using PrimitiveArray = Array<Reference<Primitive>>;
 class Primitive abstract: public SharedObject
 {
 public:
-  virtual const TriangleMesh* mesh() const;
+  virtual const TriangleMesh* tesselate() const;
   virtual bool canIntersect() const;
-  virtual PrimitiveArray refine() const;
-  virtual bool intersect(const Ray3f&) const abstract;
-  virtual bool intersect(const Ray3f&, Intersection&) const abstract;
+
+  bool intersect(const Ray3f&) const;
+  bool intersect(const Ray3f&, Intersection&) const;
+
   virtual vec3f normal(const Intersection&) const abstract;
   virtual Bounds3f bounds() const abstract;
   virtual Material* material() const;
 
-  auto& localToWorldMatrix() const
+  const auto& localToWorldMatrix() const
   {
     return _localToWorld;
   }
 
-  auto& worldToLocalMatrix() const
+  const auto& worldToLocalMatrix() const
   {
     return _worldToLocal;
   }
 
-  auto& normalMatrix() const
+  auto normalMatrix() const
   {
-    return _normalMatrix;
+    return mat3f{_worldToLocal}.transposed();
   }
 
   virtual void setMaterial(Material*);
@@ -83,17 +84,19 @@ protected:
   Reference<Material> _material;
   mat4f _localToWorld;
   mat4f _worldToLocal;
-  mat3f _normalMatrix;
 
   // Protected constructor
   Primitive():
     _material{Material::defaultMaterial()},
     _localToWorld{1.0f},
-    _worldToLocal{1.0f},
-    _normalMatrix{1.0f}
+    _worldToLocal{1.0f}
   {
     // do nothing
   }
+
+protected:
+  virtual bool localIntersect(const Ray3f&) const;
+  virtual bool localIntersect(const Ray3f&, Intersection&) const;
 
 }; // Primitive
 
@@ -124,11 +127,8 @@ public:
     // do nothing
   }
 
-  const TriangleMesh* mesh() const override;
+  const TriangleMesh* tesselate() const override;
   bool canIntersect() const override;
-  PrimitiveArray refine() const override;
-  bool intersect(const Ray3f&) const override;
-  bool intersect(const Ray3f&, Intersection&) const override;
   vec3f normal(const Intersection&) const override;
   Bounds3f bounds() const override;
 
@@ -144,6 +144,9 @@ public:
 
 private:
   Reference<Shape> _shape;
+
+  bool localIntersect(const Ray3f&) const override;
+  bool localIntersect(const Ray3f&, Intersection&) const override;
 
 }; // ShapeInstance
 

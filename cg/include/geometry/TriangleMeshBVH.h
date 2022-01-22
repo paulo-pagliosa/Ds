@@ -28,13 +28,13 @@
 // Class definition for triangle mesh BVH.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/01/2022
+// Last revision: 21/01/2022
 
 #ifndef __TriangleMeshBVH_h
 #define __TriangleMeshBVH_h
 
-#include "graphics/BVH.h"
-#include "graphics/TriangleMeshShape.h"
+#include "geometry/BVH.h"
+#include "geometry/TriangleMesh.h"
 
 namespace cg
 { // begin namespace cg
@@ -47,18 +47,21 @@ namespace cg
 class TriangleMeshBVH final: public BVHBase
 {
 public:
-  TriangleMeshBVH(const Primitive&, uint32_t = 64);
+  TriangleMeshBVH(const TriangleMesh&, uint32_t = 64);
 
-  const TriangleMesh* mesh() const override;
+  const TriangleMesh* mesh() const
+  {
+    return _mesh;
+  }
 
 private:
-  Reference<Primitive> _primitive;
   Reference<TriangleMesh> _mesh;
 
-  void intersectPrimitives(uint32_t first,
-    uint32_t count,
-    const Ray3f& ray,
-    Intersection& hit) const override;
+  bool intersectLeaf(uint32_t, uint32_t, const Ray3f&) const override;
+  void intersectLeaf(uint32_t,
+    uint32_t,
+    const Ray3f&,
+    Intersection&) const override;
 
 }; // TriangleMeshBVH
 

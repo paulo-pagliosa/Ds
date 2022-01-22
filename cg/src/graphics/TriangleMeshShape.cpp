@@ -28,10 +28,11 @@
 // Class definition for triangle mesh shape.
 //
 // Author: Paulo Pagliosa
-// Last revision: 18/01/2022
+// Last revision: 21/01/2022
 
 #include "graphics/TriangleMeshShape.h"
 #include <cassert>
+#include <map>
 
 namespace cg
 { // begin namespace cg
@@ -41,22 +42,77 @@ namespace cg
 //
 // TriangleMeshShape implementation
 // =================
-const TriangleMesh*
-TriangleMeshShape::mesh() const
+class BVHBuilder
 {
-  return _mesh;
+public:
+  using BVHMap = std::map<uint32_t, Reference<TriangleMeshBVH>>;
+
+  TriangleMeshBVH* bvh(const TriangleMesh& mesh)
+  {
+    {
+      auto mit = _map.find(mesh.id);
+
+      if (_map.end() != mit)
+        return mit->second;
+    }
+#ifdef _DEBUG
+    printf("**Building BVH for mesh %d\n", mesh.id);
+#endif // _DEBUG
+
+    TriangleMeshBVH* bvh = new TriangleMeshBVH{mesh};
+
+    _map.emplace(mesh.id, bvh);
+    return bvh;
+  }
+
+private:
+  BVHMap _map;
+
+}; // BVHBuilder
+
+static BVHBuilder _bvhBuilder;
+
+TriangleMeshShape::TriangleMeshShape(const TriangleMesh& mesh):
+  _bvh{_bvhBuilder.bvh(mesh)}
+{
+  // do nothing
+}
+
+void
+TriangleMeshShape::setMesh(const TriangleMesh& mesh)
+{
+  if (this->mesh() != &mesh)
+    _bvh = _bvhBuilder.bvh(mesh);
+}
+
+const TriangleMesh*
+TriangleMeshShape::tesselate() const
+{
+  return mesh();
 }
 
 bool
 TriangleMeshShape::canIntersect() const
 {
-  return false;
+  return true;
+}
+
+bool
+TriangleMeshShape::localIntersect(const Ray3f& ray) const
+{
+  return _bvh->intersect(ray);
+}
+
+bool
+TriangleMeshShape::localIntersect(const Ray3f& ray, Intersection& hit) const
+{
+  return _bvh->intersect(ray, hit) ? hit.object = this : false;
 }
 
 vec3f
 TriangleMeshShape::normal(const Intersection& hit) const
 {
-  const auto& m = _mesh->data();
+  const auto& m = mesh()->data();
   auto tidx = hit.triangleIndex;
 
   assert(tidx >= 0 && tidx < m.triangleCount);
@@ -77,7 +133,7 @@ TriangleMeshShape::normal(const Intersection& hit) const
 Bounds3f
 TriangleMeshShape::bounds() const
 {
-  return _bounds;
+  return _bvh->bounds();
 }
 
 } // end namespace cg

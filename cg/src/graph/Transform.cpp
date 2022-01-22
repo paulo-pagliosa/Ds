@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2020 Orthrus Group.                         |
+//| Copyright (C) 2018, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for scene object transform.
 //
 // Author: Paulo Pagliosa
-// Last revision: 15/06/2020
+// Last revision: 21/01/2022
 
 #include "graph/SceneObject.h"
 
@@ -86,7 +86,7 @@ Transform::Transform():
   _localRotation{quatf::identity()},
   _localEulerAngles{0},
   _localScale{1},
-  _localToWorld{1.0}
+  _localToWorld{1}
 {
   _position = _localPosition;
   _rotation = _localRotation;

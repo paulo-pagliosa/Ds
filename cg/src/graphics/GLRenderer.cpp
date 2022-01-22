@@ -28,7 +28,7 @@
 // Source file for OpenGL renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2022
+// Last revision: 21/01/2022
 
 #include "graphics/GLRenderer.h"
 
@@ -477,7 +477,7 @@ mvpMatrix(const mat4f& mvm, const Camera& c)
 bool
 GLRenderer::drawMesh(const Primitive& primitive)
 {
-  auto mesh = primitive.mesh();
+  auto mesh = primitive.tesselate();
 
   if (nullptr == mesh)
     return false;

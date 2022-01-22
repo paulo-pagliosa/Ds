@@ -28,7 +28,7 @@
 // Class definition for intersection ray/object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 18/01/2022
+// Last revision: 21/01/2022
 
 #ifndef __Intersection_h
 #define __Intersection_h
@@ -38,8 +38,6 @@
 namespace cg
 { // begin namespace cg
 
-class Primitive;
-
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -47,7 +45,7 @@ class Primitive;
 // ============
 struct Intersection
 {
-  const Primitive* object; // object intercepted by the ray
+  const void* object; // object intercepted by the ray
   int triangleIndex; // index of the triangle intercepted by the ray
   float distance; // distance from the ray's origin to the intersection point
   vec3f p; // barycentric coordinates of the intersection point

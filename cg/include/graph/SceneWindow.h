@@ -135,8 +135,8 @@ protected:
   void drawObject(const SceneObject&);
   void drawComponents(const SceneObject&);
 
-  // TODO
-  virtual Component* pickComponent(int, int) const;
+  virtual SceneObject* pickObject(int, int) const;
+  SceneObject* pickObject(SceneObject*, const Ray3f&, float&) const;
 
   SceneEditor* editor() const
   {

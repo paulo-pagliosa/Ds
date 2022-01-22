@@ -28,7 +28,7 @@
 // Source file for generic renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 18/01/2022
+// Last revision: 21/01/2022
 
 #include "graphics/Renderer.h"
 
@@ -75,7 +75,7 @@ Renderer::update()
   // do nothing
 }
 
-inline vec3f
+inline auto
 normalize(const vec4f& p)
 {
   return vec3f{p} * math::inverse(p.w);

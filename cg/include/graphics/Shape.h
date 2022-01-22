@@ -28,7 +28,7 @@
 // Class definition for generic shape.
 //
 // Author: Paulo Pagliosa
-// Last revision: 20/01/2022
+// Last revision: 21/01/2022
 
 #ifndef __Shape_h
 #define __Shape_h
@@ -36,15 +36,13 @@
 #include "core/Array.h"
 #include "core/SharedObject.h"
 #include "geometry/Bounds3.h"
-#include "graphics/Intersection.h"
+#include "geometry/Intersection.h"
+#include <cassert>
 
 namespace cg
 { // begin namespace cg
 
-class Shape;
 class TriangleMesh;
-
-using ShapeArray = Array<Reference<Shape>>;
 
 std::logic_error bad_invocation(const char*, const char*);
 
@@ -56,13 +54,27 @@ std::logic_error bad_invocation(const char*, const char*);
 class Shape abstract: public SharedObject
 {
 public:
-  virtual const TriangleMesh* mesh() const;
+  virtual const TriangleMesh* tesselate() const;
   virtual bool canIntersect() const;
-  virtual ShapeArray refine() const;
-  virtual bool intersect(const Ray3f&) const;
-  virtual bool intersect(const Ray3f&, Intersection&) const;
+
+  bool intersect(const Ray3f& ray) const
+  {
+    assert(canIntersect());
+    return localIntersect(ray);
+  }
+
+  bool intersect(const Ray3f& ray, Intersection& hit) const
+  {
+    assert(canIntersect());
+    return localIntersect(ray, hit);
+  }
+
   virtual vec3f normal(const Intersection&) const;
   virtual Bounds3f bounds() const;
+
+protected:
+  virtual bool localIntersect(const Ray3f&) const;
+  virtual bool localIntersect(const Ray3f&, Intersection&) const;
 
 }; // Shape
 

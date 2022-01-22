@@ -35,7 +35,6 @@
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
-#include "graphics/BVH.h"
 #include "graphics/GLImage.h"
 #include "RayTracer.h"
 
@@ -52,12 +51,8 @@ public:
   }
 
 private:
-  using BVHRef = Reference<BVH>;
-  using BVHMap = std::map<TriangleMesh*, BVHRef>;
-
   Reference<RayTracer> _rayTracer;
   Reference<GLImage> _image;
-  BVHMap bvhMap;
 
   static MeshMap _defaultMeshes;
 

@@ -28,12 +28,12 @@
 // Class definition for triangle mesh shape.
 //
 // Author: Paulo Pagliosa
-// Last revision: 20/01/2022
+// Last revision: 21/01/2022
 
 #ifndef __TriangleMeshShape_h
 #define __TriangleMeshShape_h
 
-#include "geometry/TriangleMesh.h"
+#include "geometry/TriangleMeshBVH.h"
 #include "graphics/Shape.h"
 
 namespace cg
@@ -47,26 +47,25 @@ namespace cg
 class TriangleMeshShape final: public Shape
 {
 public:
-  TriangleMeshShape(const TriangleMesh& mesh):
-    _mesh{&mesh},
-    _bounds{mesh.bounds()}
-  {
-    // do nothing
-  }
+  TriangleMeshShape(const TriangleMesh&);
 
-  const TriangleMesh* mesh() const override;
+  const TriangleMesh* tesselate() const override;
   bool canIntersect() const override;
   vec3f normal(const Intersection&) const override;
   Bounds3f bounds() const override;
 
-  void setMesh(const TriangleMesh& mesh)
+  const TriangleMesh* mesh() const
   {
-    _mesh = &mesh;
+    return _bvh->mesh();
   }
 
+  void setMesh(const TriangleMesh&);
+
 private:
-  Reference<TriangleMesh> _mesh;
-  Bounds3f _bounds;
+  Reference<TriangleMeshBVH> _bvh;
+
+  bool localIntersect(const Ray3f&) const override;
+  bool localIntersect(const Ray3f&, Intersection&) const override;
 
 }; // TriangleMeshShape
 

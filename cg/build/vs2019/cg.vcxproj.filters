@@ -290,16 +290,7 @@
     <ClInclude Include="..\..\include\graphics\Shape.h">
       <Filter>Header Files\graphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\graphics\Intersection.h">
-      <Filter>Header Files\graphics</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\graphics\TriangleMeshShape.h">
-      <Filter>Header Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\graphics\BVH.h">
-      <Filter>Header Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\graphics\TriangleMeshBVH.h">
       <Filter>Header Files\graphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\graphics\Primitive.h">
@@ -343,6 +334,15 @@
     </ClInclude>
     <ClInclude Include="..\..\include\graphics\TriangleMeshMapper.h">
       <Filter>Header Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\geometry\Intersection.h">
+      <Filter>Header Files\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\geometry\BVH.h">
+      <Filter>Header Files\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\geometry\TriangleMeshBVH.h">
+      <Filter>Header Files\geometry</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -439,12 +439,6 @@
     <ClCompile Include="..\..\src\graphics\TriangleMeshShape.cpp">
       <Filter>Source Files\graphics</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\graphics\BVH.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\graphics\TriangleMeshBVH.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\graphics\Primitive.cpp">
       <Filter>Source Files\graphics</Filter>
     </ClCompile>
@@ -489,6 +483,12 @@
     </ClCompile>
     <ClCompile Include="..\..\src\graph\LightProxy.cpp">
       <Filter>Source Files\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\geometry\BVH.cpp">
+      <Filter>Source Files\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\geometry\TriangleMeshBVH.cpp">
+      <Filter>Source Files\geometry</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

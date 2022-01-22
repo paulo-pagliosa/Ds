@@ -31,7 +31,6 @@
 // Last revision: 21/01/2022
 
 #include "graphics/GLRenderer.h"
-#include "graphics/TriangleMeshBVH.h"
 #include "graphics/TriangleMeshMapper.h"
 
 namespace cg

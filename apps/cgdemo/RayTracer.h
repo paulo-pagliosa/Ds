@@ -28,13 +28,13 @@
 // Class definition for simple ray tracer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2022
+// Last revision: 21/01/2022
 
 #ifndef __RayTracer_h
 #define __RayTracer_h
 
+#include "geometry/Intersection.h"
 #include "graphics/Image.h"
-#include "graphics/Intersection.h"
 #include "graphics/Renderer.h"
 
 namespace cg

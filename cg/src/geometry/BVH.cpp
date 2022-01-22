@@ -28,9 +28,9 @@
 // Source file for BVH.
 //
 // Author: Paulo Pagliosa
-// Last revision: 20/01/2022
+// Last revision: 21/01/2022
 
-#include "graphics/BVH.h"
+#include "geometry/BVH.h"
 #include <algorithm>
 #include <stack>
 
@@ -207,7 +207,24 @@ BVHBase::~BVHBase()
 bool
 BVHBase::intersect(const Ray3f& ray) const
 {
-  // TODO
+  NodeRay r{ray};
+  std::stack<Node*> stack;
+
+  stack.push(_root);
+  while (!stack.empty())
+  {
+    auto node = stack.top();
+
+    stack.pop();
+    if (node->intersect(ray))
+      if (!node->isLeaf())
+      {
+        stack.push(node->children[0]);
+        stack.push(node->children[1]);
+      }
+      else if (intersectLeaf(node->first, node->count, ray))
+        return true;
+  }
   return false;
 }
 
@@ -226,15 +243,14 @@ BVHBase::intersect(const Ray3f& ray, Intersection& hit) const
     auto node = stack.top();
 
     stack.pop();
-    if (!node->intersect(ray))
-      continue;
-    if (node->count > 0)
-      intersectPrimitives(node->first, node->count, ray, hit);
-    else
-    {
-      stack.push(node->children[0]);
-      stack.push(node->children[1]);
-    }
+    if (node->intersect(ray))
+      if (node->isLeaf())
+        intersectLeaf(node->first, node->count, ray, hit);
+      else
+      {
+        stack.push(node->children[0]);
+        stack.push(node->children[1]);
+      }
   }
   return hit.object != nullptr;
 }
@@ -249,43 +265,6 @@ void
 BVHBase::iterate(BVHNodeFunction f) const
 {
   Node::iterate(_root, f);
-}
-
-
-/////////////////////////////////////////////////////////////////////
-//
-// BVH implementation
-// ===
-BVH::BVH(PrimitiveArray&& primitives, uint32_t maxPrimitivesPerNode):
-  BVHBase{maxPrimitivesPerNode},
-  _primitives{std::move(primitives)}
-{
-  auto np = (uint32_t)_primitives.size();
-
-  assert(np > 0);
-  _primitiveIds.resize(np);
-
-  PrimitiveInfoArray primitiveInfo(np);
-
-  for (uint32_t i = 0; i < np; ++i)
-    primitiveInfo[i] = {_primitiveIds[i] = i, _primitives[i]->bounds()};
-  build(primitiveInfo);
-}
-
-void
-BVH::intersectPrimitives(uint32_t first,
-  uint32_t count,
-  const Ray3f& ray,
-  Intersection& hit) const
-{
-  for (auto i = first, e = i + count; i < e; ++i)
-  {
-    const auto* p = _primitives[_primitiveIds[i]].get();
-    Intersection temp;
-
-    if (p->intersect(ray, temp) && temp.distance < hit.distance)
-      hit = temp;
-  }
 }
 
 } // end namespace cg

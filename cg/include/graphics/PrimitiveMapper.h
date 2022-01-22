@@ -34,7 +34,6 @@
 #define __PrimitiveMapper_h
 
 #include "graphics/Primitive.h"
-#include "graphics/TriangleMeshBVH.h"
 
 namespace cg
 { // begin namespace cg

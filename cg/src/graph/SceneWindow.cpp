@@ -198,7 +198,7 @@ SceneWindow::drawComponents(const SceneObject& object)
     {
       auto p = proxy->mapper()->primitive();
 
-      if (auto mesh = p->mesh())
+      if (auto mesh = p->tesselate())
         _editor->drawMesh(*mesh, p->localToWorldMatrix(), p->normalMatrix());
     }
   }
@@ -816,10 +816,40 @@ SceneWindow::scrollEvent(double dx, double dy)
   return true;
 }
 
-Component*
-SceneWindow::pickComponent(int, int) const
+SceneObject*
+SceneWindow::pickObject(SceneObject* object, const Ray3f& ray, float& t) const
 {
-  return nullptr;
+  if (!object->flags.visible)
+    return nullptr;
+
+  SceneObject* nearest{};
+
+  for (auto& component : object->components())
+    if (auto proxy = dynamic_cast<PrimitiveProxy*>(&*component))
+    {
+      auto p = proxy->mapper()->primitive();
+      Intersection hit;
+
+      if (p->intersect(ray, hit) && hit.distance < t)
+      {
+        t = hit.distance;
+        nearest = object;
+      }
+      break;
+    }
+  for (auto& child : object->children())
+    if (auto temp = pickObject(&child, ray, t))
+      nearest = temp;
+  return nearest;
+}
+
+SceneObject*
+SceneWindow::pickObject(int x, int y) const
+{
+  auto ray = makeRay(x, y);
+  auto t = math::Limits<float>::inf();
+
+  return pickObject(_scene->root(), ray, t);
 }
 
 bool
@@ -834,8 +864,8 @@ SceneWindow::mouseButtonInputEvent(int button, int actions, int mods)
   cursorPosition(_mouse.px, _mouse.py);
   if (button == GLFW_MOUSE_BUTTON_LEFT && !active)
   {
-    if (auto c = pickComponent(_mouse.px, height() - _mouse.py))
-      if (auto o = c->sceneObject(); o->flags.selectable)
+    if (auto o = pickObject(_mouse.px, _mouse.py))
+      if (o->flags.selectable)
       {
         if (auto p = _currentNode->as<SceneObject>())
           p->flags.selected = false;
@@ -929,7 +959,7 @@ namespace
 inline auto
 normalize(const vec4f& p)
 {
-  return vec3f{p} *math::inverse(p.w);
+  return vec3f{p} * math::inverse(p.w);
 }
 
 inline auto

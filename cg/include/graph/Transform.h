@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2020 Orthrus Group.                         |
+//| Copyright (C) 2018, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for scene object transform.
 //
 // Author: Paulo Pagliosa
-// Last revision: 15/06/2020
+// Last revision: 21/01/2022
 
 #ifndef __Transform_h
 #define __Transform_h
@@ -242,7 +242,6 @@ private:
   mat4f _worldToLocal;
   quatf _rotation;
   quatf _localRotation;
-  mat3f _normalMatrix;
   vec3f _position;
   vec3f _localPosition;
   vec3f _localEulerAngles;

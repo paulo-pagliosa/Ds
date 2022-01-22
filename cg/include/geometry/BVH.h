@@ -28,12 +28,14 @@
 // Class definition for BVH.
 //
 // Author: Paulo Pagliosa
-// Last revision: 20/01/2022
+// Last revision: 21/01/2022
 
 #ifndef __BVH_h
 #define __BVH_h
 
-#include "graphics/Primitive.h"
+#include "core/SharedObject.h"
+#include "geometry/Bounds3.h"
+#include "geometry/Intersection.h"
 #include <functional>
 #include <cassert>
 #include <cinttypes>
@@ -58,7 +60,7 @@ using BVHNodeFunction = std::function<void(const BVHNodeInfo&)>;
 //
 // BVHBase: BVH base class
 // =======
-class BVHBase abstract: public Aggregate
+class BVHBase abstract: public SharedObject
 {
 public:
   ~BVHBase() override;
@@ -68,10 +70,9 @@ public:
     return (size_t)_nodeCount;
   }
 
-  bool intersect(const Ray3f&) const override;
-  bool intersect(const Ray3f&, Intersection&) const override;
-  Bounds3f bounds() const override;
-
+  Bounds3f bounds() const;
+  bool intersect(const Ray3f&) const;
+  bool intersect(const Ray3f&, Intersection&) const;
   void iterate(BVHNodeFunction) const;
 
 protected:
@@ -97,10 +98,11 @@ protected:
     _primitiveIds.swap(orderedPrimitiveIds);
   }
 
-  virtual void intersectPrimitives(uint32_t first,
-    uint32_t count,
-    const Ray3f& ray,
-    Intersection& hit) const abstract;
+  virtual bool intersectLeaf(uint32_t, uint32_t, const Ray3f&) const abstract;
+  virtual void intersectLeaf(uint32_t,
+    uint32_t,
+    const Ray3f&,
+    Intersection&) const abstract;
 
 private:
   struct NodeRay;
@@ -138,10 +140,11 @@ struct BVHBase::PrimitiveInfo
 //
 // BVH: BVH class
 // ===
+template <typename T>
 class BVH final: public BVHBase
 {
 public:
-  using PrimitiveArray = Array<Reference<Primitive>>;
+  using PrimitiveArray = std::vector<Reference<T>>;
 
   BVH(PrimitiveArray&&, uint32_t = 16);
 
@@ -153,12 +156,62 @@ public:
 private:
   PrimitiveArray _primitives;
 
-  void intersectPrimitives(uint32_t first,
-    uint32_t count,
-    const Ray3f& ray,
-    Intersection& hit) const override;
+  bool intersectLeaf(uint32_t, uint32_t, const Ray3f&) const override;
+  void intersectLeaf(uint32_t,
+    uint32_t,
+    const Ray3f&,
+    Intersection&) const override;
 
 }; // BVH
+
+template <typename T>
+BVH<T>::BVH(PrimitiveArray&& primitives, uint32_t maxPrimitivesPerNode):
+  BVHBase{maxPrimitivesPerNode},
+  _primitives{std::move(primitives)}
+{
+  auto np = (uint32_t)_primitives.size();
+
+  assert(np > 0);
+  _primitiveIds.resize(np);
+
+  PrimitiveInfoArray primitiveInfo(np);
+
+  for (uint32_t i = 0; i < np; ++i)
+    primitiveInfo[i] = {_primitiveIds[i] = i, _primitives[i]->bounds()};
+  build(primitiveInfo);
+}
+
+template <typename T>
+bool
+BVH<T>::intersectLeaf(uint32_t first, uint32_t count, const Ray3f& ray) const
+{
+  for (auto i = first, e = i + count; i < e; ++i)
+  {
+    const auto& p = _primitives[_primitiveIds[i]];
+    Intersection temp;
+
+    if (p->intersect(ray))
+      return true;
+  }
+  return false;
+}
+
+template <typename T>
+void
+BVH<T>::intersectLeaf(uint32_t first,
+  uint32_t count,
+  const Ray3f& ray,
+  Intersection& hit) const
+{
+  for (auto i = first, e = i + count; i < e; ++i)
+  {
+    const auto& p = _primitives[_primitiveIds[i]];
+    Intersection temp;
+
+    if (p->intersect(ray, temp) && temp.distance < hit.distance)
+      hit = temp;
+  }
+}
 
 } // end namespace cg
 

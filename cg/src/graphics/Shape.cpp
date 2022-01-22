@@ -28,7 +28,7 @@
 // Class definition for generic shape.
 //
 // Author: Paulo Pagliosa
-// Last revision: 20/01/2022
+// Last revision: 21/01/2022
 
 #include "graphics/Shape.h"
 
@@ -51,7 +51,7 @@ bad_invocation(const char* c, const char* f)
 // Shape implementation
 // =====
 const TriangleMesh*
-Shape::mesh() const
+Shape::tesselate() const
 {
   return nullptr;
 }
@@ -62,20 +62,15 @@ Shape::canIntersect() const
   return true;
 }
 
-ShapeArray
-Shape::refine() const
+
+bool
+Shape::localIntersect(const Ray3f&) const
 {
   throw bad_invocation("Shape", __func__);
 }
 
 bool
-Shape::intersect(const Ray3f&) const
-{
-  throw bad_invocation("Shape", __func__);
-}
-
-bool
-Shape::intersect(const Ray3f&, Intersection&) const
+Shape::localIntersect(const Ray3f&, Intersection&) const
 {
   throw bad_invocation("Shape", __func__);
 }

@@ -28,9 +28,9 @@
 // Source file for triangle mesh BVH.
 //
 // Author: Paulo Pagliosa
-// Last revision: 18/01/2022
+// Last revision: 21/01/2022
 
-#include "graphics/TriangleMeshBVH.h"
+#include "geometry/TriangleMeshBVH.h"
 
 namespace cg
 { // begin namespace cg
@@ -40,13 +40,10 @@ namespace cg
 //
 // TriangleMeshBVH implementation
 // ===============
-TriangleMeshBVH::TriangleMeshBVH(const Primitive& primitive, uint32_t maxt):
+TriangleMeshBVH::TriangleMeshBVH(const TriangleMesh& mesh, uint32_t maxt):
   BVHBase{maxt},
-  _primitive{&primitive},
-  _mesh{primitive.mesh()}
+  _mesh{&mesh}
 {
-  assert(_mesh != nullptr);
-
   const auto& m = _mesh->data();
   auto nt = (uint32_t)m.triangleCount;
 
@@ -75,20 +72,45 @@ TriangleMeshBVH::TriangleMeshBVH(const Primitive& primitive, uint32_t maxt):
     printf("Mesh triangles: %d\n", nt);
     bounds().print("BVH bounds:");
     printf("BVH nodes: %zd\n", size());
+    /*
     iterate([this](const BVHNodeInfo& node)
-      {
-        if (!node.isLeaf)
-          return;
-        node.bounds.print("Leaf bounds:");
-        printf("Leaf triangles: %d\n", node.count);
-      });
+    {
+      if (!node.isLeaf)
+        return;
+      node.bounds.print("Leaf bounds:");
+      printf("Leaf triangles: %d\n", node.count);
+    });
+    */
     putchar('\n');
   }
 #endif // _DEBUG
 }
 
+bool
+TriangleMeshBVH::intersectLeaf(uint32_t first,
+  uint32_t count,
+  const Ray3f& ray) const
+{
+  const auto& m = _mesh->data();
+
+  for (auto i = first, e = i + count; i < e; ++i)
+  {
+    auto tid = _primitiveIds[i];
+    auto v = m.triangles[tid].v;
+    const auto& p0 = m.vertices[v[0]];
+    const auto& p1 = m.vertices[v[1]];
+    const auto& p2 = m.vertices[v[2]];
+    vec3f b;
+    float t;
+
+    if (triangle::intersect(ray, p0, p1, p2, b, t))
+      return true;
+  }
+  return false;
+}
+
 void
-TriangleMeshBVH::intersectPrimitives(uint32_t first,
+TriangleMeshBVH::intersectLeaf(uint32_t first,
   uint32_t count,
   const Ray3f& ray,
   Intersection& hit) const
@@ -115,7 +137,7 @@ TriangleMeshBVH::intersectPrimitives(uint32_t first,
     }
   }
   if (hitCount)
-    hit.object = _primitive;
+    hit.object = _mesh;
 }
 
 } // end namespace cg

@@ -28,7 +28,7 @@
 // Source file for primitive.
 //
 // Author: Paulo Pagliosa
-// Last revision: 20/01/2022
+// Last revision: 21/01/2022
 
 #include "graphics/Primitive.h"
 
@@ -41,7 +41,7 @@ namespace cg
 // Primitive implementation
 // =========
 const TriangleMesh*
-Primitive::mesh() const
+Primitive::tesselate() const
 {
   return nullptr;
 }
@@ -52,34 +52,45 @@ Primitive::canIntersect() const
   return true;
 }
 
-PrimitiveArray
-Primitive::refine() const
+bool
+Primitive::localIntersect(const Ray3f&) const
 {
   throw bad_invocation("Primitive", __func__);
 }
 
+bool
+Primitive::intersect(const Ray3f& ray) const
+{
+  assert(canIntersect());
 
-/////////////////////////////////////////////////////////////////////
-//
-// Aggregate implementation
-// =========
-vec3f
-Aggregate::normal(const Intersection&) const
+  Ray3f localRay{ray, _worldToLocal};
+
+  localRay.direction.normalize();
+  return localIntersect(localRay);
+}
+
+bool
+Primitive::intersect(const Ray3f& ray, Intersection& hit) const
+{
+  assert(canIntersect());
+
+  Ray3f localRay{ray, _worldToLocal};
+  auto d = math::inverse(localRay.direction.length());
+
+  localRay.direction *= d;
+  if (!localIntersect(localRay, hit))
+    return false;
+  hit.distance *= d;
+  hit.object = this;
+  return true;
+}
+
+bool
+Primitive::localIntersect(const Ray3f&, Intersection&) const
 {
   throw bad_invocation("Primitive", __func__);
 }
 
-Material*
-Aggregate::material() const
-{
-  throw bad_invocation("Primitive", __func__);
-}
-
-
-/////////////////////////////////////////////////////////////////////
-//
-// Primitive implementation
-// =========
 Material*
 Primitive::material() const
 {
@@ -117,12 +128,29 @@ Primitive::setTransform(const vec3f& p, const quatf& q, const vec3f& s)
 
 /////////////////////////////////////////////////////////////////////
 //
+// Aggregate implementation
+// =========
+vec3f
+Aggregate::normal(const Intersection&) const
+{
+  throw bad_invocation("Aggregate", __func__);
+}
+
+Material*
+Aggregate::material() const
+{
+  throw bad_invocation("Aggregate", __func__);
+}
+
+
+/////////////////////////////////////////////////////////////////////
+//
 // ShapeInstance implementation
 // =============
 const TriangleMesh*
-ShapeInstance::mesh() const
+ShapeInstance::tesselate() const
 {
-  return _shape->mesh();
+  return _shape->tesselate();
 }
 
 bool
@@ -131,34 +159,16 @@ ShapeInstance::canIntersect() const
   return _shape->canIntersect();
 }
 
-PrimitiveArray
-ShapeInstance::refine() const
+bool
+ShapeInstance::localIntersect(const Ray3f& ray) const
 {
-  // TODO
-  return PrimitiveArray{0};
+  return _shape->intersect(ray);
 }
 
 bool
-ShapeInstance::intersect(const Ray3f& ray) const
+ShapeInstance::localIntersect(const Ray3f& ray, Intersection& hit) const
 {
-  Ray3f localRay{ray, _worldToLocal};
-
-  localRay.direction.normalize();
-  return _shape->intersect(localRay);
-}
-
-bool
-ShapeInstance::intersect(const Ray3f& ray, Intersection& hit) const
-{
-  Ray3f localRay{ray, _worldToLocal};
-  auto d = math::inverse(localRay.direction.length());
-
-  localRay.direction *= d;
-  if (!_shape->intersect(localRay, hit))
-    return false;
-  hit.distance *= d;
-  hit.object = this;
-  return true;
+  return _shape->intersect(ray, hit);
 }
 
 vec3f
