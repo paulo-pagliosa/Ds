@@ -28,7 +28,7 @@
 // Class definition for simple ray tracer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/01/2022
+// Last revision: 25/01/2022
 
 #ifndef __RayTracer_h
 #define __RayTracer_h
@@ -101,7 +101,7 @@ private:
   Color shoot(float x, float y);
   bool intersect(const Ray3f&, Intersection&);
   Color trace(const Ray3f& ray, uint32_t level, float weight);
-  Color shade(const Ray3f&, Intersection&, int, float);
+  Color shade(const Ray3f&, Intersection&, uint32_t, float);
   bool shadow(const Ray3f&);
   Color background() const;
 

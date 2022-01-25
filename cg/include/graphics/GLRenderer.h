@@ -28,7 +28,7 @@
 // Class definition for OpenGL Renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/01/2022
+// Last revision: 25/01/2022
 
 #ifndef __GLRenderer_h
 #define __GLRenderer_h
@@ -78,7 +78,7 @@ public:
 protected:
   RenderFunction _renderFunction{};
   vec3f _basePoint;
-  float _invBasePointZ;
+  float _basePointZ;
   float _windowViewportRatio;
 
   virtual void beginRender();

@@ -28,7 +28,7 @@
 // Source file for OpenGL renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/01/2022
+// Last revision: 25/01/2022
 
 #include "graphics/GLRenderer.h"
 
@@ -186,7 +186,7 @@ static const char* fragmentShader = STRINGIFY(
     for (int i = 0; i < nbLights; i++)
     {
       vec3 L = lightVector(i, P);
-      vec3 V = normalize(P.xyz);
+      vec3 V = normalize(P.xyz); // TODO: parallel projection
       vec3 R = reflect(L, N);
 
       color += lights[i].color * (m.Od * max(dot(L, N), 0) +
@@ -360,19 +360,20 @@ GLRenderer::update()
   _gl->viewportMatrix[2].set(0, 0, 1, 0);
   _gl->viewportMatrix[3].set(w, h, 0, 0);
   _windowViewportRatio = _camera->windowHeight() / _viewport.h;
+  _basePointZ = -_camera->worldToCamera(_basePoint).z;
 }
 
 void
 GLRenderer::setBasePoint(const vec3f& p)
 {
-  _invBasePointZ = math::inverse(_camera->worldToCamera(_basePoint = p).z);
+  _basePoint = p;
 }
 
 float
 GLRenderer::pixelsLength(float d) const
 {
   if (_camera->projectionType() == Camera::Perspective)
-    d *= 1 - (_camera->nearPlane() * _invBasePointZ);
+    d *= _basePointZ / _camera->nearPlane();
   return _windowViewportRatio * d;
 }
 

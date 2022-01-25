@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/01/2022
+// Last revision: 25/01/2022
 
 #ifndef __SceneWindow_h
 #define __SceneWindow_h
@@ -106,6 +106,8 @@ protected:
   virtual void createObjectMenu();
   virtual Component* addComponentMenu();
   virtual bool onResize(int, int);
+
+  Scene* createScene();
 
   SceneObject* createEmptyObject();
   SceneObject* createCameraObject(const char* = nullptr);

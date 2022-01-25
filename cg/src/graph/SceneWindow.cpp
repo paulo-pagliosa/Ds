@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/01/2022
+// Last revision: 25/01/2022
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
@@ -181,6 +181,15 @@ SceneWindow::initialize()
   glEnable(GL_LINE_SMOOTH);
   endInitialize();
   initializeScene();
+}
+
+Scene*
+SceneWindow::createScene()
+{
+  _currentNode = _scene = Scene::New();
+  _editor->setScene(*_scene);
+  initializeScene();
+  return _scene;
 }
 
 void

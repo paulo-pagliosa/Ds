@@ -28,7 +28,7 @@
 // Source file for simple ray tracer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/01/2022
+// Last revision: 25/01/2022
 
 #include "graphics/Camera.h"
 #include "RayTracer.h"
@@ -193,7 +193,7 @@ RayTracer::trace(const Ray3f& ray, uint32_t level, float weight)
 {
   if (level > _maxRecursionLevel)
     return Color::black;
-  _numberOfRays++;
+  ++_numberOfRays;
 
   Intersection hit;
 
@@ -217,11 +217,20 @@ RayTracer::intersect(const Ray3f& ray, Intersection& hit)
 {
   hit.object = nullptr;
   hit.distance = ray.tMax;
-  return _bvh->intersect(ray, hit);
+  return _bvh->intersect(ray, hit) ? ++_numberOfHits : false;
+}
+
+inline auto
+maxRGB(const Color& c)
+{
+  return math::max(math::max(c.r, c.g), c.b);
 }
 
 Color
-RayTracer::shade(const Ray3f& ray, Intersection& hit, int level, float weight)
+RayTracer::shade(const Ray3f& ray,
+  Intersection& hit,
+  uint32_t level,
+  float weight)
 //[]---------------------------------------------------[]
 //|  Shade a point P                                    |
 //|  @param the ray (input)                             |
@@ -235,16 +244,65 @@ RayTracer::shade(const Ray3f& ray, Intersection& hit, int level, float weight)
 
   assert(nullptr != primitive);
 
+  auto N = primitive->normal(hit);
+  const auto& V = ray.direction;
+  auto NV = N.dot(V);
+
+  // Make sure "real" normal is on right side
+  if (NV > 0)
+    N.negate(), NV = -NV;
+
+  auto R = V - (2 * NV) * N; // reflection vector
+  // Start with ambient lighting
   auto m = primitive->material();
   auto color = _scene->ambientLight * m->ambient;
   auto P = ray(hit.distance);
-  auto N = primitive->normal(hit);
 
+  // Compute direct lighting
   for (auto& light : _scene->lights())
   {
+    // If the light is turned off, then continue
     if (!light->isTurnedOn())
       continue;
-    // TODO: insert your code here
+
+    vec3f L;
+    float d;
+
+    // If the point P is out of the light range (for finite
+    // point light or spotlight), then continue
+    if (!light->lightVector(P, L, d))
+      continue;
+
+    auto NL = N.dot(L);
+
+    // If light vector is backfaced, then continue
+    if (NL < 0)
+      continue;
+
+    auto lightRay = Ray3f{P + N * rt_eps(), L};
+
+    lightRay.tMax = d;
+    ++_numberOfRays;
+    // If the point P is shadowed, them continue
+    if (shadow(lightRay))
+      continue;
+
+    auto lc = light->lightColor(d);
+
+    color += lc * m->diffuse * NL;
+    color += lc * m->spot * pow(R.dot(L), m->shine);
+  }
+  // Compute specular reflection
+  if (m->specular != Color::black)
+  {
+    weight *= maxRGB(m->specular);
+    if (weight > _minWeight && level < _maxRecursionLevel)
+    {
+      auto reflectionRay = Ray3f{P + N * rt_eps(), R};
+      auto reflectionColor = trace(reflectionRay, level + 1, weight);
+
+      color += m->specular * reflectionColor;
+    }
   }
   return color;
 }
@@ -267,7 +325,7 @@ RayTracer::shadow(const Ray3f& ray)
 //|  @return true if the ray intersects an object       |
 //[]---------------------------------------------------[]
 {
-  return _bvh->intersect(ray);
+  return _bvh->intersect(ray) ? ++_numberOfHits : false;
 }
 
 } // end namespace cg

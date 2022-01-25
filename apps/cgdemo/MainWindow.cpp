@@ -28,7 +28,7 @@
 // Source file for cg demo main window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/01/2022
+// Last revision: 25/01/2022
 
 #include "geometry/MeshSweeper.h"
 #include "graphics/Application.h"
@@ -42,7 +42,7 @@ MainWindow::buildDefaultMeshes()
   _defaultMeshes["Box"] = GLGraphics3::box();
   _defaultMeshes["Sphere"] = GLGraphics3::sphere();
   _defaultMeshes["Cone"] = GLGraphics3::cone();
-  _defaultMeshes["Plane"] = GLGraphics3::quad();
+  //_defaultMeshes["Plane"] = GLGraphics3::quad();
 }
 
 void
@@ -80,8 +80,8 @@ MainWindow::createObjectMenu()
       createDefaultPrimitiveObject("Sphere");
     if (ImGui::MenuItem("Cone"))
       createDefaultPrimitiveObject("Cone");
-    if (ImGui::MenuItem("Plane"))
-      createDefaultPrimitiveObject("Plane");
+    //if (ImGui::MenuItem("Plane"))
+      //createDefaultPrimitiveObject("Plane");
     ImGui::EndMenu();
   }
 }
@@ -99,8 +99,8 @@ MainWindow::addComponentMenu()
       component = makeDefaultPrimitive("Sphere");
     if (ImGui::MenuItem("Cone"))
       component = makeDefaultPrimitive("Cone");
-    if (ImGui::MenuItem("Plane"))
-      component = makeDefaultPrimitive("Plane");
+    //if (ImGui::MenuItem("Plane"))
+      //component = makeDefaultPrimitive("Plane");
     ImGui::EndMenu();
   }
   return component;
@@ -111,22 +111,14 @@ MainWindow::fileMenu()
 {
   if (ImGui::BeginMenu("File"))
   {
-    if (ImGui::MenuItem("New"))
+    if (ImGui::MenuItem("New Scene"))
     {
-      // TODO
+      createScene();
     }
-    if (ImGui::MenuItem("Open...", "Ctrl+O"))
+    if (ImGui::BeginMenu("Open"))
     {
       // TODO
-    }
-    ImGui::Separator();
-    if (ImGui::MenuItem("Save", "Ctrl+S"))
-    {
-      // TODO
-    }
-    if (ImGui::MenuItem("Save As..."))
-    {
-      // TODO
+      ImGui::EndMenu();
     }
     ImGui::Separator();
     if (ImGui::MenuItem("Exit", "Alt+F4"))

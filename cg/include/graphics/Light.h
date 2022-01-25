@@ -28,7 +28,7 @@
 // Class definition for light.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/01/2022
+// Last revision: 25/01/2022
 
 #ifndef __Light_h
 #define __Light_h
@@ -161,8 +161,8 @@ inline bool
 Light::lightVector(const vec3f& P, vec3f& L, float& distance) const
 {
   if (_type == Type::Directional)
-    return L = direction, true;
-  distance = (L = P - position).length();
+    return L = -direction, true;
+  distance = (L = position -  P).length();
   if (!math::isZero(distance) || distance > _range)
     return false;
   L *= math::inverse(distance);
