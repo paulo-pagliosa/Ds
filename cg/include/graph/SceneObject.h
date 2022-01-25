@@ -28,7 +28,7 @@
 // Class definition for scene object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 21/01/2022
+// Last revision: 24/01/2022
 
 #ifndef __SceneObject_h
 #define __SceneObject_h
@@ -60,14 +60,6 @@ class SceneObject: public SceneNode,
   public ObjectListNode<SceneObject, SceneObjectAllocator>
 {
 public:
-  mutable struct
-  {
-    bool visible : 1;
-    bool selectable : 1;
-    bool selected : 1;
-
-  } flags{true, true, false};
-
   /// Constructs an empty scene object.
   static auto New(Scene& scene, const char* name = "")
   {
@@ -155,7 +147,32 @@ public:
   /// Returns true if this scene object is movable.
   auto movable() const
   {
-    return _movable;
+    return _flags.movable;
+  }
+
+  /// Returns true if this scene object is visible.
+  auto visible() const
+  {
+    return _flags.visible;
+  }
+
+  void setVisible(bool value);
+
+  /// Returns true if this scene object is selected.
+  auto selected() const
+  {
+    return _flags.selected;
+  }
+
+  /// Returns true if this scene object is selectable.
+  auto selectable() const
+  {
+    return _flags.selectable;
+  }
+
+  void setSelected(bool value)
+  {
+    _flags.selected = value;
   }
 
   void transformChanged();
@@ -166,20 +183,26 @@ private:
 
   Scene* _scene;
   SceneObject* _parent;
+  Transform _transform;
   SceneObjects _children;
   Components _components;
-  Transform _transform;
-  bool _movable;
+  mutable struct
+  {
+    bool movable : 1;
+    bool visible : 1;
+    bool selectable : 1;
+    bool selected : 1;
+
+  } _flags{true, true, true, false};
 
   SceneObject(Scene& scene, const char* name, bool movable = true);
 
   SceneObject(Scene& scene):
-    flags{true, false, false},
+    _flags{0},
     _scene{&scene},
-    _parent{},
-    _movable{true}
+    _parent{}
   {
-    // do nothing
+    _flags.visible = true;
   }
 
   void changeParent(SceneObject*);

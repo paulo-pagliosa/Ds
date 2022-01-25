@@ -28,7 +28,7 @@
 // Class definition for primitive.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/01/2022
+// Last revision: 24/01/2022
 
 #ifndef __Primitive_h
 #define __Primitive_h
@@ -77,8 +77,7 @@ public:
     return  _normalMatrix;
   }
  
-  void setMaterial(Material*);
-  void setTransform(const vec3f&, const quatf&, const vec3f&);
+  virtual void setMaterial(Material*);
 
   void setTransform(const mat4f& l2w, const mat4f& w2l)
   {
@@ -86,6 +85,8 @@ public:
     _worldToLocal = w2l;
     _normalMatrix = w2l.transposed();
   }
+
+  void setTransform(const vec3f&, const quatf&, const vec3f&);
 
 protected:
   Reference<Material> _material;

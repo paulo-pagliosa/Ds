@@ -28,7 +28,7 @@
 // Source file for primitive proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/01/2022
+// Last revision: 24/01/2022
 
 #include "graph/PrimitiveProxy.h"
 #include "graph/Scene.h"
@@ -66,11 +66,16 @@ PrimitiveProxy::beforeRemoved()
 void
 PrimitiveProxy::update()
 {
-  if (auto p = _object->primitive())
-  {
-    auto t = transform();
-    p->setTransform(t->localToWorldMatrix(), t->worldToLocalMatrix());
-  }
+  if (auto t = transform(); t->changed)
+    if (auto p = _object->primitive())
+      p->setTransform(t->localToWorldMatrix(), t->worldToLocalMatrix());
+}
+
+void
+PrimitiveProxy::setVisible(bool value)
+{
+  if (_actor != nullptr)
+    _actor->visible = value;
 }
 
 } // end namepace graph

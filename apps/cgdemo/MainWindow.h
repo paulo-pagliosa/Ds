@@ -79,10 +79,6 @@ private:
   void createMenu();
   void showOptions();
 
-  //void drawPrimitive(Primitive&);
-  void drawLight(Light&);
-  void drawCamera(Camera&);
-
   static void buildDefaultMeshes();
 
 }; // MainWindow

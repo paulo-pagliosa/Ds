@@ -28,7 +28,7 @@
 // Class definition for OpenGL Renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 20/01/2022
+// Last revision: 24/01/2022
 
 #ifndef __GLRenderer_h
 #define __GLRenderer_h
@@ -71,15 +71,22 @@ public:
     _renderFunction = f;
   }
 
+  void setBasePoint(const vec3f& p);
+
+  float pixelsLength(float d) const;
+
 protected:
   RenderFunction _renderFunction{};
+  vec3f _basePoint;
+  float _invBasePointZ;
+  float _windowViewportRatio;
 
   virtual void beginRender();
   virtual void endRender();
   virtual void renderActors();
   virtual void renderLights();
 
-  void drawAxes(const mat4f&);
+  void drawAxes(const mat4f&, float);
 
 private:
   struct GLData;

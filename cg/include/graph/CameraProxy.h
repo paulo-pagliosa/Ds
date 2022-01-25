@@ -28,7 +28,7 @@
 // Class definition for camera proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/01/2022
+// Last revision: 24/01/2022
 
 #ifndef __CameraProxy_h
 #define __CameraProxy_h
@@ -95,6 +95,12 @@ private:
   void update() override;
 
 }; // CameraProxy
+
+inline auto
+asCamera(Component* component)
+{
+  return dynamic_cast<CameraProxy*>(component);
+}
 
 } // end namespace graph
 

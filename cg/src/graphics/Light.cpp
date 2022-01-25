@@ -49,14 +49,21 @@ nextLightId()
 
 Light::Light():
   _type{Type::Directional},
-  flags{LightBits::TurnedOn},
+  flags{TurnedOn | Infinite},
   color{Color::white},
   position{vec3f::null()},
+  direction{0, 0, 1},
   falloff{Falloff::Constant},
+  _range{0},
   _spotAngle{60}
 {
   setName("Light %d", nextLightId());
-  direction = quatf::eulerAngles(50, -30, 0) * vec3f{0, 0, -1};
+}
+
+void
+Light::setRange(float value)
+{
+  _range = math::max<float>(0, value);
 }
 
 void

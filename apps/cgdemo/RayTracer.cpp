@@ -28,7 +28,7 @@
 // Source file for simple ray tracer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2022
+// Last revision: 24/01/2022
 
 #include "graphics/Camera.h"
 #include "RayTracer.h"
@@ -60,7 +60,23 @@ RayTracer::RayTracer(SceneBase& scene, Camera& camera):
   _maxRecursionLevel{6},
   _minWeight{minMinWeight}
 {
-  // TODO: BVH
+  PrimitiveBVH::PrimitiveArray primitives;
+  auto np = uint32_t(0);
+
+  primitives.reserve(scene.actorCount());
+  for (auto& actor : scene.actors())
+    if (actor->visible)
+    {
+      auto p = actor->mapper()->primitive();
+
+      assert(p != nullptr);
+      if (p->canIntersect())
+      {
+        primitives.push_back(p);
+        np++;
+      }
+    }
+  _bvh = new PrimitiveBVH{std::move(primitives)};
 }
 
 void
@@ -69,14 +85,6 @@ RayTracer::render()
   throw std::runtime_error("RayTracer::render() invoked");
 }
 
-inline float
-windowHeight(Camera* c)
-{
-  if (c->projectionType() == Camera::Parallel)
-    return c->height();
-  return c->nearPlane() * tan(math::toRadians(c->viewAngle() * 0.5f)) * 2;
-
-}
 void
 RayTracer::renderImage(Image& image)
 {
@@ -95,7 +103,7 @@ RayTracer::renderImage(Image& image)
   _Iw = math::inverse(float(w));
   _Ih = math::inverse(float(h));
 
-  auto wh = windowHeight(_camera);
+  auto wh = _camera->windowHeight();
 
   w >= h ? _Vw = (_Vh = wh) * w * _Ih : _Vh = (_Vw = wh) * h * _Iw;
   // init pixel ray
@@ -209,8 +217,7 @@ RayTracer::intersect(const Ray3f& ray, Intersection& hit)
 {
   hit.object = nullptr;
   hit.distance = ray.tMax;
-  // TODO: insert your code here
-  return hit.object != nullptr;
+  return _bvh->intersect(ray, hit);
 }
 
 Color
@@ -224,10 +231,22 @@ RayTracer::shade(const Ray3f& ray, Intersection& hit, int level, float weight)
 //|  @return color at point P                           |
 //[]---------------------------------------------------[]
 {
+  auto primitive = (Primitive*)hit.object;
+
+  assert(nullptr != primitive);
+
+  auto m = primitive->material();
+  auto color = _scene->ambientLight * m->ambient;
   auto P = ray(hit.distance);
- 
-  // TODO: insert your code here
-  return Color::black;
+  auto N = primitive->normal(hit);
+
+  for (auto& light : _scene->lights())
+  {
+    if (!light->isTurnedOn())
+      continue;
+    // TODO: insert your code here
+  }
+  return color;
 }
 
 Color
@@ -248,8 +267,7 @@ RayTracer::shadow(const Ray3f& ray)
 //|  @return true if the ray intersects an object       |
 //[]---------------------------------------------------[]
 {
-  Intersection hit;
-  return intersect(ray, hit);
+  return _bvh->intersect(ray);
 }
 
 } // end namespace cg

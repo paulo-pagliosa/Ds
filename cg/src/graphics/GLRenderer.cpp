@@ -28,7 +28,7 @@
 // Source file for OpenGL renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 21/01/2022
+// Last revision: 24/01/2022
 
 #include "graphics/GLRenderer.h"
 
@@ -170,6 +170,7 @@ static const char* fragmentShader = STRINGIFY(
 
   vec3 lightVector(int i, vec3 P)
   {
+    // TODO: range and spot light
     if (lightTypes[i] == 1) // directional light
       return -vec3(lights[i].position);
     return normalize(vec3(lights[i].position) - P);
@@ -347,6 +348,7 @@ GLRenderer::~GLRenderer()
 void
 GLRenderer::update()
 {
+  // TODO: do it only when camera or viewport has been changed
   GLGraphics3::setView(_camera->position(), vpMatrix(_camera));
   glViewport(0, 0, _viewport.w, _viewport.h);
 
@@ -357,6 +359,21 @@ GLRenderer::update()
   _gl->viewportMatrix[1].set(0, h, 0, 0);
   _gl->viewportMatrix[2].set(0, 0, 1, 0);
   _gl->viewportMatrix[3].set(w, h, 0, 0);
+  _windowViewportRatio = _camera->windowHeight() / _viewport.h;
+}
+
+void
+GLRenderer::setBasePoint(const vec3f& p)
+{
+  _invBasePointZ = math::inverse(_camera->worldToCamera(_basePoint = p).z);
+}
+
+float
+GLRenderer::pixelsLength(float d) const
+{
+  if (_camera->projectionType() == Camera::Perspective)
+    d *= 1 - (_camera->nearPlane() * _invBasePointZ);
+  return _windowViewportRatio * d;
 }
 
 void
@@ -376,9 +393,9 @@ GLRenderer::renderLights()
   {
     if (light->isTurnedOn())
     {
-      if (light->type() == Light::Directional)
+      if (light->type() == Light::Type::Directional)
       {
-        const auto d = vm.transformVector(light->direction);
+        const auto d = vm.transformVector(light->direction).versor();
 
         _gl->program.setUniformVec4(_gl->lightLocs[nl].position, d);
         _gl->program.setUniform(_gl->lightTypeLocs[nl], (int)1);
@@ -507,14 +524,14 @@ GLRenderer::drawMesh(const Primitive& primitive)
 }
 
 void
-GLRenderer::drawAxes(const mat4f& m)
+GLRenderer::drawAxes(const mat4f& m, float s)
 {
   mat3f r{m};
 
   r[0].normalize();
   r[1].normalize();
   r[2].normalize();
-  GLGraphics3::drawAxes(vec3f{m[3]}, r);
+  GLGraphics3::drawAxes(vec3f{m[3]}, r, s);
 }
 
 } // end namespace cg

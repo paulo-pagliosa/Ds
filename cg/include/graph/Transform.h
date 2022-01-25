@@ -92,7 +92,7 @@ public:
   void setLocalPosition(const vec3f& position)
   {
     _localPosition = position;
-    updateSceneObject();
+    update();
   }
 
   /// Sets the local rotation of this transform.
@@ -100,7 +100,7 @@ public:
   {
     _localEulerAngles = rotation.eulerAngles();
     _localRotation = rotation;
-    updateSceneObject();
+    update();
   }
 
   /// Sets the local Euler angles (in degrees) of this transform.
@@ -108,14 +108,14 @@ public:
   {
     _localEulerAngles = angles;
     _localRotation = quatf::eulerAngles(angles);
-    updateSceneObject();
+    update();
   }
 
   /// Sets the local scale of this transform.
   void setLocalScale(const vec3f& scale)
   {
     _localScale = scale;
-    updateSceneObject();
+    update();
   }
 
   /// Sets the local uniform scale of this transform.
@@ -252,7 +252,6 @@ private:
 
   void rotate(const quatf&, Space = Space::Local);
   void parentChanged();
-  void updateSceneObject();
 
   void update() override;
 

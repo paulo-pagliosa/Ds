@@ -344,6 +344,9 @@
     <ClInclude Include="..\..\include\geometry\TriangleMeshBVH.h">
       <Filter>Header Files\geometry</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\graphics\PrimitiveBVH.h">
+      <Filter>Header Files\graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\externals\src\gl3w.c">
@@ -489,6 +492,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\geometry\TriangleMeshBVH.cpp">
       <Filter>Source Files\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\PrimitiveBVH.cpp">
+      <Filter>Source Files\graphics</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

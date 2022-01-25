@@ -28,7 +28,7 @@
 // Class definition for camera.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/01/2022
+// Last revision: 24/01/2022
 
 #ifndef __Camera_h
 #define __Camera_h
@@ -245,7 +245,7 @@ Camera::windowHeight() const
 {
   if (_projectionType == Parallel)
     return _height;
-  return 2 * _distance * tan(math::toRadians(_viewAngle) * 0.5f);
+  return 2 * _F * tan(math::toRadians(_viewAngle) * 0.5f);
 }
 
 inline uint32_t

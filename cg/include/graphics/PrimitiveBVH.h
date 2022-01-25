@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Orthrus Group.                         |
+//| Copyright (C) 2022 Orthrus Group.                               |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,82 +23,53 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: Component.h
+// OVERVIEW: PrimitiveBVH.h
 // ========
-// Class definition for scene object component.
+// Class definition for primitive BVH.
 //
 // Author: Paulo Pagliosa
 // Last revision: 24/01/2022
 
-#ifndef __SceneObjectComponent_h
-#define __SceneObjectComponent_h
+#ifndef __PrimitiveBVH_h
+#define __PrimitiveBVH_h
 
-#include "core/SharedObject.h"
+#include "geometry/BVH.h"
+#include "graphics/Primitive.h"
 
 namespace cg
 { // begin namespace cg
 
-namespace graph
-{ // begin namespace graph
-
-class SceneObject;
-class Transform;
-
 
 /////////////////////////////////////////////////////////////////////
 //
-// Component: scene object component class
-// =========
-class Component abstract: public SharedObject
+// PrimitiveBVH: primitive BVH class
+// ============
+class PrimitiveBVH final: public Aggregate
 {
 public:
-  /// Returns the type name of this component.
-  auto typeName() const
-  {
-    return _typeName;
-  }
+  using PrimitiveArray = typename BVH<Primitive>::PrimitiveArray;
 
-  /// Returns the scene object owning this component.
-  auto sceneObject() const
-  {
-    return _sceneObject;
-  }
-
-  /// Returns the transform of this component.
-  Transform* transform() const; // implemented in SceneObject.h
-
-  /// Returns true if this component is erasable.
-  auto erasable() const
-  {
-    return _erasable;
-  }
-
-protected:
-  Component(const char* const typeName, bool erasable = true):
-    _typeName{typeName},
-    _erasable{erasable}
+  PrimitiveBVH(PrimitiveArray&& primitives):
+    _bvh{new BVH<Primitive>{std::move(primitives)}}
   {
     // do nothing
   }
 
-  virtual bool canBeSiblingOf(Component* component) const;
+  auto& primitives() const
+  {
+    return _bvh->primitives();
+  }
 
-  virtual void afterAdded();
-  virtual void beforeRemoved();
-  virtual void update();
-  virtual void setVisible(bool value);
+  Bounds3f bounds() const override;
 
 private:
-  const char* const _typeName;
-  SceneObject* _sceneObject{};
-  bool _erasable;
+  Reference<BVH<Primitive>> _bvh;
 
-  friend class SceneObject;
+  bool localIntersect(const Ray3f&) const override;
+  bool localIntersect(const Ray3f&, Intersection&) const override;
 
-}; // Component
-
-} // end namepace graph
+}; // PrimitiveBVH
 
 } // end namespace cg
 
-#endif // __SceneObjectComponent_h
+#endif // __PrimitiveBVH_h

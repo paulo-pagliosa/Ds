@@ -28,7 +28,7 @@
 // Class definition for light proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/01/2022
+// Last revision: 24/01/2022
 
 #ifndef __LightProxy_h
 #define __LightProxy_h
@@ -82,8 +82,15 @@ private:
   void afterAdded() override;
   void beforeRemoved() override;
   void update() override;
+  void setVisible(bool value) override;
 
 }; // LightProxy
+
+inline auto
+asLight(Component* component)
+{
+  return dynamic_cast<LightProxy*>(component);
+}
 
 } // end namepace graph
 

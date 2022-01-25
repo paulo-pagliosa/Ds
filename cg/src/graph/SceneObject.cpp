@@ -28,7 +28,7 @@
 // Source file for scene object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 21/01/2022
+// Last revision: 24/01/2022
 
 #include "graph/Scene.h"
 
@@ -45,9 +45,9 @@ namespace graph
 // ===========
 SceneObject::SceneObject(Scene& scene, const char* name, bool movable):
   SceneNode{name},
-  _scene{&scene},
-  _movable{movable}
+  _scene{&scene}
 {
+  _flags.movable = movable;
   (_parent = scene.root())->_children.insert(this);
   addComponent(makeUse(&_transform));
 }
@@ -167,11 +167,24 @@ SceneObject::findComponent(const char* typeName) const
 void
 SceneObject::transformChanged()
 {
-  for (auto& component : _components)
-    component->update();
+    // Iterate the object components skipping its transform
+  for (auto end = _components.end(), cit = ++_components.begin(); cit != end;)
+    static_cast<Component*>(*cit++)->update();
   _transform.changed = false;
   for (auto& child : children())
-    child.transformChanged();
+    child._transform.update();
+}
+
+void
+SceneObject::setVisible(bool value)
+{
+  if (value == _flags.visible)
+    return;
+  _flags.visible = value;
+  for (auto end = _components.end(), cit = ++_components.begin(); cit != end;)
+    static_cast<Component*>(*cit++)->setVisible(value);
+  for (auto& child : children())
+    child.setVisible(value);
 }
 
 namespace

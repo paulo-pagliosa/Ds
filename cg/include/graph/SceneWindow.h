@@ -28,15 +28,12 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/01/2022
+// Last revision: 24/01/2022
 
 #ifndef __SceneWindow_h
 #define __SceneWindow_h
 
 #include "geometry/Ray.h"
-#include "graph/CameraProxy.h"
-#include "graph/LightProxy.h"
-#include "graph/PrimitiveProxy.h"
 #include "graph/SceneEditor.h"
 #include "graphics/GLWindow.h"
 #include <typeinfo>
@@ -243,7 +240,8 @@ dragVec2(const char* label, vec2f& v, vec2f r)
 inline bool
 dragVec3(const char* label, vec3f& v, float min = 0, float max = 0)
 {
-  return ImGui::DragFloat3(label, &v.x, 0.01f, min, max, "%.2g");
+  // TODO: replace 0.1f
+  return ImGui::DragFloat3(label, &v.x, 0.1f, min, max, "%.2g");
 }
 
 inline bool

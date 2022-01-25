@@ -28,7 +28,7 @@
 // Source file for OpenGL 3D graphics.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/01/2022
+// Last revision: 24/01/2022
 
 #include "geometry/MeshSweeper.h"
 #include "graphics/GLGraphics3.h"
@@ -73,7 +73,7 @@ static const char* fragmentShader = STRINGIFY(
 );
 
 static inline TriangleMesh*
-makeCircle(const int np = 20)
+makeCircle(const int np = 30)
 {
   const int nt = np;
   const int nv = nt + 1;
@@ -125,14 +125,14 @@ makeQuad()
   data.vertices = new vec3f[nv];
   data.vertexNormals = new vec3f[nv];
   data.uv = new vec2f[nv];
-  data.vertices[0].set(-1, -1, 0);
-  data.vertices[1].set(+1, -1, 0);
-  data.vertices[2].set(+1, +1, 0);
-  data.vertices[3].set(-1, +1, 0);
-  data.vertexNormals[0].set(0, 0, 1);
-  data.vertexNormals[1].set(0, 0, 1);
-  data.vertexNormals[2].set(0, 0, 1);
-  data.vertexNormals[3].set(0, 0, 1);
+  data.vertices[0].set(-1, 0, -1);
+  data.vertices[1].set(+1, 0, -1);
+  data.vertices[2].set(+1, 0, +1);
+  data.vertices[3].set(-1, 0, +1);
+  data.vertexNormals[0].set(0, 1, 0);
+  data.vertexNormals[1].set(0, 1, 0);
+  data.vertexNormals[2].set(0, 1, 0);
+  data.vertexNormals[3].set(0, 1, 0);
   data.uv[0].set(0, 0);
   data.uv[1].set(1, 0);
   data.uv[2].set(1, 1);
@@ -401,6 +401,7 @@ GLGraphics3::drawNormals(const TriangleMesh& mesh,
     const auto p = t.transform3x4(data.vertices[i]);
     const auto N = n.transform(data.vertexNormals[i]).versor();
 
+    // TODO: take a parameter in place of 0.5f
     drawAxis(p, N, 0.5f, glyph);
   }
   _flatMode = 0;
@@ -470,7 +471,7 @@ GLGraphics3::drawAxis(const vec3f& p,
   r[2] = r[0].cross(r[1]);
   q = p + d * s;
   drawLine(p, q);
-  drawMesh(glyph, q, r, vec3f{0.1f, 0.4f, 0.1f});
+  drawMesh(glyph, q, r, vec3f{0.05f, 0.20f, 0.05f} * s);
 }
 
 } // end namespace cg

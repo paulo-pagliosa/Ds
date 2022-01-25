@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2019 Orthrus Group.                         |
+//| Copyright (C) 2014, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for flags.
 //
 // Author: Paulo Pagliosa
-// Last revision: 27/05/2019
+// Last revision: 24/01/2022
 
 #ifndef __Flags_h
 #define __Flags_h
@@ -38,6 +38,13 @@
 
 namespace cg
 { // begin namespace cg
+
+template <typename Bits>
+inline auto
+operator |(Bits a, Bits b)
+{
+  return Bits((uint32_t)a | (uint32_t)b);
+}
 
 
 /////////////////////////////////////////////////////////////////////

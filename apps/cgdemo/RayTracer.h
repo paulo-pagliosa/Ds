@@ -28,13 +28,14 @@
 // Class definition for simple ray tracer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 21/01/2022
+// Last revision: 24/01/2022
 
 #ifndef __RayTracer_h
 #define __RayTracer_h
 
 #include "geometry/Intersection.h"
 #include "graphics/Image.h"
+#include "graphics/PrimitiveBVH.h"
 #include "graphics/Renderer.h"
 
 namespace cg
@@ -77,6 +78,7 @@ public:
   virtual void renderImage(Image&);
 
 private:
+  Reference<PrimitiveBVH> _bvh;
   struct VRC
   {
     vec3f u;

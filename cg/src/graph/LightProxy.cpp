@@ -28,7 +28,7 @@
 // Source file for light proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/01/2022
+// Last revision: 24/01/2022
 
 #include "graph/LightProxy.h"
 #include "graph/Scene.h"
@@ -61,7 +61,17 @@ LightProxy::beforeRemoved()
 void
 LightProxy::update()
 {
+  if (auto t = transform(); t->changed)
+  {
+    _object->position = t->position();
+    _object->direction = t->forward();
+  }
+}
 
+void
+LightProxy::setVisible(bool value)
+{
+  _object->turnOn(value);
 }
 
 } // end namepace graph

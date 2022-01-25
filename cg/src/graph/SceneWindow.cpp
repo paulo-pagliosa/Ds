@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/01/2022
+// Last revision: 24/01/2022
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
@@ -130,7 +130,7 @@ SceneWindow::createPrimitiveObject(const TriangleMesh& mesh,
   static int primitiveId;
   auto object = SceneObject::New(*_scene);
 
-  object->setName("Object %d", ++primitiveId);
+  object->setName("%s %d", meshName.c_str(), ++primitiveId);
   object->addComponent(makePrimitive(mesh, meshName));
   return object;
 }
@@ -199,9 +199,11 @@ SceneWindow::drawComponents(const SceneObject& object)
   {
     Component* c{*cit++};
 
-    if (auto proxy = dynamic_cast<CameraProxy*>(c))
-      _editor->drawCamera(*proxy->camera());
-    else if (auto proxy = dynamic_cast<PrimitiveProxy*>(c))
+    if (auto proxy = graph::asCamera(c))
+      _editor->drawCamera(*proxy);
+    else if (auto proxy = graph::asLight(c))
+      _editor->drawLight(*proxy);
+    else if (auto proxy = graph::asPrimitive(c))
     {
       auto p = proxy->mapper()->primitive();
 
@@ -214,16 +216,13 @@ SceneWindow::drawComponents(const SceneObject& object)
       }
     }
   }
-
-  auto t = object.transform();
-
-  _editor->drawAxes(t->position(), mat3f{t->rotation()});
+  _editor->drawTransform(*object.transform());
 }
 
 void
 SceneWindow::drawSelectedObject(const SceneObject& object)
 {
-  if (!object.flags.visible)
+  if (!object.visible())
     return;
   drawComponents(object);
   for (auto& child : object.children())
@@ -282,11 +281,11 @@ SceneWindow::createObjectButton()
     if (ImGui::BeginMenu("Light"))
     {
       if (ImGui::MenuItem("Directional Light"))
-        createLightObject(Light::Directional);
+        createLightObject(Light::Type::Directional);
       if (ImGui::MenuItem("Point Light"))
-        createLightObject(Light::Point);
+        createLightObject(Light::Type::Point);
       if (ImGui::MenuItem("Spotlight"))
-        createLightObject(Light::Spot);
+        createLightObject(Light::Type::Spot);
       ImGui::EndMenu();
     }
     if (ImGui::MenuItem("Camera"))
@@ -541,11 +540,11 @@ SceneWindow::inspectLight(Light& light)
   static const char* lightTypes[]{"Directional", "Point", "Spot"};
   auto lt = light.type();
 
-  if (ImGui::BeginCombo("Type", lightTypes[lt]))
+  if (ImGui::BeginCombo("Type", lightTypes[(int)lt]))
   {
     for (auto i = 0; i < IM_ARRAYSIZE(lightTypes); ++i)
     {
-      bool selected = lt == i;
+      bool selected = (int)lt == i;
 
       if (ImGui::Selectable(lightTypes[i], selected))
         lt = (Light::Type)i;
@@ -558,15 +557,29 @@ SceneWindow::inspectLight(Light& light)
   ImGui::colorEdit3("Color", light.color);
   if (lt == Light::Type::Directional)
     return;
+  {
+    auto range = light.range();
+
+    ImGui::DragFloat("Range", &range, 0.1f, 0, 1000);
+
+    bool state = range == 0;
+
+    ImGui::SameLine();
+    ImGui::Checkbox("Infinite", &state);
+    if (state)
+      range = 0;
+    light.setRange(range);
+    light.flags.enable(Light::Infinite, state);
+  }
 
   static const char* falloff[]{"Constant", "Linear", "Quadratic"};
   auto f = light.falloff;
 
-  if (ImGui::BeginCombo("Falloff", falloff[f]))
+  if (ImGui::BeginCombo("Falloff", falloff[(int)f]))
   {
     for (auto i = 0; i < IM_ARRAYSIZE(falloff); ++i)
     {
-      bool selected = f == i;
+      bool selected = (int)f == i;
 
       if (ImGui::Selectable(falloff[i], selected))
         f = (Light::Falloff)i;
@@ -737,10 +750,10 @@ SceneWindow::inspectSceneObject(SceneObject& object)
   ImGui::objectNameInput(object);
   ImGui::SameLine();
 
-  bool visible{object.flags.visible};
+  bool state{object.visible()};
 
-  ImGui::Checkbox("###visible", &visible);
-  object.flags.visible = visible;
+  ImGui::Checkbox("###visible", &state);
+  object.setVisible(state);
   ImGui::Separator();
 
   auto& components = object.components();
@@ -859,7 +872,7 @@ SceneWindow::scrollEvent(double dx, double dy)
 SceneObject*
 SceneWindow::pickObject(SceneObject* object, const Ray3f& ray, float& t) const
 {
-  if (!object->flags.visible)
+  if (!object->visible())
     return nullptr;
 
   SceneObject* nearest{};
@@ -868,12 +881,18 @@ SceneWindow::pickObject(SceneObject* object, const Ray3f& ray, float& t) const
     if (auto proxy = dynamic_cast<PrimitiveProxy*>(&*component))
     {
       auto p = proxy->mapper()->primitive();
-      Intersection hit;
 
-      if (p->intersect(ray, hit) && hit.distance < t)
+      if (p->bounds().size().min() == 0)
+        puts("Unable to pick scene object");
+      else
       {
-        t = hit.distance;
-        nearest = object;
+        Intersection hit;
+
+        if (p->intersect(ray, hit) && hit.distance < t)
+        {
+          t = hit.distance;
+          nearest = object;
+        }
       }
       break;
     }
@@ -905,11 +924,11 @@ SceneWindow::mouseButtonInputEvent(int button, int actions, int mods)
   if (button == GLFW_MOUSE_BUTTON_LEFT && !active)
   {
     if (auto o = pickObject(_mouse.px, _mouse.py))
-      if (o->flags.selectable)
+      if (o->selectable())
       {
         if (auto p = _currentNode->as<SceneObject>())
-          p->flags.selected = false;
-        o->flags.selected = true;
+          p->setSelected(false);
+        o->setSelected(true);
         _currentNode = o;
       }
     return true;

@@ -28,7 +28,7 @@
 // Class definition for light.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/01/2022
+// Last revision: 24/01/2022
 
 #ifndef __Light_h
 #define __Light_h
@@ -49,14 +49,14 @@ namespace cg
 class Light: public NameableObject
 {
 public:
-  enum Type
+  enum class Type
   {
     Directional,
     Point,
     Spot
   };
 
-  enum Falloff
+  enum class Falloff
   {
     Constant,
     Linear,
@@ -65,12 +65,13 @@ public:
 
   enum LightBits
   {
-    Camera = 1,
-    TurnedOn = 2
+    Infinite = 1,
+    Camera = 2,
+    TurnedOn = 4
   };
 
-  static constexpr auto minSpotAngle = float(1);
-  static constexpr auto maxSpotAngle = float(179);
+  static constexpr auto minSpotAngle = 1.0f;
+  static constexpr auto maxSpotAngle = 179.0f;
 
   using LightFlags = Flags<LightBits>;
 
@@ -103,6 +104,13 @@ public:
     flags.enable(TurnedOn, state);
   }
 
+  auto range() const
+  {
+    return _range;
+  }
+
+  void setRange(float value);
+
   auto spotAngle() const
   {
     return _spotAngle;
@@ -121,6 +129,8 @@ public:
 
 private:
   Type _type;
+  float _range;
+  float _invRange;
   float _spotAngle;
 
 }; // Light
@@ -128,32 +138,35 @@ private:
 inline Color
 Light::lightColor(float distance) const
 {
-  if (_type == Type::Directional)
-    return color;
-  if (falloff == Falloff::Constant)
+  if (_type == Type::Directional || falloff == Falloff::Constant)
     return color;
 
-  float f = math::inverse(distance);
+  float f;
 
-  if (falloff == Falloff::Quadratic)
-    f *= f;
+  if (flags.isSet(Infinite))
+  {
+    f = math::inverse(distance);
+    if (falloff == Falloff::Quadratic)
+      f *= f;
+  }
+  else
+  {
+    f = distance / _range;
+    f = falloff == Falloff::Quadratic ? 1 + f * (f - 2) : 1 - f;
+  }
   return color * f;
 }
 
 inline bool
 Light::lightVector(const vec3f& P, vec3f& L, float& distance) const
 {
-  if (_type == Light::Directional)
-  {
-    L = direction;
-    distance = math::Limits<float>::inf();
-    return true;
-  }
+  if (_type == Type::Directional)
+    return L = direction, true;
   distance = (L = P - position).length();
-  if (!math::isZero(distance))
+  if (!math::isZero(distance) || distance > _range)
     return false;
   L *= math::inverse(distance);
-  if (_type == Light::Point)
+  if (_type == Type::Point)
     return true;
   // Spot light
   return _spotAngle >= 2 * math::toRadians(acos(direction.dot(L)));

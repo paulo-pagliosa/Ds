@@ -28,7 +28,7 @@
 // Source file for scene object component.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/01/2022
+// Last revision: 24/01/2022
 
 #include "graph/Component.h"
 
@@ -63,6 +63,12 @@ Component::beforeRemoved()
 
 void
 Component::update()
+{
+  // do nothing
+}
+
+void
+Component::setVisible(bool)
 {
   // do nothing
 }

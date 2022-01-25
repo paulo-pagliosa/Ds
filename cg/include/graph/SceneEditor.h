@@ -28,13 +28,15 @@
 // Class definition for scene editor.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/01/2022
+// Last revision: 24/01/2022
 
 #ifndef __SceneEditor_h
 #define __SceneEditor_h
 
+#include "graph/CameraProxy.h"
+#include "graph/LightProxy.h"
+#include "graph/PrimitiveProxy.h"
 #include "graph/Scene.h"
-#include "graphics/Camera.h"
 #include "graphics/GLRenderer.h"
 
 namespace cg
@@ -71,8 +73,9 @@ public:
 
   void newFrame();
 
-  void drawCamera(const Camera&);
-  void drawLight(const Light&);
+  void drawCamera(const CameraProxy&);
+  void drawLight(const LightProxy&);
+  void drawTransform(const Transform&);
 
 private:
   float _orbitDistance{10};
@@ -84,6 +87,10 @@ private:
   {
     // do nothing
   }
+
+  void outlineSphere(const vec3f&, const mat3f&, float);
+  void outlineCone(const vec3f&, const mat3f&, float, float);
+  void outlineCylinder(const vec3f&, const mat3f&, float, float);
 
   friend class SceneWindow;
 

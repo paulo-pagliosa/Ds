@@ -327,7 +327,7 @@ GLMeshRenderer::setLight(int i, const Light& light)
 {
   if (!light.isTurnedOn())
     return false;
-  if (light.type() == Light::Directional)
+  if (light.type() == Light::Type::Directional)
   {
     const auto d = vec4f{lightDirection(light, _camera)};
 

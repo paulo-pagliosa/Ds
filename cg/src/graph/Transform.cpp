@@ -162,13 +162,7 @@ Transform::reset()
   _localPosition = _localEulerAngles = vec3f{0};
   _localRotation = quatf::identity();
   _localScale = vec3f{1};
-  updateSceneObject();
-}
-
-void
-Transform::updateSceneObject()
-{
-  sceneObject()->transformChanged();
+  update();
 }
 
 void
@@ -181,6 +175,7 @@ Transform::update()
   _rotation = p->_rotation * _localRotation;
   _worldToLocal = inverseLocalMatrix() * p->_worldToLocal;
   changed = true;
+  sceneObject()->transformChanged();
 }
 
 void
@@ -195,9 +190,8 @@ Transform::parentChanged()
   _localScale = scale(_localRotation, m);
   _localToWorld = p->_localToWorld * localMatrix();
   _worldToLocal = inverseLocalMatrix() * p->_worldToLocal;
-  for (auto& child : sceneObject()->children())
-    child.transform()->update();
   changed = true;
+  sceneObject()->transformChanged();
 }
 
 void

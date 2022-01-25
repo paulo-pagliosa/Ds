@@ -28,7 +28,7 @@
 // Source file for scene editor.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/01/2022
+// Last revision: 24/01/2022
 
 #include "graph/SceneEditor.h"
 
@@ -83,8 +83,9 @@ SceneEditor::newFrame()
 }
 
 void
-SceneEditor::drawCamera(const Camera& camera)
+SceneEditor::drawCamera(const CameraProxy& proxy)
 {
+  auto& camera = *proxy.camera();
   float F, B;
 
   camera.clippingPlanes(F, B);
@@ -120,10 +121,94 @@ SceneEditor::drawCamera(const Camera& camera)
   drawQuad(p2, p6, p7, p3);
 }
 
-void
-SceneEditor::drawLight(const Light& light)
+inline void
+SceneEditor::outlineSphere(const vec3f& p, const mat3f& m, float r)
 {
+  drawCircle(p, r, m[0]);
+  drawCircle(p, r, m[1]);
+  drawCircle(p, r, m[2]);
+}
 
+inline void
+SceneEditor::outlineCone(const vec3f& p, const mat3f& m, float a, float h)
+{
+  auto& n = m[2];
+  auto bc = p + n * h;
+  auto br = h * float(sin(math::toRadians(a) * 0.5));
+
+  drawCircle(bc, br, n);
+
+  auto ur = m[0] * br;
+  auto vr = m[1] * br;
+
+  drawLine(p, bc + ur);
+  drawLine(p, bc - ur);
+  drawLine(p, bc + vr);
+  drawLine(p, bc - vr);
+}
+
+inline void
+SceneEditor::outlineCylinder(const vec3f& p, const mat3f& m, float r, float h)
+{
+  auto& n = m[2];
+  auto ur = m[0] * r;
+  auto vr = m[1] * r;
+
+  drawVector(p + ur, n, h);
+  drawVector(p - ur, n, h);
+  drawVector(p + vr, n, h);
+  drawVector(p - vr, n, h);
+}
+
+void
+SceneEditor::drawLight(const LightProxy& proxy)
+{
+  constexpr auto lr = 10;
+  constexpr auto dl = 120;
+
+  const auto& t = *proxy.transform();
+  auto r = mat3f{t.rotation()};
+  const auto& p = t.position();
+  const auto& light = *proxy.light();
+
+  setBasePoint(p);
+
+  auto dt = glIsEnabled(GL_DEPTH_TEST);
+
+  glDisable(GL_DEPTH_TEST);
+  setMeshColor(_lightGismoColor);
+  setPolygonMode(PolygonMode::FILL);
+  setFlatMode(true);
+  drawCircle(p, pixelsLength(lr), _camera->viewPlaneNormal());
+  setFlatMode(false);
+  setLineColor(_lightGismoColor);
+  setPolygonMode(PolygonMode::LINE);
+  switch (light.type())
+  {
+    case Light::Type::Directional:
+      outlineCylinder(p, r, pixelsLength(lr * 2), pixelsLength(dl));
+      break;
+    case Light::Type::Point:
+      outlineSphere(p, r, light.range());
+      break;
+    case Light::Type::Spot:
+      outlineCone(p, r, light.spotAngle(), light.range());
+      break;
+  }
+  if (dt)
+    glEnable(GL_DEPTH_TEST);
+}
+
+void
+SceneEditor::drawTransform(const Transform& t)
+{
+  constexpr auto al = 120;
+
+  auto r = mat3f{t.rotation()};
+  const auto& p = t.position();
+
+  setBasePoint(p);
+  drawAxes(p, r, pixelsLength(al));
 }
 
 } // end namespace graph

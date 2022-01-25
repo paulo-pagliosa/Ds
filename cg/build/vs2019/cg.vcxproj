@@ -159,6 +159,7 @@
     <ClInclude Include="..\..\include\graphics\Light.h" />
     <ClInclude Include="..\..\include\graphics\Material.h" />
     <ClInclude Include="..\..\include\graphics\Primitive.h" />
+    <ClInclude Include="..\..\include\graphics\PrimitiveBVH.h" />
     <ClInclude Include="..\..\include\graphics\PrimitiveMapper.h" />
     <ClInclude Include="..\..\include\graphics\Renderer.h" />
     <ClInclude Include="..\..\include\graphics\SceneBase.h" />
@@ -223,6 +224,7 @@
     <ClCompile Include="..\..\src\graphics\Image.cpp" />
     <ClCompile Include="..\..\src\graphics\Light.cpp" />
     <ClCompile Include="..\..\src\graphics\Primitive.cpp" />
+    <ClCompile Include="..\..\src\graphics\PrimitiveBVH.cpp" />
     <ClCompile Include="..\..\src\graphics\PrimitiveMapper.cpp" />
     <ClCompile Include="..\..\src\graphics\Renderer.cpp" />
     <ClCompile Include="..\..\src\graphics\Shape.cpp" />
