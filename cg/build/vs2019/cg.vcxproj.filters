@@ -347,6 +347,12 @@
     <ClInclude Include="..\..\include\graphics\PrimitiveBVH.h">
       <Filter>Header Files\graphics</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\graphics\GLFramebuffer.h">
+      <Filter>Header Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\graphics\GLTextureFramebuffer.h">
+      <Filter>Header Files\graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\externals\src\gl3w.c">
@@ -494,6 +500,12 @@
       <Filter>Source Files\geometry</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\graphics\PrimitiveBVH.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\GLFramebuffer.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\GLTextureFramebuffer.cpp">
       <Filter>Source Files\graphics</Filter>
     </ClCompile>
   </ItemGroup>

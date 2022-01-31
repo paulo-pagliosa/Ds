@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2012 Orthrus Group.                         |
+//| Copyright (C) 2018, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for light.
 //
 // Author: Paulo Pagliosa
-// Last revision: 25/01/2022
+// Last revision: 31/01/2022
 
 #ifndef __Light_h
 #define __Light_h
@@ -133,6 +133,11 @@ private:
   float _invRange;
   float _spotAngle;
 
+  auto outOfRange(float distance) const
+  {
+    return !flags.isSet(Infinite) && distance > _range;
+  }
+
 }; // Light
 
 inline Color
@@ -161,9 +166,9 @@ inline bool
 Light::lightVector(const vec3f& P, vec3f& L, float& distance) const
 {
   if (_type == Type::Directional)
-    return L = -direction, true;
+    return (L = -direction), true;
   distance = (L = position -  P).length();
-  if (!math::isZero(distance) || distance > _range)
+  if (math::isZero(distance) || outOfRange(distance))
     return false;
   L *= math::inverse(distance);
   if (_type == Type::Point)

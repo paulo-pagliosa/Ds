@@ -28,7 +28,7 @@
 // Source file for cg demo main window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 25/01/2022
+// Last revision: 31/01/2022
 
 #include "geometry/MeshSweeper.h"
 #include "graphics/Application.h"
@@ -194,6 +194,7 @@ MainWindow::mainMenu()
           _image = nullptr;
       }
       ImGui::Separator();
+      ImGui::MenuItem("Preview", nullptr, &_showPreview);
       ImGui::MenuItem("Assets Window", nullptr, &_showAssets);
       ImGui::MenuItem("Editor View Settings", nullptr, &_showEditorView);
       ImGui::EndMenu();

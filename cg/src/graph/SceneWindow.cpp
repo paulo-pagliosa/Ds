@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 25/01/2022
+// Last revision: 31/01/2022
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
@@ -199,6 +199,41 @@ SceneWindow::renderScene()
 }
 
 void
+SceneWindow::preview(Camera& camera)
+{
+  if (!_showPreview)
+    return;
+
+  const auto hv = height();
+  const auto wv = width();
+  const auto ar = (float)wv / hv;
+  const auto hp = (float)hv / 3;
+  const auto wp = hp * ar;
+
+  const auto& style = ImGui::GetStyle();
+  auto wt = wp + (style.WindowPadding.x * 2);
+  auto ht = hp + (style.WindowPadding.y + style.FramePadding.y) * 2 +
+    ImGui::GetFontSize();
+
+  ImGui::SetNextWindowPos({((float)wv - wt) / 2, (float)hv - (ht + 2)});
+  ImGui::SetNextWindowSize({wt, ht});
+  if (_fbo == nullptr)
+    _fbo = new GLTextureFramebuffer{wv, hv};
+  _fbo->use();
+  {
+    Reference<Camera> ec{_editor->camera()};
+
+    _editor->setCamera(camera);
+    _editor->render();
+    _editor->setCamera(*ec);
+  }
+  _fbo->disuse();
+  ImGui::Begin("Preview", nullptr, ImGuiWindowFlags_NoResize);
+  ImGui::Image((void*)(intptr_t)_fbo->texture(), {wp, hp}, {0, 1}, {1, 0});
+  ImGui::End();
+}
+
+void
 SceneWindow::drawComponents(const SceneObject& object)
 {
   const auto& components = object.components();
@@ -208,10 +243,13 @@ SceneWindow::drawComponents(const SceneObject& object)
   {
     Component* c{*cit++};
 
-    if (auto proxy = graph::asCamera(c))
-      _editor->drawCamera(*proxy);
-    else if (auto proxy = graph::asLight(c))
+    if (auto proxy = graph::asLight(c))
       _editor->drawLight(*proxy);
+    else if (auto proxy = graph::asCamera(c))
+    {
+      _editor->drawCamera(*proxy);
+      preview(*proxy->camera());
+    }
     else if (auto proxy = graph::asPrimitive(c))
     {
       auto p = proxy->mapper()->primitive();
@@ -246,7 +284,6 @@ SceneWindow::render()
     renderScene();
     return;
   }
-  _editor->newFrame();
   _editor->render();
   if (_editor->showGround)
     _editor->drawXZPlane(10, 1);
@@ -863,6 +900,8 @@ bool
 SceneWindow::windowResizeEvent(int width, int height)
 {
   _editor->setImageSize(width, height);
+  if (_fbo && (_fbo->width() < width || _fbo->height() < height))
+    _fbo = nullptr;
   return onResize(width, height);
 }
 

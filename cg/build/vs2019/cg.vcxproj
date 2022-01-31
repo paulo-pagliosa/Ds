@@ -143,6 +143,7 @@
     <ClInclude Include="..\..\include\graphics\Camera.h" />
     <ClInclude Include="..\..\include\graphics\Color.h" />
     <ClInclude Include="..\..\include\graphics\GLBuffer.h" />
+    <ClInclude Include="..\..\include\graphics\GLFramebuffer.h" />
     <ClInclude Include="..\..\include\graphics\GLGraphics2.h" />
     <ClInclude Include="..\..\include\graphics\GLGraphics3.h" />
     <ClInclude Include="..\..\include\graphics\GLGraphicsBase.h" />
@@ -154,6 +155,7 @@
     <ClInclude Include="..\..\include\graphics\GLRendererBase.h" />
     <ClInclude Include="..\..\include\graphics\GLRenderWindow2.h" />
     <ClInclude Include="..\..\include\graphics\GLRenderWindow3.h" />
+    <ClInclude Include="..\..\include\graphics\GLTextureFramebuffer.h" />
     <ClInclude Include="..\..\include\graphics\GLWindow.h" />
     <ClInclude Include="..\..\include\graphics\Image.h" />
     <ClInclude Include="..\..\include\graphics\Light.h" />
@@ -209,6 +211,7 @@
     <ClCompile Include="..\..\src\graphics\Assets.cpp" />
     <ClCompile Include="..\..\src\graphics\Camera.cpp" />
     <ClCompile Include="..\..\src\graphics\Color.cpp" />
+    <ClCompile Include="..\..\src\graphics\GLFramebuffer.cpp" />
     <ClCompile Include="..\..\src\graphics\GLGraphics2.cpp" />
     <ClCompile Include="..\..\src\graphics\GLGraphics3.cpp" />
     <ClCompile Include="..\..\src\graphics\GLGraphicsBase.cpp" />
@@ -220,6 +223,7 @@
     <ClCompile Include="..\..\src\graphics\GLRendererBase.cpp" />
     <ClCompile Include="..\..\src\graphics\GLRenderWindow2.cpp" />
     <ClCompile Include="..\..\src\graphics\GLRenderWindow3.cpp" />
+    <ClCompile Include="..\..\src\graphics\GLTextureFramebuffer.cpp" />
     <ClCompile Include="..\..\src\graphics\GLWindow.cpp" />
     <ClCompile Include="..\..\src\graphics\Image.cpp" />
     <ClCompile Include="..\..\src\graphics\Light.cpp" />

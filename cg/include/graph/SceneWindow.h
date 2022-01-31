@@ -28,13 +28,14 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 25/01/2022
+// Last revision: 31/01/2022
 
 #ifndef __SceneWindow_h
 #define __SceneWindow_h
 
 #include "geometry/Ray.h"
 #include "graph/SceneEditor.h"
+#include "graphics/GLTextureFrameBuffer.h"
 #include "graphics/GLWindow.h"
 #include <typeinfo>
 #include <unordered_map>
@@ -87,6 +88,7 @@ protected:
   ViewMode _viewMode{ViewMode::Editor};
   bool _showEditorView{true};
   bool _showAssets{true};
+  bool _showPreview{true};
 
   SceneWindow(const char* title, int width, int height):
     GLWindow{title, width, height}
@@ -133,6 +135,7 @@ protected:
 
   void drawSelectedObject(const SceneObject&);
   void drawComponents(const SceneObject&);
+  void preview(Camera&);
 
   virtual SceneObject* pickObject(int, int) const;
   SceneObject* pickObject(SceneObject*, const Ray3f&, float&) const;
@@ -178,6 +181,7 @@ private:
 
   Reference<Scene> _scene;
   Reference<SceneEditor> _editor;
+  Reference<GLTextureFramebuffer> _fbo;
   SceneNode* _currentNode{};
   Flags<MoveBits> _moveFlags{};
   Flags<DragBits> _dragFlags{};

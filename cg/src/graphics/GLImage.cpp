@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2020 Orthrus Group.                         |
+//| Copyright (C) 2018, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for OpenGL image.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/06/2020
+// Last revision: 31/01/2022
 
 #include "graphics/GLImage.h"
 #include <memory>
@@ -148,6 +148,7 @@ public:
     glBindVertexArray(_vao);
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &ct);
     glBindTexture(GL_TEXTURE_2D, texture);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDisable(GL_DEPTH_TEST);
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     if (dt)
