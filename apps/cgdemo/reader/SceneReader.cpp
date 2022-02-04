@@ -409,6 +409,7 @@ SceneReader::Parser::matchCamera()
         break;
       default:
         matchEndOfBlock();
+        graph::CameraProxy::setCurrent(camera);
         return proxy;
     }
   }

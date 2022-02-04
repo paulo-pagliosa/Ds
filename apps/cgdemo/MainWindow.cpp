@@ -142,7 +142,7 @@ MainWindow::fileMenu()
     if (ImGui::BeginMenu("Open"))
     {
       // TODO
-      if (ImGui::MenuItem("Test"))
+      if (ImGui::MenuItem("test.scn"))
         readScene(Application::assetFilePath("scenes/test.scn"));
       ImGui::EndMenu();
     }

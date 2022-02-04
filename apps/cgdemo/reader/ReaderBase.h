@@ -122,6 +122,7 @@ protected:
     _NORMALIZE,
     _DOT,
     _CROSS,
+    _AXES,
     _INCLUDE,
     lastToken
   };
@@ -136,6 +137,7 @@ protected:
     UNDEFINED_NAME,
     BAD_CAST,
     ILLEGAL_OPERATION,
+    CANNOT_BE_NULL,
     MULTIPLE_DECLARATION_FOR,
     UNEXPECTED_END_OF_FILE_IN_COMMENT_STARTED_ON_LINE,
     NO_STRING_ENDING,

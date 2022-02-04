@@ -30,6 +30,7 @@
 // Author: Paulo Pagliosa
 // Last revision: 04/02/2022
 
+#include "math/Matrix3x3.h"
 #include "ReaderBase.h"
 #include <cassert>
 #include <cctype>
@@ -173,6 +174,7 @@ DEFINE_KEYWORD_TABLE(Reader::Parser, AbstractParser)
   KEYWORD("normalize", _NORMALIZE, 0)
   KEYWORD("dot", _DOT, 0)
   KEYWORD("cross", _CROSS, 0)
+  KEYWORD("axes", _AXES, 0)
   KEYWORD("include", _INCLUDE, 0)
   END_KEYWORD_TABLE;
 
@@ -645,11 +647,11 @@ Reader::Parser::factor()
       break;
     case _DOT:
     {
-      vec3f v;
-
-      match('(');
       advance();
-      v = matchVec3();
+      match('(');
+
+      auto v = matchVec3();
+
       match(',');
       e = v.dot(matchVec3());
       match(')');
@@ -657,14 +659,31 @@ Reader::Parser::factor()
     }
     case _CROSS:
     {
-      vec3f v;
-
-      match('(');
       advance();
-      v = matchVec3();
+      match('(');
+
+      auto v = matchVec3();
+
       match(',');
       e = v.cross(matchVec3());
       match(')');
+      break;
+    }
+    case _AXES:
+    {
+      advance();
+      match('(');
+
+      mat3f m;
+
+      m[2] = matchVec3().versor();
+      match(',');
+      m[1] = matchVec3();
+      match(')');
+      if ((m[0] = m[1].cross(m[2]).versor()).isNull())
+        error(CANNOT_BE_NULL, "right");
+      m[1] = m[2].cross(m[0]);
+      e = quatf{m}.eulerAngles();
       break;
     }
     default:

@@ -153,6 +153,9 @@ SceneWindow::preview(Camera& camera)
   const auto hv = height();
   const auto wv = width();
   const auto ar = (float)wv / hv;
+
+  camera.setAspectRatio(ar);
+
   const auto hp = (float)hv / 3;
   const auto wp = hp * ar;
 
@@ -172,6 +175,8 @@ SceneWindow::preview(Camera& camera)
     _editor->setCamera(camera);
     _editor->render();
     _editor->setCamera(*ec);
+    // Update to continue drawing in the same frame
+    _editor->update();
   }
   _fbo->disuse();
   ImGui::Begin("Preview", nullptr, ImGuiWindowFlags_NoResize);
