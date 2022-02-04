@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Orthrus Group.                         |
+//| Copyright (C) 2007, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,72 +23,64 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: Assets.h
+// OVERVIEW: FileBuffer.h
 // ========
-// Class definition for assets.
+// Class definition for file buffer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 03/02/2022
+// Last revision: 31/01/2022
 
-#ifndef __Assets_h
-#define __Assets_h
+#ifndef __FileBuffer_h
+#define __FileBuffer_h
 
-#include "graphics/Material.h"
-#include "utils/MeshReader.h"
-#include <map>
-#include <string>
+#include "Buffer.h"
+#include <filesystem>
+#include <fstream>
 
 namespace cg
 { // begin namespace cg
 
-using MeshRef = Reference<TriangleMesh>;
-using MeshMap = std::map<std::string, MeshRef>;
-using MeshMapIterator = typename MeshMap::const_iterator;
-using MaterialRef = Reference<Material>;
-using MaterialMap = std::map<std::string, MaterialRef>;
-using MaterialMapIterator = typename MaterialMap::const_iterator;
+namespace fs = std::filesystem;
+
+namespace parser
+{ // begin namespace parser
 
 
 /////////////////////////////////////////////////////////////////////
 //
-// Assets: assets class
-// ======
-class Assets
+// FileBuffer: file buffer class
+// ==========
+class FileBuffer: public Buffer
 {
 public:
-  static void initialize();
+  FileBuffer(const fs::path& path);
 
-  static MeshMap& meshes()
+  std::string name() const override;
+
+  const auto& file() const
   {
-    return _meshes;
-  }
-
-  static TriangleMesh* loadMesh(const std::string& meshName)
-  {
-    return loadMesh(_meshes.find(meshName));
-  }
-
-  static TriangleMesh* loadMesh(MeshMapIterator);
-
-  static MaterialMap& materials()
-  {
-    return _materials;
-  }
-
-  static Material* findMaterial(const std::string& name)
-  {
-    if (auto mit = _materials.find(name); mit != _materials.end())
-      return mit->second;
-    return nullptr;
+    return _file;
   }
 
 private:
-  static bool _initialized;
-  static MeshMap _meshes;
-  static MaterialMap _materials;
+  fs::path _path;
+  std::ifstream _file;
+  size_t _size;
 
-}; // Assets
+  char advance() override;
+
+  void flush();
+  void fill(char*, size_t = 0);
+
+  auto endBuffer() const
+  {
+    return _begin + _size;
+  }
+
+}; // FileBuffer
+
+} // end namespace parser
 
 } // end namespace cg
 
-#endif // __Assets_h
+#endif // __FileBuffer_h

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Orthrus Group.                         |
+//| Copyright (C) 2022 Orthrus Group.                               |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,72 +23,30 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: Assets.h
+// OVERVIEW: Scope.cpp
 // ========
-// Class definition for assets.
+// Source file for simple scope.
 //
 // Author: Paulo Pagliosa
 // Last revision: 03/02/2022
 
-#ifndef __Assets_h
-#define __Assets_h
+#include "Scope.h"
 
-#include "graphics/Material.h"
-#include "utils/MeshReader.h"
-#include <map>
-#include <string>
-
-namespace cg
-{ // begin namespace cg
-
-using MeshRef = Reference<TriangleMesh>;
-using MeshMap = std::map<std::string, MeshRef>;
-using MeshMapIterator = typename MeshMap::const_iterator;
-using MaterialRef = Reference<Material>;
-using MaterialMap = std::map<std::string, MaterialRef>;
-using MaterialMapIterator = typename MaterialMap::const_iterator;
+namespace cg::parser
+{ // begin namespace cg::parser
 
 
 /////////////////////////////////////////////////////////////////////
 //
-// Assets: assets class
-// ======
-class Assets
+// Scope implementation
+// =====
+bool
+Scope::lookup(const std::string& name, Expression& e) const
 {
-public:
-  static void initialize();
+  for (auto scope = this; scope != nullptr; scope = scope->_parent)
+    if (auto it = scope->_symbols.find(name); it != scope->_symbols.end())
+      return (e = it->second), true;
+  return false;
+}
 
-  static MeshMap& meshes()
-  {
-    return _meshes;
-  }
-
-  static TriangleMesh* loadMesh(const std::string& meshName)
-  {
-    return loadMesh(_meshes.find(meshName));
-  }
-
-  static TriangleMesh* loadMesh(MeshMapIterator);
-
-  static MaterialMap& materials()
-  {
-    return _materials;
-  }
-
-  static Material* findMaterial(const std::string& name)
-  {
-    if (auto mit = _materials.find(name); mit != _materials.end())
-      return mit->second;
-    return nullptr;
-  }
-
-private:
-  static bool _initialized;
-  static MeshMap _meshes;
-  static MaterialMap _materials;
-
-}; // Assets
-
-} // end namespace cg
-
-#endif // __Assets_h
+} // end namespace cg::parser

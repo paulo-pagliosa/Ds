@@ -28,13 +28,14 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 31/01/2022
+// Last revision: 02/02/2022
 
 #ifndef __SceneWindow_h
 #define __SceneWindow_h
 
 #include "geometry/Ray.h"
 #include "graph/SceneEditor.h"
+#include "graph/SceneObjectBuilder.h"
 #include "graphics/GLTextureFrameBuffer.h"
 #include "graphics/GLWindow.h"
 #include <typeinfo>
@@ -46,24 +47,16 @@ namespace cg
 namespace graph
 { // begin namespace graph
 
-class CameraProxy;
-class LightProxy;
-
 
 /////////////////////////////////////////////////////////////////////
 //
 // SceneWindow: scene window base class
 // ===========
-class SceneWindow abstract: public GLWindow
+class SceneWindow abstract: public GLWindow, public SceneObjectBuilder
 {
 public:
   template <typename C = SharedObject>
   using InspectFunction = void (*)(C&);
-
-  Scene* scene() const
-  {
-    return _scene;
-  }
 
   GLRenderer* renderer() const
   {
@@ -74,7 +67,7 @@ public:
   void registerInspectFunction(InspectFunction<C> function)
   {
     assert(function != nullptr);
-    _inspectMap[typeid(C).hash_code()] = (InspectFunction<>)function;
+    _inspectFunctions[typeid(C).hash_code()] = (InspectFunction<>)function;
   }
 
 protected:
@@ -110,28 +103,6 @@ protected:
   virtual bool onResize(int, int);
 
   Scene* createScene();
-
-  SceneObject* createEmptyObject();
-  SceneObject* createCameraObject(const char* = nullptr);
-  SceneObject* createLightObject(Light::Type, const char* = nullptr);
-  SceneObject* createPrimitiveObject(const TriangleMesh&, const std::string&);
-
-  SceneObject* createObject(const char* name, Component* component)
-  {
-    assert(name != nullptr);
-    
-    auto object = SceneObject::New(*_scene, name);
-
-    object->addComponent(component);
-    return object;
-  }
-
-  Material* createMaterial();
-
-  auto makePrimitive(const TriangleMesh& mesh, const std::string& meshName)
-  {
-    return TriangleMeshProxy::New(mesh, meshName);
-  }
 
   void drawSelectedObject(const SceneObject&);
   void drawComponents(const SceneObject&);
@@ -179,13 +150,12 @@ private:
     Pan = 2
   };
 
-  Reference<Scene> _scene;
   Reference<SceneEditor> _editor;
   Reference<GLTextureFramebuffer> _fbo;
   SceneNode* _currentNode{};
+  InspectMap _inspectFunctions;
   Flags<MoveBits> _moveFlags{};
   Flags<DragBits> _dragFlags{};
-  InspectMap _inspectMap;
 
   struct
   {
@@ -208,7 +178,7 @@ private:
 
   auto inspectFunction(Component& component)
   {
-    return _inspectMap[typeid(component).hash_code()];
+    return _inspectFunctions[typeid(component).hash_code()];
   }
 
   void inspectSceneObject(SceneObject&);

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Orthrus Group.                         |
+//| Copyright (C) 2022 Orthrus Group.                               |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,72 +23,71 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: Assets.h
+// OVERVIEW: SceneObjectBuilder.h
 // ========
-// Class definition for assets.
+// Class definition for scene object builder.
 //
 // Author: Paulo Pagliosa
-// Last revision: 03/02/2022
+// Last revision: 02/02/2022
 
-#ifndef __Assets_h
-#define __Assets_h
+#ifndef __SceneObjectBuilder_h
+#define __SceneObjectBuilder_h
 
-#include "graphics/Material.h"
-#include "utils/MeshReader.h"
-#include <map>
-#include <string>
+#include "graph/CameraProxy.h"
+#include "graph/LightProxy.h"
+#include "graph/PrimitiveProxy.h"
+#include "graph/Scene.h"
 
-namespace cg
-{ // begin namespace cg
-
-using MeshRef = Reference<TriangleMesh>;
-using MeshMap = std::map<std::string, MeshRef>;
-using MeshMapIterator = typename MeshMap::const_iterator;
-using MaterialRef = Reference<Material>;
-using MaterialMap = std::map<std::string, MaterialRef>;
-using MaterialMapIterator = typename MaterialMap::const_iterator;
+namespace cg::graph
+{ // begin namespace cg::graph
 
 
 /////////////////////////////////////////////////////////////////////
 //
-// Assets: assets class
-// ======
-class Assets
+// SceneObjectBuilder: scene object builder class
+// ==================
+class SceneObjectBuilder
 {
 public:
-  static void initialize();
-
-  static MeshMap& meshes()
+  Scene* scene() const
   {
-    return _meshes;
+    return _scene;
   }
 
-  static TriangleMesh* loadMesh(const std::string& meshName)
+  void setScene(Scene&);
+
+  SceneObject* createEmptyObject();
+  SceneObject* createCameraObject(float aspect = 1, const char* = "");
+  SceneObject* createLightObject(Light::Type, const char* = "");
+  SceneObject* createPrimitiveObject(const TriangleMesh&, const std::string&);
+
+  SceneObject* createObject(const char* name, Component* component)
   {
-    return loadMesh(_meshes.find(meshName));
+    assert(name != nullptr);
+
+    auto object = SceneObject::New(*_scene, name);
+
+    object->addComponent(component);
+    return object;
   }
 
-  static TriangleMesh* loadMesh(MeshMapIterator);
+  Material* createMaterial();
 
-  static MaterialMap& materials()
+protected:
+  Reference<Scene> _scene;
+  uint32_t _objectId;
+  uint32_t _cameraId;
+  uint32_t _lightId;
+  uint32_t _materialId;
+  uint32_t _primitiveId;
+
+  auto makePrimitive(const TriangleMesh& mesh, const std::string& meshName)
   {
-    return _materials;
+    return TriangleMeshProxy::New(mesh, meshName);
   }
 
-  static Material* findMaterial(const std::string& name)
-  {
-    if (auto mit = _materials.find(name); mit != _materials.end())
-      return mit->second;
-    return nullptr;
-  }
+}; // SceneObjectBuilder
 
-private:
-  static bool _initialized;
-  static MeshMap _meshes;
-  static MaterialMap _materials;
+} // end namespace cg::graph
 
-}; // Assets
-
-} // end namespace cg
-
-#endif // __Assets_h
+#endif // __SceneObjectBuilder_h

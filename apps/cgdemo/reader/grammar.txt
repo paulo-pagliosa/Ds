@@ -1,0 +1,142 @@
+Start:
+  Preamble
+  Scene?
+  EOF
+
+Preamble:
+  (Include | Declaration | Material)*
+
+Include:
+  INCLUDE FILENAME
+
+Declaration:
+  DEFINE NAME "="? Initializer
+
+Initializer:
+  Expression
+
+Material:
+  MATERIAL NAME
+  "{"
+      COLOR Color
+      Finish?
+  "}"
+
+Color:
+  Expression
+
+Finish:
+  FINISH "{" FinishItem* "}"
+
+FinishItem:
+  AMBIENT Float
+| DIFFUSE Float
+| SPOT Float
+| SHINE Float
+| SPECULAR Float
+
+Float:
+  Expression
+
+Scene:
+  SCENE NAME?
+  "{"
+      Declaration*
+      Environment?
+      ObjectBlock
+  "}"
+
+Environment:
+  ENVIRONMENT "{" EnvironmentItem* "}"
+
+EnvironmentItem:
+  AMBIENT Color
+| BACKGROUND Color
+
+ObjectBlock:
+  (Object | Declaration)* "}"
+
+Object:
+  OBJECT NAME? ("{" ChildObjectBlock | Component)
+
+ChildObjectBlock:
+  Declaration*
+  Transform?
+  Component*
+  ObjectBlock
+
+Transform:
+  TRANSFORM "{" TransformItem "}"
+
+TransformItem:
+  POSITION Vec3
+| ROTATION Vec3
+| SCALE Vec3
+
+Vec3:
+  Expression
+
+Component:
+  Camera
+| Light
+| Primitive
+
+Camera:
+  CAMERA "{" ProjectionType? CameraItem* "}"
+
+ProjectionType:
+  PARALLEL 
+| PERSPECTIVE
+
+CameraItem:
+  ASPECT Float
+| ANGLE Float
+| HEIGHT Float
+| DEPTH Vec2
+
+Vec2:
+  Expression
+
+Light:
+  LIGHT "{" LightType LightItem* "}"
+
+LightType:
+  POINT
+| DIRECTIONAL
+| SPOT
+
+LightItem:
+  COLOR Color
+| RANGE Float
+| ANGLE Float
+| FALLOFF Integer
+
+Integer:
+  Expression
+
+Primitive:
+  Mesh (MATERIAL NAME)?
+
+Mesh:
+  SPHERE
+| BOX
+| MESH FILENAME
+
+Expression:
+  Term ("+" Term | "-" Term)*
+
+Term:
+  Factor ("*" Factor | "/" Factor)*
+
+Factor:
+  "(" Expression ")"
+| "+" Expression
+| "-" Expression
+| NAME
+| INTEGER
+| FLOAT
+| RGB "(" Float "," Float "," Float ")"
+| "<" Float "," Float "," Float ">"
+| VEC2 "(" Float "," Float ")"
+| VEC3 "(" Float "," Float "," Float ")"
+| VEC4 "(" Float "," Float "," Float "," Float ")"

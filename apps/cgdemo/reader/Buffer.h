@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Orthrus Group.                         |
+//| Copyright (C) 2007, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,72 +23,73 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: Assets.h
+// OVERVIEW: Buffer.h
 // ========
-// Class definition for assets.
+// Class definition for generic input buffer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 03/02/2022
+// Last revision: 31/01/2022
 
-#ifndef __Assets_h
-#define __Assets_h
+#ifndef __Buffer_h
+#define __Buffer_h
 
-#include "graphics/Material.h"
-#include "utils/MeshReader.h"
-#include <map>
-#include <string>
+#include "core/SharedObject.h"
+#include "StringRef.h"
 
-namespace cg
-{ // begin namespace cg
-
-using MeshRef = Reference<TriangleMesh>;
-using MeshMap = std::map<std::string, MeshRef>;
-using MeshMapIterator = typename MeshMap::const_iterator;
-using MaterialRef = Reference<Material>;
-using MaterialMap = std::map<std::string, MaterialRef>;
-using MaterialMapIterator = typename MaterialMap::const_iterator;
+namespace cg::parser
+{ // begin namespace cg::parser
 
 
 /////////////////////////////////////////////////////////////////////
 //
-// Assets: assets class
+// Buffer: generic input buffer class
 // ======
-class Assets
+class Buffer abstract: public SharedObject
 {
 public:
-  static void initialize();
+  ~Buffer() override;
 
-  static MeshMap& meshes()
+  Buffer(bool shouldDelete = true);
+
+  virtual std::string name() const abstract;
+
+  StringRef lexeme();
+
+  void beginLexeme()
   {
-    return _meshes;
+    _lexemeBegin = _current;
   }
 
-  static TriangleMesh* loadMesh(const std::string& meshName)
+  char operator *() const
   {
-    return loadMesh(_meshes.find(meshName));
+    return *_current;
   }
 
-  static TriangleMesh* loadMesh(MeshMapIterator);
-
-  static MaterialMap& materials()
+  char operator ++()
   {
-    return _materials;
+    return advance();
   }
 
-  static Material* findMaterial(const std::string& name)
+  char operator ++(int)
   {
-    if (auto mit = _materials.find(name); mit != _materials.end())
-      return mit->second;
-    return nullptr;
+    auto temp = *_current;
+
+    advance();
+    return temp;
   }
 
-private:
-  static bool _initialized;
-  static MeshMap _meshes;
-  static MaterialMap _materials;
+protected:
+  bool _shouldDelete;
+  bool _eofRead;
+  char* _begin;
+  char* _end;
+  char* _current;
+  char* _lexemeBegin;
 
-}; // Assets
+  virtual char advance() abstract;
 
-} // end namespace cg
+}; // Buffer
 
-#endif // __Assets_h
+} // end namespace cg::parser
+
+#endif // __Buffer_h

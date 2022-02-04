@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Orthrus Group.                         |
+//| Copyright (C) 2007, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,72 +23,82 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: Assets.h
+// OVERVIEW: AbstractParser.cpp
 // ========
-// Class definition for assets.
+// Source file for generic LL(n) parser.
 //
 // Author: Paulo Pagliosa
-// Last revision: 03/02/2022
+// Last revision: 01/02/2022
 
-#ifndef __Assets_h
-#define __Assets_h
+#include "AbstractParser.h"
 
-#include "graphics/Material.h"
-#include "utils/MeshReader.h"
-#include <map>
-#include <string>
-
-namespace cg
-{ // begin namespace cg
-
-using MeshRef = Reference<TriangleMesh>;
-using MeshMap = std::map<std::string, MeshRef>;
-using MeshMapIterator = typename MeshMap::const_iterator;
-using MaterialRef = Reference<Material>;
-using MaterialMap = std::map<std::string, MaterialRef>;
-using MaterialMapIterator = typename MaterialMap::const_iterator;
+namespace cg::parser
+{ // begin namespace cg::parser
 
 
 /////////////////////////////////////////////////////////////////////
 //
-// Assets: assets class
-// ======
-class Assets
+// AbstractParser implementation
+// ==============
+void
+AbstractParser::setInput(Buffer& input)
 {
-public:
-  static void initialize();
+  _input = &input;
+  _filename = _input->name().c_str();
+}
 
-  static MeshMap& meshes()
+void
+AbstractParser::execute()
+{
+  if (_input != nullptr)
   {
-    return _meshes;
+    // init compilation unit
+    initCompilationUnit();
+    // start parser
+    _lineNumber = 1;
+    _token = nextToken();
+    start();
+    // terminate compilation unit
+    terminateCompilationUnit();
   }
+}
 
-  static TriangleMesh* loadMesh(const std::string& meshName)
-  {
-    return loadMesh(_meshes.find(meshName));
-  }
+KeywordTableEntry*
+AbstractParser::searchKeyword(KeywordTableEntry* k, const StringRef& s) const
+{
+  for (; k->name != nullptr; k++)
+    if (strncmp(k->name, s.begin, s.count) == 0)
+      return k;
+  return nullptr;
+}
 
-  static TriangleMesh* loadMesh(MeshMapIterator);
+KeywordTableEntry*
+AbstractParser::findKeyword(const StringRef&) const
+{
+  return nullptr;
+}
 
-  static MaterialMap& materials()
-  {
-    return _materials;
-  }
+std::string
+AbstractParser::errorMessageFormat(const char* msg) const
+{
+  constexpr auto errMsg = "Error %s %d: %s\n";
+  constexpr auto maxLen = 1024;
+  char fmt[maxLen];
 
-  static Material* findMaterial(const std::string& name)
-  {
-    if (auto mit = _materials.find(name); mit != _materials.end())
-      return mit->second;
-    return nullptr;
-  }
+  snprintf(fmt, maxLen, errMsg, _filename, _lineNumber, msg);
+  return fmt;
+}
 
-private:
-  static bool _initialized;
-  static MeshMap _meshes;
-  static MaterialMap _materials;
+void
+AbstractParser::initCompilationUnit()
+{
+  // do nothing
+}
 
-}; // Assets
+void
+AbstractParser::terminateCompilationUnit()
+{
+  // do nothing
+}
 
-} // end namespace cg
-
-#endif // __Assets_h
+} // end namespace cg::parser

@@ -28,7 +28,7 @@
 // Source file for scene object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/01/2022
+// Last revision: 02/02/2022
 
 #include "graph/Scene.h"
 
@@ -193,11 +193,12 @@ namespace
 inline const char*
 newSceneName()
 {
-  static int nextSceneId;
-  static char name[20];
+  constexpr auto maxLen = 16;
+  static char sceneName[maxLen];
+  static int sceneId;
 
-  snprintf(name, 20, "Scene %d", ++nextSceneId);
-  return name;
+  snprintf(sceneName, maxLen, "Scene %d", ++sceneId);
+  return sceneName;
 }
 
 } // end namespace

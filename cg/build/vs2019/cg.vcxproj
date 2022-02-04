@@ -177,6 +177,7 @@
     <ClInclude Include="..\..\include\graph\SceneEditor.h" />
     <ClInclude Include="..\..\include\graph\SceneNode.h" />
     <ClInclude Include="..\..\include\graph\SceneObject.h" />
+    <ClInclude Include="..\..\include\graph\SceneObjectBuilder.h" />
     <ClInclude Include="..\..\include\graph\SceneWindow.h" />
     <ClInclude Include="..\..\include\graph\Transform.h" />
     <ClInclude Include="..\..\include\math\Matrix3x3.h" />
@@ -239,6 +240,7 @@
     <ClCompile Include="..\..\src\graph\PrimitiveProxy.cpp" />
     <ClCompile Include="..\..\src\graph\SceneEditor.cpp" />
     <ClCompile Include="..\..\src\graph\SceneObject.cpp" />
+    <ClCompile Include="..\..\src\graph\SceneObjectBuilder.cpp" />
     <ClCompile Include="..\..\src\graph\SceneWindow.cpp" />
     <ClCompile Include="..\..\src\graph\Transform.cpp" />
     <ClCompile Include="..\..\src\utils\MeshReader.cpp" />

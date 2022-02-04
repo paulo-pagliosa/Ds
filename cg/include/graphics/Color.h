@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2019 Orthrus Group.                         |
+//| Copyright (C) 2014, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for RGB color.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/11/2019
+// Last revision: 02/02/2022
 
 #ifndef __Color_h
 #define __Color_h
@@ -279,9 +279,10 @@ public:
 
 }; // Color
 
-   /// Returns the color s * c.
+/// Returns the color s * c.
+template <typename real>
 HOST DEVICE inline Color
-operator *(double s, const Color& c)
+operator *(real s, const Color& c)
 {
   return c * float(s);
 }

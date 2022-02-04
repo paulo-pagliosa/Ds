@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Orthrus Group.                         |
+//| Copyright (C) 2007, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,70 +23,97 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: Assets.cpp
+// OVERVIEW: ErrorHandler.cpp
 // ========
-// Source file for assets.
+//  Source file for generic error handler.
 //
 // Author: Paulo Pagliosa
-// Last revision: 03/02/2022
+// Last revision: 01/02/2022
 
-#include "graphics/Application.h"
-#include "graphics/Assets.h"
-#include <filesystem>
+#include "ErrorHandler.h"
+#include <cstdio>
 
-namespace cg
-{ // begin namespace cg
+namespace cg::parser
+{ // begin namespace cg::parser
 
-namespace fs = std::filesystem;
+//
+// Auxiliary function
+//
+const char*
+searchErrorMessage(ErrorMessageTableEntry* entries, int code)
+{
+  while (entries->code != -1)
+  {
+    if (code == entries->code)
+      break;
+    entries++;
+  }
+  return entries->message;
+}
 
 
 /////////////////////////////////////////////////////////////////////
 //
-// Assets implementation
-// ======
-bool Assets::_initialized;
-MeshMap Assets::_meshes;
-MaterialMap Assets::_materials;
+// ErrorHandler implementation
+// ============
+const char*
+ErrorHandler::findErrorMessage(int) const
+{
+  return nullptr;
+}
 
 void
-Assets::initialize()
+ErrorHandler::throwErrorMessage(const char* msg) const
 {
-  if (!_initialized)
-  {
-    fs::path mp{Application::assetFilePath("meshes/")};
-
-    if (fs::is_directory(mp))
-    {
-      auto p = fs::directory_iterator(mp);
-
-      for (auto e = fs::directory_iterator(); p != e; ++p)
-        if (fs::is_regular_file(p->status()))
-          _meshes[p->path().filename().string()] = nullptr;
-    }
-
-    auto dm = Material::defaultMaterial();
-
-    _materials[dm->name()] = dm;
-    _initialized = true;
-  }
+  throw std::exception(msg);
 }
 
-TriangleMesh*
-Assets::loadMesh(MeshMapIterator mit)
+void
+ErrorHandler::error(int code, ...) const
 {
-  if (mit == _meshes.end())
-    return nullptr;
+  va_list args;
 
-  TriangleMesh* m{mit->second};
-
-  if (m == nullptr)
-  {
-    auto filename = "meshes/" + mit->first;
-
-    m = Application::loadMesh(filename.c_str());
-    _meshes[mit->first] = m;
-  }
-  return m;
+  va_start(args, code);
+  handleError(code, args);
 }
 
-} // end namespace cg
+void
+ErrorHandler::error(int code, const char* arg) const
+{
+  constexpr auto maxLen = 1024;
+  char buffer[maxLen];
+  auto fmt = errorMessageFormat(errorMessage(code));
+
+  snprintf(buffer, maxLen, fmt.c_str(), arg);
+  throwErrorMessage(buffer);
+}
+
+inline const char*
+ErrorHandler::errorMessage(int code) const
+{
+  auto* msg = findErrorMessage(code);
+  return nullptr == msg ? "undefined error code" : msg;
+}
+
+void
+ErrorHandler::handleError(int code, va_list args) const
+{
+  constexpr auto maxLen = 1024;
+  char buffer[maxLen];
+  auto fmt = errorMessageFormat(errorMessage(code));
+
+  snprintf(buffer, maxLen, fmt.c_str(), args);
+  throwErrorMessage(buffer);
+}
+
+std::string
+ErrorHandler::errorMessageFormat(const char* msg) const
+{
+  constexpr auto maxLen = 1024;
+  char buffer[maxLen];
+
+  snprintf(buffer, maxLen, "Error: %s", msg);
+  return buffer;
+}
+
+} // end namespace cg::parser

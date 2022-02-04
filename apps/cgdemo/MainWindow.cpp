@@ -28,12 +28,17 @@
 // Source file for cg demo main window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 31/01/2022
+// Last revision: 03/02/2022
 
-#include "geometry/MeshSweeper.h"
 #include "graphics/Application.h"
+#include "reader/SceneReader.h"
 #include "MainWindow.h"
 
+
+/////////////////////////////////////////////////////////////////////
+//
+// MainWindow implementation
+// ==========
 MeshMap MainWindow::_defaultMeshes;
 
 inline void
@@ -48,7 +53,8 @@ MainWindow::buildDefaultMeshes()
 void
 MainWindow::initializeScene()
 {
-  auto s = createCameraObject("Main Camera");
+  auto a = (float)width() / (float)height();
+  auto s = createCameraObject(a, "Main Camera");
 
   s->transform()->setLocalPosition({0, 0, 10});
   s = createLightObject(Light::Type::Directional, "Directional Light");

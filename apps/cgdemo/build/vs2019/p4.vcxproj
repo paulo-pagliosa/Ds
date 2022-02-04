@@ -14,10 +14,27 @@
     <ClCompile Include="..\..\Main.cpp" />
     <ClCompile Include="..\..\MainWindow.cpp" />
     <ClCompile Include="..\..\RayTracer.cpp" />
+    <ClCompile Include="..\..\reader\AbstractParser.cpp" />
+    <ClCompile Include="..\..\reader\Buffer.cpp" />
+    <ClCompile Include="..\..\reader\ErrorHandler.cpp" />
+    <ClCompile Include="..\..\reader\Expression.cpp" />
+    <ClCompile Include="..\..\reader\FileBuffer.cpp" />
+    <ClCompile Include="..\..\reader\ReaderBase.cpp" />
+    <ClCompile Include="..\..\reader\SceneReader.cpp" />
+    <ClCompile Include="..\..\reader\Scope.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\MainWindow.h" />
     <ClInclude Include="..\..\RayTracer.h" />
+    <ClInclude Include="..\..\reader\AbstractParser.h" />
+    <ClInclude Include="..\..\reader\Buffer.h" />
+    <ClInclude Include="..\..\reader\ErrorHandler.h" />
+    <ClInclude Include="..\..\reader\Expression.h" />
+    <ClInclude Include="..\..\reader\FileBuffer.h" />
+    <ClInclude Include="..\..\reader\ReaderBase.h" />
+    <ClInclude Include="..\..\reader\SceneReader.h" />
+    <ClInclude Include="..\..\reader\Scope.h" />
+    <ClInclude Include="..\..\reader\StringRef.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

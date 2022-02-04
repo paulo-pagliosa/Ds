@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 31/01/2022
+// Last revision: 03/02/2022
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
@@ -76,76 +76,6 @@ namespace graph
 //
 // SceneWindow implementation
 // ===========
-SceneObject*
-SceneWindow::createEmptyObject()
-{
-  static int objectId;
-  auto object = SceneObject::New(*_scene);
-
-  object->setName("Object %d", ++objectId);
-  return object;
-}
-
-SceneObject*
-SceneWindow::createCameraObject(const char* name)
-{
-  static int cameraId;
-  auto object = SceneObject::New(*_scene);
-
-  if (name != nullptr)
-    object->setName(name);
-  else
-    object->setName("Camera %d", ++cameraId);
-
-  auto aspect = (float)width() / (float)height();
-  auto camera = new Camera{aspect};
-
-  object->addComponent(CameraProxy::New(*camera));
-  CameraProxy::setCurrent(camera);
-  return object;
-}
-
-SceneObject*
-SceneWindow::createLightObject(Light::Type type, const char* name)
-{
-  static int lightId;
-  auto object = SceneObject::New(*_scene);
-
-  if (name != nullptr)
-    object->setName(name);
-  else
-    object->setName("Light %d", ++lightId);
-
-  auto light = new Light;
-
-  light->setType(type);
-  object->addComponent(LightProxy::New(*light));;
-  return object;
-}
-
-SceneObject*
-SceneWindow::createPrimitiveObject(const TriangleMesh& mesh,
-  const std::string& meshName)
-{
-  static int primitiveId;
-  auto object = SceneObject::New(*_scene);
-
-  object->setName("%s %d", meshName.c_str(), ++primitiveId);
-  object->addComponent(makePrimitive(mesh, meshName));
-  return object;
-}
-
-Material*
-SceneWindow::createMaterial()
-{
-  static int materialId;
-  auto material = new Material{Color::white};
-
-  material->setName("Material %d", ++materialId);
-  Assets::materials().emplace(material->name(), material);
-  return material;
-}
-
 void
 SceneWindow::beginInitialize()
 {
@@ -168,8 +98,12 @@ void
 SceneWindow::initialize()
 {
   beginInitialize();
-  _currentNode = _scene = Scene::New();
-  _editor = new SceneEditor{*_scene};
+
+  auto scene = Scene::New();
+
+  setScene(*scene);
+  _currentNode = scene;
+  _editor = new SceneEditor{*scene};
 
   auto w = width(), h = height();
 
@@ -186,7 +120,10 @@ SceneWindow::initialize()
 Scene*
 SceneWindow::createScene()
 {
-  _currentNode = _scene = Scene::New();
+  auto scene = Scene::New();
+
+  setScene(*scene);
+  _currentNode = scene;
   _editor->setScene(*_scene);
   initializeScene();
   return _scene;
@@ -816,7 +753,7 @@ SceneWindow::inspectScene()
 {
   ImGui::objectNameInput(*_scene);
   ImGui::Separator();
-  if (ImGui::CollapsingHeader("Colors"))
+  if (ImGui::CollapsingHeader("Environment"))
   {
     ImGui::colorEdit3("Background", _scene->backgroundColor);
     ImGui::colorEdit3("Ambient Light", _scene->ambientLight);

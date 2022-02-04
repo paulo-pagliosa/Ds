@@ -28,7 +28,7 @@
 // Class definition for cg demo main window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 21/01/2022
+// Last revision: 31/01/2022
 
 #ifndef __MainWindow_h
 #define __MainWindow_h
@@ -41,6 +41,11 @@
 using namespace cg;
 using namespace cg::graph;
 
+
+/////////////////////////////////////////////////////////////////////
+//
+// MainWindow: cg demo main window class
+// ==========
 class MainWindow final: public SceneWindow
 {
 public:

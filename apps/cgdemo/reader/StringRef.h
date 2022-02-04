@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Orthrus Group.                         |
+//| Copyright (C) 2007, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,72 +23,45 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: Assets.h
+// OVERVIEW: StringRef.h
 // ========
-// Class definition for assets.
+// Class definition for string reference.
 //
 // Author: Paulo Pagliosa
-// Last revision: 03/02/2022
+// Last revision: 31/01/2022
 
-#ifndef __Assets_h
-#define __Assets_h
+#ifndef __StringRef_h
+#define __StringRef_h
 
-#include "graphics/Material.h"
-#include "utils/MeshReader.h"
-#include <map>
 #include <string>
 
-namespace cg
-{ // begin namespace cg
-
-using MeshRef = Reference<TriangleMesh>;
-using MeshMap = std::map<std::string, MeshRef>;
-using MeshMapIterator = typename MeshMap::const_iterator;
-using MaterialRef = Reference<Material>;
-using MaterialMap = std::map<std::string, MaterialRef>;
-using MaterialMapIterator = typename MaterialMap::const_iterator;
+namespace cg::parser
+{ // begin namespace cg::parser
 
 
-/////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////
 //
-// Assets: assets class
-// ======
-class Assets
+// StringRef: string ref class
+// =========
+class StringRef
 {
 public:
-  static void initialize();
+  const char* begin;
+  size_t count;
 
-  static MeshMap& meshes()
+  void set(const char* begin, size_t count)
   {
-    return _meshes;
+    this->begin = begin;
+    this->count = count;
   }
 
-  static TriangleMesh* loadMesh(const std::string& meshName)
+  auto toString() const
   {
-    return loadMesh(_meshes.find(meshName));
+    return std::string{begin, count};
   }
 
-  static TriangleMesh* loadMesh(MeshMapIterator);
+}; // StringRef
 
-  static MaterialMap& materials()
-  {
-    return _materials;
-  }
+} // end namespace cg::parser
 
-  static Material* findMaterial(const std::string& name)
-  {
-    if (auto mit = _materials.find(name); mit != _materials.end())
-      return mit->second;
-    return nullptr;
-  }
-
-private:
-  static bool _initialized;
-  static MeshMap _meshes;
-  static MaterialMap _materials;
-
-}; // Assets
-
-} // end namespace cg
-
-#endif // __Assets_h
+#endif // __StringRef_h

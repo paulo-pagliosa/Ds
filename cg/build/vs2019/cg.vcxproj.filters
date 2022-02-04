@@ -353,6 +353,9 @@
     <ClInclude Include="..\..\include\graphics\GLTextureFramebuffer.h">
       <Filter>Header Files\graphics</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\graph\SceneObjectBuilder.h">
+      <Filter>Header Files\graph</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\externals\src\gl3w.c">
@@ -507,6 +510,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\graphics\GLTextureFramebuffer.cpp">
       <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graph\SceneObjectBuilder.cpp">
+      <Filter>Source Files\graph</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

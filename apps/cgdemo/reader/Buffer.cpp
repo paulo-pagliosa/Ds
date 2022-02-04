@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Orthrus Group.                         |
+//| Copyright (C) 2007, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,72 +23,44 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: Assets.h
+// OVERVIEW: Buffer.cpp
 // ========
-// Class definition for assets.
+// Source file for generic input buffer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 03/02/2022
+// Last revision: 31/01/2022
 
-#ifndef __Assets_h
-#define __Assets_h
+#include "Buffer.h"
 
-#include "graphics/Material.h"
-#include "utils/MeshReader.h"
-#include <map>
-#include <string>
-
-namespace cg
-{ // begin namespace cg
-
-using MeshRef = Reference<TriangleMesh>;
-using MeshMap = std::map<std::string, MeshRef>;
-using MeshMapIterator = typename MeshMap::const_iterator;
-using MaterialRef = Reference<Material>;
-using MaterialMap = std::map<std::string, MaterialRef>;
-using MaterialMapIterator = typename MaterialMap::const_iterator;
+namespace cg::parser
+{ // begin namespace cg::parser
 
 
 /////////////////////////////////////////////////////////////////////
 //
-// Assets: assets class
+// Buffer implementation
 // ======
-class Assets
+Buffer::Buffer(bool shouldDelete):
+  _eofRead{false},
+  _shouldDelete{shouldDelete}
 {
-public:
-  static void initialize();
+  _begin = _current = _end = _lexemeBegin = nullptr;
+}
 
-  static MeshMap& meshes()
-  {
-    return _meshes;
-  }
+Buffer::~Buffer()
+{
+  if (_shouldDelete)
+    delete []_begin;
+}
 
-  static TriangleMesh* loadMesh(const std::string& meshName)
-  {
-    return loadMesh(_meshes.find(meshName));
-  }
+StringRef
+Buffer::lexeme()
+{
+  StringRef lexeme;
 
-  static TriangleMesh* loadMesh(MeshMapIterator);
+  lexeme.count = (int)(_current - (lexeme.begin = _lexemeBegin));
+  _lexemeBegin = nullptr;
+  return lexeme;
+}
 
-  static MaterialMap& materials()
-  {
-    return _materials;
-  }
-
-  static Material* findMaterial(const std::string& name)
-  {
-    if (auto mit = _materials.find(name); mit != _materials.end())
-      return mit->second;
-    return nullptr;
-  }
-
-private:
-  static bool _initialized;
-  static MeshMap _meshes;
-  static MaterialMap _materials;
-
-}; // Assets
-
-} // end namespace cg
-
-#endif // __Assets_h
+} // end namespace cg::parser
