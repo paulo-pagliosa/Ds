@@ -28,7 +28,7 @@
 // Source file for scene object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 02/02/2022
+// Last revision: 04/02/2022
 
 #include "graph/Scene.h"
 
@@ -49,7 +49,8 @@ SceneObject::SceneObject(Scene& scene, const char* name, bool movable):
 {
   _flags.movable = movable;
   (_parent = scene.root())->_children.insert(this);
-  addComponent(makeUse(&_transform));
+  _components.add(makeUse(&_transform));
+  _transform._sceneObject = this;
 }
 
 SceneObject::~SceneObject()
@@ -132,12 +133,20 @@ SceneObject::insertComponent(Component* newComponent)
 {
   if (newComponent == nullptr)
     return nullptr;
+
+  // If the component cannot be added, then it must be deleted,
+  // but only in case its reference count is zero
+  Reference<Component> dummy{newComponent};
+
   if (!canAddComponent(newComponent))
-    return Component::release(newComponent), nullptr;
+    return nullptr;
   _components.add(newComponent);
   newComponent->_sceneObject = this;
   newComponent->afterAdded();
+  // Set the transform changed flag to force component updating
+  _transform.changed = true;
   newComponent->update();
+  _transform.changed = false;
   return newComponent;
 }
 
@@ -167,7 +176,7 @@ SceneObject::findComponent(const char* typeName) const
 void
 SceneObject::transformChanged()
 {
-    // Iterate the object components skipping its transform
+  // Iterate the object components skipping its transform
   for (auto end = _components.end(), cit = ++_components.begin(); cit != end;)
     static_cast<Component*>(*cit++)->update();
   _transform.changed = false;
@@ -204,7 +213,7 @@ newSceneName()
 } // end namespace
 
 Scene::Scene(const char* name): // declared in Scene.h
-  NameableObject{name == "" ? newSceneName() : name},
+  NameableObject{!*name ? newSceneName() : name},
   _root{*this}
 {
   SceneObject::makeUse(&_root);

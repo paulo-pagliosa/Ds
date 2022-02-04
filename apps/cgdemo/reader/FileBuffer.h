@@ -28,7 +28,7 @@
 // Class definition for file buffer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 31/01/2022
+// Last revision: 04/02/2022
 
 #ifndef __FileBuffer_h
 #define __FileBuffer_h
@@ -56,6 +56,11 @@ public:
   FileBuffer(const fs::path& path);
 
   std::string name() const override;
+
+  const auto& path() const
+  {
+    return _path;
+  }
 
   const auto& file() const
   {

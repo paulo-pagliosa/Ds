@@ -28,7 +28,7 @@
 // Source file for cg demo main window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 03/02/2022
+// Last revision: 04/02/2022
 
 #include "graphics/Application.h"
 #include "reader/SceneReader.h"
@@ -112,6 +112,24 @@ MainWindow::addComponentMenu()
   return component;
 }
 
+void
+MainWindow::readScene(const std::string& filename)
+{
+  try
+  {
+    parser::SceneReader reader;
+
+    reader.setInput(filename);
+    reader.execute();
+    if (reader.scene() != nullptr)
+      setScene(*reader.scene());
+  }
+  catch (const std::exception& e)
+  {
+    puts(e.what());
+  }
+}
+
 inline void
 MainWindow::fileMenu()
 {
@@ -124,6 +142,8 @@ MainWindow::fileMenu()
     if (ImGui::BeginMenu("Open"))
     {
       // TODO
+      if (ImGui::MenuItem("Test"))
+        readScene(Application::assetFilePath("scenes/test.scn"));
       ImGui::EndMenu();
     }
     ImGui::Separator();

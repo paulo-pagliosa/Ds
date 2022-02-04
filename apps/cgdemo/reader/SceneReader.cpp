@@ -28,9 +28,8 @@
 // Source file for scene reader.
 //
 // Author: Paulo Pagliosa
-// Last revision: 02/02/2022
+// Last revision: 04/02/2022
 
-#include "graphics/Assets.h"
 #include "SceneReader.h"
 
 namespace cg::parser
@@ -170,6 +169,7 @@ SceneReader::Parser::parseSurface(Material& material, const Color& color)
 {
   // _FINISH
   advance();
+  match('{');
   for (;;)
     switch (_token)
     {
@@ -209,6 +209,7 @@ SceneReader::Parser::parseSurface(Material& material, const Color& color)
           material.specular = color * ks;
         break;
       default:
+        matchEndOfBlock();
         return;
     }
 }
@@ -219,9 +220,9 @@ SceneReader::Parser::parseMaterial()
   // _MATERIAL
   advance();
 
-  auto name = matchName();
+  auto name = matchString();
 
-  if (Assets::findMaterial(name) != nullptr)
+  if (_reader->findMaterial(name) != nullptr)
     error(MATERIAL_ALREADY_DEFINED, name.c_str());
   match('{');
   if (_token != _COLOR)
@@ -234,7 +235,8 @@ SceneReader::Parser::parseMaterial()
   if (_token == _FINISH)
     parseSurface(*material, color);
   matchEndOfBlock();
-  Assets::materials().emplace(name, material);
+  material->setName(name.c_str());
+  _reader->materials.emplace(name, material);
 }
 
 inline void
@@ -265,7 +267,7 @@ SceneReader::Parser::parseScene()
   // _SCENE
   advance();
 
-  auto sceneName = matchOptionalName();
+  auto sceneName = matchOptionalString();
   auto scene = graph::Scene::New(sceneName.c_str());
 
   setScene(*scene);
@@ -341,7 +343,7 @@ SceneReader::Parser::parseObject(graph::SceneObject& object)
   // _OBJECT
   advance();
 
-  auto childName = matchOptionalName();
+  auto childName = matchOptionalString();
   auto child = createEmptyObject();
 
   if (!childName.empty())
@@ -490,8 +492,8 @@ SceneReader::Parser::matchPrimitive(int type)
   if (_token == _MATERIAL)
   {
     advance();
-    name = matchName();
-    if (auto material = Assets::findMaterial(name); nullptr == material)
+    name = matchString();
+    if (auto material = _reader->findMaterial(name); material == nullptr)
       error(COULD_NOT_FIND_MATERIAL, name.c_str());
     else
       proxy->mapper()->primitive()->setMaterial(material);
@@ -502,7 +504,7 @@ SceneReader::Parser::matchPrimitive(int type)
 void
 SceneReader::Parser::parseComponent(graph::SceneObject& object)
 {
-  graph::Component* component;
+  Reference<graph::Component> component;
   auto type = (int)(size_t)_tokenValue.object;
 
   if (type == _CAMERA)
@@ -511,8 +513,11 @@ SceneReader::Parser::parseComponent(graph::SceneObject& object)
     component = matchLight();
   else
     component = matchPrimitive(type);
-  if (auto tn = component->typeName(); !object.addComponent(component))
-    error(COMPONENT_ALREADY_DEFINED, tn);
+
+  auto typeName = component->typeName();
+
+  if (object.addComponent<graph::Component>(component) == nullptr)
+    error(COMPONENT_ALREADY_DEFINED, typeName);
 }
 
 } // end namespace cg::parser

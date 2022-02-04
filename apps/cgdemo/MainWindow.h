@@ -84,6 +84,8 @@ private:
   void createMenu();
   void showOptions();
 
+  void readScene(const std::string& filename);
+
   static void buildDefaultMeshes();
 
 }; // MainWindow

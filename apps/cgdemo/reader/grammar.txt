@@ -7,7 +7,10 @@ Preamble:
   (Include | Declaration | Material)*
 
 Include:
-  INCLUDE FILENAME
+  INCLUDE Filename
+
+Filename:
+  STRING
 
 Declaration:
   DEFINE NAME "="? Initializer
@@ -16,7 +19,7 @@ Initializer:
   Expression
 
 Material:
-  MATERIAL NAME
+  MATERIAL STRING
   "{"
       COLOR Color
       Finish?
@@ -39,7 +42,7 @@ Float:
   Expression
 
 Scene:
-  SCENE NAME?
+  SCENE STRING?
   "{"
       Declaration*
       Environment?
@@ -57,7 +60,7 @@ ObjectBlock:
   (Object | Declaration)* "}"
 
 Object:
-  OBJECT NAME? ("{" ChildObjectBlock | Component)
+  OBJECT STRING? ("{" ChildObjectBlock | Component)
 
 ChildObjectBlock:
   Declaration*
@@ -115,12 +118,12 @@ Integer:
   Expression
 
 Primitive:
-  Mesh (MATERIAL NAME)?
+  Mesh (MATERIAL STRING)?
 
 Mesh:
   SPHERE
 | BOX
-| MESH FILENAME
+| MESH Filename
 
 Expression:
   Term ("+" Term | "-" Term)*
@@ -140,3 +143,7 @@ Factor:
 | VEC2 "(" Float "," Float ")"
 | VEC3 "(" Float "," Float "," Float ")"
 | VEC4 "(" Float "," Float "," Float "," Float ")"
+| LENGTH "(" Vec3 ")"
+| NORMALIZE "(" Vec3 ")"
+| DOT "(" Vec3 "," Vec3 ")"
+| CROSS "(" Vec3 "," Vec3 ")"

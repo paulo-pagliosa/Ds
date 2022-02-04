@@ -28,7 +28,7 @@
 // Source file for file buffer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 31/01/2022
+// Last revision: 04/02/2022
 
 #include "FileBuffer.h"
 #include <cassert>
@@ -113,16 +113,17 @@ FileBuffer::fill(char* from, size_t size)
     size = ((endBuffer() - from) / maxLexemeSize) * maxLexemeSize;
   if (size > 0)
   {
-    if (!_file.read(from, size))
-      throw std::runtime_error("Cannot read input file");
-
-    auto count = (size_t)_file.gcount();
-
-    _end = from + count;
-    if (count < size)
+    _file.read(from, size);
+    if (auto count = (size_t)_file.gcount(); count <= 0)
+      throw std::runtime_error("Input file read error");
+    else
     {
-      _eofRead = true;
-      *_end = 0;
+      _end = from + count;
+      if (_file.eof())
+      {
+        _eofRead = true;
+        *_end = 0;
+      }
     }
   }
 }

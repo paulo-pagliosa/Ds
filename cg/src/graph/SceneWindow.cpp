@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 03/02/2022
+// Last revision: 04/02/2022
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
@@ -101,9 +101,9 @@ SceneWindow::initialize()
 
   auto scene = Scene::New();
 
-  setScene(*scene);
-  _currentNode = scene;
+  SceneObjectBuilder::setScene(*scene);
   _editor = new SceneEditor{*scene};
+  _currentNode = scene;
 
   auto w = width(), h = height();
 
@@ -117,14 +117,23 @@ SceneWindow::initialize()
   initializeScene();
 }
 
+void
+SceneWindow::setScene(Scene& scene)
+{
+  if (&scene != _scene)
+  {
+    SceneObjectBuilder::setScene(scene);
+    _editor->setScene(scene);
+    _currentNode = &scene;
+  }
+}
+
 Scene*
 SceneWindow::createScene()
 {
   auto scene = Scene::New();
 
   setScene(*scene);
-  _currentNode = scene;
-  _editor->setScene(*_scene);
   initializeScene();
   return _scene;
 }
@@ -200,7 +209,6 @@ SceneWindow::drawComponents(const SceneObject& object)
       }
     }
   }
-  _editor->drawTransform(*object.transform());
 }
 
 void
@@ -225,7 +233,10 @@ SceneWindow::render()
   if (_editor->showGround)
     _editor->drawXZPlane(10, 1);
   if (auto object = _currentNode->as<SceneObject>())
+  {
     drawSelectedObject(*object);
+    _editor->drawTransform(*object->transform());
+  }
 }
 
 void

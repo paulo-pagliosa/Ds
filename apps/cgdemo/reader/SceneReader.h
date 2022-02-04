@@ -28,12 +28,13 @@
 // Class definition for scene reader.
 //
 // Author: Paulo Pagliosa
-// Last revision: 02/02/2022
+// Last revision: 04/02/2022
 
 #ifndef __SceneReader_h
 #define __SceneReader_h
 
 #include "graph/SceneObjectBuilder.h"
+#include "graphics/Assets.h"
 #include "ReaderBase.h"
 
 namespace cg::parser
@@ -49,9 +50,18 @@ class SceneReader: public Reader
 public:
   class Parser;
 
+  MaterialMap materials;
+
   graph::Scene* scene() const
   {
     return _scene;
+  }
+
+  Material* findMaterial(const std::string& name) const
+  {
+    if (auto mit = materials.find(name); mit != materials.end())
+      return mit->second;
+    return nullptr;
   }
 
   void execute() override;

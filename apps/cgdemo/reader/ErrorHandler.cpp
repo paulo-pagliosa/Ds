@@ -28,7 +28,7 @@
 //  Source file for generic error handler.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/02/2022
+// Last revision: 04/02/2022
 
 #include "ErrorHandler.h"
 #include <cstdio>
@@ -102,7 +102,7 @@ ErrorHandler::handleError(int code, va_list args) const
   char buffer[maxLen];
   auto fmt = errorMessageFormat(errorMessage(code));
 
-  snprintf(buffer, maxLen, fmt.c_str(), args);
+  vsnprintf(buffer, maxLen, fmt.c_str(), args);
   throwErrorMessage(buffer);
 }
 

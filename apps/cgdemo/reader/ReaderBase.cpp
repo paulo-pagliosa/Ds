@@ -28,7 +28,7 @@
 // Source file for generic reader base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 03/02/2022
+// Last revision: 04/02/2022
 
 #include "ReaderBase.h"
 #include <cassert>
@@ -60,10 +60,17 @@ toFloat(const StringRef& s)
 // ======
 static const char* _errorMessages[]
 {
-  "Could not find file \'%s\'", // COULD_NOT_FIND_FILE
+  "Could not find file '%s'", // COULD_NOT_FIND_FILE
   "Out of memory", // OUT_OF_MEMORY
-  "Unable to open input file \'%s\'", // UNABLE_TO_OPEN_INPUT_FILE
+  "Unable to open input file '%s'", // UNABLE_TO_OPEN_INPUT_FILE
 };
+
+void
+Reader::setInput(const std::string& filename)
+{
+  _input = makeBuffer(filename);
+  _currentPath = _input->path().parent_path();
+}
 
 void
 Reader::execute()
@@ -96,13 +103,13 @@ Reader::terminate()
 void
 Reader::include(const std::string& filename)
 {
-  if (_includedFiles.find(filename) != _includedFiles.end())
-  {
-    Reference<FileBuffer> input{makeBuffer(filename)};
+  fs::path path{filename};
 
-    assert(input != nullptr);
-    parse(*input);
-  }
+  if (!path.is_absolute())
+    path = _currentPath / path;
+  if (auto s = path.string(); _includedFiles.find(s) == _includedFiles.end())
+    if (auto input = makeBuffer(s); input != nullptr)
+      parse(*input);
 }
 
 void
@@ -127,19 +134,26 @@ Reader::findErrorMessage(int code) const
   return _errorMessages[code];
 }
 
-FileBuffer*
+Reference<FileBuffer>
 Reader::makeBuffer(const std::string& filename) const
 {
   auto path = fs::absolute(filename);
 
   if (!fs::exists(path))
-    error(COULD_NOT_FIND_FILE, filename);
+    error(COULD_NOT_FIND_FILE, filename.c_str());
   else if (fs::is_regular_file(path))
-    if (auto buffer = new FileBuffer{path}; buffer->file().is_open())
-      return buffer;
-    else
-      delete buffer;
-  error(UNABLE_TO_OPEN_INPUT_FILE, filename);
+    try
+    {
+      Reference<FileBuffer> buffer = new FileBuffer{path};
+
+      if (buffer->file().is_open())
+        return buffer;
+    }
+    catch (const std::exception&)
+    {
+      // do nothing
+    }
+  error(UNABLE_TO_OPEN_INPUT_FILE, filename.c_str());
   return nullptr;
 }
 
@@ -155,46 +169,50 @@ DEFINE_KEYWORD_TABLE(Reader::Parser, AbstractParser)
   KEYWORD("rgb", _RGB, 0)
   KEYWORD("hsv", _HSV, 0)
   KEYWORD("define", _DEFINE, 0)
+  KEYWORD("length", _LENGTH, 0)
+  KEYWORD("normalize", _NORMALIZE, 0)
+  KEYWORD("dot", _DOT, 0)
+  KEYWORD("cross", _CROSS, 0)
   KEYWORD("include", _INCLUDE, 0)
-END_KEYWORD_TABLE;
+  END_KEYWORD_TABLE;
 
 DEFINE_ERROR_MESSAGE_TABLE(Reader::Parser, AbstractParser)
   ERROR_MESSAGE(UNEXPECTED_CHAR,
-    "Unexpected char \'%c\'")
+    "Unexpected char '%c'")
   ERROR_MESSAGE(SYNTAX,
     "Syntax")
   ERROR_MESSAGE(NAME_EXPECTED,
     "Name expected")
   ERROR_MESSAGE(CHAR_EXPECTED,
-    "\'%c\' expected")
+    "'%c' expected")
   ERROR_MESSAGE(INDEX_OUT_OF_RANGE,
     "Index %d out of range [%d,%d]")
   ERROR_MESSAGE(UNDEFINED_NAME,
-    "Name \'%s\' is undefined")
+    "Name '%s' is undefined")
   ERROR_MESSAGE(BAD_CAST,
     "Bad cast: %s")
   ERROR_MESSAGE(ILLEGAL_OPERATION,
     "Illegal operation: %s")
   ERROR_MESSAGE(MULTIPLE_DECLARATION_FOR,
-    "Multiple declaration for \'%s\'")
+    "Multiple declaration for '%s'")
   ERROR_MESSAGE(UNEXPECTED_END_OF_FILE_IN_COMMENT_STARTED_ON_LINE,
     "Unexpected end of file in comment started on line %d")
-  ERROR_MESSAGE(NO_FILE_NAME_ENDING,
-    "No file name ending")
-  ERROR_MESSAGE(BAD_FILE_NAME,
-    "Bad file name")
-  ERROR_MESSAGE(FILE_NAME_EXPECTED,
-    "File name expected")
+  ERROR_MESSAGE(NO_STRING_ENDING,
+    "No string ending")
+  ERROR_MESSAGE(STRING_EXPECTED,
+    "String expected")
+  ERROR_MESSAGE(EMPTY_FILENAME,
+    "Empty filename")
   ERROR_MESSAGE(UNEXPECTED_LEXEME,
-    "Unexpected \'%s\'")
+    "Unexpected '%s'")
 END_ERROR_MESSAGE_TABLE;
 
 Reader::Parser::~Parser()
 {
-  while (auto scope = _currentScope->parent())
+  while (auto parent = _currentScope->parent())
   {
     delete _currentScope;
-    _currentScope = scope;
+    _currentScope = parent;
   }
 }
 
@@ -296,11 +314,17 @@ _float:
   {
     buffer()++;
     buffer().beginLexeme();
-    if (auto c = buffer()++; c != '"')
+ _next_char:
+    if (auto c = *buffer(); c != '"')
+    {
       if (c == 0 || c == '\n')
-        error(NO_FILE_NAME_ENDING);
-    _tokenValue.filename = buffer().lexeme();
-    return _FILE_NAME;
+        error(NO_STRING_ENDING);
+      ++buffer();
+      goto _next_char;
+    }
+    _tokenValue.string = buffer().lexeme();
+    ++buffer();
+    return _STRING;
   }
 
   auto c = buffer()++;
@@ -354,7 +378,7 @@ Reader::Parser::match(int token)
 {
   if (_token == token)
     advance();
-  else if (_token < 256)
+  else if (_token < 256 && _token != _EOF)
     error(UNEXPECTED_CHAR, _token);
   else
     error(CHAR_EXPECTED, token);
@@ -387,35 +411,46 @@ Reader::Parser::matchName()
   if (_token != _NAME)
     error(NAME_EXPECTED);
 
-  auto name = _tokenValue.filename.toString();
+  auto name = _tokenValue.name.toString();
 
   advance();
   return name;
 
 }
+
+std::string
+Reader::Parser::matchString()
+{
+  if (_token != _STRING)
+    error(STRING_EXPECTED);
+
+  auto string = _tokenValue.string.toString();
+
+  advance();
+  return string;
+}
+
 std::string
 Reader::Parser::matchFilename()
 {
-  if (_token != _FILE_NAME)
-    error(FILE_NAME_EXPECTED);
-
-  auto filename = _tokenValue.filename.toString();
+  auto filename = matchString();
 
   if (filename.empty())
-    error(BAD_FILE_NAME);
-  advance();
+    error(EMPTY_FILENAME);
   return filename;
 }
 
 std::string
-Reader::Parser::matchOptionalName()
+Reader::Parser::matchOptionalString()
 {
-  std::string name;
+  std::string string;
 
-  if (_token == _NAME)
-    name = _tokenValue.filename.toString();
-  advance();
-  return name;
+  if (_token == _STRING)
+  {
+    string = _tokenValue.string.toString();
+    advance();
+  }
+  return string;
 }
 
 Expression
@@ -471,108 +506,170 @@ Reader::Parser::factor()
 {
   Expression e;
 
-  if (_token == '(')
+  switch (_token)
   {
-    advance();
-    e = expression();
-    match(')');
-  }
-  else if (_token == '-')
-  {
-    advance();
-    e = -expression();
-  }
-  else if (_token == '+')
-  {
-    advance();
-    e = +expression();
-  }
-  else if (_token == _NAME)
-  {
-    e = access(_tokenValue.name.toString());
-    advance();
-  }
-  else if (_token == _INTEGER)
-  {
-    e = _tokenValue.integer;
-    advance();
-  }
-  else if (_token == _FLOAT)
-  {
-    e = _tokenValue.real;
-    advance();
-  }
-  else if (_token == '<')
-  {
-    vec3f v;
+    case '(':
+      advance();
+      e = expression();
+      match(')');
+      break;
+    case '-':
+      advance();
+      e = -expression();
+      break;
+    case '+':
+      advance();
+      e = +expression();
+      break;
+    case _NAME:
+      e = access(_tokenValue.name.toString());
+      advance();
+      break;
+    case _INTEGER:
+      e = _tokenValue.integer;
+      advance();
+      break;
+    case _FLOAT:
+      e = _tokenValue.real;
+      advance();
+      break;
+    case '<':
+    {
+      vec3f v;
 
-    advance();
-    v.x = matchFloat();
-    match(',');
-    v.y = matchFloat();
-    match(',');
-    v.z = matchFloat();
-    match('>');
-    e = v;
-  }
-  else if (_token == _VEC2)
-  {
-    vec2f v;
+      advance();
+      v.x = matchFloat();
+      match(',');
+      v.y = matchFloat();
+      match(',');
+      v.z = matchFloat();
+      match('>');
+      e = v;
+      break;
+    }
+    case _VEC2:
+    {
+      vec2f v;
 
-    advance();
-    match('(');
-    v.x = matchFloat();
-    match(',');
-    v.y = matchFloat();
-    match(')');
-    e = v;
-  }
-  else if (_token == _VEC3)
-  {
-    vec3f v;
+      advance();
+      match('(');
+      v.x = matchFloat();
+      if (_token == ')')
+      {
+        advance();
+        v.y = v.x;
+      }
+      else
+      {
+        match(',');
+        v.y = matchFloat();
+        match(')');
+      }
+      e = v;
+      break;
+    }
+    case _VEC3:
+    {
+      vec3f v;
 
-    advance();
-    match('(');
-    v.x = matchFloat();
-    match(',');
-    v.y = matchFloat();
-    match(',');
-    v.z = matchFloat();
-    match(')');
-    e = v;
-  }
-  else if (_token == _VEC4)
-  {
-    vec4f v;
+      advance();
+      match('(');
+      v.x = matchFloat();
+      if (_token == ')')
+      {
+        advance();
+        v.z = v.y = v.x;
+      }
+      else
+      {
+        match(',');
+        v.y = matchFloat();
+        match(',');
+        v.z = matchFloat();
+        match(')');
+      }
+      e = v;
+      break;
+    }
+    case _VEC4:
+    {
+      vec4f v;
 
-    advance();
-    match('(');
-    v.x = matchFloat();
-    match(',');
-    v.y = matchFloat();
-    match(',');
-    v.z = matchFloat();
-    match(',');
-    v.w = matchFloat();
-    match(')');
-    e = v;
-  }
-  else if (_token == _RGB)
-  {
-    Color c;
+      advance();
+      match('(');
+      v.x = matchFloat();
+      if (_token == ')')
+      {
+        advance();
+        v.w = v.z = v.y = v.x;
+      }
+      else
+      {
+        match(',');
+        v.y = matchFloat();
+        match(',');
+        v.z = matchFloat();
+        match(',');
+        v.w = matchFloat();
+        match(')');
+      }
+      e = v;
+      break;
+    }
+    case _RGB:
+    {
+      Color c;
 
-    advance();
-    match('(');
-    c.r = math::clamp<float>(matchFloat(), 0, 1);
-    match(',');
-    c.g = math::clamp<float>(matchFloat(), 0, 1);
-    match(',');
-    c.b = math::clamp<float>(matchFloat(), 0, 1);
-    match(')');
-    e = c;
+      advance();
+      match('(');
+      c.r = math::clamp<float>(matchFloat(), 0, 1);
+      match(',');
+      c.g = math::clamp<float>(matchFloat(), 0, 1);
+      match(',');
+      c.b = math::clamp<float>(matchFloat(), 0, 1);
+      match(')');
+      e = c;
+      break;
+    }
+    case _LENGTH:
+      advance();
+      match('(');
+      e = matchVec3().length();
+      match(')');
+      break;
+    case _NORMALIZE:
+      advance();
+      match('(');
+      e = matchVec3().versor();
+      match(')');
+      break;
+    case _DOT:
+    {
+      vec3f v;
+
+      match('(');
+      advance();
+      v = matchVec3();
+      match(',');
+      e = v.dot(matchVec3());
+      match(')');
+      break;
+    }
+    case _CROSS:
+    {
+      vec3f v;
+
+      match('(');
+      advance();
+      v = matchVec3();
+      match(',');
+      e = v.cross(matchVec3());
+      match(')');
+      break;
+    }
+    default:
+      error(SYNTAX);
   }
-  else
-    error(SYNTAX);
   return e;
 }
 

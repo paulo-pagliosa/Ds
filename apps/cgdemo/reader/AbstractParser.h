@@ -28,7 +28,7 @@
 // Class definition for generic LL(n) parser.
 //
 // Author: Paulo Pagliosa
-// Last revision: 03/02/2022
+// Last revision: 04/02/2022
 
 #ifndef __AbstractParser_h
 #define __AbstractParser_h
@@ -87,7 +87,7 @@ protected:
 
 private:
   Reference<Buffer> _input;
-  const char* _filename;
+  std::string _filename;
 
   virtual void start() abstract;
 

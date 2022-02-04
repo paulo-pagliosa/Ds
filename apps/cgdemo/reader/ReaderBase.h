@@ -28,7 +28,7 @@
 // Class definition for generic reader.
 //
 // Author: Paulo Pagliosa
-// Last revision: 03/02/2022
+// Last revision: 04/02/2022
 
 #ifndef __ReaderBase_h
 #define __ReaderBase_h
@@ -52,10 +52,7 @@ public:
 
   virtual ~Reader() = default;
 
-  void setInput(const std::string& filename)
-  {
-    _input = makeBuffer(filename);
-  }
+  void setInput(const std::string& filename);
 
   virtual void execute();
 
@@ -70,6 +67,7 @@ protected:
 
   Reference<FileBuffer> _input;
   std::set<std::string> _includedFiles;
+  fs::path _currentPath;
 
   virtual Parser* makeParser() abstract;
 
@@ -85,7 +83,7 @@ private:
   void parse(FileBuffer&);
 
   const char* findErrorMessage(int) const override;
-  FileBuffer* makeBuffer(const std::string&) const;
+  Reference<FileBuffer> makeBuffer(const std::string&) const;
 
   friend Parser;
 
@@ -118,9 +116,13 @@ protected:
     _VEC4,
     _RGB,
     _HSV,
+    _STRING,
     _DEFINE,
+    _LENGTH,
+    _NORMALIZE,
+    _DOT,
+    _CROSS,
     _INCLUDE,
-    _FILE_NAME,
     lastToken
   };
 
@@ -136,9 +138,9 @@ protected:
     ILLEGAL_OPERATION,
     MULTIPLE_DECLARATION_FOR,
     UNEXPECTED_END_OF_FILE_IN_COMMENT_STARTED_ON_LINE,
-    NO_FILE_NAME_ENDING,
-    BAD_FILE_NAME,
-    FILE_NAME_EXPECTED,
+    NO_STRING_ENDING,
+    STRING_EXPECTED,
+    EMPTY_FILENAME,
     UNEXPECTED_LEXEME,
     lastErrorCode
   };
@@ -146,7 +148,7 @@ protected:
   union Value
   {
     StringRef name;
-    StringRef filename;
+    StringRef string;
     int integer;
     float real;
     void* object;
@@ -179,7 +181,7 @@ protected:
   {
     // _INCLUDE
     advance();
-    _reader->include(matchFilename());
+    _reader->include(matchString());
   }
 
   void beginBlock()
@@ -189,10 +191,10 @@ protected:
 
   void endBlock()
   {
-    if (auto scope = _currentScope->parent())
+    if (auto parent = _currentScope->parent())
     {
       delete _currentScope;
-      _currentScope = scope;
+      _currentScope = parent;
     }
   }
 
@@ -234,8 +236,9 @@ protected:
 
   int matchIndex(int, int);
   std::string matchName();
+  std::string matchString();
   std::string matchFilename();
-  std::string matchOptionalName();
+  std::string matchOptionalString();
 
   Expression expression();
   Expression term();

@@ -28,7 +28,7 @@
 // Source file for generic LL(n) parser.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/02/2022
+// Last revision: 04/02/2022
 
 #include "AbstractParser.h"
 
@@ -44,7 +44,7 @@ void
 AbstractParser::setInput(Buffer& input)
 {
   _input = &input;
-  _filename = _input->name().c_str();
+  _filename = _input->name();
 }
 
 void
@@ -66,8 +66,8 @@ AbstractParser::execute()
 KeywordTableEntry*
 AbstractParser::searchKeyword(KeywordTableEntry* k, const StringRef& s) const
 {
-  for (; k->name != nullptr; k++)
-    if (strncmp(k->name, s.begin, s.count) == 0)
+  for (auto name = s.toString(); k->name != nullptr; k++)
+    if (name == k->name)
       return k;
   return nullptr;
 }
@@ -85,7 +85,7 @@ AbstractParser::errorMessageFormat(const char* msg) const
   constexpr auto maxLen = 1024;
   char fmt[maxLen];
 
-  snprintf(fmt, maxLen, errMsg, _filename, _lineNumber, msg);
+  snprintf(fmt, maxLen, errMsg, _filename.c_str(), _lineNumber, msg);
   return fmt;
 }
 

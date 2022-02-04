@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 02/02/2022
+// Last revision: 04/02/2022
 
 #ifndef __SceneWindow_h
 #define __SceneWindow_h
@@ -103,6 +103,7 @@ protected:
   virtual bool onResize(int, int);
 
   Scene* createScene();
+  void setScene(Scene&);
 
   void drawSelectedObject(const SceneObject&);
   void drawComponents(const SceneObject&);
