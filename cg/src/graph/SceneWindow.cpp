@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/02/2022
+// Last revision: 05/02/2022
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
@@ -985,6 +985,20 @@ SceneWindow::keyInputEvent(int key, int action, int mods)
     _viewMode != ViewMode::Editor)
     return false;
   (void)mods;
+
+  if (key == GLFW_KEY_F)
+  {
+    if (auto object = _currentNode->as<SceneObject>())
+    {
+      auto camera = _editor->camera();
+      auto d = camera->viewPlaneNormal();
+      auto p = object->transform()->position();
+
+      // TODO: set view angle/height and distance
+      camera->setPosition(p + d * _editor->_orbitDistance);
+    }
+    return true;
+  }
 
   const auto delta = _editor->orbitDistance() * CAMERA_RES;
   auto d = vec3f::null();
