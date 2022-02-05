@@ -442,7 +442,7 @@ SceneWindow::inspectComponent(Component& component)
     if (typeName == "Transform")
       inspectTransform((Transform&)component);
     else if (auto function = inspectFunction(component))
-      function(component);
+      function(*this, component);
   }
 }
 
@@ -513,7 +513,7 @@ SceneWindow::inspectCamera(Camera& camera)
 }
 
 void
-SceneWindow::inspectCamera(CameraProxy& proxy)
+SceneWindow::inspectCamera(SceneWindow& window, CameraProxy& proxy)
 {
   auto camera = proxy.camera();
 
@@ -522,6 +522,9 @@ SceneWindow::inspectCamera(CameraProxy& proxy)
 
     ImGui::Checkbox("Current", &isCurrent);
     CameraProxy::setCurrent(isCurrent ? camera : nullptr);
+    ImGui::SameLine();
+    if (ImGui::Button("Copy to Editor View"))
+      window._editor->setCamera(*new Camera{*camera});
   }
   inspectCamera(*camera);
 }
@@ -603,7 +606,7 @@ SceneWindow::inspectLight(Light& light)
 }
 
 void
-SceneWindow::inspectLight(LightProxy& proxy)
+SceneWindow::inspectLight(SceneWindow&, LightProxy& proxy)
 {
   inspectLight(*proxy.light());
 }
@@ -619,7 +622,7 @@ SceneWindow::inspectMaterial(Material& material)
 }
 
 void
-SceneWindow::inspectPrimitive(TriangleMeshProxy& proxy)
+SceneWindow::inspectPrimitive(SceneWindow&, TriangleMeshProxy& proxy)
 {
   ImGui::inputText("Mesh", proxy.meshName());
   if (ImGui::BeginDragDropTarget())

@@ -56,7 +56,7 @@ class SceneWindow abstract: public GLWindow, public SceneObjectBuilder
 {
 public:
   template <typename C = SharedObject>
-  using InspectFunction = void (*)(C&);
+  using InspectFunction = void (*)(SceneWindow&, C&);
 
   GLRenderer* renderer() const
   {
@@ -126,11 +126,11 @@ protected:
 
   static void inspectTransform(Transform&);
   static void inspectCamera(Camera&);
-  static void inspectCamera(CameraProxy&);
   static void inspectLight(Light&);
-  static void inspectLight(LightProxy&);
   static void inspectMaterial(Material&);
-  static void inspectPrimitive(TriangleMeshProxy&);
+  static void inspectCamera(SceneWindow&, CameraProxy&);
+  static void inspectLight(SceneWindow&, LightProxy&);
+  static void inspectPrimitive(SceneWindow&, TriangleMeshProxy&);
 
 private:
   using InspectMap = std::unordered_map<size_t, InspectFunction<>>;
