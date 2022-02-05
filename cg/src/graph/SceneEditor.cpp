@@ -28,7 +28,7 @@
 // Source file for scene editor.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/01/2022
+// Last revision: 05/02/2022
 
 #include "graph/SceneEditor.h"
 
@@ -183,17 +183,18 @@ SceneEditor::drawLight(const LightProxy& proxy)
   setFlatMode(false);
   setLineColor(_lightGismoColor);
   setPolygonMode(PolygonMode::LINE);
-  switch (light.type())
+  if (auto type = light.type(); type == Light::Type::Directional)
+    outlineCylinder(p, r, pixelsLength(lr * 2), pixelsLength(dl));
+  else
   {
-    case Light::Type::Directional:
-      outlineCylinder(p, r, pixelsLength(lr * 2), pixelsLength(dl));
-      break;
-    case Light::Type::Point:
-      outlineSphere(p, r, light.range());
-      break;
-    case Light::Type::Spot:
-      outlineCone(p, r, light.spotAngle(), light.range());
-      break;
+    float range = 20.0f;
+
+    if (!light.flags.isSet(Light::Infinite))
+      range = math::min(light.range(), range);
+    if (type == Light::Type::Point)
+      outlineSphere(p, r, range);
+    else
+      outlineCone(p, r, light.spotAngle(), range);
   }
   if (dt)
     glEnable(GL_DEPTH_TEST);

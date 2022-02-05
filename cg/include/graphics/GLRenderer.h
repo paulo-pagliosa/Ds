@@ -28,7 +28,7 @@
 // Class definition for OpenGL Renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 25/01/2022
+// Last revision: 05/02/2022
 
 #ifndef __GLRenderer_h
 #define __GLRenderer_h
@@ -38,8 +38,6 @@
 
 namespace cg
 { // begin namespace Graphics
-
-#define MAX_LIGHTS 8
 
 
 //////////////////////////////////////////////////////////

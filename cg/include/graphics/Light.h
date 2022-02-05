@@ -28,7 +28,7 @@
 // Class definition for light.
 //
 // Author: Paulo Pagliosa
-// Last revision: 31/01/2022
+// Last revision: 05/02/2022
 
 #ifndef __Light_h
 #define __Light_h
@@ -130,7 +130,6 @@ public:
 private:
   Type _type;
   float _range;
-  float _invRange;
   float _spotAngle;
 
   auto outOfRange(float distance) const
@@ -173,8 +172,11 @@ Light::lightVector(const vec3f& P, vec3f& L, float& distance) const
   L *= math::inverse(distance);
   if (_type == Type::Point)
     return true;
+
   // Spot light
-  return _spotAngle >= 2 * math::toRadians(acos(direction.dot(L)));
+  auto DL = direction.dot(L);
+
+  return DL < 0 && _spotAngle >= 2 * math::toRadians(acos(DL));
 }
 
 } // end namespace cg

@@ -28,13 +28,14 @@
 // Source file for OpenGL renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 25/01/2022
+// Last revision: 05/02/2022
 
 #include "graphics/GLRenderer.h"
 
 namespace cg
 { // begin namespace cg
 
+#define MAX_LIGHTS 8
 #define STRINGIFY(A) "#version 400\n"#A
 
 
@@ -56,7 +57,7 @@ static const char* vertexShader = STRINGIFY(
   void main()
   {
     vPosition = vec3(mvMatrix * position);
-    vNormal = normalize(normalMatrix * normal);
+    vNormal = normalMatrix * normal;
     gl_Position = mvpMatrix * position;
     vColor = color;
   }
@@ -69,7 +70,7 @@ static const char* geometryShader = STRINGIFY(
   in vec3 vPosition[];
   in vec3 vNormal[];
   in vec4 vColor[];
-  uniform mat4 _viewportMatrix;
+  uniform mat4 viewportMatrix;
   out vec3 gPosition;
   out vec3 gNormal;
   out vec4 gColor;
@@ -77,11 +78,11 @@ static const char* geometryShader = STRINGIFY(
 
   void main()
   {
-    vec2 p0 = vec2(_viewportMatrix *
+    vec2 p0 = vec2(viewportMatrix *
       (gl_in[0].gl_Position / gl_in[0].gl_Position.w));
-    vec2 p1 = vec2(_viewportMatrix *
+    vec2 p1 = vec2(viewportMatrix *
       (gl_in[1].gl_Position / gl_in[1].gl_Position.w));
-    vec2 p2 = vec2(_viewportMatrix *
+    vec2 p2 = vec2(viewportMatrix *
       (gl_in[2].gl_Position / gl_in[2].gl_Position.w));
     float a = length(p1 - p2);
     float b = length(p2 - p0);
@@ -117,8 +118,13 @@ static const char* geometryShader = STRINGIFY(
 static const char* fragmentShader = STRINGIFY(
   struct LightProps
   {
-    vec4 position; // light position in eye coordinates
-    vec4 color; // light color
+    int type;       // DIRECTIONAL/POINT/SPOT
+    vec4 color;     // color
+    vec4 position;  // VRC position
+    vec4 direction; // VRC direction
+    int falloff;    // CONSTANT/LINEAR/QUADRATIC
+    float range;    // range (== 0 INFINITE)
+    float angle;    // spot angle
   };
 
   struct MaterialProps
@@ -142,10 +148,10 @@ static const char* fragmentShader = STRINGIFY(
   in vec3 gNormal;
   in vec4 gColor;
   noperspective in vec3 gEdgeDistance;
+  uniform int projectionType; // PERSPECTIVE/PARALLEL
   uniform vec4 ambientLight;
-  uniform int nbLights;
+  uniform int lightCount;
   uniform LightProps lights[8];
-  uniform int lightTypes[8];
   uniform MaterialProps material;
   uniform LineProps line;
   subroutine uniform mixColorType mixColor;
@@ -168,12 +174,57 @@ static const char* fragmentShader = STRINGIFY(
     m = MaterialProps(gColor * cmOa, gColor * cmOd, gColor * cmOs, 100);
   }
 
-  vec3 lightVector(int i, vec3 P)
+  bool lightVector(int i, vec3 P, out vec3 L, out float d)
   {
-    // TODO: range and spot light
-    if (lightTypes[i] == 1) // directional light
-      return -vec3(lights[i].position);
-    return normalize(vec3(lights[i].position) - P);
+    int type = lights[i].type;
+
+    // DIRECTIONAL
+    if (type == 0)
+    {
+      L = -vec3(lights[i].direction);
+      return true;
+    }
+    L = vec3(lights[i].position) - P;
+    d = length(L);
+
+    float range = lights[i].range;
+
+    if (d == 0 || (range > 0 && d > range))
+      return false;
+    L /= d;
+    // POINT
+    if (type == 1)
+      return true;
+
+    // SPOT
+    float dot_DL = dot(vec3(lights[i].direction), L);
+
+    return dot_DL < 0 && lights[i].angle > radians(acos(dot_DL));
+  }
+
+  vec4 lightColor(int i, float d)
+  {
+    int falloff = lights[i].falloff;
+
+    // directional light or constant falloff
+    if (lights[i].type == 0  || falloff == 0)
+      return lights[i].color;
+
+    float range = lights[i].range;
+    float f;
+
+    if (range == 0) // infinite range
+    {
+      f = 1 / d;
+      if (falloff == 2) // quadratic falloff
+        f *= f;
+    }
+    else
+    {
+      f = d / range;
+      f = falloff == 2 ? 1 + f * (f - 2) : 1 - f;
+    }
+    return lights[i].color * f;
   }
 
   vec4 phong(vec3 P, vec3 N)
@@ -183,14 +234,28 @@ static const char* fragmentShader = STRINGIFY(
 
     matProps(m);
     color = ambientLight * m.Oa;
-    for (int i = 0; i < nbLights; i++)
-    {
-      vec3 L = lightVector(i, P);
-      vec3 V = normalize(P.xyz); // TODO: parallel projection
-      vec3 R = reflect(L, N);
 
-      color += lights[i].color * (m.Od * max(dot(L, N), 0) +
-        m.Os * pow(max(dot(R, V), 0), m.s));
+    vec3 V = projectionType == 0 ?
+      // PERSPECTIVE
+      normalize(P.xyz) :
+      // PARALLEL
+      vec3(0, 0, -1);
+    vec3 R = reflect(V, N);
+
+    for (int i = 0; i < lightCount; i++)
+    {
+      vec3 L;
+      float d;
+ 
+      if (lightVector(i, P, L, d))
+      {
+        float NL = dot(N, L);
+
+        if (NL <= 0)
+          continue;
+        color += lightColor(i, d) * (m.Od * dot(L, N) +
+          m.Os * pow(dot(R, L), m.s));
+      }
     }
     return color;
   }
@@ -229,8 +294,13 @@ struct GLRenderer::GLData
 {
   struct LightPropLoc
   {
-    GLint position;
+    GLint type;
     GLint color;
+    GLint position;
+    GLint direction;
+    GLint falloff;
+    GLint range;
+    GLint angle;
   };
 
   GLSL::Program program;
@@ -239,10 +309,10 @@ struct GLRenderer::GLData
   GLint normalMatrixLoc;
   GLint mvpMatrixLoc;
   GLint viewportMatrixLoc;
+  GLint projectionTypeLoc;
   GLint ambientLightLoc;
-  GLint nbLightsLoc;
+  GLint lightCountLoc;
   LightPropLoc lightLocs[MAX_LIGHTS];
-  GLint lightTypeLocs[MAX_LIGHTS];
   GLint OaLoc;
   GLint OdLoc;
   GLint OsLoc;
@@ -256,6 +326,16 @@ struct GLRenderer::GLData
 
   GLData();
 
+  GLint uniformLightLocation(int i, const char* field)
+  {
+    constexpr auto maxName = 32;
+    char name[maxName];
+
+    snprintf(name, maxName, "lights[%d].%s", i, field);
+    return program.uniformLocation(name);
+  }
+
+  void uniformLightLocations(int);
   void uniformLocations();
   void subroutineIndices();
   void renderDefaultLights();
@@ -263,38 +343,29 @@ struct GLRenderer::GLData
 }; // GLRenderer::GLData
 
 inline void
+GLRenderer::GLData::uniformLightLocations(int i)
+{
+  lightLocs[i].type = uniformLightLocation(i, "type");
+  lightLocs[i].color = uniformLightLocation(i, "color");
+  lightLocs[i].position = uniformLightLocation(i, "position");
+  lightLocs[i].direction = uniformLightLocation(i, "direction");
+  lightLocs[i].falloff = uniformLightLocation(i, "falloff");
+  lightLocs[i].range = uniformLightLocation(i, "range");
+  lightLocs[i].angle = uniformLightLocation(i, "angle");
+}
+
+inline void
 GLRenderer::GLData::uniformLocations()
 {
   mvMatrixLoc = program.uniformLocation("mvMatrix");
   normalMatrixLoc = program.uniformLocation("normalMatrix");
   mvpMatrixLoc = program.uniformLocation("mvpMatrix");
-  viewportMatrixLoc = program.uniformLocation("_viewportMatrix");
+  viewportMatrixLoc = program.uniformLocation("viewportMatrix");
+  projectionTypeLoc = program.uniformLocation("projectionType");
   ambientLightLoc = program.uniformLocation("ambientLight");
-  nbLightsLoc = program.uniformLocation("nbLights");
-  lightLocs[0].position = program.uniformLocation("lights[0].position");
-  lightLocs[0].color = program.uniformLocation("lights[0].color");
-  lightTypeLocs[0] = program.uniformLocation("lightTypes[0]");
-  lightLocs[1].position = program.uniformLocation("lights[1].position");
-  lightLocs[1].color = program.uniformLocation("lights[1].color");
-  lightTypeLocs[1] = program.uniformLocation("lightTypes[1]");
-  lightLocs[2].position = program.uniformLocation("lights[2].position");
-  lightLocs[2].color = program.uniformLocation("lights[2].color");
-  lightTypeLocs[2] = program.uniformLocation("lightTypes[2]");
-  lightLocs[3].position = program.uniformLocation("lights[3].position");
-  lightLocs[3].color = program.uniformLocation("lights[3].color");
-  lightTypeLocs[3] = program.uniformLocation("lightTypes[3]");
-  lightLocs[4].position = program.uniformLocation("lights[4].position");
-  lightLocs[4].color = program.uniformLocation("lights[4].color");
-  lightTypeLocs[4] = program.uniformLocation("lightTypes[4]");
-  lightLocs[5].position = program.uniformLocation("lights[5].position");
-  lightLocs[5].color = program.uniformLocation("lights[5].color");
-  lightTypeLocs[5] = program.uniformLocation("lightTypes[5]");
-  lightLocs[6].position = program.uniformLocation("lights[6].position");
-  lightLocs[6].color = program.uniformLocation("lights[6].color");
-  lightTypeLocs[6] = program.uniformLocation("lightTypes[6]");
-  lightLocs[7].position = program.uniformLocation("lights[7].position");
-  lightLocs[7].color = program.uniformLocation("lights[7].color");
-  lightTypeLocs[7] = program.uniformLocation("lightTypes[7]");
+  lightCountLoc = program.uniformLocation("lightCount");
+  for (auto i = 0; i < MAX_LIGHTS; ++i)
+    uniformLightLocations(i);
   OaLoc = program.uniformLocation("material.Oa");
   OdLoc = program.uniformLocation("material.Od");
   OsLoc = program.uniformLocation("material.Os");
@@ -315,10 +386,11 @@ GLRenderer::GLData::subroutineIndices()
 inline void
 GLRenderer::GLData::renderDefaultLights()
 {
+  program.setUniform(lightLocs[0].type, 1); // POINT
+  program.setUniformVec4(lightLocs[0].color, vec4f{1, 1, 1, 0});
   program.setUniformVec4(lightLocs[0].position, vec4f{0, 0, 0, 1});
-  program.setUniform(lightLocs[0].color, 1, 1, 1, 0);
-  program.setUniform(lightTypeLocs[0], 0);
-  program.setUniform(nbLightsLoc, 1);
+  program.setUniform(lightLocs[0].range, 0.0f);
+  program.setUniform(lightCountLoc, 1);
 }
 
 inline
@@ -392,28 +464,25 @@ GLRenderer::renderLights()
 
   for (auto& light : _scene->lights())
   {
-    if (light->isTurnedOn())
+    if (!light->isTurnedOn())
+      continue;
+    _gl->program.setUniform(_gl->lightLocs[nl].type, (int)light->type());
+    _gl->program.setUniformVec4(_gl->lightLocs[nl].color, light->color);
     {
-      if (light->type() == Light::Type::Directional)
-      {
-        const auto d = vm.transformVector(light->direction).versor();
-
-        _gl->program.setUniformVec4(_gl->lightLocs[nl].position, d);
-        _gl->program.setUniform(_gl->lightTypeLocs[nl], (int)1);
-      }
-      else
-      {
-        const auto p = vm * vec4f{light->position};
-
-        _gl->program.setUniformVec4(_gl->lightLocs[nl].position, p);
-        _gl->program.setUniform(_gl->lightTypeLocs[nl], (int)0);
-      }
-      _gl->program.setUniformVec4(_gl->lightLocs[nl].color, light->color);
-      if (++nl == MAX_LIGHTS)
-        break;
+      const auto p = vm * vec4f{light->position};
+      _gl->program.setUniformVec4(_gl->lightLocs[nl].position, p);
     }
+    {
+      const auto d = vm.transformVector(light->direction).versor();
+      _gl->program.setUniformVec4(_gl->lightLocs[nl].direction, d);
+    }
+    _gl->program.setUniform(_gl->lightLocs[nl].falloff, (int)light->falloff);
+    _gl->program.setUniform(_gl->lightLocs[nl].range, light->range());
+    _gl->program.setUniform(_gl->lightLocs[nl].angle, light->spotAngle());
+    if (++nl == MAX_LIGHTS)
+      break;
   }
-  _gl->program.setUniform(_gl->nbLightsLoc, nl);
+  _gl->program.setUniform(_gl->lightCountLoc, nl);
 }
 
 void
@@ -445,6 +514,7 @@ GLRenderer::beginRender()
   glClearColor((float)bc.r, (float)bc.g, (float)bc.b, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   _gl->program.use();
+  _gl->program.setUniform(_gl->projectionTypeLoc, _camera->projectionType());
   _gl->program.setUniformMat4(_gl->viewportMatrixLoc, _gl->viewportMatrix);
   glPolygonMode(GL_FRONT_AND_BACK,
     (renderMode != RenderMode::Wireframe) + GL_LINE);
@@ -492,6 +562,12 @@ mvpMatrix(const mat4f& mvm, const Camera& c)
   return c.projectionMatrix() * mvm;
 }
 
+inline mat3f
+normalMatrix(const Camera& c, const Primitive& p)
+{
+  return mat3f{c.worldToCameraMatrix()} * p.normalMatrix();
+}
+
 bool
 GLRenderer::drawMesh(const Primitive& primitive)
 {
@@ -504,7 +580,8 @@ GLRenderer::drawMesh(const Primitive& primitive)
 
   _gl->program.setUniformMat4(_gl->mvMatrixLoc, mvm);
   _gl->program.setUniformMat4(_gl->mvpMatrixLoc, mvpMatrix(mvm, *_camera));
-  _gl->program.setUniformMat3(_gl->normalMatrixLoc, primitive.normalMatrix());
+  _gl->program.setUniformMat3(_gl->normalMatrixLoc,
+    normalMatrix(*_camera, primitive));
 
   GLuint subIds[2];
 

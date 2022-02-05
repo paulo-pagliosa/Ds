@@ -28,7 +28,7 @@
 // Source file for simple ray tracer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/02/2022
+// Last revision: 05/02/2022
 
 #include "graphics/Camera.h"
 #include "RayTracer.h"
@@ -276,7 +276,7 @@ RayTracer::shade(const Ray3f& ray,
     auto NL = N.dot(L);
 
     // If light vector is backfaced, then continue
-    if (NL < 0)
+    if (NL <= 0)
       continue;
 
     auto lightRay = Ray3f{P + N * rt_eps(), L};
