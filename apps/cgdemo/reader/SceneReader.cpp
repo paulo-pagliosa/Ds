@@ -475,7 +475,7 @@ SceneReader::Parser::matchPrimitive(int type)
   // _COMPONENT (_BOX, _SPHERE, _MESH)
   advance();
 
-  std::string name;
+  String name;
 
   if (type == _BOX)
     name = "Box";

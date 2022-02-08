@@ -28,7 +28,7 @@
 // Source file for triangle mesh BVH.
 //
 // Author: Paulo Pagliosa
-// Last revision: 21/01/2022
+// Last revision: 07/02/2022
 
 #include "geometry/TriangleMeshBVH.h"
 
@@ -136,7 +136,7 @@ TriangleMeshBVH::intersectLeaf(uint32_t first,
       hitCount++;
     }
   }
-  if (hitCount)
+  if (hitCount > 0)
     hit.object = _mesh;
 }
 

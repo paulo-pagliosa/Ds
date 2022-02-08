@@ -28,7 +28,7 @@
 // Source file for file buffer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/02/2022
+// Last revision: 07/02/2022
 
 #include "FileBuffer.h"
 #include <cassert>
@@ -68,7 +68,7 @@ FileBuffer::FileBuffer(const fs::path& path):
   fill(_begin, _size);
 }
 
-std::string
+String
 FileBuffer::name() const
 {
   return _path.string();

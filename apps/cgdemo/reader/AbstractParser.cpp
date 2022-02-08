@@ -28,7 +28,7 @@
 // Source file for generic LL(n) parser.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/02/2022
+// Last revision: 07/02/2022
 
 #include "AbstractParser.h"
 
@@ -64,21 +64,21 @@ AbstractParser::execute()
 }
 
 KeywordTableEntry*
-AbstractParser::searchKeyword(KeywordTableEntry* k, const StringRef& s) const
+AbstractParser::searchKeyword(KeywordTableEntry* k, const String& name) const
 {
-  for (auto name = s.toString(); k->name != nullptr; k++)
+  for (; k->name != nullptr; k++)
     if (name == k->name)
       return k;
   return nullptr;
 }
 
 KeywordTableEntry*
-AbstractParser::findKeyword(const StringRef&) const
+AbstractParser::findKeyword(const String&) const
 {
   return nullptr;
 }
 
-std::string
+String
 AbstractParser::errorMessageFormat(const char* msg) const
 {
   constexpr auto errMsg = "Error %s %d: %s\n";

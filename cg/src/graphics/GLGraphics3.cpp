@@ -28,7 +28,7 @@
 // Source file for OpenGL 3D graphics.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/01/2022
+// Last revision: 07/02/2022
 
 #include "geometry/MeshSweeper.h"
 #include "graphics/GLGraphics3.h"
@@ -386,7 +386,8 @@ GLGraphics3::drawBounds(const Bounds3f& box, const mat4f& m)
 void
 GLGraphics3::drawNormals(const TriangleMesh& mesh,
   const mat4f& t,
-  const mat3f& n)
+  const mat3f& n,
+  float scale)
 {
   const auto& data = mesh.data();
 
@@ -401,8 +402,7 @@ GLGraphics3::drawNormals(const TriangleMesh& mesh,
     const auto p = t.transform3x4(data.vertices[i]);
     const auto N = n.transform(data.vertexNormals[i]).versor();
 
-    // TODO: take a parameter in place of 0.5f
-    drawAxis(p, N, 0.5f, glyph);
+    drawAxis(p, N, scale, glyph);
   }
   _flatMode = 0;
 }
@@ -456,7 +456,7 @@ GLGraphics3::drawXZPlane(float size, float step)
 void
 GLGraphics3::drawAxis(const vec3f& p,
   const vec3f& d,
-  float s,
+  float scale,
   TriangleMesh& glyph)
 {
   mat3f r;
@@ -469,9 +469,9 @@ GLGraphics3::drawAxis(const vec3f& p,
   r[1] = d.versor();
   r[0] = q.cross(r[1]).versor();
   r[2] = r[0].cross(r[1]);
-  q = p + d * s;
+  q = p + d * scale;
   drawLine(p, q);
-  drawMesh(glyph, q, r, vec3f{0.05f, 0.20f, 0.05f} * s);
+  drawMesh(glyph, q, r, vec3f{0.05f, 0.20f, 0.05f} * scale);
 }
 
 } // end namespace cg

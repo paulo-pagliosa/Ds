@@ -28,7 +28,7 @@
 // Source file for generic input buffer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 31/01/2022
+// Last revision: 07/02/2022
 
 #include "Buffer.h"
 
@@ -53,12 +53,11 @@ Buffer::~Buffer()
     delete []_begin;
 }
 
-StringRef
+String
 Buffer::lexeme()
 {
-  StringRef lexeme;
+  String lexeme{_lexemeBegin, size_t(_current - _lexemeBegin)};
 
-  lexeme.count = (int)(_current - (lexeme.begin = _lexemeBegin));
   _lexemeBegin = nullptr;
   return lexeme;
 }

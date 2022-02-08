@@ -28,7 +28,7 @@
 // Source file for cg demo main window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/02/2022
+// Last revision: 06/02/2022
 
 #include "graphics/Application.h"
 #include "reader/SceneReader.h"
@@ -136,9 +136,7 @@ MainWindow::fileMenu()
   if (ImGui::BeginMenu("File"))
   {
     if (ImGui::MenuItem("New Scene"))
-    {
       createScene();
-    }
     if (ImGui::BeginMenu("Open"))
     {
       // TODO
@@ -225,6 +223,20 @@ MainWindow::mainMenu()
       ImGui::MenuItem("Editor View Settings", nullptr, &_showEditorView);
       ImGui::EndMenu();
     }
+    if (ImGui::BeginMenu("Ray Tracing"))
+    {
+      ImGui::DragInt("Max Recursion Level",
+        &_maxRecursionLevel,
+        1.0f,
+        0,
+        RayTracer::maxMaxRecursionLevel);
+      ImGui::DragFloat("Min Weight",
+        &_minWeight,
+        0.01f,
+        RayTracer::minMinWeight,
+        1.0f);
+      ImGui::EndMenu();
+    }
     if (ImGui::BeginMenu("Tools"))
     {
       if (ImGui::BeginMenu("Options"))
@@ -267,6 +279,8 @@ MainWindow::renderScene()
       _rayTracer = new RayTracer{*scene(), *camera};
     else
       _rayTracer->setCamera(*camera);
+    _rayTracer->setMaxRecursionLevel(_maxRecursionLevel);
+    _rayTracer->setMinWeight(_minWeight);
     _rayTracer->renderImage(*_image);
   }
   _image->draw(0, 0);

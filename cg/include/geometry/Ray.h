@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2020 Orthrus Group.                         |
+//| Copyright (C) 2019, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 //  Class definition for 2D/3D ray.
 //
 // Author: Paulo Pagliosa
-// Last revision: 30/06/2020
+// Last revision: 07/02/2022
 
 #ifndef __Ray_h
 #define __Ray_h
@@ -73,6 +73,7 @@ public:
     set(origin, direction);
   }
 
+  /*
   HOST DEVICE
   Ray(const Ray<real, D>& ray, const mat_type& m):
     tMin{ray.tMin},
@@ -80,6 +81,7 @@ public:
   {
     set(m.transform(ray.origin), m.transformVector(ray.direction));
   }
+  */
 
   HOST DEVICE
   void set(const vec_type& origin, const vec_type& direction)
@@ -88,12 +90,14 @@ public:
     this->direction = direction.versor();
   }
 
+  /*
   HOST DEVICE
   void transform(const mat_type& m)
   {
     origin = m.transform(origin);
     direction = m.transformVector(direction).versor();
   }
+  */
 
   HOST DEVICE
   vec_type operator ()(real t) const

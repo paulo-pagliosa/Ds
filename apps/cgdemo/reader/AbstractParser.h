@@ -28,7 +28,7 @@
 // Class definition for generic LL(n) parser.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/02/2022
+// Last revision: 07/02/2022
 
 #ifndef __AbstractParser_h
 #define __AbstractParser_h
@@ -77,17 +77,17 @@ protected:
 
   virtual int nextToken() abstract;
 
-  virtual KeywordTableEntry* findKeyword(const StringRef&) const;
-  KeywordTableEntry* searchKeyword(KeywordTableEntry*, const StringRef&) const;
+  virtual KeywordTableEntry* findKeyword(const String&) const;
+  KeywordTableEntry* searchKeyword(KeywordTableEntry*, const String&) const;
 
-  std::string errorMessageFormat(const char*) const override;
+  String errorMessageFormat(const char*) const override;
 
   virtual void initCompilationUnit();
   virtual void terminateCompilationUnit();
 
 private:
   Reference<Buffer> _input;
-  std::string _filename;
+  String _filename;
 
   virtual void start() abstract;
 
@@ -100,7 +100,7 @@ private:
 private: \
   static cg::parser::KeywordTableEntry _keywords[]; \
 protected: \
-  cg::parser::KeywordTableEntry* findKeyword(const StringRef&) const
+  cg::parser::KeywordTableEntry* findKeyword(const String&) const
 
 #define DEFINE_KEYWORD_TABLE_ENTRIES(cls) \
 cg::parser::KeywordTableEntry cls::_keywords[]{
@@ -113,7 +113,7 @@ cg::parser::KeywordTableEntry cls::_keywords[]{
 
 #define DEFINE_KEYWORD_TABLE(cls, base) \
 cg::parser::KeywordTableEntry* \
-cls::findKeyword(const StringRef& name) const\
+cls::findKeyword(const String& name) const\
 { \
   auto keyword = searchKeyword(_keywords, name); \
   if (nullptr == keyword) \

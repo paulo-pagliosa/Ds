@@ -28,7 +28,7 @@
 // Class definition for generic error handler.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/02/2022
+// Last revision: 07/02/2022
 
 #ifndef __ErrorHandler_h
 #define __ErrorHandler_h
@@ -39,6 +39,8 @@
 
 namespace cg::parser
 { // begin namespace cg::parser
+
+using String = std::string;
 
 
 /////////////////////////////////////////////////////////////////////
@@ -99,9 +101,9 @@ public:
   void error(int, const char*) const;
 
 protected:
-  virtual const char* findErrorMessage(int) const;
-  virtual std::string errorMessageFormat(const char*) const;
   virtual void handleError(int, va_list) const;
+  virtual String errorMessageFormat(const char*) const;
+  virtual const char* findErrorMessage(int) const;
   virtual void throwErrorMessage(const char*) const;
 
 private:

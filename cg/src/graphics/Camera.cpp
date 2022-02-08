@@ -510,13 +510,31 @@ Camera::setDefaultView(float aspect)
   _focalPoint.set(0.0f, 0.0f, 0.0f);
   _distance = 10.0f;
   _aspectRatio = aspect;
+  _F = 0.01f; _B = 1000.0f;
   _projectionType = Perspective;
   _viewAngle = 60.0f;
   _height = 10.0f;
-  _F = 0.01f;
-  _B = 1000.0f;
   updateView();
   updateProjection();
+}
+
+void
+Camera::set(const Camera& camera)
+{
+  _position = camera._position;
+  _eulerAngles = camera._eulerAngles;
+  _rotation = camera._rotation;
+  _focalPoint = camera._focalPoint;
+  _distance = camera._distance;
+  _aspectRatio = camera._aspectRatio;
+  _F = camera._F; _B = camera._B;
+  _projectionType = camera._projectionType;
+  _viewAngle = camera._viewAngle;
+  _height = camera._height;
+  _worldToCamera = camera._worldToCamera;
+  _cameraToWorld = camera._cameraToWorld;
+  _projectionMatrix = camera._projectionMatrix;
+  _modified = true;
 }
 
 uint32_t

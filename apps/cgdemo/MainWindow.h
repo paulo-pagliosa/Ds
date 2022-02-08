@@ -28,7 +28,7 @@
 // Class definition for cg demo main window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 31/01/2022
+// Last revision: 06/02/2022
 
 #ifndef __MainWindow_h
 #define __MainWindow_h
@@ -58,6 +58,8 @@ public:
 private:
   Reference<RayTracer> _rayTracer;
   Reference<GLImage> _image;
+  int _maxRecursionLevel{6};
+  float _minWeight{RayTracer::minMinWeight};
 
   static MeshMap _defaultMeshes;
 

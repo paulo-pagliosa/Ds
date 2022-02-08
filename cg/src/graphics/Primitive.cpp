@@ -28,7 +28,7 @@
 // Source file for primitive.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/01/2022
+// Last revision: 07/02/2022
 
 #include "graphics/Primitive.h"
 
@@ -58,14 +58,27 @@ Primitive::localIntersect(const Ray3f&) const
   throw bad_invocation("Primitive", __func__);
 }
 
+inline auto
+transform(const Ray3f& ray, const mat4f& m)
+{
+  Ray3f r;
+
+  r.origin = m.transform3x4(ray.origin);
+  r.direction = m.transformVector(ray.direction);
+
+  auto d = r.direction.length();
+
+  r.tMin = ray.tMin * d;
+  r.tMax = ray.tMax * d;
+  r.direction *= (d = 1 / d);
+  return std::pair{r, d};
+}
+
 bool
 Primitive::intersect(const Ray3f& ray) const
 {
   assert(canIntersect());
-
-  Ray3f localRay{ray, _worldToLocal};
-
-  localRay.direction.normalize();
+  auto [localRay, d] = transform(ray, _worldToLocal);
   return localIntersect(localRay);
 }
 
@@ -73,11 +86,7 @@ bool
 Primitive::intersect(const Ray3f& ray, Intersection& hit) const
 {
   assert(canIntersect());
-
-  Ray3f localRay{ray, _worldToLocal};
-  auto d = math::inverse(localRay.direction.length());
-
-  localRay.direction *= d;
+  auto [localRay, d] = transform(ray, _worldToLocal);
   if (!localIntersect(localRay, hit))
     return false;
   hit.distance *= d;

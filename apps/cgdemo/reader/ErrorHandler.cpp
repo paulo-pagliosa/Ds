@@ -28,7 +28,7 @@
 //  Source file for generic error handler.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/02/2022
+// Last revision: 07/02/2022
 
 #include "ErrorHandler.h"
 #include <cstdio>
@@ -106,7 +106,7 @@ ErrorHandler::handleError(int code, va_list args) const
   throwErrorMessage(buffer);
 }
 
-std::string
+String
 ErrorHandler::errorMessageFormat(const char* msg) const
 {
   constexpr auto maxLen = 1024;

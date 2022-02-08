@@ -28,7 +28,7 @@
 // Source file for generic reader base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/02/2022
+// Last revision: 07/02/2022
 
 #include "math/Matrix3x3.h"
 #include "ReaderBase.h"
@@ -43,15 +43,15 @@ namespace cg::parser
 // Auxiliary functions
 //
 inline auto
-toInteger(const StringRef& s)
+toInteger(const String& s)
 {
-  return atoi(s.begin);
+  return std::stoi(s);
 }
 
 inline auto
-toFloat(const StringRef& s)
+toFloat(const String& s)
 {
-  return (float)atof(s.begin);
+  return std::stof(s);
 }
 
 
@@ -67,7 +67,7 @@ static const char* _errorMessages[]
 };
 
 void
-Reader::setInput(const std::string& filename)
+Reader::setInput(const String& filename)
 {
   _input = makeBuffer(filename);
   _currentPath = _input->path().parent_path();
@@ -102,7 +102,7 @@ Reader::terminate()
 }
 
 void
-Reader::include(const std::string& filename)
+Reader::include(const String& filename)
 {
   fs::path path{filename};
 
@@ -136,7 +136,7 @@ Reader::findErrorMessage(int code) const
 }
 
 Reference<FileBuffer>
-Reader::makeBuffer(const std::string& filename) const
+Reader::makeBuffer(const String& filename) const
 {
   auto path = fs::absolute(filename);
 
@@ -262,8 +262,8 @@ _comment:
   {
     while (++buffer() == '_' || isalnum(*buffer()))
       ;
-    _tokenValue.name = _lexeme = buffer().lexeme();
-    if (auto k = findKeyword(_tokenValue.name); k == nullptr)
+    _lexeme = buffer().lexeme();
+    if (auto k = findKeyword(_lexeme); k == nullptr)
       return _NAME;
     else
     {
@@ -324,7 +324,7 @@ _float:
       ++buffer();
       goto _next_char;
     }
-    _tokenValue.string = buffer().lexeme();
+    _lexeme = buffer().lexeme();
     ++buffer();
     return _STRING;
   }
@@ -357,7 +357,7 @@ _float:
 }
 
 void
-Reader::Parser::define(const std::string& name, const Expression& e)
+Reader::Parser::define(const String& name, const Expression& e)
 {
   if (_currentScope->contains(name))
     error(MULTIPLE_DECLARATION_FOR, name.c_str());
@@ -366,7 +366,7 @@ Reader::Parser::define(const std::string& name, const Expression& e)
 }
 
 Expression
-Reader::Parser::access(const std::string& name) const
+Reader::Parser::access(const String& name) const
 {
   Expression e;
 
@@ -393,7 +393,7 @@ Reader::Parser::matchEndOfBlock()
     if (_token == _EOF)
       error(CHAR_EXPECTED, '}');
     else
-      error(UNEXPECTED_LEXEME, _lexeme.toString().c_str());
+      error(UNEXPECTED_LEXEME, _lexeme.c_str());
   advance();
 }
 
@@ -407,32 +407,32 @@ Reader::Parser::matchIndex(int min, int max)
   return i;
 }
 
-std::string
+String
 Reader::Parser::matchName()
 {
   if (_token != _NAME)
     error(NAME_EXPECTED);
 
-  auto name = _tokenValue.name.toString();
+  auto name = _lexeme;
 
   advance();
   return name;
 
 }
 
-std::string
+String
 Reader::Parser::matchString()
 {
   if (_token != _STRING)
     error(STRING_EXPECTED);
 
-  auto string = _tokenValue.string.toString();
+  auto string = _lexeme;
 
   advance();
   return string;
 }
 
-std::string
+String
 Reader::Parser::matchFilename()
 {
   auto filename = matchString();
@@ -442,14 +442,14 @@ Reader::Parser::matchFilename()
   return filename;
 }
 
-std::string
+String
 Reader::Parser::matchOptionalString()
 {
-  std::string string;
+  String string;
 
   if (_token == _STRING)
   {
-    string = _tokenValue.string.toString();
+    string = _lexeme;
     advance();
   }
   return string;
@@ -524,7 +524,7 @@ Reader::Parser::factor()
       e = +expression();
       break;
     case _NAME:
-      e = access(_tokenValue.name.toString());
+      e = access(_lexeme);
       advance();
       break;
     case _INTEGER:
@@ -692,4 +692,4 @@ Reader::Parser::factor()
   return e;
 }
 
-} // begin namespace cg::parser
+} // end namespace cg::parser

@@ -28,11 +28,11 @@
 // Source file for simple ray tracer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 05/02/2022
+// Last revision: 07/02/2022
 
 #include "graphics/Camera.h"
+#include "utils/Stopwatch.h"
 #include "RayTracer.h"
-#include <time.h>
 
 using namespace std;
 
@@ -43,9 +43,9 @@ namespace
 { // begin namespace
 
 inline void
-printElapsedTime(const char* s, clock_t time)
+printElapsedTime(const char* s, Stopwatch::ms_time time)
 {
-  printf("%sElapsed time: %.4f s\n", s, (float)time / CLOCKS_PER_SEC);
+  printf("%sElapsed time: %zd ms\n", s, time);
 }
 
 } // end namespace
@@ -60,11 +60,20 @@ RayTracer::RayTracer(SceneBase& scene, Camera& camera):
   _maxRecursionLevel{6},
   _minWeight{minMinWeight}
 {
+  // do nothing
+}
+
+void
+RayTracer::update()
+{
+  // Delete current BVH before creating a new one
+  _bvh = nullptr;
+
   PrimitiveBVH::PrimitiveArray primitives;
   auto np = uint32_t(0);
 
-  primitives.reserve(scene.actorCount());
-  for (auto& actor : scene.actors())
+  primitives.reserve(_scene->actorCount());
+  for (auto& actor : _scene->actors())
     if (actor->visible)
     {
       auto p = actor->mapper()->primitive();
@@ -88,13 +97,18 @@ RayTracer::render()
 void
 RayTracer::renderImage(Image& image)
 {
-  auto t = clock();
-  const auto& m = _camera->cameraToWorldMatrix();
+  Stopwatch timer;
 
-  // VRC axes
-  _vrc.u = m[0];
-  _vrc.v = m[1];
-  _vrc.n = m[2];
+  update();
+  timer.start();
+  {
+    const auto& m = _camera->cameraToWorldMatrix();
+
+    // VRC axes
+    _vrc.u = m[0];
+    _vrc.v = m[1];
+    _vrc.n = m[2];
+  }
 
   // init auxiliary mapping variables
   auto w = image.width(), h = image.height();
@@ -102,19 +116,36 @@ RayTracer::renderImage(Image& image)
   setImageSize(w, h);
   _Iw = math::inverse(float(w));
   _Ih = math::inverse(float(h));
+  {
+    auto wh = _camera->windowHeight();
 
-  auto wh = _camera->windowHeight();
+    if (w >= h)
+      _Vw = (_Vh = wh) * w * _Ih;
+    else
+      _Vh = (_Vw = wh) * h * _Iw;
+  }
 
-  w >= h ? _Vw = (_Vh = wh) * w * _Ih : _Vh = (_Vw = wh) * h * _Iw;
   // init pixel ray
-  _pixelRay.origin = _camera->position();
-  _pixelRay.direction = -_vrc.n;
-  _camera->clippingPlanes(_pixelRay.tMin, _pixelRay.tMax);
+  float F, B;
+
+  _camera->clippingPlanes(F, B);
+  if (_camera->projectionType() == Camera::Perspective)
+  {
+    // distance from the camera position to a frustum back corner
+    auto z = B / F * 0.5f;
+    B = vec3f{_Vw * z, _Vh * z, B}.length();
+  }
+  _pixelRay.tMin = F;
+  _pixelRay.tMax = B;
+  _pixelRay.set(_camera->position(), -_vrc.n);
   _numberOfRays = _numberOfHits = 0;
   scan(image);
+
+  auto et = timer.time();
+
   printf("\nNumber of rays: %llu", _numberOfRays);
   printf("\nNumber of hits: %llu", _numberOfHits);
-  printElapsedTime("\nDONE! ", clock() - t);
+  printElapsedTime("\nDONE! ", et);
 }
 
 void
@@ -168,7 +199,7 @@ RayTracer::shoot(float x, float y)
   setPixelRay(x, y);
 
   // trace pixel ray
-  Color color = trace(_pixelRay, 0, 1.0f);
+  Color color = trace(_pixelRay, 0, 1);
 
   // adjust RGB color
   if (color.r > 1.0f)
@@ -279,18 +310,20 @@ RayTracer::shade(const Ray3f& ray,
     if (NL <= 0)
       continue;
 
-    auto lightRay = Ray3f{P + N * rt_eps(), L};
+    auto lightRay = Ray3f{P + L * rt_eps(), L};
 
     lightRay.tMax = d;
     ++_numberOfRays;
-    // If the point P is shadowed, them continue
+    // If the point P is shadowed, then continue
     if (shadow(lightRay))
       continue;
 
     auto lc = light->lightColor(d);
 
     color += lc * m->diffuse * NL;
-    color += lc * m->spot * pow(R.dot(L), m->shine);
+    if (m->shine <= 0 || (d = R.dot(L)) <= 0)
+      continue;
+    color += lc * m->spot * pow(d, m->shine);
   }
   // Compute specular reflection
   if (m->specular != Color::black)
@@ -298,10 +331,8 @@ RayTracer::shade(const Ray3f& ray,
     weight *= maxRGB(m->specular);
     if (weight > _minWeight && level < _maxRecursionLevel)
     {
-      auto reflectionRay = Ray3f{P + N * rt_eps(), R};
-      auto reflectionColor = trace(reflectionRay, level + 1, weight);
-
-      color += m->specular * reflectionColor;
+      auto reflectionRay = Ray3f{P + R * rt_eps(), R};
+      color += m->specular * trace(reflectionRay, level + 1, weight);
     }
   }
   return color;

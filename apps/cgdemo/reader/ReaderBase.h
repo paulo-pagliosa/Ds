@@ -28,7 +28,7 @@
 // Class definition for generic reader.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/02/2022
+// Last revision: 07/02/2022
 
 #ifndef __ReaderBase_h
 #define __ReaderBase_h
@@ -52,7 +52,7 @@ public:
 
   virtual ~Reader() = default;
 
-  void setInput(const std::string& filename);
+  void setInput(const String& filename);
 
   virtual void execute();
 
@@ -66,7 +66,7 @@ protected:
   };
 
   Reference<FileBuffer> _input;
-  std::set<std::string> _includedFiles;
+  std::set<String> _includedFiles;
   fs::path _currentPath;
 
   virtual Parser* makeParser() abstract;
@@ -74,7 +74,7 @@ protected:
   virtual void init();
   virtual void terminate();
 
-  void include(const std::string&);
+  void include(const String&);
 
 private:
   // "global" scope to be used by the parser
@@ -83,7 +83,7 @@ private:
   void parse(FileBuffer&);
 
   const char* findErrorMessage(int) const override;
-  Reference<FileBuffer> makeBuffer(const std::string&) const;
+  Reference<FileBuffer> makeBuffer(const String&) const;
 
   friend Parser;
 
@@ -149,15 +149,13 @@ protected:
 
   union Value
   {
-    StringRef name;
-    StringRef string;
     int integer;
     float real;
     void* object;
 
   };
 
-  StringRef _lexeme;
+  String _lexeme;
   Value _tokenValue;
 
   Parser(Reader& reader):
@@ -200,8 +198,8 @@ protected:
     }
   }
 
-  void define(const std::string&, const Expression&);
-  Expression access(const std::string&) const;
+  void define(const String&, const Expression&);
+  Expression access(const String&) const;
 
   void match(int);
   void matchEndOfBlock();
@@ -237,10 +235,10 @@ protected:
   }
 
   int matchIndex(int, int);
-  std::string matchName();
-  std::string matchString();
-  std::string matchFilename();
-  std::string matchOptionalString();
+  String matchName();
+  String matchString();
+  String matchFilename();
+  String matchOptionalString();
 
   Expression expression();
   Expression term();
@@ -274,6 +272,6 @@ Reader::Parser::matchValue()
   return value;
 }
 
-} // begin namespace cg
+} // end namespace cg
 
 #endif // __ReaderBase_h

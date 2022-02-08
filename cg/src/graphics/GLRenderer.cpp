@@ -28,7 +28,7 @@
 // Source file for OpenGL renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 05/02/2022
+// Last revision: 07/02/2022
 
 #include "graphics/GLRenderer.h"
 
@@ -57,7 +57,7 @@ static const char* vertexShader = STRINGIFY(
   void main()
   {
     vPosition = vec3(mvMatrix * position);
-    vNormal = normalMatrix * normal;
+    vNormal = normalize(normalMatrix * normal);
     gl_Position = mvpMatrix * position;
     vColor = color;
   }
@@ -120,8 +120,8 @@ static const char* fragmentShader = STRINGIFY(
   {
     int type;       // DIRECTIONAL/POINT/SPOT
     vec4 color;     // color
-    vec4 position;  // VRC position
-    vec4 direction; // VRC direction
+    vec3 position;  // VRC position
+    vec3 direction; // VRC direction
     int falloff;    // CONSTANT/LINEAR/QUADRATIC
     float range;    // range (== 0 INFINITE)
     float angle;    // spot angle
@@ -148,6 +148,7 @@ static const char* fragmentShader = STRINGIFY(
   in vec3 gNormal;
   in vec4 gColor;
   noperspective in vec3 gEdgeDistance;
+  //uniform vec4 backFaceColor = vec4(1, 0, 1, 1);
   uniform int projectionType; // PERSPECTIVE/PARALLEL
   uniform vec4 ambientLight;
   uniform int lightCount;
@@ -181,10 +182,10 @@ static const char* fragmentShader = STRINGIFY(
     // DIRECTIONAL
     if (type == 0)
     {
-      L = -vec3(lights[i].direction);
+      L = -lights[i].direction;
       return true;
     }
-    L = vec3(lights[i].position) - P;
+    L = lights[i].position - P;
     d = length(L);
 
     float range = lights[i].range;
@@ -197,9 +198,9 @@ static const char* fragmentShader = STRINGIFY(
       return true;
 
     // SPOT
-    float dot_DL = dot(vec3(lights[i].direction), L);
+    float DL = dot(lights[i].direction, L);
 
-    return dot_DL < 0 && lights[i].angle > radians(acos(dot_DL));
+    return DL < 0 && lights[i].angle > radians(acos(DL));
   }
 
   vec4 lightColor(int i, float d)
@@ -237,27 +238,29 @@ static const char* fragmentShader = STRINGIFY(
 
     vec3 V = projectionType == 0 ?
       // PERSPECTIVE
-      normalize(P.xyz) :
+      normalize(P) :
       // PARALLEL
       vec3(0, 0, -1);
+
+    if (dot(N, V) > 0)
+      //return backFaceColor;
+      N *= -1;
+
     vec3 R = reflect(V, N);
 
     for (int i = 0; i < lightCount; i++)
     {
-      vec3 L;
-      float d;
+      vec3 L; float d;
  
       if (lightVector(i, P, L, d))
       {
-        float NL = dot(N, L);
+        vec4 I = lightColor(i, d);
 
-        if (NL <= 0)
-          continue;
-        color += lightColor(i, d) * (m.Od * dot(L, N) +
-          m.Os * pow(dot(R, L), m.s));
+        color += I * m.Od * max(dot(N, L), 0);
+        color += I * m.Os * pow(max(dot(R, L), 0), m.s);
       }
     }
-    return color;
+    return min(color, vec4(1));
   }
 
   subroutine(mixColorType)
@@ -388,7 +391,7 @@ GLRenderer::GLData::renderDefaultLights()
 {
   program.setUniform(lightLocs[0].type, 1); // POINT
   program.setUniformVec4(lightLocs[0].color, vec4f{1, 1, 1, 0});
-  program.setUniformVec4(lightLocs[0].position, vec4f{0, 0, 0, 1});
+  program.setUniformVec3(lightLocs[0].position, vec3f{0, 0, 0});
   program.setUniform(lightLocs[0].range, 0.0f);
   program.setUniform(lightCountLoc, 1);
 }
@@ -469,12 +472,12 @@ GLRenderer::renderLights()
     _gl->program.setUniform(_gl->lightLocs[nl].type, (int)light->type());
     _gl->program.setUniformVec4(_gl->lightLocs[nl].color, light->color);
     {
-      const auto p = vm * vec4f{light->position};
-      _gl->program.setUniformVec4(_gl->lightLocs[nl].position, p);
+      const auto p = vm.transform3x4(light->position);
+      _gl->program.setUniformVec3(_gl->lightLocs[nl].position, p);
     }
     {
       const auto d = vm.transformVector(light->direction).versor();
-      _gl->program.setUniformVec4(_gl->lightLocs[nl].direction, d);
+      _gl->program.setUniformVec3(_gl->lightLocs[nl].direction, d);
     }
     _gl->program.setUniform(_gl->lightLocs[nl].falloff, (int)light->falloff);
     _gl->program.setUniform(_gl->lightLocs[nl].range, light->range());
@@ -597,6 +600,12 @@ GLRenderer::drawMesh(const Primitive& primitive)
   {
     m->bind();
     glDrawElements(GL_TRIANGLES, m->vertexCount(), GL_UNSIGNED_INT, 0);
+    /*
+    setVectorColor(Color::white);
+    drawNormals(*mesh,
+      primitive.localToWorldMatrix(),
+      primitive.normalMatrix());
+    */
   }
   return true;
 }

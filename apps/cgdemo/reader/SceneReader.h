@@ -28,7 +28,7 @@
 // Class definition for scene reader.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/02/2022
+// Last revision: 07/02/2022
 
 #ifndef __SceneReader_h
 #define __SceneReader_h
@@ -57,7 +57,7 @@ public:
     return _scene;
   }
 
-  Material* findMaterial(const std::string& name) const
+  Material* findMaterial(const String& name) const
   {
     if (auto mit = materials.find(name); mit != materials.end())
       return mit->second;

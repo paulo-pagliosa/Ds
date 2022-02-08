@@ -28,7 +28,7 @@
 // Class definition for generic input buffer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 31/01/2022
+// Last revision: 07/02/2022
 
 #ifndef __Buffer_h
 #define __Buffer_h
@@ -51,9 +51,9 @@ public:
 
   Buffer(bool shouldDelete = true);
 
-  virtual std::string name() const abstract;
+  virtual String name() const abstract;
 
-  StringRef lexeme();
+  String lexeme();
 
   void beginLexeme()
   {

@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 05/02/2022
+// Last revision: 07/02/2022
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
@@ -125,6 +125,7 @@ SceneWindow::setScene(Scene& scene)
     SceneObjectBuilder::setScene(scene);
     _editor->setScene(scene);
     _currentNode = &scene;
+    _viewMode = ViewMode::Editor;
   }
 }
 
@@ -522,11 +523,13 @@ SceneWindow::inspectCamera(SceneWindow& window, CameraProxy& proxy)
 
     ImGui::Checkbox("Current", &isCurrent);
     CameraProxy::setCurrent(isCurrent ? camera : nullptr);
-    ImGui::SameLine();
-    if (ImGui::Button("Copy to Editor View"))
-      window._editor->setCamera(*new Camera{*camera});
   }
   inspectCamera(*camera);
+  if (ImGui::Button("Move to Editor View"))
+    window._editor->camera()->set(*camera);
+  ImGui::SameLine();
+  if (ImGui::Button("Set From Editor View"))
+    camera->set(*window._editor->camera());
 }
 
 void
@@ -608,7 +611,10 @@ SceneWindow::inspectLight(Light& light)
 void
 SceneWindow::inspectLight(SceneWindow&, LightProxy& proxy)
 {
-  inspectLight(*proxy.light());
+  auto light = proxy.light();
+
+  inspectLight(*light);
+  light->turnOn(light->isTurnedOn() && proxy.sceneObject()->visible());
 }
 
 void
@@ -617,7 +623,7 @@ SceneWindow::inspectMaterial(Material& material)
   ImGui::colorEdit3("Ambient", material.ambient);
   ImGui::colorEdit3("Diffuse", material.diffuse);
   ImGui::colorEdit3("Spot", material.spot);
-  ImGui::DragFloat("Shine", &material.shine, 1, 0, 1000);
+  ImGui::DragFloat("Shine", &material.shine, 1, 1, 1000);
   ImGui::colorEdit3("Specular", material.specular);
 }
 
@@ -667,6 +673,7 @@ SceneWindow::inspectPrimitive(SceneWindow&, TriangleMeshProxy& proxy)
     ImGui::EndDragDropTarget();
   }
   inspectMaterial(*material);
+  proxy.actor()->visible = proxy.sceneObject()->visible();
 }
 
 void

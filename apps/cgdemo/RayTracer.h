@@ -28,7 +28,7 @@
 // Class definition for simple ray tracer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 25/01/2022
+// Last revision: 07/02/2022
 
 #ifndef __RayTracer_h
 #define __RayTracer_h
@@ -74,7 +74,8 @@ public:
     _maxRecursionLevel = math::min(rl, maxMaxRecursionLevel);
   }
 
-  void render();
+  void update() override;
+  void render() override;
   virtual void renderImage(Image&);
 
 private:

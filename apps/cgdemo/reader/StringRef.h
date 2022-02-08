@@ -28,7 +28,7 @@
 // Class definition for string reference.
 //
 // Author: Paulo Pagliosa
-// Last revision: 31/01/2022
+// Last revision: 07/02/2022
 
 #ifndef __StringRef_h
 #define __StringRef_h
@@ -37,6 +37,8 @@
 
 namespace cg::parser
 { // begin namespace cg::parser
+
+using String = std::string;
 
 
 ///////////////////////////////////////////////////////////////////
@@ -55,9 +57,16 @@ public:
     this->count = count;
   }
 
+  StringRef& operator =(const String& s)
+  {
+    begin = s.data();
+    count = s.length();
+    return *this;
+  }
+
   auto toString() const
   {
-    return std::string{begin, count};
+    return String{begin, count};
   }
 
 }; // StringRef

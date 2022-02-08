@@ -28,7 +28,7 @@
 // Class definition for camera.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/01/2022
+// Last revision: 07/02/2022
 
 #ifndef __Camera_h
 #define __Camera_h
@@ -64,6 +64,9 @@ public:
 
   Camera(float aspect = 1);
 
+  Camera(const Camera&) = delete;
+  Camera& operator =(const Camera&) = delete;
+
   vec3f position() const;
   vec3f eulerAngles() const;
   quatf rotation() const;
@@ -94,6 +97,7 @@ public:
   void setDistance(float value);
 
   void setDefaultView(float aspect = 1);
+  void set(const Camera&);
   uint32_t update();
   void changeProjectionType();
 

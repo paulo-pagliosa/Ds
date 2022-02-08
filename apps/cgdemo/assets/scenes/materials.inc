@@ -31,6 +31,11 @@ material "BronzeSpecular"
 material "AmbientBox"
 {
   color Black
+  finish
+  {
+    spot     0
+    specular 0
+  }
 }
 
 material "Material1"
@@ -41,7 +46,7 @@ material "Material1"
     ambient  1
     diffuse  1
     spot     0.5
-    shine    0
+    shine    80
     specular ks
   }
 }
@@ -54,7 +59,7 @@ material "Material2"
     ambient  1
     diffuse  1
     spot     0.5
-    shine    0
+    shine    80
     specular ks
   }
 }
