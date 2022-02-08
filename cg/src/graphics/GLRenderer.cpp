@@ -28,7 +28,7 @@
 // Source file for OpenGL renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 07/02/2022
+// Last revision: 08/02/2022
 
 #include "graphics/GLRenderer.h"
 
@@ -435,13 +435,12 @@ GLRenderer::update()
   _gl->viewportMatrix[2].set(0, 0, 1, 0);
   _gl->viewportMatrix[3].set(w, h, 0, 0);
   _windowViewportRatio = _camera->windowHeight() / _viewport.h;
-  _basePointZ = -_camera->worldToCamera(_basePoint).z;
 }
 
 void
 GLRenderer::setBasePoint(const vec3f& p)
 {
-  _basePoint = p;
+  _basePointZ = -_camera->worldToCamera(_basePoint = p).z;
 }
 
 float

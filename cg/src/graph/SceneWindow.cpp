@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 07/02/2022
+// Last revision: 08/02/2022
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
@@ -236,8 +236,7 @@ SceneWindow::render()
     return;
   }
   _editor->render();
-  if (_editor->showGround)
-    _editor->drawXZPlane(10, 1);
+  _editor->drawGround();
   if (auto object = _currentNode->as<SceneObject>())
   {
     drawSelectedObject(*object);
@@ -526,10 +525,21 @@ SceneWindow::inspectCamera(SceneWindow& window, CameraProxy& proxy)
   }
   inspectCamera(*camera);
   if (ImGui::Button("Move to Editor View"))
+  {
     window._editor->camera()->set(*camera);
+    // Update to continue drawing in the same frame
+    window._editor->update();
+  }
   ImGui::SameLine();
   if (ImGui::Button("Set From Editor View"))
-    camera->set(*window._editor->camera());
+  {
+    auto c = window._editor->camera();
+    auto t = proxy.transform();
+
+    t->setPosition(c->position());
+    t->setRotation(c->rotation());
+    camera->setProjection(*c);
+  }
 }
 
 void
@@ -863,7 +873,7 @@ bool
 SceneWindow::windowResizeEvent(int width, int height)
 {
   _editor->setImageSize(width, height);
-  if (_fbo && (_fbo->width() < width || _fbo->height() < height))
+  //if (_fbo && (_fbo->width() < width || _fbo->height() < height))
     _fbo = nullptr;
   return onResize(width, height);
 }

@@ -28,7 +28,7 @@
 // Source file for scene editor.
 //
 // Author: Paulo Pagliosa
-// Last revision: 05/02/2022
+// Last revision: 08/02/2022
 
 #include "graph/SceneEditor.h"
 
@@ -80,6 +80,17 @@ SceneEditor::newFrame()
 
   glClearColor(bc.r, bc.g, bc.b, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void
+SceneEditor::drawGround()
+{
+  if (showGround)
+  {
+    setBasePoint(vec3f::null());
+    auto s = pixelsLength((float)_viewport.h);
+    drawXZPlane(s, s / 16);
+  }
 }
 
 void

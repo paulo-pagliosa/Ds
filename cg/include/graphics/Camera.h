@@ -28,7 +28,7 @@
 // Class definition for camera.
 //
 // Author: Paulo Pagliosa
-// Last revision: 07/02/2022
+// Last revision: 08/02/2022
 
 #ifndef __Camera_h
 #define __Camera_h
@@ -96,10 +96,11 @@ public:
   void setProjectionType(ProjectionType value);
   void setDistance(float value);
 
-  void setDefaultView(float aspect = 1);
   void set(const Camera&);
-  uint32_t update();
+  void setProjection(const Camera&);
+  void setDefaultView(float aspect = 1);
   void changeProjectionType();
+  uint32_t update();
 
   uint32_t timestamp() const;
   bool modified() const;

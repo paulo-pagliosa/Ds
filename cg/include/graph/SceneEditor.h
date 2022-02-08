@@ -28,7 +28,7 @@
 // Class definition for scene editor.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/01/2022
+// Last revision: 08/02/2022
 
 #ifndef __SceneEditor_h
 #define __SceneEditor_h
@@ -72,6 +72,7 @@ public:
   }
 
   void newFrame();
+  void drawGround();
 
   void drawCamera(const CameraProxy&);
   void drawLight(const LightProxy&);

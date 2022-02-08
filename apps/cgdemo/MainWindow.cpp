@@ -28,7 +28,7 @@
 // Source file for cg demo main window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 06/02/2022
+// Last revision: 08/02/2022
 
 #include "graphics/Application.h"
 #include "reader/SceneReader.h"
@@ -256,9 +256,36 @@ MainWindow::gui()
   mainMenu();
   if (_viewMode == ViewMode::Renderer)
     return;
+
+  constexpr auto evw = (float)360;
+  constexpr auto evh = (float)308;
+  constexpr auto lft = (float)0;
+  constexpr auto top = (float)23;
+  auto w = (float)width();
+  auto h = (float)height();
+  auto evy = h - evh;
+
+  // Hieearchy Window
+  ImGui::SetNextWindowPos({lft, top});
+  ImGui::SetNextWindowSize({evw, evy - top});
   hierarchyWindow();
-  inspectorWindow();
+  // Editor View
+  ImGui::SetNextWindowPos({lft, evy});
+  ImGui::SetNextWindowSize({evw, evh});
   editorView();
+
+  constexpr auto iww = (float)420;
+  auto rgt = w - iww;
+  auto awh = h / 3;
+  auto awy = h - awh;
+
+  // Inspector Window
+  ImGui::SetNextWindowPos({rgt, top});
+  ImGui::SetNextWindowSize({iww, awy - top});
+  inspectorWindow();
+  // Assets Window
+  ImGui::SetNextWindowPos({rgt, awy});
+  ImGui::SetNextWindowSize({iww, awh});
   assetsWindow();
 }
 

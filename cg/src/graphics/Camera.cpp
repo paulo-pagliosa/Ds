@@ -28,7 +28,7 @@
 // Source file for camera.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/01/2022
+// Last revision: 08/02/2022
 
 #include "graphics/Camera.h"
 #include <algorithm>
@@ -519,22 +519,28 @@ Camera::setDefaultView(float aspect)
 }
 
 void
+Camera::setProjection(const Camera& camera)
+{
+  _focalPoint = camera._focalPoint;
+  _distance = camera._distance;
+  _aspectRatio = camera._aspectRatio;
+  _F = camera._F; _B = camera._B;
+  _height = camera._height;
+  _viewAngle = camera._viewAngle;
+  _projectionType = camera._projectionType;
+  _projectionMatrix = camera._projectionMatrix;
+  _modified = true;
+}
+
+void
 Camera::set(const Camera& camera)
 {
   _position = camera._position;
   _eulerAngles = camera._eulerAngles;
   _rotation = camera._rotation;
-  _focalPoint = camera._focalPoint;
-  _distance = camera._distance;
-  _aspectRatio = camera._aspectRatio;
-  _F = camera._F; _B = camera._B;
-  _projectionType = camera._projectionType;
-  _viewAngle = camera._viewAngle;
-  _height = camera._height;
   _worldToCamera = camera._worldToCamera;
   _cameraToWorld = camera._cameraToWorld;
-  _projectionMatrix = camera._projectionMatrix;
-  _modified = true;
+  setProjection(camera);
 }
 
 uint32_t
