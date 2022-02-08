@@ -146,7 +146,7 @@ class BVH final: public BVHBase
 public:
   using PrimitiveArray = std::vector<Reference<T>>;
 
-  BVH(PrimitiveArray&&, uint32_t = 64);
+  BVH(PrimitiveArray&&, uint32_t = 8);
 
   auto& primitives() const
   {
