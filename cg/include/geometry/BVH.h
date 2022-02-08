@@ -28,7 +28,7 @@
 // Class definition for BVH.
 //
 // Author: Paulo Pagliosa
-// Last revision: 21/01/2022
+// Last revision: 08/02/2022
 
 #ifndef __BVH_h
 #define __BVH_h
@@ -146,7 +146,7 @@ class BVH final: public BVHBase
 public:
   using PrimitiveArray = std::vector<Reference<T>>;
 
-  BVH(PrimitiveArray&&, uint32_t = 16);
+  BVH(PrimitiveArray&&, uint32_t = 64);
 
   auto& primitives() const
   {
