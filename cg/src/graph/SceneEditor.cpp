@@ -28,7 +28,7 @@
 // Source file for scene editor.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/02/2022
+// Last revision: 09/02/2022
 
 #include "graph/SceneEditor.h"
 
@@ -214,7 +214,7 @@ SceneEditor::drawLight(const LightProxy& proxy)
 void
 SceneEditor::drawTransform(const Transform& t)
 {
-  constexpr auto al = 120;
+  constexpr auto al = 100;
 
   auto r = mat3f{t.rotation()};
   const auto& p = t.position();
