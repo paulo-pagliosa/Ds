@@ -28,7 +28,7 @@
 // Class definition for generic renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2022
+// Last revision: 10/02/2022
 
 #ifndef __Renderer_h
 #define __Renderer_h
@@ -53,7 +53,7 @@ struct Viewport
 //
 // Renderer: generic renderer class
 // ========
-class Renderer abstract: public virtual SharedObject
+class Renderer: public virtual SharedObject
 {
 public:
   // Constructors

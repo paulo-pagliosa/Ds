@@ -28,7 +28,7 @@
 // Class definition for scene object transform.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/01/2022
+// Last revision: 10/02/2022
 
 #ifndef __Transform_h
 #define __Transform_h
@@ -258,6 +258,12 @@ private:
   friend class SceneObject;
 
 }; // Transform
+
+inline auto
+asTransform(Component* component)
+{
+  return dynamic_cast<Transform*>(component);
+}
 
 } // end namespace graph
 

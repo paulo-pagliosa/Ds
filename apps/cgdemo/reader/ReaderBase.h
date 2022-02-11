@@ -28,7 +28,7 @@
 // Class definition for generic reader.
 //
 // Author: Paulo Pagliosa
-// Last revision: 07/02/2022
+// Last revision: 10/02/2022
 
 #ifndef __ReaderBase_h
 #define __ReaderBase_h
@@ -45,12 +45,12 @@ namespace cg::parser
 //
 // Reader: generic reader base class
 // ======
-class Reader abstract: public ErrorHandler
+class Reader: public ErrorHandler
 {
 public:
   class Parser;
 
-  virtual ~Reader() = default;
+  ~Reader() override = default;
 
   void setInput(const String& filename);
 
@@ -69,7 +69,7 @@ protected:
   std::set<String> _includedFiles;
   fs::path _currentPath;
 
-  virtual Parser* makeParser() abstract;
+  virtual Parser* makeParser() = 0;
 
   virtual void init();
   virtual void terminate();
@@ -94,7 +94,7 @@ private:
 //
 // Reader::Parser: generic reader parser class
 // ==============
-class Reader::Parser abstract: public AbstractParser
+class Reader::Parser: public AbstractParser
 {
 public:
   ~Parser() override;

@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/02/2022
+// Last revision: 10/02/2022
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
@@ -439,8 +439,8 @@ SceneWindow::inspectComponent(Component& component)
     component.sceneObject()->removeComponent(typeName);
   else if (open)
   {
-    if (typeName == "Transform")
-      inspectTransform((Transform&)component);
+    if (auto transform = graph::asTransform(&component))
+      inspectTransform(*transform);
     else if (auto function = inspectFunction(component))
       function(*this, component);
   }

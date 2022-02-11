@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2016, 2019 Orthrus Group.                         |
+//| Copyright (C) 2016, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,10 @@
 // Class definition for animated algorithm.
 //
 // Author: Paulo Pagliosa
-// Last revision: 12/02/2019
+// Last revision: 10/02/2022
+
+#ifndef __AnimatedAlgorithm_h
+#define __AnimatedAlgorithm_h
 
 #include <condition_variable>
 #include <memory>
@@ -197,3 +200,5 @@ private:
 }; // AnimatedAlgorithm
 
 } // end namespace cg
+
+#endif // __AnimatedAlgorithm_h

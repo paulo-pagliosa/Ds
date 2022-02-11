@@ -28,7 +28,7 @@
 // Class definition for triangle mesh shape.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/01/2022
+// Last revision: 10/02/2022
 
 #include "graphics/TriangleMeshShape.h"
 #include <cassert>
@@ -106,7 +106,7 @@ TriangleMeshShape::localIntersect(const Ray3f& ray) const
 bool
 TriangleMeshShape::localIntersect(const Ray3f& ray, Intersection& hit) const
 {
-  return _bvh->intersect(ray, hit) ? hit.object = this : false;
+  return _bvh->intersect(ray, hit) ? void(hit.object = this), true : false;
 }
 
 vec3f

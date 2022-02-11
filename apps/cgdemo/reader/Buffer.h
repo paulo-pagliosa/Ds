@@ -28,7 +28,7 @@
 // Class definition for generic input buffer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 07/02/2022
+// Last revision: 10/02/2022
 
 #ifndef __Buffer_h
 #define __Buffer_h
@@ -44,14 +44,14 @@ namespace cg::parser
 //
 // Buffer: generic input buffer class
 // ======
-class Buffer abstract: public SharedObject
+class Buffer: public SharedObject
 {
 public:
   ~Buffer() override;
 
   Buffer(bool shouldDelete = true);
 
-  virtual String name() const abstract;
+  virtual String name() const = 0;
 
   String lexeme();
 
@@ -86,7 +86,7 @@ protected:
   char* _current;
   char* _lexemeBegin;
 
-  virtual char advance() abstract;
+  virtual char advance() = 0;
 
 }; // Buffer
 

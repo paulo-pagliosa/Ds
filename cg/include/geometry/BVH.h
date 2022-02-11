@@ -28,7 +28,7 @@
 // Class definition for BVH.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/02/2022
+// Last revision: 10/02/2022
 
 #ifndef __BVH_h
 #define __BVH_h
@@ -60,7 +60,7 @@ using BVHNodeFunction = std::function<void(const BVHNodeInfo&)>;
 //
 // BVHBase: BVH base class
 // =======
-class BVHBase abstract: public SharedObject
+class BVHBase: public SharedObject
 {
 public:
   ~BVHBase() override;
@@ -98,11 +98,11 @@ protected:
     _primitiveIds.swap(orderedPrimitiveIds);
   }
 
-  virtual bool intersectLeaf(uint32_t, uint32_t, const Ray3f&) const abstract;
+  virtual bool intersectLeaf(uint32_t, uint32_t, const Ray3f&) const = 0;
   virtual void intersectLeaf(uint32_t,
     uint32_t,
     const Ray3f&,
-    Intersection&) const abstract;
+    Intersection&) const = 0;
 
 private:
   struct NodeRay;

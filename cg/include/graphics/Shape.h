@@ -28,7 +28,7 @@
 // Class definition for generic shape.
 //
 // Author: Paulo Pagliosa
-// Last revision: 21/01/2022
+// Last revision: 10/02/2022
 
 #ifndef __Shape_h
 #define __Shape_h
@@ -51,7 +51,7 @@ std::logic_error bad_invocation(const char*, const char*);
 //
 // Shape: generic shape class
 // =====
-class Shape abstract: public SharedObject
+class Shape: public SharedObject
 {
 public:
   virtual const TriangleMesh* tesselate() const;

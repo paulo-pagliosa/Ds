@@ -28,7 +28,7 @@
 // Class definition for OpenGL Renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 05/02/2022
+// Last revision: 10/02/2022
 
 #ifndef __GLRenderer_h
 #define __GLRenderer_h
@@ -61,8 +61,8 @@ public:
 
   using GLGraphics3::drawAxes;
 
-  bool drawMesh(const Primitive& primitive) sealed;
-  void renderMaterial(const Material& material) sealed;
+  bool drawMesh(const Primitive& primitive) final;
+  void renderMaterial(const Material& material) final;
 
   void setRenderFunction(RenderFunction f)
   {

@@ -28,13 +28,19 @@
 // Source file for scene object builder.
 //
 // Author: Paulo Pagliosa
-// Last revision: 02/02/2022
+// Last revision: 10/02/2022
 
 #include "graph/SceneObjectBuilder.h"
 #include "graphics/Assets.h"
 
 namespace cg::graph
 { // begin namespace cg::graph
+
+static inline auto
+empty(const char* s)
+{
+  return s == nullptr || *s == 0;
+}
 
 
 /////////////////////////////////////////////////////////////////////
@@ -62,7 +68,7 @@ SceneObjectBuilder::createCameraObject(float aspect, const char* name)
 {
   auto object = SceneObject::New(*_scene);
 
-  if (name != "")
+  if (!empty(name))
     object->setName(name);
   else
     object->setName("Camera %d", ++_cameraId);
@@ -79,7 +85,7 @@ SceneObjectBuilder::createLightObject(Light::Type type, const char* name)
 {
   auto object = SceneObject::New(*_scene);
 
-  if (name != "")
+  if (!empty(name))
     object->setName(name);
   else
     object->setName("Light %d", ++_lightId);
@@ -113,4 +119,3 @@ SceneObjectBuilder::createMaterial()
 }
 
 } // end namespace cg::graph
-

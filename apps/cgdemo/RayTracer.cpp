@@ -45,7 +45,7 @@ namespace
 inline void
 printElapsedTime(const char* s, Stopwatch::ms_time time)
 {
-  printf("%sElapsed time: %zd ms\n", s, time);
+  printf("%sElapsed time: %llu ms\n", s, time);
 }
 
 } // end namespace

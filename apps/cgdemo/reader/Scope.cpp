@@ -28,7 +28,7 @@
 // Source file for simple scope.
 //
 // Author: Paulo Pagliosa
-// Last revision: 03/02/2022
+// Last revision: 10/02/2022
 
 #include "Scope.h"
 
@@ -45,7 +45,7 @@ Scope::lookup(const std::string& name, Expression& e) const
 {
   for (auto scope = this; scope != nullptr; scope = scope->_parent)
     if (auto it = scope->_symbols.find(name); it != scope->_symbols.end())
-      return (e = it->second), true;
+      return void(e = it->second), true;
   return false;
 }
 

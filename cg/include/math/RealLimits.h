@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2020 Orthrus Group.                         |
+//| Copyright (C) 2018, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,13 +28,13 @@
 // Class definition for real number limits.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/06/2020
+// Last revision: 10/02/2022
 
 #ifndef __RealLimits_h
 #define __RealLimits_h
 
 #include "core/Globals.h"
-#include <limits>
+#include <cfloat>
 
 namespace cg
 { // begin namespace cg

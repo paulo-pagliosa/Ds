@@ -28,7 +28,7 @@
 // Class definition for simple expression.
 //
 // Author: Paulo Pagliosa
-// Last revision: 02/02/2022
+// Last revision: 10/02/2022
 
 #ifndef __Expression_h
 #define __Expression_h
@@ -111,7 +111,7 @@ private:
 
 }; // Expression
 
-class Expression::Exception abstract
+class Expression::Exception
 {
 public:
   auto message() const

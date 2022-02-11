@@ -28,7 +28,7 @@
 // Class definition for primitive.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/01/2022
+// Last revision: 10/02/2022
 
 #ifndef __Primitive_h
 #define __Primitive_h
@@ -49,7 +49,7 @@ using PrimitiveArray = Array<Reference<Primitive>>;
 //
 // Primitive: generic primitive model class
 // =========
-class Primitive abstract: public SharedObject
+class Primitive: public SharedObject
 {
 public:
   virtual const TriangleMesh* tesselate() const;
@@ -57,10 +57,10 @@ public:
 
   bool intersect(const Ray3f&) const;
   bool intersect(const Ray3f&, Intersection&) const;
-
-  virtual vec3f normal(const Intersection&) const abstract;
-  virtual Bounds3f bounds() const abstract;
   virtual Material* material() const;
+
+  virtual vec3f normal(const Intersection&) const = 0;
+  virtual Bounds3f bounds() const = 0;
 
   auto& localToWorldMatrix() const
   {
@@ -115,7 +115,7 @@ protected:
 //
 // Aggregate: generic aggregate model class
 // =========
-class Aggregate abstract: public Primitive
+class Aggregate: public Primitive
 {
 public:
   vec3f normal(const Intersection&) const override;

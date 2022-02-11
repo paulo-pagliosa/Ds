@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2018 Orthrus Group.                         |
+//| Copyright (C) 2014, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for GLSL program.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/08/2018
+// Last revision: 10/02/2022
 
 #ifndef __GLProgram_h
 #define __GLProgram_h
@@ -37,9 +37,9 @@
 #include <OpenGL/gl3.h>
 #else
 #define NOMINMAX
-#include <GL/gl3w.h>
+#include "GL/gl3w.h"
 #endif
-#include <GLFW/glfw3.h>
+#include "GLFW/glfw3.h"
 #include <string>
 
 namespace cg

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2021 Orthrus Group.                         |
+//| Copyright (C) 2014, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for index list.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/12/2021
+// Last revision: 10/02/2022
 
 #ifndef __IndexList_h
 #define __IndexList_h
@@ -38,6 +38,9 @@
 
 namespace cg
 { // begin namespace cg
+
+class IndexList;
+class IndexListIterator;
 
 
 /////////////////////////////////////////////////////////////////////
@@ -63,8 +66,8 @@ private:
 
   static IndexListNode* _null;
 
-  friend class IndexList;
-  friend class IndexListIterator;
+  friend IndexList;
+  friend IndexListIterator;
 
 }; // IndexListNode
 

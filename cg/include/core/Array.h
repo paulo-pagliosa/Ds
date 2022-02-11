@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2021 Orthrus Group.                               |
+//| Copyright (C) 2021, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class for generic array.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/02/2021
+// Last revision: 10/02/2022
 
 #ifndef __Array_h
 #define __Array_h
@@ -134,7 +134,7 @@ private:
 // ArrayBase: array base class
 // =========
 template <typename T, typename Allocator>
-class ArrayBase abstract
+class ArrayBase
 {
 public:
   using base_type = ArrayBase<T, Allocator>;

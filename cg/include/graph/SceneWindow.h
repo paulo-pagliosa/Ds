@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/02/2022
+// Last revision: 10/02/2022
 
 #ifndef __SceneWindow_h
 #define __SceneWindow_h
@@ -52,7 +52,7 @@ namespace graph
 //
 // SceneWindow: scene window base class
 // ===========
-class SceneWindow abstract: public GLWindow, public SceneObjectBuilder
+class SceneWindow: public GLWindow, public SceneObjectBuilder
 {
 public:
   template <typename C = SharedObject>

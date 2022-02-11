@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2020 Orthrus Group.                         |
+//| Copyright (C) 2014, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for OBJ mesh reader.
 //
 // Author: Paulo Pagliosa
-// Last revision: 15/06/2020
+// Last revision: 10/02/2022
 
 #include "utils/MeshReader.h"
 #include <filesystem>
@@ -42,7 +42,7 @@ namespace internal
 void
 readMeshSize(FILE* file, TriangleMesh::Data& data)
 {
-  const unsigned int lineSize{128};
+  constexpr auto lineSize = 128;
   int nv{};
   int nt{};
 
@@ -113,7 +113,7 @@ readMeshSize(FILE* file, TriangleMesh::Data& data)
 void
 readMeshData(FILE* file, TriangleMesh::Data& data)
 {
-  const unsigned int lineSize{128};
+  constexpr auto lineSize = 128;
   auto vertex = data.vertices;
   auto triangle = data.triangles;
 

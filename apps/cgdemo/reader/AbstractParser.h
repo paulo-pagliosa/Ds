@@ -28,7 +28,7 @@
 // Class definition for generic LL(n) parser.
 //
 // Author: Paulo Pagliosa
-// Last revision: 07/02/2022
+// Last revision: 10/02/2022
 
 #ifndef __AbstractParser_h
 #define __AbstractParser_h
@@ -58,10 +58,10 @@ public:
 //
 // AbstractParser: generic LL(n) parser
 // ==============
-class AbstractParser abstract: public ErrorHandler
+class AbstractParser: public ErrorHandler
 {
 public:
-  virtual ~AbstractParser() = default;
+  ~AbstractParser() override = default;
 
   void setInput(Buffer&);
   virtual void execute();
@@ -75,7 +75,7 @@ protected:
     return *_input;
   }
 
-  virtual int nextToken() abstract;
+  virtual int nextToken() = 0;
 
   virtual KeywordTableEntry* findKeyword(const String&) const;
   KeywordTableEntry* searchKeyword(KeywordTableEntry*, const String&) const;
@@ -89,7 +89,7 @@ private:
   Reference<Buffer> _input;
   String _filename;
 
-  virtual void start() abstract;
+  virtual void start() = 0;
 
 }; // AbstractParser
 
@@ -98,27 +98,27 @@ private:
 //
 #define DECLARE_KEYWORD_TABLE(cls) \
 private: \
-  static cg::parser::KeywordTableEntry _keywords[]; \
+  static KeywordTableEntry _keywords[]; \
 protected: \
-  cg::parser::KeywordTableEntry* findKeyword(const String&) const
+  KeywordTableEntry* findKeyword(const String&) const override
 
 #define DEFINE_KEYWORD_TABLE_ENTRIES(cls) \
 cg::parser::KeywordTableEntry cls::_keywords[]{
 
 #define KEYWORD(name, token, value) \
-{##name, token, (void*)value},
+{name, token, (void*)value},
 
 #define END_KEYWORD_TABLE \
-{0, -1, 0}}
+{nullptr, -1, nullptr}}
 
 #define DEFINE_KEYWORD_TABLE(cls, base) \
 cg::parser::KeywordTableEntry* \
-cls::findKeyword(const String& name) const\
+cls::findKeyword(const cg::parser::String& name) const\
 { \
-  auto keyword = searchKeyword(_keywords, name); \
-  if (nullptr == keyword) \
-    keyword = base::findKeyword(name); \
-  return keyword; \
+  auto kw = searchKeyword(_keywords, name); \
+  if (nullptr == kw) \
+    kw = base::findKeyword(name); \
+  return kw; \
 } \
 DEFINE_KEYWORD_TABLE_ENTRIES(cls)
 

@@ -28,12 +28,13 @@
 // Class definition for scene object component.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/01/2022
+// Last revision: 10/02/2022
 
 #ifndef __SceneObjectComponent_h
 #define __SceneObjectComponent_h
 
 #include "core/SharedObject.h"
+#include <string>
 
 namespace cg
 { // begin namespace cg
@@ -49,13 +50,13 @@ class Transform;
 //
 // Component: scene object component class
 // =========
-class Component abstract: public SharedObject
+class Component: public SharedObject
 {
 public:
   /// Returns the type name of this component.
   auto typeName() const
   {
-    return _typeName;
+    return _typeName.c_str();
   }
 
   /// Returns the scene object owning this component.
@@ -89,7 +90,7 @@ protected:
   virtual void setVisible(bool value);
 
 private:
-  const char* const _typeName;
+  const std::string _typeName;
   SceneObject* _sceneObject{};
   bool _erasable;
 

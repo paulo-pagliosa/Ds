@@ -28,7 +28,7 @@
 // Class definition for OpenGL renderer base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2022
+// Last revision: 10/02/2022
 
 #ifndef __GLRendererBase_h
 #define __GLRendererBase_h
@@ -46,7 +46,7 @@ namespace cg
 //
 // GLRendererBase: OpenGL renderer base class
 // ==============
-class GLRendererBase abstract: public Renderer
+class GLRendererBase: public Renderer
 {
 public:
   enum class RenderMode
@@ -73,8 +73,8 @@ public:
 
   using Renderer::Renderer;
 
-  virtual bool drawMesh(const Primitive& primitive) abstract;
-  virtual void renderMaterial(const Material& material) abstract;
+  virtual bool drawMesh(const Primitive& primitive) = 0;
+  virtual void renderMaterial(const Material& material) = 0;
 
 protected:
   /// Constructs a GL renderer object.

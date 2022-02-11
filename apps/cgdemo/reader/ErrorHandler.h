@@ -28,7 +28,7 @@
 // Class definition for generic error handler.
 //
 // Author: Paulo Pagliosa
-// Last revision: 07/02/2022
+// Last revision: 10/02/2022
 
 #ifndef __ErrorHandler_h
 #define __ErrorHandler_h
@@ -65,15 +65,15 @@ const char* searchErrorMessage(ErrorMessageTableEntry*, int);
 //
 #define DECLARE_ERROR_MESSAGE_TABLE(cls) \
 private: \
-  static cg::parser::ErrorMessageTableEntry _errmsg[]; \
+  static ErrorMessageTableEntry _errmsg[]; \
 protected: \
-  const char* findErrorMessage(int) const
+  const char* findErrorMessage(int) const override
 
 #define DEFINE_ERROR_MESSAGE_TABLE(cls, base) \
 const char* \
 cls::findErrorMessage(int code) const \
 { \
-  auto msg = cg::parser::searchErrorMessage(_errmsg, code); \
+  auto msg = searchErrorMessage(_errmsg, code); \
   if (msg == nullptr) \
     msg = base::findErrorMessage(code); \
   return msg; \
@@ -84,17 +84,17 @@ DEFINE_ERROR_MESSAGE_TABLE_ENTRIES(cls)
 cg::parser::ErrorMessageTableEntry cls::_errmsg[]{
 
 #define ERROR_MESSAGE(code, msg) \
-{code, ##msg},
+{code, msg},
 
 #define END_ERROR_MESSAGE_TABLE \
-{-1, 0}}
+{-1, nullptr}}
 
 
 /////////////////////////////////////////////////////////////////////
 //
 // ErrorHandler: generic error handler class
 // ============
-class ErrorHandler abstract: public SharedObject
+class ErrorHandler: public SharedObject
 {
 public:
   void error(int, ...) const;

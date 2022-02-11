@@ -28,7 +28,7 @@
 // Source file for primitive.
 //
 // Author: Paulo Pagliosa
-// Last revision: 07/02/2022
+// Last revision: 10/02/2022
 
 #include "graphics/Primitive.h"
 
@@ -176,7 +176,7 @@ ShapeInstance::localIntersect(const Ray3f& ray) const
 bool
 ShapeInstance::localIntersect(const Ray3f& ray, Intersection& hit) const
 {
-  return _shape->intersect(ray, hit) ? hit.object = this : false;
+  return _shape->intersect(ray, hit) ? void(hit.object = this), true : false;
 }
 
 vec3f

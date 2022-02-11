@@ -28,7 +28,7 @@
 // Class definition for generic component proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 20/01/2022
+// Last revision: 10/02/2022
 
 #ifndef __ComponentProxy_h
 #define __ComponentProxy_h
@@ -47,7 +47,7 @@ namespace graph
 // ComponentProxy: generic component proxy class
 // ==============
 template <typename T>
-class ComponentProxy abstract: public Component
+class ComponentProxy: public Component
 {
 protected:
   Reference<T> _object;

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2020 Orthrus Group.                               |
+//| Copyright (C) 2020, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for OpenGL 3D render window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 09/11/2021
+// Last revision: 10/02/2022
 
 #ifndef __GLRenderWindow3_h
 #define __GLRenderWindow3_h
@@ -45,7 +45,7 @@ namespace cg
 //
 // GLRenderWindow3: OpenGL 3D render window
 // ===============
-class GLRenderWindow3 abstract: public GLWindow
+class GLRenderWindow3: public GLWindow
 {
 public:
   using GLWindow::GLWindow;

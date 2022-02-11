@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2019 Orthrus Group.                         |
+//| Copyright (C) 2018, 2022 Orthrus Group.                         |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for generic image.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/05/2019
+// Last revision: 10/02/2022
 
 #include "graphics/Image.h"
 #include <algorithm>
@@ -36,11 +36,13 @@
 namespace cg
 { // begin namespace cg
 
+#ifdef _DEBUG
 static inline void
 image_bad_size()
 {
   throw std::logic_error("Image: bad size");
 }
+#endif // _DEBUG
 
 
 /////////////////////////////////////////////////////////////////////
