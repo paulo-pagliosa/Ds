@@ -28,7 +28,7 @@
 // Source file for light.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/01/2022
+// Last revision: 11/02/2022
 
 #include "graphics/Light.h"
 
@@ -48,7 +48,7 @@ nextLightId()
 }
 
 Light::Light():
-  _type{Type::Directional},
+  _type{Type::Point},
   flags{TurnedOn | Infinite},
   color{Color::white},
   position{vec3f::null()},

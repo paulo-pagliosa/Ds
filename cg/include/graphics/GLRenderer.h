@@ -28,7 +28,7 @@
 // Class definition for OpenGL Renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/02/2022
+// Last revision: 11/02/2022
 
 #ifndef __GLRenderer_h
 #define __GLRenderer_h
@@ -47,6 +47,8 @@ namespace cg
 class GLRenderer: public GLRendererBase, public GLGraphics3
 {
 public:
+  constexpr static auto maxLights = 8;
+
   using RenderFunction = void (*)(GLRenderer&);
   using GLGraphics3::drawMesh;
 

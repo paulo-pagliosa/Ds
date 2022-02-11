@@ -28,14 +28,13 @@
 // Source file for OpenGL renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/02/2022
+// Last revision: 11/02/2022
 
 #include "graphics/GLRenderer.h"
 
 namespace cg
 { // begin namespace cg
 
-#define MAX_LIGHTS 8
 #define STRINGIFY(A) "#version 400\n"#A
 
 
@@ -118,13 +117,13 @@ static const char* geometryShader = STRINGIFY(
 static const char* fragmentShader = STRINGIFY(
   struct LightProps
   {
-    int type;       // DIRECTIONAL/POINT/SPOT
-    vec4 color;     // color
-    vec3 position;  // VRC position
+    int type; // DIRECTIONAL/POINT/SPOT
+    vec4 color; // color
+    vec3 position; // VRC position
     vec3 direction; // VRC direction
-    int falloff;    // CONSTANT/LINEAR/QUADRATIC
-    float range;    // range (== 0 INFINITE)
-    float angle;    // spot angle
+    int falloff; // CONSTANT/LINEAR/QUADRATIC
+    float range; // range (== 0 INFINITE)
+    float angle; // spot angle
   };
 
   struct MaterialProps
@@ -132,7 +131,7 @@ static const char* fragmentShader = STRINGIFY(
     vec4 Oa; // ambient color
     vec4 Od; // diffuse color
     vec4 Os; // specular spot color
-    float s; // specular shininess exponent
+    float shine; // specular shininess exponent
   };
 
   struct LineProps
@@ -257,7 +256,7 @@ static const char* fragmentShader = STRINGIFY(
         vec4 I = lightColor(i, d);
 
         color += I * m.Od * max(dot(N, L), 0);
-        color += I * m.Os * pow(max(dot(R, L), 0), m.s);
+        color += I * m.Os * pow(max(dot(R, L), 0), m.shine);
       }
     }
     return min(color, vec4(1));
@@ -315,7 +314,7 @@ struct GLRenderer::GLData
   GLint projectionTypeLoc;
   GLint ambientLightLoc;
   GLint lightCountLoc;
-  LightPropLoc lightLocs[MAX_LIGHTS];
+  LightPropLoc lightLocs[maxLights];
   GLint OaLoc;
   GLint OdLoc;
   GLint OsLoc;
@@ -367,12 +366,12 @@ GLRenderer::GLData::uniformLocations()
   projectionTypeLoc = program.uniformLocation("projectionType");
   ambientLightLoc = program.uniformLocation("ambientLight");
   lightCountLoc = program.uniformLocation("lightCount");
-  for (auto i = 0; i < MAX_LIGHTS; ++i)
+  for (auto i = 0; i < maxLights; ++i)
     uniformLightLocations(i);
   OaLoc = program.uniformLocation("material.Oa");
   OdLoc = program.uniformLocation("material.Od");
   OsLoc = program.uniformLocation("material.Os");
-  nsLoc = program.uniformLocation("material.s");
+  nsLoc = program.uniformLocation("material.shine");
   lineWidthLoc = program.uniformLocation("line.width");
   lineColorLoc = program.uniformLocation("line.color");
 }
@@ -481,7 +480,7 @@ GLRenderer::renderLights()
     _gl->program.setUniform(_gl->lightLocs[nl].falloff, (int)light->falloff);
     _gl->program.setUniform(_gl->lightLocs[nl].range, light->range());
     _gl->program.setUniform(_gl->lightLocs[nl].angle, light->spotAngle());
-    if (++nl == MAX_LIGHTS)
+    if (++nl == maxLights)
       break;
   }
   _gl->program.setUniform(_gl->lightCountLoc, nl);

@@ -28,7 +28,7 @@
 // Source file for OpenGL mesh renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2022
+// Last revision: 11/02/2022
 
 #include "graphics/GLMeshRenderer.h"
 
@@ -125,8 +125,13 @@ static const char* geometryShader = STRINGIFY(
 static const char* fragmentShader = STRINGIFY(
   struct LightProps
   {
-    vec4 position; // light position in eye coordinates
-    vec4 color; // light color
+    int type; // DIRECTIONAL/POINT/SPOT
+    vec4 color; // color
+    vec3 position; // VRC position
+    vec3 direction; // VRC direction
+    int falloff; // CONSTANT/LINEAR/QUADRATIC
+    float range; // range (== 0 INFINITE)
+    float angle; // spot angle
   };
 
   struct MaterialProps
@@ -151,10 +156,10 @@ static const char* fragmentShader = STRINGIFY(
   in vec2 g_uv;
   in vec4 g_color;
   noperspective in vec3 g_edgeDistance;
+  uniform int projectionType; // PERSPECTIVE/PARALLEL
   uniform vec4 ambientLight;
   uniform int lightCount;
   uniform LightProps lights[8];
-  uniform int lightTypes[8];
   uniform MaterialProps material;
   uniform int useTexture;
   uniform LineProps line;
@@ -190,11 +195,57 @@ static const char* fragmentShader = STRINGIFY(
     m = MaterialProps(g_color * cmOa, g_color * cmOd, g_color * cmOs, 100);
   }
 
-  vec3 lightVector(int i, vec3 P)
+  bool lightVector(int i, vec3 P, out vec3 L, out float d)
   {
-    if (lightTypes[i] == 1) // directional light
-      return -vec3(lights[i].position);
-    return normalize(vec3(lights[i].position) - P);
+    int type = lights[i].type;
+
+    // DIRECTIONAL
+    if (type == 0)
+    {
+      L = -lights[i].direction;
+      return true;
+    }
+    L = lights[i].position - P;
+    d = length(L);
+
+    float range = lights[i].range;
+
+    if (d == 0 || (range > 0 && d > range))
+      return false;
+    L /= d;
+    // POINT
+    if (type == 1)
+      return true;
+
+    // SPOT
+    float DL = dot(lights[i].direction, L);
+
+    return DL < 0 && lights[i].angle > radians(acos(DL));
+  }
+
+  vec4 lightColor(int i, float d)
+  {
+    int falloff = lights[i].falloff;
+
+    // directional light or constant falloff
+    if (lights[i].type == 0 || falloff == 0)
+      return lights[i].color;
+
+    float range = lights[i].range;
+    float f;
+
+    if (range == 0) // infinite range
+    {
+      f = 1 / d;
+      if (falloff == 2) // quadratic falloff
+        f *= f;
+    }
+    else
+    {
+      f = d / range;
+      f = falloff == 2 ? 1 + f * (f - 2) : 1 - f;
+    }
+    return lights[i].color * f;
   }
 
   vec4 phong(vec3 P, vec3 N)
@@ -204,16 +255,32 @@ static const char* fragmentShader = STRINGIFY(
 
     matProps(m);
     color = ambientLight * m.Oa;
+
+    vec3 V = projectionType == 0 ?
+      // PERSPECTIVE
+      normalize(P) :
+      // PARALLEL
+      vec3(0, 0, -1);
+
+    if (dot(N, V) > 0)
+      //return backFaceColor;
+      N *= -1;
+
+    vec3 R = reflect(V, N);
+
     for (int i = 0; i < lightCount; i++)
     {
-      vec3 L = lightVector(i, P);
-      vec3 V = normalize(P.xyz);
-      vec3 R = reflect(L, N);
+      vec3 L; float d;
 
-      color += lights[i].color * (m.Od * max(dot(L, N), 0) +
-        m.Os * pow(max(dot(R, V), 0), m.shine));
+      if (lightVector(i, P, L, d))
+      {
+        vec4 I = lightColor(i, d);
+
+        color += I * m.Od * max(dot(N, L), 0);
+        color += I * m.Os * pow(max(dot(R, L), 0), m.shine);
+      }
     }
-    return color;
+    return min(color, vec4(1));
   }
 
   subroutine(mixColorType)
@@ -247,63 +314,123 @@ static const char* fragmentShader = STRINGIFY(
 );
 
 inline void
-GLMeshRenderer::initUniformLocations()
+GLMeshRenderer::GLProgram::initUniformLightLocations(int i)
 {
-  _mvMatrixLoc = _program.uniformLocation("mvMatrix");
-  _normalMatrixLoc = _program.uniformLocation("normalMatrix");
-  _mvpMatrixLoc = _program.uniformLocation("mvpMatrix");
-  _viewportMatrixLoc = _program.uniformLocation("viewportMatrix");
-  _ambientLightLoc = _program.uniformLocation("ambientLight");
-  _lightCountLoc = _program.uniformLocation("lightCount");
-  _lightLocs[0].position = _program.uniformLocation("lights[0].position");
-  _lightLocs[0].color = _program.uniformLocation("lights[0].color");
-  _lightTypeLocs[0] = _program.uniformLocation("lightTypes[0]");
-  _lightLocs[1].position = _program.uniformLocation("lights[1].position");
-  _lightLocs[1].color = _program.uniformLocation("lights[1].color");
-  _lightTypeLocs[1] = _program.uniformLocation("lightTypes[1]");
-  _lightLocs[2].position = _program.uniformLocation("lights[2].position");
-  _lightLocs[2].color = _program.uniformLocation("lights[2].color");
-  _lightTypeLocs[2] = _program.uniformLocation("lightTypes[2]");
-  _lightLocs[3].position = _program.uniformLocation("lights[3].position");
-  _lightLocs[3].color = _program.uniformLocation("lights[3].color");
-  _lightTypeLocs[3] = _program.uniformLocation("lightTypes[3]");
-  _lightLocs[4].position = _program.uniformLocation("lights[4].position");
-  _lightLocs[4].color = _program.uniformLocation("lights[4].color");
-  _lightTypeLocs[4] = _program.uniformLocation("lightTypes[4]");
-  _lightLocs[5].position = _program.uniformLocation("lights[5].position");
-  _lightLocs[5].color = _program.uniformLocation("lights[5].color");
-  _lightTypeLocs[5] = _program.uniformLocation("lightTypes[5]");
-  _lightLocs[6].position = _program.uniformLocation("lights[6].position");
-  _lightLocs[6].color = _program.uniformLocation("lights[6].color");
-  _lightTypeLocs[6] = _program.uniformLocation("lightTypes[6]");
-  _lightLocs[7].position = _program.uniformLocation("lights[7].position");
-  _lightLocs[7].color = _program.uniformLocation("lights[7].color");
-  _lightTypeLocs[7] = _program.uniformLocation("lightTypes[7]");
-  _useTextureLoc = _program.uniformLocation("useTexture");
-  _OaLoc = _program.uniformLocation("material.Oa");
-  _OdLoc = _program.uniformLocation("material.Od");
-  _OsLoc = _program.uniformLocation("material.Os");
-  _nsLoc = _program.uniformLocation("material.shine");
-  _lineWidthLoc = _program.uniformLocation("line.width");
-  _lineColorLoc = _program.uniformLocation("line.color");
+  lightLocs[i].type = uniformLightLocation(i, "type");
+  lightLocs[i].color = uniformLightLocation(i, "color");
+  lightLocs[i].position = uniformLightLocation(i, "position");
+  lightLocs[i].direction = uniformLightLocation(i, "direction");
+  lightLocs[i].falloff = uniformLightLocation(i, "falloff");
+  lightLocs[i].range = uniformLightLocation(i, "range");
+  lightLocs[i].angle = uniformLightLocation(i, "angle");
 }
 
 inline void
-GLMeshRenderer::initSubroutineIndices()
+GLMeshRenderer::GLProgram::initUniformLocations()
 {
-  _noMixIdx = _program.fragmentSubroutineIndex("noMix");
-  _lineColorMixIdx = _program.fragmentSubroutineIndex("lineColorMix");
-  _modelMaterialIdx = _program.fragmentSubroutineIndex("modelMaterial");
-  _colorMapMaterialIdx = _program.fragmentSubroutineIndex("colorMapMaterial");
+  mvMatrixLoc = uniformLocation("mvMatrix");
+  normalMatrixLoc = uniformLocation("normalMatrix");
+  mvpMatrixLoc = uniformLocation("mvpMatrix");
+  viewportMatrixLoc = uniformLocation("viewportMatrix");
+  projectionTypeLoc = uniformLocation("projectionType");
+  ambientLightLoc = uniformLocation("ambientLight");
+  lightCountLoc = uniformLocation("lightCount");
+  for (auto i = 0; i < maxLights; ++i)
+    initUniformLightLocations(i);
+  useTextureLoc = uniformLocation("useTexture");
+  OaLoc = uniformLocation("material.Oa");
+  OdLoc = uniformLocation("material.Od");
+  OsLoc = uniformLocation("material.Os");
+  nsLoc = uniformLocation("material.shine");
+  lineWidthLoc = uniformLocation("line.width");
+  lineColorLoc = uniformLocation("line.color");
 }
 
 inline void
-GLMeshRenderer::setDefaultLights()
+GLMeshRenderer::GLProgram::initSubroutineIndices()
 {
-  _program.setUniformVec4(_lightLocs[0].position, vec4f{0, 0, 0, 1});
-  _program.setUniform(_lightLocs[0].color, 1, 1, 1, 0);
-  _program.setUniform(_lightTypeLocs[0], 0);
-  _program.setUniform(_lightCountLoc, _lightCount = 1);
+  noMixIdx = fragmentSubroutineIndex("noMix");
+  lineColorMixIdx = fragmentSubroutineIndex("lineColorMix");
+  modelMaterialIdx = fragmentSubroutineIndex("modelMaterial");
+  colorMapMaterialIdx = fragmentSubroutineIndex("colorMapMaterial");
+}
+
+inline void
+GLMeshRenderer::GLProgram::renderDefaultLights()
+{
+  setUniform(lightLocs[0].type, 1); // POINT
+  setUniformVec4(lightLocs[0].color, vec4f{1, 1, 1, 0});
+  setUniformVec3(lightLocs[0].position, vec3f{0, 0, 0});
+  setUniform(lightLocs[0].range, 0.0f);
+  setUniform(lightCountLoc, 1);
+}
+
+inline void
+GLMeshRenderer::GLProgram::initProgram()
+{
+  setShader(GL_GEOMETRY_SHADER, geometryShader);
+  setShader(GL_VERTEX_SHADER, vertexShader);
+  setShader(GL_FRAGMENT_SHADER, fragmentShader).use();
+  initUniformLocations();
+  initSubroutineIndices();
+}
+
+GLMeshRenderer::GLProgram::GLProgram():
+  GLSL::Program{"Mesh Renderer"}
+{
+  auto cp = GLSL::Program::current();
+
+  initProgram();
+  setUniform(lineWidthLoc, 0.5f);
+  setUniformVec4(lineColorLoc, Color::gray);
+  setUniformVec4(ambientLightLoc, Color::darkGray);
+  renderMaterial(*Material::defaultMaterial());
+  GLSL::Program::setCurrent(cp);
+}
+
+void
+GLMeshRenderer::GLProgram::renderMaterial(const Material& material)
+{
+  setUniformVec4(OaLoc, material.ambient);
+  setUniformVec4(OdLoc, material.diffuse);
+  setUniformVec4(OsLoc, material.spot);
+  setUniform(nsLoc, material.shine);
+}
+
+inline auto
+lightDirection(const Light& light, const Camera& camera)
+{
+  if (light.flags.isSet(Light::LightBits::Camera))
+    return light.direction;
+  return camera.worldToCameraMatrix().transformVector(light.direction);
+}
+
+inline auto
+lightPosition(const Light& light, const Camera& camera)
+{
+  if (light.flags.isSet(Light::LightBits::Camera))
+    return light.position;
+  return camera.worldToCameraMatrix().transform3x4(light.position);
+}
+
+void
+GLMeshRenderer::GLProgram::renderLight(int i,
+  const Light& light,
+  const Camera& camera)
+{
+  setUniform(lightLocs[i].type, (int)light.type());
+  setUniformVec4(lightLocs[i].color, light.color);
+  setUniformVec3(lightLocs[i].position, lightPosition(light, camera));
+  setUniformVec3(lightLocs[i].direction, lightDirection(light, camera));
+  setUniform(lightLocs[i].falloff, (int)light.falloff);
+  setUniform(lightLocs[i].range, light.range());
+  setUniform(lightLocs[i].angle, light.spotAngle());
+}
+
+GLMeshRenderer::GLMeshRenderer(Camera* camera):
+  _camera{camera == nullptr ? new Camera{} : camera}
+{
+  // do nothing
 }
 
 inline auto
@@ -325,49 +452,8 @@ lightPosition(const Light& light, Camera* camera)
 bool
 GLMeshRenderer::setLight(int i, const Light& light)
 {
-  if (!light.isTurnedOn())
-    return false;
-  if (light.type() == Light::Type::Directional)
-  {
-    const auto d = vec4f{lightDirection(light, _camera)};
-
-    _program.setUniformVec4(_lightLocs[i].position, d);
-    _program.setUniform(_lightTypeLocs[i], (int)1);
-  }
-  else
-  {
-    const auto p = vec4f{lightPosition(light, _camera)};
-
-    _program.setUniformVec4(_lightLocs[i].position, p);
-    _program.setUniform(_lightTypeLocs[i], (int)0);
-  }
-  _program.setUniformVec4(_lightLocs[i].color, light.color);
-  return true;
-}
-
-inline void
-GLMeshRenderer::initProgram()
-{
-  auto cp = GLSL::Program::current();
-
-  _program.use();
-  initUniformLocations();
-  initSubroutineIndices();
-  setMaterial(*Material::defaultMaterial());
-  _program.setUniform(_lineWidthLoc, 0.5f);
-  _program.setUniformVec4(_lineColorLoc, Color::gray);
-  _program.setUniformVec4(_ambientLightLoc, Color::darkGray);
-  GLSL::Program::setCurrent(cp);
-}
-
-GLMeshRenderer::GLMeshRenderer(Camera* camera):
-  _camera{camera == nullptr ? new Camera{} : camera},
-  _program{"Mesh Renderer"}
-{
-  _program.setShader(GL_GEOMETRY_SHADER, geometryShader);
-  _program.setShader(GL_VERTEX_SHADER, vertexShader);
-  _program.setShader(GL_FRAGMENT_SHADER, fragmentShader);
-  initProgram();
+  return light.isTurnedOn() ?
+    void(_program.renderLight(i, light, *_camera)), true : false;
 }
 
 inline void
@@ -398,22 +484,28 @@ GLMeshRenderer::setCamera(Camera* camera)
 void
 GLMeshRenderer::begin()
 {
-  _lastState.program = GLSL::Program::current();
+  auto cp = GLSL::Program::current();
+
+  if (&_program == cp)
+    return;
+  _lastState.program = cp;
   _lastState.depthTest = glIsEnabled(GL_DEPTH_TEST);
   glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &_lastState.vao);
   glGetIntegerv(GL_TEXTURE_BINDING_2D, &_lastState.texture);
   updateView();
+  _program.use();
+  _program.setUniformMat4(_program.viewportMatrixLoc, _viewportMatrix);
   glPolygonMode(GL_FRONT_AND_BACK, (renderMode != Wireframe) + GL_LINE);
   glEnable(GL_DEPTH_TEST);
-  _program.use();
-  _program.setUniformMat4(_viewportMatrixLoc, _viewportMatrix);
-  if (_lightCount == 0)
-    setDefaultLights();
 }
 
 void
 GLMeshRenderer::end()
 {
+  auto cp = GLSL::Program::current();
+
+  if (&_program != cp)
+    return;
   GLSL::Program::setCurrent(_lastState.program);
   if (!_lastState.depthTest)
     glDisable(GL_DEPTH_TEST);
@@ -422,49 +514,61 @@ GLMeshRenderer::end()
 }
 
 void
-GLMeshRenderer::setMaterial(const Material& material)
+GLMeshRenderer::setMaterial(const Material& material, void* texture)
 {
-  _program.setUniformVec4(_OaLoc, material.ambient);
-  _program.setUniformVec4(_OdLoc, material.diffuse);
-  _program.setUniformVec4(_OsLoc, material.spot);
-  _program.setUniform(_nsLoc, material.shine);
-  //if (material.texture == nullptr)
-    _texture = 0;
-  //else
-    //_texture = (GLuint)(intptr_t)material.texture; // TODO
+  _program.renderMaterial(material);
+  _texture = texture != nullptr ? (GLuint)(intptr_t)texture : 0;
+}
+
+inline mat4f
+mvMatrix(const mat4f& t, const Camera& c)
+{
+  return c.worldToCameraMatrix() * t;
+}
+
+inline mat4f
+mvpMatrix(const mat4f& mvm, const Camera& c)
+{
+  return c.projectionMatrix() * mvm;
 }
 
 inline auto
-normalMatrix(const mat3f& n, const Camera* c)
+normalMatrix(const mat3f& n, const Camera& c)
 {
-  return mat3f{c->worldToCameraMatrix()} * n;
+  return mat3f{c.worldToCameraMatrix()} * n;
 }
 
 void
 GLMeshRenderer::render(TriangleMesh& mesh, const mat4f& t, const mat3f& n)
 {
-  auto mv = _camera->worldToCameraMatrix() * t;
+  if (_lightCount == 0)
+    _program.renderDefaultLights();
 
-  _program.setUniformMat4(_mvMatrixLoc, mv);
-  _program.setUniformMat3(_normalMatrixLoc, normalMatrix(n, _camera));
-  _program.setUniformMat4(_mvpMatrixLoc, _camera->projectionMatrix() * mv);
+  auto mv = mvMatrix(t, *_camera);
 
-  GLuint i[2];
+  _program.setUniformMat4(_program.mvMatrixLoc, mv);
+  _program.setUniformMat4(_program.mvpMatrixLoc, mvpMatrix(mv, *_camera));
+  _program.setUniformMat3(_program.normalMatrixLoc,
+    normalMatrix(n, *_camera));
 
-  i[0] = renderMode == HiddenLines ? _lineColorMixIdx : _noMixIdx;
+  GLuint subIds[2];
+
+  subIds[0] = renderMode == HiddenLines ?
+    _program.lineColorMixIdx :
+    _program.noMixIdx;
   if (useVertexColors())
-    i[1] = _colorMapMaterialIdx;
+    subIds[1] = _program.colorMapMaterialIdx;
   else
   {
-    i[1] = _modelMaterialIdx;
+    subIds[1] = _program.modelMaterialIdx;
 
     int useTexture{mesh.hasUV() && _texture != 0};
 
     if (useTexture)
       glBindTexture(GL_TEXTURE_2D, _texture);
-    _program.setUniform(_useTextureLoc, useTexture);
+    _program.setUniform(_program.useTextureLoc, useTexture);
   }
-  glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 2, i);
+  glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 2, subIds);
 
   auto m = glMesh(&mesh);
 

@@ -28,7 +28,7 @@
 // Class definition for flags.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/01/2022
+// Last revision: 11/02/2022
 
 #ifndef __Flags_h
 #define __Flags_h
@@ -40,7 +40,7 @@ namespace cg
 { // begin namespace cg
 
 template <typename Bits>
-inline auto
+inline constexpr auto
 operator |(Bits a, Bits b)
 {
   return Bits((uint32_t)a | (uint32_t)b);
@@ -57,49 +57,51 @@ class Flags
 public:
   /// Contructs a Flags object with no bits set.
   HOST DEVICE
-  Flags()
+  Flags():
+    _bits{0}
   {
-    bits = 0;
+    // do nothing
   }
   
   /// Constructs a Flags object initialized with mask.
   HOST DEVICE
-  Flags(Bits mask)
+  Flags(Bits mask):
+    _bits{(uint32_t)mask}
   {
-    bits = (uint32_t)mask;
+    // do nothing
   }
 
   /// \brief Assigns mask to the bits of this object.
   HOST DEVICE
   Flags<Bits>& operator =(Bits mask)
   {
-    bits = (uint32_t)mask;
+    _bits = (uint32_t)mask;
     return *this;
   }
 
   HOST DEVICE
   Flags<Bits> operator |(Bits mask) const
   {
-    return Flags<Bits>{bits | (uint32_t)mask};
+    return Flags<Bits>{_bits | (uint32_t)mask};
   }
 
   HOST DEVICE
   Flags<Bits> operator |(Flags<Bits> flags) const
   {
-    return Flags<Bits>{bits | flags.bits};
+    return Flags<Bits>{_bits | flags._bits};
   }
 
   HOST DEVICE
   Flags<Bits>& operator |=(Bits mask)
   {
-    bits |= (uint32_t)mask;
+    _bits |= (uint32_t)mask;
     return *this;
   }
 
   HOST DEVICE
   Flags<Bits>& operator |=(Flags<Bits> flags)
   {
-    bits |= flags.bits;
+    _bits |= flags.bits;
     return *this;
   }
 
@@ -107,21 +109,21 @@ public:
   HOST DEVICE
   void set(Bits mask)
   {
-    bits |= (uint32_t)mask;
+    _bits |= (uint32_t)mask;
   }
 
   /// Sets the bits of this object, given by mask, to 0.
   HOST DEVICE
   void reset(Bits mask)
   {
-    bits &= ~(uint32_t)mask;
+    _bits &= ~(uint32_t)mask;
   }
 
   /// Sets all bits of this object to 0.
   HOST DEVICE
   void clear()
   {
-    bits = 0;
+    _bits = 0;
   }
 
   /// Sets the bits of this object, given by mask, to state.
@@ -135,25 +137,25 @@ public:
   HOST DEVICE
   operator uint32_t() const
   {
-    return bits;
+    return _bits;
   }
 
   /// Returns true if all bits of this object, given by mask, are set.
   HOST DEVICE
   bool isSet(Bits mask) const
   {
-    return (bits & (uint32_t)mask) == (uint32_t)mask;
+    return (_bits & (uint32_t)mask) == (uint32_t)mask;
   }
 
   /// Returns true if any bits of this object, given by mask, are set.
   HOST DEVICE
   bool test(Bits mask) const
   {
-    return (bits & (uint32_t)mask) != 0;
+    return (_bits & (uint32_t)mask) != 0;
   }
 
 private:
-  uint32_t bits{};
+  uint32_t _bits;
 
 }; // Flags
 
