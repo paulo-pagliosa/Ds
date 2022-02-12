@@ -20,15 +20,27 @@ The current master version is 1.0 and supports Windows 10 and later. All
 headers and source files are in the [cg/](/cg) folder. The only dependencies
 are [GLFW] and [Dear ImGui]. All headers, source files, and libraries needed
 are already included in the [cg/externals/](/cg/externals) folder.
-A project file for Visual Studio 2019 is located in the
-[cg/build/vs2019/](/cg/build/vs2019) folder. There is a pre-compiled binary
-available in the [cg/lib/](/cg/lib) folder.
+The project file for Visual Studio 2019 is located in the
+[cg/build/vs2019/](/cg/build/vs2019) folder. There is also a pre-compiled
+binary available in the [cg/lib/](/cg/lib) folder.
 
 ## Demo
 
-![Demo](https://user-images.githubusercontent.com/32277980/cgdemo.png)
+Ds Demo is a simple ray-tracing application built on top of Ds. The headers,
+source files, and a Windows binary are available in the
+[apps/cgdemo/](/apps/cgdemo) folder. The Solution and project files for
+Visual Studio 2019 are in the
+[apps/cgdemo/build/vs2019](/apps/cgdemo/build/vs2019).
 
-![Demo](https://user-images.githubusercontent.com/32277980/cgdemo-scene.png)
+![cgdemo]
+
+The ray-tracing relies on bounding volume hierarchies (BVHs) for accelerating
+ray/object intersections. Also, the code includes a scene reader with a LL(1)
+parser. The grammar for the specification of a scene and its scene objects is
+[here](/apps/cgdemo/reader/grammar.txt). The scene file shown in this example
+is available [here](/apps/cgdemo/assets/scenes/).
+
+![cgdemo-scene]
 
 ## Upcoming Changes
 
@@ -63,3 +75,5 @@ feature you would like to request, please send an e-mail to:<br/>
 [GLFW]: <https://www.glfw.org>
 [Dear ImGui]: <https://github.com/ocornut/imgui>
 [CUDA]: <https://developer.nvidia.com/cuda-downloads>
+[cgdemo]: <https://user-images.githubusercontent.com/32277980/153728061-df2b3644-176b-44cc-bbc0-ba3011012ee0.png>
+[cgdemo-scene]: <https://user-images.githubusercontent.com/32277980/153728083-cd875b86-2d29-41d2-8b01-b2a610d5e7d1.png>
