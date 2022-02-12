@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/02/2022
+// Last revision: 12/02/2022
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
@@ -711,7 +711,9 @@ SceneWindow::editorView()
   {
     static int sm;
 
-    ImGui::Combo("Shading Mode", &sm, "None\0Flat\0Gouraud\0\0");
+    ImGui::Combo("Shading Mode",
+      &sm,
+      /*"None\0Flat\0Gouraud\0"*/"Phong\0""\0");
     // TODO
 
     static Color edgeColor;
