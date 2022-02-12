@@ -20,12 +20,15 @@ The current master version is 1.0 and supports Windows 10 and later. All
 headers and source files are in the [cg/](/cg) folder. The only dependencies
 are [GLFW] and [Dear ImGui]. All headers, source files, and libraries needed
 are already included in the [cg/externals/](/cg/externals) folder.
-There are solution and project files for Visual Studio 2019 located in the
-[cg/build/vs2019/](/cg/build/vs2019) folder. A pre-compiled binary is available
-in the [cg/lib/](/cg/lib) folder.
+A project file for Visual Studio 2019 is located in the
+[cg/build/vs2019/](/cg/build/vs2019) folder. There is a pre-compiled binary
+available in the [cg/lib/](/cg/lib) folder.
 
 ## Demo
 
+![Demo](https://user-images.githubusercontent.com/32277980/cgdemo.png)
+
+![Demo](https://user-images.githubusercontent.com/32277980/cgdemo-scene.png)
 
 ## Upcoming Changes
 
