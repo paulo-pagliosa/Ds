@@ -450,7 +450,7 @@ private:
 
 }; // RegionGrid
 
-template <int D, typename typename real, typename T>
+template <int D, typename real, typename T>
 real RegionGrid<D, real, T>::_fatFactor = dflFatFactor;
 
 namespace internal
@@ -470,7 +470,7 @@ boundsSize(const Bounds<real, D>& bounds)
 
 } // end namespace internal
 
-template <int D, typename typename real, typename T>
+template <int D, typename real, typename T>
 RegionGrid<D, real, T>::RegionGrid(const bounds_type& bounds, real h):
   _bounds{bounds}
 {
