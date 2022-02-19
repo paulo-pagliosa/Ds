@@ -28,7 +28,7 @@
 // Source file for scene object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/02/2022
+// Last revision: 19/02/2022
 
 #include "graph/Scene.h"
 
@@ -44,7 +44,7 @@ namespace graph
 // SceneObject implementation
 // ===========
 SceneObject::SceneObject(Scene& scene, const char* name, bool movable):
-  SceneNode{name},
+  NameableObject{name},
   _scene{&scene}
 {
   _flags.movable = movable;

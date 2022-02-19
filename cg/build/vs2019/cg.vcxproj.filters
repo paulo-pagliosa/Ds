@@ -305,9 +305,6 @@
     <ClInclude Include="..\..\include\graphics\SceneBase.h">
       <Filter>Header Files\graphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\graphics\Actor.h">
-      <Filter>Header Files\graphics</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\graphics\GLRenderer.h">
       <Filter>Header Files\graphics</Filter>
     </ClInclude>
@@ -355,6 +352,12 @@
     </ClInclude>
     <ClInclude Include="..\..\include\graph\SceneObjectBuilder.h">
       <Filter>Header Files\graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\graphics\Actor.h">
+      <Filter>Header Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\core\Exception.h">
+      <Filter>Header Files\core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -513,6 +516,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\graph\SceneObjectBuilder.cpp">
       <Filter>Source Files\graph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\core\Exception.cpp">
+      <Filter>Source Files\core</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

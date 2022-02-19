@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2020 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for 2D grid.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/07/2020
+// Last revision: 19/02/2022
 
 #ifndef __Grid2_h
 #define __Grid2_h
@@ -47,17 +47,20 @@ template <typename T>
 class GridData<2, T> final: public GridDataBase<2, T>
 {
 public:
-  using GridDataBase<2, T>::GridDataBase;
-  using Index2 = Index<2>;
+  using Base = GridDataBase<2, T>;
+  using id_type = typename Base::id_type;
+  using index_type = typename Base::index_type;
 
-  auto id(const Index2& index) const
+  using Base::GridDataBase;
+
+  auto id(const index_type& index) const
   {
     return index.x + index.y * this->_size.x;
   }
 
-  auto index(Index2::base_type id) const
+  auto index(id_type id) const
   {
-    Index2 i;
+    index_type i;
 
     i.y = id / this->_size.x;
     i.x = id - this->_size.x * i.y;

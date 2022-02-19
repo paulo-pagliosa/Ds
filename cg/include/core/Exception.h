@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2022 Paulo Pagliosa.                              |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,85 +23,23 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: Grid3.h
+// OVERVIEW: Shape.h
 // ========
-// Class definition for 3D grid.
+// Definition for common exceptions.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/02/2022
+// Last revision: 17/02/2022
 
-#ifndef __Grid3_h
-#define __Grid3_h
+#ifndef __Exception_h
+#define __Exception_h
 
-#include "geometry/GridBase.h"
+#include <stdexcept>
 
 namespace cg
 { // begin namespace cg
 
-
-/////////////////////////////////////////////////////////////////////
-//
-// Grid3: generic 3D grid class
-// =====
-template <typename T>
-class GridData<3, T> final: public GridDataBase<3, T>
-{
-public:
-  using Base = GridDataBase<3, T>;
-  using id_type = typename Base::id_type;
-  using index_type = typename Base::index_type;
-
-  GridData() = default;
-
-  GridData(const index_type& index)
-  {
-    initialize(index);
-  }
-
-  GridData(GridData<3, T>&& other):
-    Base{std::move(other)}
-  {
-    _size_xy = other._size_xy;
-  }
-
-  void initialize(const index_type& size)
-  {
-    Base::initialize(size);
-    _size_xy = size.x * size.y;
-  }
-
-  auto id(const index_type& index) const
-  {
-    return index.x + index.y * this->_size.x + index.z * _size_xy;
-  }
-
-  auto index(id_type id) const
-  {
-    index_type i;
-
-    i.z = id / _size_xy;
-    id -= _size_xy * i.z;
-    i.y = id / this->_size.x;
-    i.x = id - this->_size * i.y;
-    return i;
-  }
-
-private:
-  id_type _size_xy{};
-
-}; // GridData
-
-template <typename T>
-using Grid3 = Grid<3, T>;
-
-
-/////////////////////////////////////////////////////////////////////
-//
-// RegionGrid3: 3D region grid class
-// ===========
-template <typename real, typename T>
-using RegionGrid3 = RegionGrid<3, real, T>;
+std::logic_error bad_invocation(const char*, const char*);
 
 } // end namespace cg
 
-#endif // __Grid3_h
+#endif // __Exception_h

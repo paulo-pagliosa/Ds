@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2016, 2021 Paulo Pagliosa.                        |
+//| Copyright (C) 2016, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for point grid base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/12/2021
+// Last revision: 19/02/2022
 
 #ifndef __PointGridBase_h
 #define __PointGridBase_h
@@ -49,7 +49,8 @@ template <int, typename, typename, typename> class PointGridSearcher;
 // PointGridBase: point grid base class
 // =============
 template <int D, typename real, typename PA, typename IL>
-class PointGridBase: public RegionGrid<D, real, IL>, public PointHolder<PA>
+class PointGridBase: public RegionGrid<D, real, IL>,
+  public PointHolder<PA>
 {
 protected:
   ASSERT_INDEX_LIST(IL, "IndexList expected");

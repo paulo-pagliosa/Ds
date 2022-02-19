@@ -23,27 +23,17 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: Shape.h
+// OVERVIEW: Shape.cpp
 // ========
-// Class definition for generic shape.
+// Source file for generic shape.
 //
 // Author: Paulo Pagliosa
-// Last revision: 21/01/2022
+// Last revision: 17/02/2022
 
 #include "graphics/Shape.h"
 
 namespace cg
 { // begin namespace cg
-
-std::logic_error
-bad_invocation(const char* c, const char* f)
-{
-  constexpr auto maxLen = 128;
-  char buffer[maxLen];
-
-  snprintf(buffer, maxLen, "%s::%s() invoked", c, f);
-  return std::logic_error{buffer};
-}
 
 
 /////////////////////////////////////////////////////////////////////

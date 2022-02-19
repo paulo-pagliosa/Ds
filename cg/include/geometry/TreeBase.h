@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2021 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for quadtree/octree base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 18/12/2021
+// Last revision: 18/02/2022
 
 #ifndef __TreeBase_h
 #define __TreeBase_h
@@ -57,8 +57,6 @@ ipow2<0>()
 {
   return 1;
 }
-
-#define DFL_TREE_FAT_FACTOR 1.01
 
 //
 // Forward definitions
@@ -610,7 +608,9 @@ public:
   using leaf_data_type = LT;
   using key_type = TreeKey<D>;
 
-  static real fatFactor()
+  static constexpr auto dflFatFactor = (real)1.01;
+
+  static auto fatFactor()
   {
     return _fatFactor;
   }
@@ -870,7 +870,7 @@ private:
 }; // RegionTree
 
 template <int D, typename real, typename LT, typename BT>
-real RegionTree<D, real, LT, BT>::_fatFactor = real(DFL_TREE_FAT_FACTOR);
+real RegionTree<D, real, LT, BT>::_fatFactor = dflFatFactor;
 
 template <int D, typename real, typename LT, typename BT>
 RegionTree<D, real, LT, BT>::RegionTree(const bounds_type& bounds,

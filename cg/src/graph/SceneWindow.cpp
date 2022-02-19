@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 12/02/2022
+// Last revision: 19/02/2022
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
@@ -237,7 +237,7 @@ SceneWindow::render()
   }
   _editor->render();
   _editor->drawGround();
-  if (auto object = _currentNode->as<SceneObject>())
+  if (auto object = _currentNode.as<SceneObject>())
   {
     drawSelectedObject(*object);
     _editor->drawTransform(*object->transform());
@@ -294,15 +294,15 @@ SceneWindow::createObjectButton()
 }
 
 inline bool
-SceneWindow::treeNode(SceneNode& node, ImGuiTreeNodeFlags flags)
+SceneWindow::treeNode(SceneNode node, ImGuiTreeNodeFlags flags)
 {
-  if (&node == _currentNode)
+  if (node == _currentNode)
     flags |= ImGuiTreeNodeFlags_Selected;
 
-  auto open = ImGui::TreeNodeEx(&node, flags, node.name());
+  auto open = ImGui::TreeNodeEx(node, flags, node->name());
 
   if (ImGui::IsItemClicked())
-    _currentNode = &node;
+    _currentNode = node;
   return open;
 }
 
@@ -365,7 +365,7 @@ SceneWindow::objectHierarchy(SceneObject& object)
     if (!hasChildren)
       flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
-    auto open = treeNode(child, flags);
+    auto open = treeNode(&child, flags);
     auto movable = child.movable() && !deleteObjectPopup(child);
 
     if (movable && ImGui::BeginDragDropSource())
@@ -399,7 +399,7 @@ SceneWindow::hierarchyWindow(const char* title)
   ImGui::Begin(title);
   createObjectButton();
   ImGui::Separator();
-  if (treeNode(*_scene, ImGuiTreeNodeFlags_OpenOnArrow))
+  if (treeNode(_scene.get(), ImGuiTreeNodeFlags_OpenOnArrow))
   {
     auto root = _scene->root();
 
@@ -803,9 +803,9 @@ SceneWindow::inspectCurrentNode()
 {
   if (_currentNode == nullptr)
     return;
-  if (auto sceneObject = _currentNode->as<SceneObject>())
+  if (auto sceneObject = _currentNode.as<SceneObject>())
     inspectSceneObject(*sceneObject);
-  else if (_currentNode->as<Scene>())
+  else if (_currentNode.as<Scene>())
     inspectScene();
 }
 
@@ -949,7 +949,7 @@ SceneWindow::mouseButtonInputEvent(int button, int actions, int mods)
     if (auto o = pickObject(_mouse.px, _mouse.py))
       if (o->selectable())
       {
-        if (auto p = _currentNode->as<SceneObject>())
+        if (auto p = _currentNode.as<SceneObject>())
           p->setSelected(false);
         o->setSelected(true);
         _currentNode = o;
@@ -1007,7 +1007,7 @@ SceneWindow::keyInputEvent(int key, int action, int mods)
 
   if (key == GLFW_KEY_F)
   {
-    if (auto object = _currentNode->as<SceneObject>())
+    if (auto object = _currentNode.as<SceneObject>())
     {
       auto camera = _editor->camera();
       auto d = camera->viewPlaneNormal();

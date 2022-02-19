@@ -94,6 +94,7 @@
     <ClInclude Include="..\..\include\core\Array.h" />
     <ClInclude Include="..\..\include\core\BlockAllocable.h" />
     <ClInclude Include="..\..\include\core\BlockAllocator.h" />
+    <ClInclude Include="..\..\include\core\Exception.h" />
     <ClInclude Include="..\..\include\core\Flags.h" />
     <ClInclude Include="..\..\include\core\List.h" />
     <ClInclude Include="..\..\include\core\NameableObject.h" />
@@ -202,6 +203,7 @@
     <ClCompile Include="..\..\include\graphics\TriangleMeshMapper.cpp" />
     <ClCompile Include="..\..\src\core\BlockAllocator.cpp" />
     <ClCompile Include="..\..\src\core\NameableObject.cpp" />
+    <ClCompile Include="..\..\src\core\Exception.cpp" />
     <ClCompile Include="..\..\src\debug\AnimatedAlgorithm.cpp" />
     <ClCompile Include="..\..\src\geometry\BVH.cpp" />
     <ClCompile Include="..\..\src\geometry\IndexList.cpp" />

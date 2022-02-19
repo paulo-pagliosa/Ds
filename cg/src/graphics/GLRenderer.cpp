@@ -28,7 +28,7 @@
 // Source file for OpenGL renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/02/2022
+// Last revision: 18/02/2022
 
 #include "graphics/GLRenderer.h"
 
@@ -493,17 +493,18 @@ GLRenderer::renderActors()
   {
     if (!actor->isVisible())
       continue;
-    if (auto mapper = actor->mapper())
-    {
-      mapper->update();
-      if (!mapper->render(*this))
-        if (auto primitive = mapper->primitive(); drawMesh(*primitive))
-          if (flags.isSet(DrawActorBounds))
-          {
-            setLineColor(boundsColor);
-            drawBounds(primitive->bounds());
-          }
-    }
+
+    auto mapper = actor->mapper();
+
+    assert(mapper != nullptr);
+    mapper->update();
+    if (!mapper->render(*this))
+      if (auto primitive = mapper->primitive(); drawMesh(*primitive))
+        if (flags.isSet(DrawActorBounds))
+        {
+          setLineColor(boundsColor);
+          drawBounds(primitive->bounds());
+        }
   }
 }
 

@@ -28,7 +28,7 @@
 // Class definition for scene.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2022
+// Last revision: 19/02/2022
 
 #ifndef __Scene_h
 #define __Scene_h
@@ -50,7 +50,7 @@ class SceneObject;
 //
 // Scene: scene class
 // =====
-class Scene: public SceneNode, public SceneBase
+class Scene: public SceneBase
 {
 public:
   /// Constructs an empty scene.

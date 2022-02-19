@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/02/2022
+// Last revision: 19/02/2022
 
 #ifndef __SceneWindow_h
 #define __SceneWindow_h
@@ -153,7 +153,7 @@ private:
 
   Reference<SceneEditor> _editor;
   Reference<GLTextureFramebuffer> _fbo;
-  SceneNode* _currentNode{};
+  SceneNode _currentNode{};
   InspectMap _inspectFunctions;
   Flags<MoveBits> _moveFlags{};
   Flags<DragBits> _dragFlags{};
@@ -172,7 +172,7 @@ private:
   bool keyInputEvent(int, int, int) override;
 
   void createObjectButton();
-  bool treeNode(SceneNode&, ImGuiTreeNodeFlags);
+  bool treeNode(SceneNode, ImGuiTreeNodeFlags);
   bool deleteObjectPopup(SceneObject&);
   bool objectHierarchy(SceneObject&);
   void addComponentButton(SceneObject&);

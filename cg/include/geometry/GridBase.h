@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2020 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for grid base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 30/05/2020
+// Last revision: 19/02/2022
 
 #ifndef __GridBase_h
 #define __GridBase_h
@@ -42,8 +42,6 @@
 
 namespace cg
 { // begin namespace cg
-
-#define DFL_GRID_FAT_FACTOR 1.01f
 
 //
 // Forward definitions
@@ -64,11 +62,12 @@ public:
   using value_type = const T;
   using pointer = value_type*;
   using reference = value_type&;
-  using id_type = typename Index<D>::base_type;
+  using grid_type = Grid<D, T>;
+  using id_type = typename grid_type::id_type;
 
   GridConstIterator() = default;
 
-  GridConstIterator(id_type id, const Grid<D, T>* grid):
+  GridConstIterator(id_type id, const grid_type* grid):
     _grid{grid},
     _id{id}
   {
@@ -134,7 +133,7 @@ public:
   }
 
 private:
-  const Grid<D, T>* _grid{};
+  const grid_type* _grid{};
   id_type _id{};
 
 }; // GridConstIterator
@@ -153,6 +152,8 @@ public:
   using value_type = T;
   using pointer = value_type*;
   using reference = value_type&;
+  using grid_type = Grid<D, T>;
+  using id_type = typename grid_type::id_type;
 
   using const_iterator::GridConstIterator;
 
@@ -205,36 +206,38 @@ template <int D, typename T>
 class Grid: public SharedObject
 {
 public:
+  using id_type = int64_t;
   using value_type = T;
   using reference = value_type&;
   using const_reference = const value_type&;
   using iterator = GridIterator<D, T>;
   using const_iterator = GridConstIterator<D, T>;
-  using id_type = typename Index<D>::base_type;
+  using grid_type = Grid<D, T>;
+  using index_type = Index<D, id_type>;
 
-  Grid(const Index<D>& size):
+  Grid(const index_type& size):
     _data{size}
   {
     // do nothing
   }
 
   explicit Grid(id_type n):
-    _data{Index<D>{n}}
+    _data{index_type{n}}
   {
     // do nothing
   }
 
   template <typename... Args>
   explicit Grid(Args&&... size):
-    _data{Index<D>{std::forward<Args>(size)...}}
+    _data{index_type{std::forward<Args>(size)...}}
   {
     // do nothing
   }
 
-  Grid(const Grid<D, T>&) = delete;
-  Grid<D, T>& operator =(const Grid<D, T>&) = delete;
+  Grid(const grid_type&) = delete;
+  grid_type& operator =(const grid_type&) = delete;
 
-  Grid(Grid<D, T>&& other):
+  Grid(grid_type&& other):
     _data{std::move(other._data)}
   {
     // do nothing
@@ -250,7 +253,7 @@ public:
     return _data.length();
   }
 
-  auto id(const Index<D>& index) const
+  auto id(const index_type& index) const
   {
     return _data.id(index);
   }
@@ -270,12 +273,12 @@ public:
     return _data[id];
   }
 
-  const_reference operator [](const Index<D>& index) const
+  const_reference operator [](const index_type& index) const
   {
     return (*this)[id(index)];
   }
 
-  reference operator [](const Index<D>& index)
+  reference operator [](const index_type& index)
   {
     return (*this)[id(index)];
   }
@@ -307,7 +310,7 @@ public:
 protected:
   Grid() = default;
 
-  void resize(const Index<D>& size)
+  void resize(const index_type& size)
   {
     _data.resize(size);
   }
@@ -330,14 +333,18 @@ public:
 
   using Base = Grid<D, T>;
   using id_type = typename Base::id_type;
-  using bounds_type = Bounds<real, D>;
+  using grid_type = RegionGrid<D, real, T>;
+  using index_type = Index<D, id_type>;
   using vec_type = Vector<real, D>;
+  using bounds_type = Bounds<real, D>;
 
   using Base::index;
   using Base::id;
   using Base::operator [];
 
-  static real fatFactor()
+  static constexpr auto dflFatFactor = (real)1.01;
+
+  static auto fatFactor()
   {
     return _fatFactor;
   }
@@ -350,15 +357,15 @@ public:
 
   RegionGrid(const bounds_type& bounds, real h);
 
-  RegionGrid(const bounds_type& bounds, const Index<D>& size);
+  RegionGrid(const bounds_type& bounds, const index_type& size);
 
   RegionGrid(const bounds_type& bounds, id_type size):
-    RegionGrid<D, real, T>{bounds, Index<D>{size}}
+    grid_type{bounds, index_type{size}}
   {
     // do nothing
   }
 
-  RegionGrid(RegionGrid<D, real, T>&& other):
+  RegionGrid(grid_type&& other):
     Base{other},
     _bounds{other._bounds},
     _cellSize{other._cellSize},
@@ -384,7 +391,7 @@ public:
 
   auto index(const vec_type& p) const
   {
-    return Index<D>{floatIndex(p)};
+    return index_type{floatIndex(p)};
   }
 
   auto id(const vec_type& p) const
@@ -412,7 +419,7 @@ public:
     return _bounds.intersect(ray, tMin, tMax);
   }
 
-  auto basePoint(const Index<D>& index) const
+  auto basePoint(const index_type& index) const
   {
     return _bounds[0] + vec_type{index} * _cellSize;
   }
@@ -422,7 +429,7 @@ public:
     return basePoint(Base::index(id));
   }
 
-  auto bounds(const Index<D>& index) const
+  auto bounds(const index_type& index) const
   {
     auto p = basePoint(index);
     return bounds_type{p, p + _cellSize};
@@ -443,8 +450,8 @@ private:
 
 }; // RegionGrid
 
-template <int D, typename real, typename T>
-real RegionGrid<D, real, T>::_fatFactor = DFL_GRID_FAT_FACTOR;
+template <int D, typename typename real, typename T>
+real RegionGrid<D, real, T>::_fatFactor = dflFatFactor;
 
 namespace internal
 { // begin namespace internal
@@ -463,7 +470,7 @@ boundsSize(const Bounds<real, D>& bounds)
 
 } // end namespace internal
 
-template <int D, typename real, typename T>
+template <int D, typename typename real, typename T>
 RegionGrid<D, real, T>::RegionGrid(const bounds_type& bounds, real h):
   _bounds{bounds}
 {
@@ -473,7 +480,7 @@ RegionGrid<D, real, T>::RegionGrid(const bounds_type& bounds, real h):
 
   const auto s = internal::boundsSize(_bounds);
   const auto invH = math::inverse(h);
-  Index<D> size;
+  index_type size;
 
   for (int i = 0; i < D; ++i)
     size[i] = id_type(ceil(s[i] * invH));
@@ -485,7 +492,7 @@ RegionGrid<D, real, T>::RegionGrid(const bounds_type& bounds, real h):
 
 template <int D, typename real, typename T>
 RegionGrid<D, real, T>::RegionGrid(const bounds_type& bounds,
-  const Index<D>& size):
+  const index_type& size):
   _bounds{bounds}
 {
   _bounds.inflate(_fatFactor);
@@ -509,7 +516,8 @@ class GridDataBase
 public:
   ASSERT_NOT_VOID(T, "Grid data type cannot be void");
 
-  using id_type = typename Index<D>::base_type;
+  using id_type = typename Grid<D, T>::id_type;
+  using index_type = Index<D, id_type>;
 
   GridDataBase():
     _size{id_type(0)}
@@ -522,7 +530,7 @@ public:
     delete []_data;
   }
 
-  void resize(const Index<D>& size);
+  void resize(const index_type& size);
 
   const auto& size() const
   {
@@ -549,9 +557,9 @@ public:
 protected:
   T* _data{};
   id_type _length{};
-  Index<D> _size;
+  index_type _size;
 
-  GridDataBase(const Index<D>& size)
+  GridDataBase(const index_type& size)
   {
     resize(size);
   }
@@ -566,7 +574,7 @@ protected:
 
 template <int D, typename T>
 void
-GridDataBase<D, T>::resize(const Index<D>& size)
+GridDataBase<D, T>::resize(const index_type& size)
 {
   auto length = size.prod();
 

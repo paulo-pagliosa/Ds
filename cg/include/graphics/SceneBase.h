@@ -28,7 +28,7 @@
 // Class definition for scene base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2022
+// Last revision: 18/02/2022
 
 #ifndef __SceneBase_h
 #define __SceneBase_h
@@ -81,14 +81,16 @@ public:
     return _lights;
   }
 
-  void addActor(Actor* actor)
+  auto addActor(Actor* actor)
   {
-    _actors.add(actor);
+    if (actor != nullptr)
+      _actors.add(actor);
+    return actor;
   }
 
-  void removeActor(Actor* actor)
+  auto removeActor(Actor* actor)
   {
-    _actors.remove(actor);
+    return _actors.remove(actor);
   }
 
   void removeActors()
@@ -96,14 +98,16 @@ public:
     _actors.clear();
   }
 
-  void addLight(Light* light)
+  auto addLight(Light* light)
   {
-    _lights.add(light);
+    if (light != nullptr)
+      _lights.add(light);
+    return light;
   }
 
-  void removeLight(Light* light)
+  auto removeLight(Light* light)
   {
-    _lights.remove(light);
+    return _lights.remove(light);
   }
 
   void removeLights()

@@ -28,12 +28,13 @@
 // Class definition for generic shape.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/02/2022
+// Last revision: 17/02/2022
 
 #ifndef __Shape_h
 #define __Shape_h
 
 #include "core/Array.h"
+#include "core/Exception.h"
 #include "core/SharedObject.h"
 #include "geometry/Bounds3.h"
 #include "geometry/Intersection.h"
@@ -43,8 +44,6 @@ namespace cg
 { // begin namespace cg
 
 class TriangleMesh;
-
-std::logic_error bad_invocation(const char*, const char*);
 
 
 /////////////////////////////////////////////////////////////////////

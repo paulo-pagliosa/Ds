@@ -28,7 +28,7 @@
 // Class definition for generic scene node.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/01/2022
+// Last revision: 19/02/2022
 
 #ifndef __SceneNode_h
 #define __SceneNode_h
@@ -46,16 +46,51 @@ namespace graph
 //
 // SceneNode: generic scene node class
 // =========
-class SceneNode: public virtual NameableObject
+class SceneNode
 {
 public:
-  using NameableObject::NameableObject;
+  SceneNode() = default;
+
+  SceneNode(NameableObject* object):
+    _object{object}
+  {
+    // do nothing
+  }
+
+  auto& operator =(NameableObject* object)
+  {
+    _object = object;
+    return *this;
+  }
+
+  auto operator ==(NameableObject* object) const
+  {
+    return _object == object;
+  }
+
+  auto operator !=(NameableObject* object) const
+  {
+    return _object != object;
+  }
+
+  auto operator ->() const
+  {
+    return _object;
+  }
+
+  operator NameableObject*() const
+  {
+    return _object;
+  }
 
   template <typename T>
   auto as()
   {
-    return dynamic_cast<T*>(this);
+    return dynamic_cast<T*>(_object);
   }
+
+private:
+  NameableObject* _object{};
 
 }; // SceneNode
 
