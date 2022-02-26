@@ -248,7 +248,7 @@ MainWindow::gui()
   auto h = (float)height();
   auto evy = h - evh;
 
-  // Hieearchy Window
+  // Hierarchy Window
   ImGui::SetNextWindowPos({lft, top});
   ImGui::SetNextWindowSize({evw, evy - top});
   hierarchyWindow();
