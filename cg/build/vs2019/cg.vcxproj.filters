@@ -314,9 +314,6 @@
     <ClInclude Include="..\..\include\graphics\PrimitiveMapper.h">
       <Filter>Header Files\graphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\graph\SceneEditor.h">
-      <Filter>Header Files\graph</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\graph\SceneWindow.h">
       <Filter>Header Files\graph</Filter>
     </ClInclude>
@@ -358,6 +355,12 @@
     </ClInclude>
     <ClInclude Include="..\..\include\core\Exception.h">
       <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\graphics\SceneWindowBase.h">
+      <Filter>Header Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\graphics\SceneEditor.h">
+      <Filter>Header Files\graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -475,9 +478,6 @@
     <ClCompile Include="..\..\src\graph\SceneObject.cpp">
       <Filter>Source Files\graph</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\graph\SceneEditor.cpp">
-      <Filter>Source Files\graph</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\graph\SceneWindow.cpp">
       <Filter>Source Files\graph</Filter>
     </ClCompile>
@@ -519,6 +519,12 @@
     </ClCompile>
     <ClCompile Include="..\..\src\core\Exception.cpp">
       <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\SceneEditor.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\SceneWindowBase.cpp">
+      <Filter>Source Files\graphics</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

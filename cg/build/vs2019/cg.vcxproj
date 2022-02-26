@@ -166,6 +166,8 @@
     <ClInclude Include="..\..\include\graphics\PrimitiveMapper.h" />
     <ClInclude Include="..\..\include\graphics\Renderer.h" />
     <ClInclude Include="..\..\include\graphics\SceneBase.h" />
+    <ClInclude Include="..\..\include\graphics\SceneEditor.h" />
+    <ClInclude Include="..\..\include\graphics\SceneWindowBase.h" />
     <ClInclude Include="..\..\include\graphics\Shape.h" />
     <ClInclude Include="..\..\include\graphics\TriangleMeshMapper.h" />
     <ClInclude Include="..\..\include\graphics\TriangleMeshShape.h" />
@@ -175,7 +177,6 @@
     <ClInclude Include="..\..\include\graph\LightProxy.h" />
     <ClInclude Include="..\..\include\graph\PrimitiveProxy.h" />
     <ClInclude Include="..\..\include\graph\Scene.h" />
-    <ClInclude Include="..\..\include\graph\SceneEditor.h" />
     <ClInclude Include="..\..\include\graph\SceneNode.h" />
     <ClInclude Include="..\..\include\graph\SceneObject.h" />
     <ClInclude Include="..\..\include\graph\SceneObjectBuilder.h" />
@@ -234,13 +235,14 @@
     <ClCompile Include="..\..\src\graphics\PrimitiveBVH.cpp" />
     <ClCompile Include="..\..\src\graphics\PrimitiveMapper.cpp" />
     <ClCompile Include="..\..\src\graphics\Renderer.cpp" />
+    <ClCompile Include="..\..\src\graphics\SceneEditor.cpp" />
+    <ClCompile Include="..\..\src\graphics\SceneWindowBase.cpp" />
     <ClCompile Include="..\..\src\graphics\Shape.cpp" />
     <ClCompile Include="..\..\src\graphics\TriangleMeshShape.cpp" />
     <ClCompile Include="..\..\src\graph\CameraProxy.cpp" />
     <ClCompile Include="..\..\src\graph\Component.cpp" />
     <ClCompile Include="..\..\src\graph\LightProxy.cpp" />
     <ClCompile Include="..\..\src\graph\PrimitiveProxy.cpp" />
-    <ClCompile Include="..\..\src\graph\SceneEditor.cpp" />
     <ClCompile Include="..\..\src\graph\SceneObject.cpp" />
     <ClCompile Include="..\..\src\graph\SceneObjectBuilder.cpp" />
     <ClCompile Include="..\..\src\graph\SceneWindow.cpp" />

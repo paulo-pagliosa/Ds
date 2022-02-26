@@ -25,13 +25,13 @@
 //
 // OVERVIEW: Scene.h
 // ========
-// Class definition for scene.
+// Class definition for graph scene.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/02/2022
+// Last revision: 26/02/2022
 
-#ifndef __Scene_h
-#define __Scene_h
+#ifndef __GraphScene_h
+#define __GraphScene_h
 
 #include "graph/SceneObject.h"
 #include "graphics/SceneBase.h"
@@ -48,7 +48,7 @@ class SceneObject;
 
 /////////////////////////////////////////////////////////////////////
 //
-// Scene: scene class
+// Scene: graph scene class
 // =====
 class Scene: public SceneBase
 {

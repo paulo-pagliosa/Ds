@@ -28,7 +28,7 @@
 // Class definition for scene object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/02/2022
+// Last revision: 25/02/2022
 
 #ifndef __SceneObject_h
 #define __SceneObject_h
@@ -198,11 +198,10 @@ private:
   SceneObject(Scene& scene, const char* name, bool movable = true);
 
   SceneObject(Scene& scene):
-    _flags{0},
     _scene{&scene},
     _parent{}
   {
-    _flags.visible = true;
+    // do nothing
   }
 
   void changeParent(SceneObject*);

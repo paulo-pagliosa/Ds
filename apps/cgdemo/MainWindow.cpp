@@ -28,7 +28,7 @@
 // Source file for cg demo main window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/02/2022
+// Last revision: 26/02/2022
 
 #include "graphics/Application.h"
 #include "reader/SceneReader.h"
@@ -122,7 +122,7 @@ MainWindow::readScene(const std::string& filename)
     reader.setInput(filename);
     reader.execute();
     if (reader.scene() != nullptr)
-      setScene(*reader.scene());
+      SceneWindow::setScene(*reader.scene());
   }
   catch (const std::exception& e)
   {
@@ -136,7 +136,7 @@ MainWindow::fileMenu()
   if (ImGui::BeginMenu("File"))
   {
     if (ImGui::MenuItem("New Scene"))
-      createScene();
+      newScene();
     if (ImGui::BeginMenu("Open"))
     {
       // TODO
@@ -166,30 +166,11 @@ MainWindow::createMenu()
   }
 }
 
-inline bool
-showStyleSelector(const char* label)
-{
-  static int style = 1;
-
-  if (!ImGui::Combo(label, &style, "Classic\0Dark\0Light\0"))
-    return false;
-  switch (style)
-  {
-    case 0: ImGui::StyleColorsClassic();
-      break;
-    case 1: ImGui::StyleColorsDark();
-      break;
-    case 2: ImGui::StyleColorsLight();
-      break;
-  }
-  return true;
-}
-
 inline void
 MainWindow::showOptions()
 {
   ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.6f);
-  showStyleSelector("Color Theme##Selector");
+  ImGui::showStyleSelector("Color Theme##Selector");
   ImGui::colorEdit3("Selected Wireframe", _selectedWireframeColor);
   ImGui::PopItemWidth();
 }
@@ -218,7 +199,9 @@ MainWindow::mainMenu()
           _image = nullptr;
       }
       ImGui::Separator();
-      ImGui::MenuItem("Preview", nullptr, &_showPreview);
+      ImGui::MenuItem("Hierarchy Window", nullptr, &_showHierarchy);
+      ImGui::MenuItem("Inspector Window", nullptr, &_showInspector);
+      ImGui::MenuItem("Camera Preview", nullptr, &_showPreview);
       ImGui::MenuItem("Assets Window", nullptr, &_showAssets);
       ImGui::MenuItem("Editor View Settings", nullptr, &_showEditorView);
       ImGui::EndMenu();

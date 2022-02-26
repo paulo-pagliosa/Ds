@@ -28,7 +28,7 @@
 // Source file for OpenGL 3D graphics.
 //
 // Author: Paulo Pagliosa
-// Last revision: 07/02/2022
+// Last revision: 25/02/2022
 
 #include "geometry/MeshSweeper.h"
 #include "graphics/GLGraphics3.h"
@@ -73,7 +73,7 @@ static const char* fragmentShader = STRINGIFY(
 );
 
 static inline TriangleMesh*
-makeCircle(const int np = 30)
+makeCircle(const int np = 40)
 {
   const int nt = np;
   const int nv = nt + 1;
@@ -88,7 +88,8 @@ makeCircle(const int np = 30)
   data.vertexNormals[0].set(0, 0, 1);
   if (true)
   {
-    const auto a = float(2 * M_PI) / np;
+    constexpr auto pi = math::pi<float>();
+    const auto a = 2 * pi / np;
     const auto c = cos(a);
     const auto s = sin(a);
     auto x = 0.0f;
@@ -305,19 +306,62 @@ GLGraphics3::drawPolyline(const vec3f* v, int n, const mat4f& m, bool close)
     drawLine(p, f);
 }
 
+template <typename real>
+auto
+rotation(const Vector3<real>& axis, real angle)
+{
+  auto w = (real)cos(angle *= 0.5);
+  auto u = axis.versor() * (real)sin(angle);
+  Matrix3x3<real> r;
+
+  r[0][0] = 1 - 2 * (u.y * u.y + u.z * u.z);
+  r[0][1] = 2 * (u.x * u.y + w * u.z);
+  r[0][2] = 2 * (u.x * u.z - w * u.y);
+  r[1][0] = 2 * (u.x * u.y - w * u.z);
+  r[1][1] = 1 - 2 * (u.x * u.x + u.z * u.z);
+  r[1][2] = 2 * (u.y * u.z + w * u.x);
+  r[2][0] = 2 * (u.x * u.z + w * u.y);
+  r[2][1] = 2 * (u.y * u.z - w * u.x);
+  r[2][2] = 1 - 2 * (u.x * u.x + u.y * u.y);
+  return r;
+}
+
+void
+GLGraphics3::drawArc(const vec3f& center,
+  float radius,
+  const vec3f& dr, // first point direction
+  const vec3f& normal,
+  float angle)
+{
+  constexpr auto ns = 20;
+  auto rm = rotation(normal, math::toRadians(angle) / ns);
+  auto dp = dr.versor() * radius;
+  auto cp = center + dp;
+
+  for (int i = 0; i < ns; ++i)
+  {
+    auto dq = rm.transform(dp);
+    auto cq = center + dq;
+
+    drawLine(cp, cq);
+    dp = dq;
+    cp = cq;
+  }
+}
+
 void
 GLGraphics3::drawCircle(const vec3f& center, float radius, const vec3f& normal)
 {
-  auto n = normal.versor();
-  auto u = vec3f::up().cross(n);
-
-  u = (u.isNull() ? vec3f(1, 0, 0).cross(n) : u).versor();
-
+  vec3f v;
   mat3f r;
 
-  r[0].set(u);
-  r[1].set(n.cross(u));
-  r[2].set(n);
+  if (math::isZero(normal.x) && math::isZero(normal.z))
+    v = {0, 0, 1};
+  else
+    v.set(normal.x, normal.y + 1, normal.z);
+  r[2] = normal.versor();
+  r[0] = v.cross(r[2]).versor();
+  r[1] = r[2].cross(r[0]);
   if (polygonMode() == FILL)
     drawMesh(*circle(), center, r, vec3f{radius});
   else
@@ -442,15 +486,15 @@ GLGraphics3::drawXZPlane(float size, float step)
   setLineColor(_gridColor);
   for (float s = step; s <= size; s += step)
   {
-    drawLine(vec3f{-size, 0, +s}, vec3f{size, 0, +s});
-    drawLine(vec3f{-size, 0, -s}, vec3f{size, 0, -s});
-    drawLine(vec3f{+s, 0, -size}, vec3f{+s, 0, size});
-    drawLine(vec3f{-s, 0, -size}, vec3f{-s, 0, size});
+    drawLine({-size, 0, +s}, {size, 0, +s});
+    drawLine({-size, 0, -s}, {size, 0, -s});
+    drawLine({+s, 0, -size}, {+s, 0, size});
+    drawLine({-s, 0, -size}, {-s, 0, size});
   }
   setLineColor(Color::red);
-  drawLine(vec3f{-size, 0, 0}, vec3f{size, 0, 0});
+  drawLine({-size, 0, 0}, {size, 0, 0});
   setLineColor(Color::blue);
-  drawLine(vec3f{0, 0, -size}, vec3f{0, 0, size});
+  drawLine({0, 0, -size}, {0, 0, size});
 }
 
 void
@@ -463,7 +507,7 @@ GLGraphics3::drawAxis(const vec3f& p,
   vec3f q;
 
   if (math::isZero(d.x) && math::isZero(d.z))
-    q = vec3f{0, 0, 1};
+    q = {0, 0, 1};
   else
     q.set(d.x, d.y + 1, d.z);
   r[1] = d.versor();
