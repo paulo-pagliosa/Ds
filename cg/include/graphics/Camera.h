@@ -28,7 +28,7 @@
 // Class definition for camera.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/02/2022
+// Last revision: 28/02/2022
 
 #ifndef __Camera_h
 #define __Camera_h
@@ -67,19 +67,19 @@ public:
   Camera(const Camera&) = delete;
   Camera& operator =(const Camera&) = delete;
 
-  vec3f position() const;
-  vec3f eulerAngles() const;
-  quatf rotation() const;
+  const vec3f& position() const;
+  const vec3f& eulerAngles() const;
+  const quatf& rotation() const;
   vec3f directionOfProjection() const;
-  vec3f viewPlaneNormal() const;
-  vec3f viewUp() const;
+  const vec3f& viewPlaneNormal() const;
+  const vec3f& viewUp() const;
   float viewAngle() const;
   float height() const;
   float aspectRatio() const;
   float clippingPlanes(float& F, float& B) const;
   float nearPlane() const;
   ProjectionType projectionType() const;
-  vec3f focalPoint() const;
+  const vec3f& focalPoint() const;
   float distance() const;
 
   void setPosition(const vec3f& value);
@@ -159,40 +159,40 @@ private:
 
 }; // Camera
 
-inline vec3f
+inline const vec3f&
 Camera::position() const
 {
   return _position;
 }
 
-inline vec3f
+inline const vec3f&
 Camera::eulerAngles() const
 {
   return _eulerAngles;
 }
 
-inline quatf
+inline const quatf&
 Camera::rotation() const
 {
   return _rotation;
 }
 
-inline vec3f
+inline const vec3f&
+Camera::viewUp() const
+{
+  return (const vec3f&)(_cameraToWorld[1]);
+}
+
+inline const vec3f&
 Camera::viewPlaneNormal() const
 {
-  return vec3f{_cameraToWorld[2]};
-
+  return (const vec3f&)(_cameraToWorld[2]);
 }
+
 inline vec3f
 Camera::directionOfProjection() const
 {
   return -viewPlaneNormal();
-}
-
-inline vec3f
-Camera::viewUp() const
-{
-  return vec3f{_cameraToWorld[1]};
 }
 
 inline Camera::ProjectionType
@@ -201,7 +201,7 @@ Camera::projectionType() const
   return _projectionType;
 }
 
-inline vec3f
+inline const vec3f&
 Camera::focalPoint() const
 {
   return _focalPoint;

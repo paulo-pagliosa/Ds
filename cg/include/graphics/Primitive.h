@@ -28,7 +28,7 @@
 // Class definition for primitive.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/02/2022
+// Last revision: 28/02/2022
 
 #ifndef __Primitive_h
 #define __Primitive_h
@@ -49,7 +49,7 @@ using PrimitiveArray = Array<Reference<Primitive>>;
 //
 // Primitive: generic primitive model class
 // =========
-class Primitive: public SharedObject
+class Primitive: public virtual SharedObject
 {
 public:
   virtual const TriangleMesh* tesselate() const;

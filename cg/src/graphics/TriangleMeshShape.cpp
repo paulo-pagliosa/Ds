@@ -28,7 +28,7 @@
 // Class definition for triangle mesh shape.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/02/2022
+// Last revision: 28/02/2022
 
 #include "graphics/TriangleMeshShape.h"
 #include <cassert>
@@ -73,7 +73,7 @@ private:
 static BVHBuilder _bvhBuilder;
 
 TriangleMeshShape::TriangleMeshShape(const TriangleMesh& mesh):
-  _bvh{_bvhBuilder.bvh(mesh)}
+  _mesh{&mesh}
 {
   // do nothing
 }
@@ -81,14 +81,17 @@ TriangleMeshShape::TriangleMeshShape(const TriangleMesh& mesh):
 void
 TriangleMeshShape::setMesh(const TriangleMesh& mesh)
 {
-  if (this->mesh() != &mesh)
-    _bvh = _bvhBuilder.bvh(mesh);
+  if (_mesh != &mesh)
+  {
+    _bvh = nullptr;
+    _mesh = &mesh;
+  }
 }
 
 const TriangleMesh*
 TriangleMeshShape::tesselate() const
 {
-  return mesh();
+  return _mesh;
 }
 
 bool
@@ -97,22 +100,30 @@ TriangleMeshShape::canIntersect() const
   return true;
 }
 
+TriangleMeshBVH*
+TriangleMeshShape::bvh() const
+{
+  if (_bvh == nullptr)
+    _bvh = _bvhBuilder.bvh(*_mesh);
+  return _bvh;
+}
+
 bool
 TriangleMeshShape::localIntersect(const Ray3f& ray) const
 {
-  return _bvh->intersect(ray);
+  return bvh()->intersect(ray);
 }
 
 bool
 TriangleMeshShape::localIntersect(const Ray3f& ray, Intersection& hit) const
 {
-  return _bvh->intersect(ray, hit) ? void(hit.object = this), true : false;
+  return bvh()->intersect(ray, hit) ? void(hit.object = this), true : false;
 }
 
 vec3f
 TriangleMeshShape::normal(const Intersection& hit) const
 {
-  const auto& m = mesh()->data();
+  const auto& m = _mesh->data();
   auto tidx = hit.triangleIndex;
 
   assert(tidx >= 0 && tidx < m.triangleCount);
@@ -133,7 +144,7 @@ TriangleMeshShape::normal(const Intersection& hit) const
 Bounds3f
 TriangleMeshShape::bounds() const
 {
-  return _bvh->bounds();
+  return bvh()->bounds();
 }
 
 } // end namespace cg

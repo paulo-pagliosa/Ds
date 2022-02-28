@@ -28,7 +28,7 @@
 // Class definition for generic shape.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/02/2022
+// Last revision: 28/02/2022
 
 #ifndef __Shape_h
 #define __Shape_h
@@ -50,7 +50,7 @@ class TriangleMesh;
 //
 // Shape: generic shape class
 // =====
-class Shape: public SharedObject
+class Shape: public virtual SharedObject
 {
 public:
   virtual const TriangleMesh* tesselate() const;

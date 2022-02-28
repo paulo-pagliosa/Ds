@@ -28,7 +28,7 @@
 // Class definition for triangle mesh shape.
 //
 // Author: Paulo Pagliosa
-// Last revision: 21/01/2022
+// Last revision: 28/02/2022
 
 #ifndef __TriangleMeshShape_h
 #define __TriangleMeshShape_h
@@ -44,7 +44,7 @@ namespace cg
 //
 // TriangleMeshShape: triangle mesh shape class
 // =================
-class TriangleMeshShape final: public Shape
+class TriangleMeshShape: public Shape
 {
 public:
   TriangleMeshShape(const TriangleMesh&);
@@ -56,16 +56,20 @@ public:
 
   const TriangleMesh* mesh() const
   {
-    return _bvh->mesh();
+    return _mesh;
   }
 
   void setMesh(const TriangleMesh&);
 
-private:
-  Reference<TriangleMeshBVH> _bvh;
+protected:
+  TriangleMeshBVH* bvh() const;
 
-  bool localIntersect(const Ray3f&) const override;
-  bool localIntersect(const Ray3f&, Intersection&) const override;
+private:
+  Reference<TriangleMesh>_mesh;
+  mutable Reference<TriangleMeshBVH> _bvh;
+
+  bool localIntersect(const Ray3f&) const final;
+  bool localIntersect(const Ray3f&, Intersection&) const final;
 
 }; // TriangleMeshShape
 

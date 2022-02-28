@@ -28,7 +28,7 @@
 // Class definition for generic primitive mapper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/02/2022
+// Last revision: 28/02/2022
 
 #ifndef __PrimitiveMapper_h
 #define __PrimitiveMapper_h
@@ -45,7 +45,7 @@ class GLRenderer;
 //
 // PrimitiveMapper: generic primitive mapper class
 // ===============
-class PrimitiveMapper: public SharedObject
+class PrimitiveMapper: public virtual SharedObject
 {
 public:
   virtual void update();

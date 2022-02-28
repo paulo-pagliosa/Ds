@@ -28,7 +28,7 @@
 // Source file for OpenGL renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 18/02/2022
+// Last revision: 28/02/2022
 
 #include "graphics/GLRenderer.h"
 
@@ -499,12 +499,8 @@ GLRenderer::renderActors()
     assert(mapper != nullptr);
     mapper->update();
     if (!mapper->render(*this))
-      if (auto primitive = mapper->primitive(); drawMesh(*primitive))
-        if (flags.isSet(DrawActorBounds))
-        {
-          setLineColor(boundsColor);
-          drawBounds(primitive->bounds());
-        }
+      if (auto primitive = mapper->primitive())
+        drawMesh(*primitive);
   }
 }
 
@@ -599,6 +595,11 @@ GLRenderer::drawMesh(const Primitive& primitive)
   {
     m->bind();
     glDrawElements(GL_TRIANGLES, m->vertexCount(), GL_UNSIGNED_INT, 0);
+    if (flags.isSet(DrawBounds))
+    {
+      setLineColor(boundsColor);
+      drawBounds(primitive.bounds());
+    }
     /*
     setVectorColor(Color::white);
     drawNormals(*mesh,

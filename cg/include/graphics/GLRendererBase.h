@@ -28,7 +28,7 @@
 // Class definition for OpenGL renderer base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/02/2022
+// Last revision: 28/02/2022
 
 #ifndef __GLRendererBase_h
 #define __GLRendererBase_h
@@ -61,7 +61,7 @@ public:
   {
     UseLights = 1,
     UseVertexColors = 2,
-    DrawActorBounds = 4,
+    DrawBounds = 4,
     DrawNormals = 8
   };
 
