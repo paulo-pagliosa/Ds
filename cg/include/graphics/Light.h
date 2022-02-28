@@ -28,7 +28,7 @@
 // Class definition for light.
 //
 // Author: Paulo Pagliosa
-// Last revision: 07/02/2022
+// Last revision: 28/02/2022
 
 #ifndef __Light_h
 #define __Light_h
@@ -77,8 +77,6 @@ public:
 
   LightFlags flags;
   Color color;
-  vec3f position;
-  vec3f direction;
   Falloff falloff;
 
   // Constructor
@@ -103,6 +101,35 @@ public:
   {
     flags.enable(TurnedOn, state);
   }
+
+  const auto& position() const
+  {
+    return _position;
+  }
+
+  void setPosition(const vec3f& value)
+  {
+    _position = value;
+  }
+
+  const auto& direction() const
+  {
+    return _direction;
+  }
+
+  const auto& eulerAngles() const
+  {
+    return _eulerAngles;
+  }
+
+  void setEulerAngles(const vec3f& value);
+
+  const auto& rotation() const
+  {
+    return _rotation;
+  }
+
+  void setRotation(const quatf& value);
 
   auto range() const
   {
@@ -129,8 +156,17 @@ public:
 
 private:
   Type _type;
+  vec3f _position;
+  vec3f _direction;
+  vec3f _eulerAngles;
+  quatf _rotation;
   float _range;
   float _spotAngle;
+
+  void updateDirection()
+  {
+    _direction = _rotation * vec3f{0, 0, 1};
+  }
 
   auto outOfRange(float distance) const
   {
@@ -166,10 +202,10 @@ Light::lightVector(const vec3f& P, vec3f& L, float& distance) const
 {
   if (_type == Type::Directional)
   {
-    L = -direction.versor();
+    L = -_direction.versor();
     return distance = math::Limits<float>::inf();
   }
-  distance = (L = position -  P).length();
+  distance = (L = _position -  P).length();
   if (math::isZero(distance) || outOfRange(distance))
     return false;
   L *= math::inverse(distance);
@@ -177,7 +213,7 @@ Light::lightVector(const vec3f& P, vec3f& L, float& distance) const
     return true;
 
   // Spot light
-  auto DL = direction.dot(L);
+  auto DL = _direction.dot(L);
 
   return DL < 0 && _spotAngle >= 2 * math::toRadians(acos(DL));
 }

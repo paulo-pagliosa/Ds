@@ -28,7 +28,7 @@
 // Source file for OpenGL mesh renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/02/2022
+// Last revision: 28/02/2022
 
 #include "graphics/GLMeshRenderer.h"
 
@@ -401,16 +401,16 @@ inline auto
 lightDirection(const Light& light, const Camera& camera)
 {
   if (light.flags.isSet(Light::LightBits::Camera))
-    return light.direction;
-  return camera.worldToCameraMatrix().transformVector(light.direction);
+    return light.direction();
+  return camera.worldToCameraMatrix().transformVector(light.direction());
 }
 
 inline auto
 lightPosition(const Light& light, const Camera& camera)
 {
   if (light.flags.isSet(Light::LightBits::Camera))
-    return light.position;
-  return camera.worldToCameraMatrix().transform3x4(light.position);
+    return light.position();
+  return camera.worldToCameraMatrix().transform3x4(light.position());
 }
 
 void
@@ -431,22 +431,6 @@ GLMeshRenderer::GLMeshRenderer(Camera* camera):
   _camera{camera == nullptr ? new Camera{} : camera}
 {
   // do nothing
-}
-
-inline auto
-lightDirection(const Light& light, Camera* camera)
-{
-  if (light.flags.isSet(Light::LightBits::Camera))
-    return light.direction;
-  return camera->worldToCameraMatrix().transformVector(light.direction);
-}
-
-inline auto
-lightPosition(const Light& light, Camera* camera)
-{
-  if (light.flags.isSet(Light::LightBits::Camera))
-    return light.position;
-  return camera->worldToCameraMatrix().transform(light.position);
 }
 
 bool

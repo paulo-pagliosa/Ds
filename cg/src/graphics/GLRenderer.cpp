@@ -470,11 +470,11 @@ GLRenderer::renderLights()
     _gl->program.setUniform(_gl->lightLocs[nl].type, (int)light->type());
     _gl->program.setUniformVec4(_gl->lightLocs[nl].color, light->color);
     {
-      const auto p = vm.transform3x4(light->position);
+      const auto p = vm.transform3x4(light->position());
       _gl->program.setUniformVec3(_gl->lightLocs[nl].position, p);
     }
     {
-      const auto d = vm.transformVector(light->direction).versor();
+      const auto d = vm.transformVector(light->direction()).versor();
       _gl->program.setUniformVec3(_gl->lightLocs[nl].direction, d);
     }
     _gl->program.setUniform(_gl->lightLocs[nl].falloff, (int)light->falloff);

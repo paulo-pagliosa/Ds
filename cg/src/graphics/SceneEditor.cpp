@@ -28,7 +28,7 @@
 // Source file for scene editor.
 //
 // Author: Paulo Pagliosa
-// Last revision: 26/02/2022
+// Last revision: 28/02/2022
 
 #include "graphics/SceneEditor.h"
 
@@ -215,7 +215,7 @@ SceneEditor::drawLight(const Light& light)
   constexpr auto lr = 10;
   constexpr auto dl = 120;
 
-  const auto& p = light.position;
+  const auto& p = light.position();
 
   setBasePoint(p);
 
@@ -238,18 +238,8 @@ SceneEditor::drawLight(const Light& light)
     outlineSphere(p, range, _lightGismoColor);
   else
   {
-    mat3f r;
+    auto r = mat3f{light.rotation()};
 
-    const auto& n = light.direction;
-    vec3f v;
-
-    if (math::isZero(n.x) && math::isZero(n.z))
-      v = {0, 0, 1};
-    else
-      v.set(n.x, n.y + 1, n.z);
-    r[0] = v.cross(n).versor();
-    r[1] = n.cross(r[0]);
-    r[2] = n;
     if (type == Light::Type::Directional)
       outlineCylinder(p, r, pixelsLength(lr * 2), pixelsLength(dl));
     else

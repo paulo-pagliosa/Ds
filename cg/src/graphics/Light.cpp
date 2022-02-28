@@ -28,7 +28,7 @@
 // Source file for light.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/02/2022
+// Last revision: 28/02/2022
 
 #include "graphics/Light.h"
 
@@ -48,16 +48,32 @@ nextLightId()
 }
 
 Light::Light():
-  _type{Type::Point},
   flags{TurnedOn | Infinite},
   color{Color::white},
-  position{vec3f::null()},
-  direction{0, 0, 1},
   falloff{Falloff::Constant},
+  _type{Type::Point},
+  _position{vec3f::null()},
+  _direction{0, 0, 1},
+  _eulerAngles{vec3f::null()},
+  _rotation{quatf::identity()},
   _range{0},
   _spotAngle{60}
 {
   setName("Light %d", nextLightId());
+}
+
+void
+Light::setEulerAngles(const vec3f& value)
+{
+  _rotation = quatf::eulerAngles(_eulerAngles = value);
+  updateDirection();
+}
+
+void
+Light::setRotation(const quatf& value)
+{
+  _eulerAngles = (_rotation = value).eulerAngles();
+  updateDirection();
 }
 
 void
