@@ -28,7 +28,7 @@
 // Source file for OpenGL renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/02/2022
+// Last revision: 01/03/2022
 
 #include "graphics/GLRenderer.h"
 
@@ -167,11 +167,10 @@ static const char* fragmentShader = STRINGIFY(
   subroutine(matPropsType)
   void colorMapMaterial(out MaterialProps m)
   {
-    const float cmOa = 0.4;
-    const float cmOd = 0.6;
-    const float cmOs = 0.0;
+    const float Oa = 0.4;
+    const float Od = 0.6;
 
-    m = MaterialProps(gColor * cmOa, gColor * cmOd, gColor * cmOs, 100);
+    m = MaterialProps(gColor * Oa, gColor * Od, vec4(1), material.shine);
   }
 
   bool lightVector(int i, vec3 P, out vec3 L, out float d)
