@@ -49,8 +49,9 @@ class PrimitiveMapper: public virtual SharedObject
 {
 public:
   virtual void update();
-
   virtual bool render(GLRenderer&) const;
+
+  virtual Bounds3f bounds() const;
   virtual Primitive* primitive() const;
 
 }; // PrimitiveMapper

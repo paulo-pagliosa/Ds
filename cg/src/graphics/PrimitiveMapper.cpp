@@ -28,7 +28,7 @@
 // Source file for generic primitive mapper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 21/01/2022
+// Last revision: 28/02/2022
 
 #include "graphics/PrimitiveMapper.h"
 
@@ -50,6 +50,12 @@ bool
 PrimitiveMapper::render(GLRenderer&) const
 {
   return false;
+}
+
+Bounds3f
+PrimitiveMapper::bounds() const
+{
+  return Bounds3f{};
 }
 
 Primitive*

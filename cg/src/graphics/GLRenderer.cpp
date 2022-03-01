@@ -499,8 +499,15 @@ GLRenderer::renderActors()
     assert(mapper != nullptr);
     mapper->update();
     if (!mapper->render(*this))
+    {
       if (auto primitive = mapper->primitive())
         drawMesh(*primitive);
+    }
+    else if (flags.isSet(DrawBounds))
+    {
+      setLineColor(boundsColor);
+      drawBounds(mapper->bounds());
+    }
   }
 }
 
