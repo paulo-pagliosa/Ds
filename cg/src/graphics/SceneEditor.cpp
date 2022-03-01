@@ -28,7 +28,7 @@
 // Source file for scene editor.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/02/2022
+// Last revision: 01/03/2022
 
 #include "graphics/SceneEditor.h"
 
@@ -183,7 +183,7 @@ SceneEditor::outlineCone(const vec3f& p, const mat3f& m, float a, float h)
 {
   auto& n = m[2];
   auto bc = p + n * h;
-  auto br = h * float(sin(math::toRadians(a) * 0.5));
+  auto br = h * float(tan(math::toRadians(a) * 0.5));
 
   drawCircle(bc, br, n);
 
