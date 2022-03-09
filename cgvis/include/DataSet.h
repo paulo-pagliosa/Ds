@@ -28,45 +28,101 @@
 // Class definition for generic vis data set.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/02/2022
+// Last revision: 08/03/2022
 
 #ifndef __DataSet_h
 #define __DataSet_h
 
+#include "math/Vector3.h"
 #include "Scalars.h"
 
-namespace cg
-{ // begin namespace cg
+namespace cg::vis
+{ // begin namespace cg::vis
 
-namespace vis
-{ // begin namespace vis
+using Vectors = DataArray<vec3f>;
 
 
 /////////////////////////////////////////////////////////////////////
 //
 // DataSet: generic vis data set class
 // =======
-class DataSet: public Object
+class DataSet: public virtual Object
 {
 public:
-  Scalars* scalars() const
+  int32_t vertexCount() const
   {
-    return _scalars;
+    return 0;
   }
 
-  void setScalars(const Scalars* scalars)
+  Scalars* vertexScalars() const
   {
-    _scalars = scalars;
-    modified();
+    return _vertexScalars;
+  }
+
+  void setVertexScalars(const Scalars* scalars)
+  {
+    if (scalars != _vertexScalars)
+    {
+      _vertexScalars = scalars;
+      modified();
+    }
+  }
+
+  Vectors* vertexVectors() const
+  {
+    return _vertexVectors;
+  }
+
+  void setVertexVectors(const Vectors* vectors)
+  {
+    if (vectors != _vertexVectors)
+    {
+      _vertexVectors = vectors;
+      modified();
+    }
+  }
+
+  int32_t cellCount() const
+  {
+    return 0;
+  }
+
+  Scalars* cellScalars() const
+  {
+    return _cellScalars;
+  }
+
+  void setCellScalars(const Scalars* scalars)
+  {
+    if (scalars != _cellScalars)
+    {
+      _cellScalars = scalars;
+      modified();
+    }
+  }
+
+  Vectors* cellVectors() const
+  {
+    return _cellVectors;
+  }
+
+  void setCellVectors(const Vectors* vectors)
+  {
+    if (vectors != _cellVectors)
+    {
+      _cellVectors = vectors;
+      modified();
+    }
   }
 
 protected:
-  Reference<Scalars> _scalars;
+  Reference<Scalars> _vertexScalars;
+  Reference<Scalars> _cellScalars;
+  Reference<Vectors> _vertexVectors;
+  Reference<Vectors> _cellVectors;
 
 }; // DataSet
 
-} // end namespace vis
-
-} // end namespace cg
+} // end namespace cg::vis
 
 #endif // __DataSet_h

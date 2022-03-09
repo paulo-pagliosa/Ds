@@ -28,7 +28,7 @@
 // Class definition for lookup table.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/02/2022
+// Last revision: 08/03/2022
 
 #ifndef __LookupTable_h
 #define __LookupTable_h
@@ -37,18 +37,15 @@
 #include "Object.h"
 #include <vector>
 
-namespace cg
-{ // begin namespace cg
-
-namespace vis
-{ // begin namespace vis
+namespace cg::vis
+{ // begin namespace cg::vis
 
 
 /////////////////////////////////////////////////////////////////////
 //
 // LookupTable: lookup table class
 // ===========
-class LookupTable: public Object
+class LookupTable: public virtual Object
 {
 public:
   LookupTable(int size = 256);
@@ -145,8 +142,6 @@ protected:
 
 }; // LookupTable
 
-} // end namespace vis
-
-} // end namespace cg
+} // end namespace cg::vis
 
 #endif // __LookupTable_h

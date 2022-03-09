@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2022 Paulo Pagliosa.                              |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,116 +23,144 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: Object.h
+// OVERVIEW: Glyph3.h
 // ========
-// Class definition for generic vis object.
+// Class definition for vis 3D glyph filter.
 //
 // Author: Paulo Pagliosa
 // Last revision: 08/03/2022
 
-#ifndef __VisObject_h
-#define __VisObject_h
+#ifndef __Glyph3_h
+#define __Glyph3_h
 
-#include "core/SharedObject.h"
-#include <cinttypes>
+#include "Filter.h"
+#include "PolyData.h"
 
 namespace cg::vis
 { // begin namespace cg::vis
 
-//
-// Forward definition
-//
-class Object;
-
-template <typename T>
-inline constexpr bool isObject()
-{
-  return std::is_assignable<Object, T>::value;
-}
-
-#define ASSERT_OBJECT(T, msg) static_assert(isObject<T>(), msg)
-
 
 /////////////////////////////////////////////////////////////////////
 //
-// Timestamp: timestamp class
-// =========
-class Timestamp
+// Glyph3Base: vis 3D glyph base class
+// ==========
+class Glyph3Base: public virtual Object
 {
 public:
-  using value_type = uint64_t;
-
-  auto modifiedTime() const
+  enum class ScaleMode
   {
-    return _modifiedTime;
+    Scalar,
+    Vector
+  };
+
+  constexpr static auto minScaleFactor = 0.001f;
+
+  PolyData* source() const
+  {
+    return _source;
   }
 
-  void modified()
+  void setSource(const PolyData* source)
   {
-    static value_type time;
-    _modifiedTime = ++time;
+    if (_source != source)
+    {
+      _source = source;
+      modified();
+    }
   }
 
-  void reset()
+  void range(float& min, float& max) const
   {
-    _modifiedTime = value_type{};
+    min = _range[0];
+    max = _range[1];
   }
 
-  bool operator <(const Timestamp& other) const
+  void setRange(float min, float max);
+
+  auto scaleFactor() const
   {
-    return _modifiedTime < other._modifiedTime;
+    return _scaleFactor;
   }
 
-  bool operator >(const Timestamp& other) const
+  void setScaleFactor(float value)
   {
-    return _modifiedTime > other._modifiedTime;
+    _scaleFactor = math::max(minScaleFactor, value);
+    modified();
   }
+
+  auto scaleMode() const
+  {
+    return _scaleMode;
+  }
+
+  void setScaleMode(ScaleMode scaleMode)
+  {
+    if (scaleMode != _scaleMode)
+    {
+      _scaleMode = scaleMode;
+      modified();
+    }
+  }
+
+protected:
+  using Points = std::vector<vec3f>;
+
+  Glyph3Base();
+
+  PolyData* makeDefaultSource() const;
+  void execute(const Points&, PolyData&);
 
 private:
-  value_type _modifiedTime{};
+  Reference<PolyData> _source;
+  ScaleMode _scaleMode;
+  float _range[2];
+  float _scaleFactor;
+  bool _clamping;
 
-}; // Timestamp
+}; // Glyph3Base
 
 
 /////////////////////////////////////////////////////////////////////
 //
-// Object: generic vis object class
+// Glyph3: vis 3D glyph filter class
 // ======
-class Object: public virtual SharedObject
+template <typename Input>
+class Glyph3: public Filter<Input, PolyData>, public Glyph3Base
 {
 public:
-  Object()
+  static Reference<Glyph3<Input>> New()
   {
-    _modifiedTime.modified();
+    return new Glyph3<Input>;
   }
 
-  template <typename T>
-  static T* makeCopy(T* ptr)
-  {
-    ASSERT_OBJECT(T, "Pointer to object expected");
-    return ptr == nullptr ? nullptr : (T*)((Object*)ptr)->clone();
-  }
-
-  auto modifiedTime() const
-  {
-    return _modifiedTime;
-  }
-
-  virtual void modified()
-  {
-    _modifiedTime.modified();
-  }
+  void execute() override;
 
 private:
-  Timestamp _modifiedTime;
+  Glyph3() = default;
 
-  virtual Object* clone() const
-  {
-    return nullptr;
-  }
+}; // Glyph3
 
-}; // Object
+template <typename Input>
+void
+Glyph3<Input>::execute()
+{
+  auto output = new PolyData;
+
+  this->setOutput(output);
+
+  auto input = this->input();
+  auto nv = input->vertexCount();
+
+  if (nv == 0)
+    return;
+
+  Points points(nv);
+
+  for (decltype(nv) i = 0; i < nv; ++i)
+    points[i] = input->vertex(i);
+  Glyph3Base::execute(points, *output);
+}
 
 } // end namespace cg::vis
 
-#endif // __VisObject_h
+#endif

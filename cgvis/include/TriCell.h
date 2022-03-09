@@ -28,19 +28,21 @@
 // Class definition for vis tri cell.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/02/2022
+// Last revision: 08/03/2022
 
 #ifndef __TriCell_h
 #define __TriCell_h
 
-#include "math/Vector3.h"
 #include "Cell.h"
 
-namespace cg
-{ // begin namespace cg
+namespace cg::vis
+{ // begin namespace cg::vis
 
-namespace vis
-{ // begin namespace vis
+//
+// Forward definitions
+//
+class PolyData;
+class Scalars;
 
 extern void contourTriangle(const vec3f* vertices,
   const float* scalars,
@@ -74,9 +76,9 @@ public:
     };
     const float cellScalars[]
     {
-      scalars->scalar(this->vertexId(0)),
-      scalars->scalar(this->vertexId(1)),
-      scalars->scalar(this->vertexId(2)),
+      scalars->get(this->vertexId(0)),
+      scalars->get(this->vertexId(1)),
+      scalars->get(this->vertexId(2)),
     };
 
     contourTriangle(vertices, cellScalars, value, output);
@@ -84,8 +86,6 @@ public:
 
 }; // TriCell
 
-} // end namespace vis
-
-} // end namespace cg
+} // end namespace cg::vis
 
 #endif // __TriCell_h

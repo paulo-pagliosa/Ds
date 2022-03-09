@@ -28,7 +28,7 @@
 // Class definition for generic vis source.
 //
 // Author: Paulo Pagliosa
-// Last revision: 18/02/2022
+// Last revision: 08/03/2022
 
 #ifndef __Source_h
 #define __Source_h
@@ -37,11 +37,8 @@
 #include "Object.h"
 #include <stdexcept>
 
-namespace cg
-{ // begin namespace cg
-
-namespace vis
-{ // begin namespace vis
+namespace cg::vis
+{ // begin namespace cg::vis
 
 //
 // Forward definition
@@ -53,7 +50,7 @@ template <typename Output> class Source;
 //
 // AbstractSource: abstract vis source class
 // ==============
-class AbstractSource: public Object
+class AbstractSource: public virtual Object
 {
 public:
   virtual void update();
@@ -153,8 +150,6 @@ Source<Output>::execute()
   throw bad_invocation("Source<T>", __func__);
 }
 
-} // end namespace vis
-
-} // end namespace cg
+} // end namespace cg::vis
 
 #endif // __Source_h

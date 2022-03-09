@@ -28,7 +28,7 @@
 // Class definition for vis elevation filter.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/03/2022
+// Last revision: 08/03/2022
 
 #ifndef __ElevationFilter_h
 #define __ElevationFilter_h
@@ -36,11 +36,8 @@
 #include "Filter.h"
 #include "Scalars.h"
 
-namespace cg
-{ // begin namespace cg
-
-namespace vis
-{ // begin namespace vis
+namespace cg::vis
+{ // begin namespace cg::vis
 
 enum class ElevationDirection
 {
@@ -151,7 +148,7 @@ ElevationFilter<T>::execute()
   vec3f p1;
   vec3f p2;
 
-  if (_direction == Direction::Points)
+  if (_direction == ElevationDirection::Points)
   {
     p1 = _p1;
     p2 = _p2;
@@ -181,16 +178,14 @@ ElevationFilter<T>::execute()
       s = 0;
     else if (s > 1)
       s = 1;
-    scalars->setScalar(i, _scalarRange[0] + s * ds);
+    scalars->set(i, _scalarRange[0] + s * ds);
   }
-  output->setScalars(scalars);
+  output->setVertexScalars(scalars);
 #if _DEBUG
   puts("ELEVATION FILTER EXECUTED");
 #endif // _DEBUG
 }
 
-} // end namespace vis
-
-} // end namespace cg
+} // end namespace cg::vis
 
 #endif // __ElevationFilter_h

@@ -28,7 +28,7 @@
 // Class definition for vis tri cell mesh mapper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/03/2022
+// Last revision: 08/03/2022
 
 #ifndef __TriCellMeshMapper_h
 #define __TriCellMeshMapper_h
@@ -37,11 +37,8 @@
 #include "TriCellMesh.h"
 #include "graphics/GLMesh.h"
 
-namespace cg
-{ // begin namespace cg
-
-namespace vis
-{ // begin namespace vis
+namespace cg::vis
+{ // begin namespace cg::vis
 
 
 /////////////////////////////////////////////////////////////////////
@@ -70,8 +67,6 @@ private:
 
 }; // TriCellMeshMapper
 
-} // end namespace vis
-
-} // end namespace cg
+} // end namespace cg::vis
 
 #endif // __TriCellMeshMapper_h

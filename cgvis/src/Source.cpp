@@ -28,15 +28,12 @@
 // Source file for generic vis source.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/02/2022
+// Last revision: 08/03/2022
 
 #include "Source.h"
 
-namespace cg
-{ // begin namespace cg
-
-namespace vis
-{ // begin namespace vis
+namespace cg::vis
+{ // begin namespace cg::vis
 
 
 /////////////////////////////////////////////////////////////////////
@@ -67,6 +64,4 @@ AbstractSource::end()
   // do nothing
 }
 
-} // end namespace vis
-
-} // end namespace cg
+} // end namespace cg::vis

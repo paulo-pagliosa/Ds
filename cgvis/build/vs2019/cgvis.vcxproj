@@ -11,12 +11,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\BoxSource.h" />
     <ClInclude Include="..\..\include\Cell.h" />
     <ClInclude Include="..\..\include\ConeSource.h" />
     <ClInclude Include="..\..\include\ContourFilter.h" />
+    <ClInclude Include="..\..\include\DataArray.h" />
     <ClInclude Include="..\..\include\DataSet.h" />
     <ClInclude Include="..\..\include\ElevationFilter.h" />
     <ClInclude Include="..\..\include\Filter.h" />
+    <ClInclude Include="..\..\include\Glyph3.h" />
     <ClInclude Include="..\..\include\PolyDataMapper.h" />
     <ClInclude Include="..\..\include\LookupTable.h" />
     <ClInclude Include="..\..\include\Mapper.h" />
@@ -35,7 +38,9 @@
     <ClInclude Include="..\..\include\Writer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\BoxSource.cpp" />
     <ClCompile Include="..\..\src\ConeSource.cpp" />
+    <ClCompile Include="..\..\src\Glyph3.cpp" />
     <ClCompile Include="..\..\src\LookupTable.cpp" />
     <ClCompile Include="..\..\src\Mapper.cpp" />
     <ClCompile Include="..\..\src\PolyData.cpp" />

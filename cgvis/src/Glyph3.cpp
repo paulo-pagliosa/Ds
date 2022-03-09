@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2022 Paulo Pagliosa.                              |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,18 +23,14 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: PolyDataMapper.h
+// OVERVIEW: Glyph3.cpp
 // ========
-// Class definition for vis poly data mapper.
+// Source file for vis 3D glyph filter.
 //
 // Author: Paulo Pagliosa
 // Last revision: 08/03/2022
 
-#ifndef __PolyDataMapper_h
-#define __PolyDataMapper_h
-
-#include "Mapper.h"
-#include "PolyData.h"
+#include "Glyph3.h"
 
 namespace cg::vis
 { // begin namespace cg::vis
@@ -42,23 +38,40 @@ namespace cg::vis
 
 /////////////////////////////////////////////////////////////////////
 //
-// PolyDataMapper: vis poly data mapper class
-// ==============
-class PolyDataMapper final: public Mapper<PolyData>
+// Glyph3Base implementation
+// ==========
+Glyph3Base::Glyph3Base():
+  _scaleMode{ScaleMode::Scalar},
+  _scaleFactor{1},
+  _clamping{false}
 {
-public:
-  static Reference<PolyDataMapper> New()
-  {
-    return new PolyDataMapper;
-  }
+  _range[0] = 0;
+  _range[1] = 1;
+}
 
-  const char* name() const override;
+void
+Glyph3Base::setRange(float min, float max)
+{
+  if (min > max)
+    math::swap(min, max);
+  _range[0] = min;
+  _range[1] = max;
+  modified();
+}
 
-private:
-  bool draw(GLRenderer&) const override;
+PolyData*
+Glyph3Base::makeDefaultSource() const
+{
+  // TODO
+  return nullptr;
+}
 
-}; // PolyDataMapper
+void
+Glyph3Base::execute(const Points& points, PolyData& output)
+{
+  if (_source == nullptr)
+    _source = makeDefaultSource();
+  // TODO
+}
 
 } // end namespace cg::vis
-
-#endif // __PolyDataMapper_h

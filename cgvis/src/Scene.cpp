@@ -28,16 +28,13 @@
 // Source file for vis scene.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/02/2022
+// Last revision: 08/03/2022
 
 #include "Mapper.h"
 #include "Scene.h"
 
-namespace cg
-{ // begin namespace cg
-
-namespace vis
-{ // begin namespace vis
+namespace cg::vis
+{ // begin namespace cg::vis
 
 
 /////////////////////////////////////////////////////////////////////
@@ -88,6 +85,4 @@ Scene::computeBounds() const
   return bounds;
 }
 
-} // end namespace vis
-
-} // end namespace cg
+} // end namespace cg::vis

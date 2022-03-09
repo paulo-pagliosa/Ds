@@ -28,18 +28,15 @@
 // Class definition for generic vis filter.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/02/2022
+// Last revision: 08/03/2022
 
 #ifndef __Filter_h
 #define __Filter_h
 
 #include "Source.h"
 
-namespace cg
-{ // begin namespace cg
-
-namespace vis
-{ // begin namespace vis
+namespace cg::vis
+{ // begin namespace cg::vis
 
 
 /////////////////////////////////////////////////////////////////////
@@ -142,8 +139,6 @@ Filter<Input, Output>::update()
   }
 }
 
-} // end namespace vis
-
-} // end namespace cg
+} // end namespace cg::vis
 
 #endif // __Filter_h

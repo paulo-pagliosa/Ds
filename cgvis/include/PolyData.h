@@ -28,7 +28,7 @@
 // Class definition for vis poly data.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/02/2022
+// Last revision: 08/03/2022
 
 #ifndef __PolyData_h
 #define __PolyData_h
@@ -37,11 +37,8 @@
 #include "PointLocator.h"
 #include "graphics/Color.h"
 
-namespace cg
-{ // begin namespace cg
-
-namespace vis
-{ // begin namespace vis
+namespace cg::vis
+{ // begin namespace cg::vis
 
 //
 // Forward definition
@@ -80,32 +77,31 @@ public:
 
   }; // TriangleData
 
+  Color pointColor{Color::red};
+  Color lineColor{0.4f, 0.4f, 0.4f};
+  Color triangleColor{Color::white};
+
   auto& bounds() const
   {
     return _bounds;
   }
 
-  void setPointColor(const Color& color)
+  auto pointSize() const
   {
-    _pointColor = color;
+    return _pointSize;
   }
 
   void setPointSize(float size)
   {
-    _pointSize = size;
+    _pointSize = size <= 0 ? 1 : size;
   }
 
   const auto* addPoint(const vec3f& p)
   {
     auto vid = addVertex(p);
 
-    _points.push_back({_pointColor, _pointSize, vid});
+    _points.push_back({pointColor, _pointSize, vid});
     return &_points.back();
-  }
-
-  void setLineColor(const Color& color)
-  {
-    _lineColor = color;
   }
 
   const auto* addLine(const vec3f& p1, const vec3f& p2)
@@ -115,13 +111,8 @@ public:
 
     if (vid1 == vid2)
       return (LineData*)nullptr;
-    _lines.push_back({_lineColor, vid1, vid2});
+    _lines.push_back({lineColor, vid1, vid2});
     return &_lines.back();
-  }
-
-  void setTriangleColor(const Color& color)
-  {
-    _triangleColor = color;
   }
 
   const auto& addTriangle(const vec3f& p1, const vec3f& p2, const vec3f& p3)
@@ -132,7 +123,7 @@ public:
 
     if (vid1 == vid2 || vid2 == vid3 || vid1 == vid2)
       return (TriangleData*)nullptr;
-    _triangles.push_back({_triangleColor, vid1, vid2, vid3});
+    _triangles.push_back({triangleColor, vid1, vid2, vid3});
     return &_triangles.back();
   }
 
@@ -166,9 +157,6 @@ private:
   std::vector<TriangleData> _triangles;
   std::vector<vec3f> _vertices;
   float _pointSize{4};
-  Color _pointColor{Color::red};
-  Color _lineColor{0.4f, 0.4f, 0.4f};
-  Color _triangleColor{Color::white};
   Bounds3f _bounds;
   Reference<Locator> _locator;
 
@@ -178,8 +166,6 @@ private:
 
 }; // PolyData
 
-} // end namespace vis
-
-} // end namespace cg
+} // end namespace cg::vis
 
 #endif // __PolyData_h

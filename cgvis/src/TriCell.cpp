@@ -28,17 +28,14 @@
 // Source file for vis tri cell.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/02/2022
+// Last revision: 08/03/2022
 
 #include "PolyData.h"
 #include "Scalars.h"
 #include "TriCell.h"
 
-namespace cg
-{ // begin namespace cg
-
-namespace vis
-{ // begin namespace vis
+namespace cg::vis
+{ // begin namespace cg::vis
 
 //
 // Marching triangles
@@ -88,15 +85,14 @@ void contourTriangle(const vec3f* vertices,
       auto t = (value - scalars[k[0]]) / (scalars[k[1]] - scalars[k[0]]);
 
       p[i] = vertices[k[0]] + t * v;
+      // TODO: interpolate vectors
     }
     if (const auto* line = output.addLine(p[0], p[1]))
     {
-      output.scalars()->setScalar(line->ids[0], value);
-      output.scalars()->setScalar(line->ids[1], value);
+      output.vertexScalars()->set(line->ids[0], value);
+      output.vertexScalars()->set(line->ids[1], value);
     }
   }
 }
 
-} // end namespace vis
-
-} // end namespace cg
+} // end namespace cg::vis

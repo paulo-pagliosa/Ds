@@ -27,8 +27,8 @@
 // ========
 // Class definition for point locator.
 //
-// Author(s): Paulo Pagliosa
-// Last revision: 19/02/2022
+// Author: Paulo Pagliosa
+// Last revision: 08/03/2022
 
 #ifndef __PointLocator_h
 #define __PointLocator_h

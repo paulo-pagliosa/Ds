@@ -28,7 +28,7 @@
 // Class definition for vis tri cell mesh.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/02/2022
+// Last revision: 08/03/2022
 
 #ifndef __TriCellMesh_h
 #define __TriCellMesh_h
@@ -38,11 +38,8 @@
 #include "DataSet.h"
 #include "TriCell.h"
 
-namespace cg
-{ // begin namespace cg
-
-namespace vis
-{ // begin namespace vis
+namespace cg::vis
+{ // begin namespace cg::vis
 
 //
 // Forward definition
@@ -63,7 +60,7 @@ public:
     _geometry{new TriangleMeshShape{mesh}},
     _bounds{mesh.bounds()}
   {
-    // do nothing
+    setMaterial(new Material(*material()));
   }
 
   auto mesh() const
@@ -102,8 +99,6 @@ private:
 
 }; // TriCellMesh
 
-} // end namespace vis
-
-} // end namespace cg
+} // end namespace cg::vis
 
 #endif // __TriCellMesh_h

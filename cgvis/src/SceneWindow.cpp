@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Orthrus Group.                         |
+//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for generic vis scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/03/2022
+// Last revision: 08/03/2022
 
 #include "SceneWindow.h"
 
@@ -53,10 +53,18 @@ void
 SceneWindow::render()
 {
   SceneWindowBase::render();
-  if (auto light = _currentNode.as<Light>())
+
+  auto editor = this->editor();
+
+  if (auto actor = _currentNode.as<Actor>())
   {
-    editor()->drawLight(*light);
-    editor()->drawTransform(light->position(), light->rotation());
+    editor->setLineColor(_selectedWireframeColor);
+    editor->drawBounds(actor->mapper()->bounds());
+  }
+  else if (auto light = _currentNode.as<Light>())
+  {
+    editor->drawLight(*light);
+    editor->drawTransform(light->position(), light->rotation());
   }
 }
 
@@ -159,17 +167,6 @@ SceneWindow::inspect(Transform* transform)
   if (ImGui::dragVec3("Scale", temp, 0.001f, math::Limits<float>::inf()))
     transform->setScale(temp);
 }
-
-inline void
-SceneWindow::inspectMaterial(Material& material)
-{
-  if (!ImGui::CollapsingHeader("Material"))
-    return;
-  ImGui::colorEdit3("Ambient", material.ambient);
-  ImGui::colorEdit3("Diffuse", material.diffuse);
-  ImGui::colorEdit3("Spot", material.spot);
-  ImGui::DragFloat("Shine", &material.shine, 0.1f, 0.001f, 1000.0f);
-}
 */
 
 inline ImU32
@@ -187,7 +184,7 @@ SceneWindow::inspectMapper(PrimitiveMapper& primitiveMapper)
     return;
   if (const auto lut = mapper->lookupTable())
   {
-    ImGui::Checkbox("Use Vertex Colors", &mapper->useVertexColors);
+    ImGui::Checkbox("Use Color Map", &mapper->useVertexColors);
     if (mapper->useVertexColors)
     {
       const auto drawList = ImGui::GetWindowDrawList();
@@ -295,8 +292,16 @@ SceneWindow::inspectPolyDataMapper(SceneWindow& window,
   if (auto m = dynamic_cast<PolyDataMapper*>(&mapper))
   {
     auto polyData = m->input();
+    auto ps = polyData->pointSize();
 
-
+    if (ImGui::DragFloat("Point Size", &ps, 1, 1, 20))
+      polyData->setPointSize(ps);
+    if (ImGui::CollapsingHeader("Colors"))
+    {
+      ImGui::colorEdit3("Point", polyData->pointColor);
+      ImGui::colorEdit3("Line", polyData->lineColor);
+      ImGui::colorEdit3("Triangle", polyData->triangleColor);
+    }
   }
 }
 
@@ -305,7 +310,8 @@ SceneWindow::inspectTriCellMeshMapper(SceneWindow& window,
   AbstractMapper& mapper)
 {
   if (auto m = dynamic_cast<TriCellMeshMapper*>(&mapper))
-    inspectMaterial(*m->input()->material());
+    if (ImGui::CollapsingHeader("Material"))
+      inspectMaterial(*m->input()->material());
 }
 
 } // end namespace cg::vis

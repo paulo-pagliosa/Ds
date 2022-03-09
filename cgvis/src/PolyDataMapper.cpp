@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Orthrus Group.                         |
+//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,15 +28,12 @@
 // Source file for vis poly data mapper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/03/2022
+// Last revision: 08/03/2022
 
 #include "PolyDataMapper.h"
 
-namespace cg
-{ // begin namespace cg
-
-namespace vis
-{ // begin namespace vis
+namespace cg::vis
+{ // begin namespace cg::vis
 
 
 /////////////////////////////////////////////////////////////////////
@@ -109,6 +106,4 @@ PolyDataMapper::draw(GLRenderer& renderer) const
   return true;
 }
 
-} // end namespace vis
-
-} // end namespace cg
+} // end namespace cg::vis

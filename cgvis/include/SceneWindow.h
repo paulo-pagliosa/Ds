@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Orthrus Group.                         |
+//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -27,8 +27,8 @@
 // ========
 // Class definition for generic vis scene window.
 //
-// Author(s): Paulo Pagliosa
-// Last revision: 28/02/2022
+// Author: Paulo Pagliosa
+// Last revision: 08/03/2022
 
 #ifndef __VisSceneWindow_h
 #define __VisSceneWindow_h

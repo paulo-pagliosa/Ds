@@ -28,15 +28,12 @@
 // Soure file for vis tri mesh.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/02/2022
+// Last revision: 08/03/2022
 
 #include "TriCellMesh.h"
 
-namespace cg
-{ // begin namespace cg
-
-namespace vis
-{ // begin namespace vis
+namespace cg::vis
+{ // begin namespace cg::vis
 
 
 /////////////////////////////////////////////////////////////////////
@@ -83,12 +80,14 @@ TriCellMesh::localIntersect(const Ray3f& ray, Intersection& hit) const
 Object*
 TriCellMesh::clone() const
 {
+  // TODO: check
   auto o = new TriCellMesh{*mesh()};
 
-  o->setScalars(_scalars);
+  o->setVertexScalars(vertexScalars());
+  o->setCellScalars(cellScalars());
+  o->setVertexVectors(vertexVectors());
+  o->setCellVectors(cellVectors());
   return o;
 }
 
-} // end namespace vis
-
-} // end namespace cg
+} // end namespace cg::vis

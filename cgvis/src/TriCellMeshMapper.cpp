@@ -28,16 +28,13 @@
 // Source file for vis tri cell mesh mapper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/03/2022
+// Last revision: 08/03/2022
 
 #include "graphics/GLRenderer.h"
 #include "TriCellMeshMapper.h"
 
-namespace cg
-{ // begin namespace cg
-
-namespace vis
-{ // begin namespace vis
+namespace cg::vis
+{ // begin namespace cg::vis
 
 
 /////////////////////////////////////////////////////////////////////
@@ -47,7 +44,7 @@ namespace vis
 const char*
 TriCellMeshMapper::name() const
 {
-  return "TriCell Mesh Mapper";
+  return "TriCellMesh Mapper";
 }
 
 inline void
@@ -86,6 +83,4 @@ TriCellMeshMapper::draw(GLRenderer& renderer) const
   return true;
 }
 
-} // end namespace vis
-
-} // end namespace cg
+} // end namespace cg::vis

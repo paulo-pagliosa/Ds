@@ -28,15 +28,12 @@
 // Source file for lookup table.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/02/2022
+// Last revision: 08/03/2022
 
 #include "LookupTable.h"
 
-namespace cg
-{ // begin namespace cg
-
-namespace vis
-{ // begin namespace vis
+namespace cg::vis
+{ // begin namespace cg::vis
 
 
 /////////////////////////////////////////////////////////////////////
@@ -160,6 +157,4 @@ LookupTable::mapValue(float v) const
   return _colors[i];
 }
 
-} // namespace vis
-
-} // namespace cg
+} // namespace cg::vis

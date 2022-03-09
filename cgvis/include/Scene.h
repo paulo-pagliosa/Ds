@@ -27,19 +27,16 @@
 // ========
 // Class definition for vis scene.
 //
-// Author(s): Paulo Pagliosa
-// Last revision: 28/02/2022
+// Author: Paulo Pagliosa
+// Last revision: 08/03/2022
 
 #ifndef __VisScene_h
 #define __VisScene_h
 
 #include "graphics/SceneBase.h"
 
-namespace cg
-{ // begin namespace cg
-
-namespace vis
-{ // begin namespace vis
+namespace cg::vis
+{ // begin namespace cg::vis
 
 
 /////////////////////////////////////////////////////////////////////
@@ -69,8 +66,6 @@ private:
 
 }; // Scene
 
-} // end namespace vis
-
-} // end namespace cg
+} // end namespace cg::vis
 
 #endif // __VisScene_h

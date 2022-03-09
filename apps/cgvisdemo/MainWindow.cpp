@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Orthrus Group.                         |
+//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for cg vis demo main window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/03/2022
+// Last revision: 08/03/2022
 
 #include "ContourFilter.h"
 #include "ElevationFilter.h"
@@ -119,6 +119,7 @@ MainWindow::showOptions()
 {
   ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.6f);
   ImGui::showStyleSelector("Color Theme##Selector");
+  ImGui::colorEdit3("Selected Actor Bounds", _selectedWireframeColor);
   ImGui::PopItemWidth();
 }
 
@@ -167,7 +168,7 @@ MainWindow::gui()
   mainMenu();
 
   constexpr auto evw = (float)360;
-  constexpr auto evh = (float)308;
+  constexpr auto evh = (float)300;
   constexpr auto lft = (float)0;
   constexpr auto top = (float)20;
   auto w = (float)width();

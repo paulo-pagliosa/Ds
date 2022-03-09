@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2022 Paulo Pagliosa.                              |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,18 +23,18 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: PolyDataMapper.h
+// OVERVIEW: DataArray.h
 // ========
-// Class definition for vis poly data mapper.
+// Class definition for generic vis data array.
 //
 // Author: Paulo Pagliosa
 // Last revision: 08/03/2022
 
-#ifndef __PolyDataMapper_h
-#define __PolyDataMapper_h
+#ifndef __DataArray_h
+#define __DataArray_h
 
-#include "Mapper.h"
-#include "PolyData.h"
+#include "Object.h"
+#include <vector>
 
 namespace cg::vis
 { // begin namespace cg::vis
@@ -42,23 +42,76 @@ namespace cg::vis
 
 /////////////////////////////////////////////////////////////////////
 //
-// PolyDataMapper: vis poly data mapper class
-// ==============
-class PolyDataMapper final: public Mapper<PolyData>
+// DataArray: generic vis data array class
+// =========
+template <typename T>
+class DataArray: public virtual Object
 {
 public:
-  static Reference<PolyDataMapper> New()
+  using data_type = T;
+
+  DataArray(uint32_t size = 0):
+    _data(size)
   {
-    return new PolyDataMapper;
+    modified();
   }
 
-  const char* name() const override;
+  auto size() const
+  {
+    return (uint32_t)_data.size();
+  }
 
-private:
-  bool draw(GLRenderer&) const override;
+  auto data() const
+  {
+    return _data.data();
+  }
 
-}; // PolyDataMapper
+  const auto& get(int i) const
+  {
+    return _data[i];
+  }
+
+  void add(const T& value)
+  {
+    _data.push_back(value);
+    _computeTime.reset();
+  }
+
+  void set(int i, const T& value);
+
+protected:
+  std::vector<float> _data;
+  Timestamp _computeTime;
+
+}; // DataArray
+
+template <typename T>
+void
+DataArray<T>::set(int i, const T& value)
+{
+  auto d = i - (int)size();
+
+  if (d < 0)
+    _data[i] = value;
+  else if (d == 0)
+    _data.push_back(value);
+  else
+  {
+    _data.resize((size_t)i + 1);
+    _data[i] = value;
+  }
+  _computeTime.reset();
+}
+
+// Data array of void
+template <>
+class DataArray<void>
+{
+public:
+  using data_type = void;
+
+}; // DataArray
 
 } // end namespace cg::vis
 
-#endif // __PolyDataMapper_h
+#endif // __DataArray_h

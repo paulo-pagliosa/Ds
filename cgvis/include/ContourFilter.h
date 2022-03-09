@@ -28,7 +28,7 @@
 // Class definition for vis contour filter.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/02/2022
+// Last revision: 08/03/2022
 
 #ifndef __ContourFilter_h
 #define __ContourFilter_h
@@ -36,11 +36,8 @@
 #include "Filter.h"
 #include "PolyData.h"
 
-namespace cg
-{ // begin namespace cg
-
-namespace vis
-{ // begin namespace vis
+namespace cg::vis
+{ // begin namespace cg::vis
 
 
 /////////////////////////////////////////////////////////////////////
@@ -112,11 +109,11 @@ ContourFilter<Input>::execute()
   this->setOutput(output);
 
   auto input = this->input();
-  auto scalars = input->scalars();
+  auto scalars = input->vertexScalars();
 
   if (scalars == nullptr)
     return;
-  output->setScalars(new Scalars);
+  output->setVertexScalars(new Scalars);
   output->initializeLocator(input->bounds(), 10);
 
   auto nc = input->cellCount();
@@ -135,8 +132,6 @@ ContourFilter<Input>::execute()
 #endif // _DEBUG
 }
 
-} // end namespace vis
-
-} // end namespace cg
+} // end namespace cg::vis
 
 #endif // __ContourFilter_h

@@ -28,16 +28,13 @@
 // Source file for vis sphere source.
 //
 // Author: Paulo Pagliosa
-// Last revision: 18/02/2022
+// Last revision: 98/03/2022
 
 #include "geometry/MeshSweeper.h"
 #include "SphereSource.h"
 
-namespace cg
-{ // begin namespace cg
-
-namespace vis
-{ // begin namespace vis
+namespace cg::vis
+{ // begin namespace cg::vis
 
 
 /////////////////////////////////////////////////////////////////////
@@ -53,6 +50,4 @@ SphereSource::execute()
 #endif // _DEBUG
 }
 
-} // end namespace vis
-
-} // end namespace cg
+} // end namespace cg::vis

@@ -28,15 +28,12 @@
 // Source file for generic vis mapper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/03/2022
+// Last revision: 08/03/2022
 
 #include "Mapper.h"
 
-namespace cg
-{ // begin namespace cg
-
-namespace vis
-{ // begin namespace vis
+namespace cg::vis
+{ // begin namespace cg::vis
 
 
 /////////////////////////////////////////////////////////////////////
@@ -87,12 +84,10 @@ AbstractMapper::mapColors(Scalars* scalars) const
     updateLookupTableRange(*scalars);
     _colorMap.resize(nv);
     for (decltype(nv) i = 0; i < nv; ++i)
-      _colorMap[i] = _lookupTable->mapValue(scalars->scalar(i));
+      _colorMap[i] = _lookupTable->mapValue(scalars->get(i));
     return true;
   }
   return false;
 }
 
-} // end namespace vis
-
-} // end namespace cg
+} // end namespace cg::vis

@@ -28,63 +28,33 @@
 // Class definition for vis scalars.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/02/2022
+// Last revision: 08/03/2022
 
 #ifndef __Scalars_h
 #define __Scalars_h
 
-#include "Object.h"
-#include <vector>
+#include "DataArray.h"
 
-namespace cg
-{ // begin namespace cg
-
-namespace vis
-{ // begin namespace vis
+namespace cg::vis
+{ // begin namespace cg::vis
 
 
 /////////////////////////////////////////////////////////////////////
 //
 // Scalars: vis scalars class
 // =======
-class Scalars: public Object
+class Scalars: public DataArray<float>
 {
 public:
-  Scalars(uint32_t size = 0):
-    _data(size)
-  {
-    modified();
-  }
-
-  auto size() const
-  {
-    return (uint32_t)_data.size();
-  }
-
-  auto scalar(int i) const
-  {
-    return _data[i];
-  }
-
-  void addScalar(float s)
-  {
-    _data.push_back(s);
-    _computeTime.reset();
-  }
-
-  void setScalar(int i, float s);
+  using DataArray<float>::DataArray;
 
   void range(float& min, float& max);
 
 private:
-  std::vector<float> _data;
   float _range[2]{};
-  Timestamp _computeTime;
 
 }; // Scalars
 
-} // end namespace vis
-
-} // end namespace cg
+} // end namespace cg::vis
 
 #endif // __Scalars_h

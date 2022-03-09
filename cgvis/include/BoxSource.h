@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2022 Paulo Pagliosa.                              |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,18 +23,18 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: PolyDataMapper.h
+// OVERVIEW: BoxSource.h
 // ========
-// Class definition for vis poly data mapper.
+// Class definition for vis box source.
 //
 // Author: Paulo Pagliosa
 // Last revision: 08/03/2022
 
-#ifndef __PolyDataMapper_h
-#define __PolyDataMapper_h
+#ifndef __BoxSource_h
+#define __BoxSource_h
 
-#include "Mapper.h"
-#include "PolyData.h"
+#include "Source.h"
+#include "TriCellMesh.h"
 
 namespace cg::vis
 { // begin namespace cg::vis
@@ -42,23 +42,21 @@ namespace cg::vis
 
 /////////////////////////////////////////////////////////////////////
 //
-// PolyDataMapper: vis poly data mapper class
-// ==============
-class PolyDataMapper final: public Mapper<PolyData>
+// BoxSource: vis box source class
+// =========
+class BoxSource: public Source<TriCellMesh>
 {
 public:
-  static Reference<PolyDataMapper> New()
+  static Reference<BoxSource> New()
   {
-    return new PolyDataMapper;
+    return new BoxSource;
   }
 
-  const char* name() const override;
-
 private:
-  bool draw(GLRenderer&) const override;
+  void execute() override;
 
-}; // PolyDataMapper
+}; // BoxSource
 
 } // end namespace cg::vis
 
-#endif // __PolyDataMapper_h
+#endif // __BoxSource_h

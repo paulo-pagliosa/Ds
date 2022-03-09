@@ -28,15 +28,12 @@
 // Source file for vis poly data.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/02/2022
+// Last revision: 08/03/2022
 
 #include "PolyData.h"
 
-namespace cg
-{ // begin namespace cg
-
-namespace vis
-{ // begin namespace vis
+namespace cg::vis
+{ // begin namespace cg::vis
 
 
 /////////////////////////////////////////////////////////////////////
@@ -64,6 +61,4 @@ PolyData::addVertex(const vec3f& p)
   return (int)_vertices.size() - 1;
 }
 
-} // end namespace vis
-
-} // end namespace cg
+} // end namespace cg::vis

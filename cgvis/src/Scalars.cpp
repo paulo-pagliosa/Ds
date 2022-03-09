@@ -28,39 +28,19 @@
 // Source file for vis scalars.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/02/2022
+// Last revision: 08/03/2022
 
 #include "math/RealLimits.h"
 #include "Scalars.h"
 
-namespace cg
-{ // begin namespace cg
-
-namespace vis
-{ // begin namespace vis
+namespace cg::vis
+{ // begin namespace cg::vis
 
 
 /////////////////////////////////////////////////////////////////////
 //
 // Scalars implementation
 // =======
-void
-Scalars::setScalar(int i, float s)
-{
-  auto d = i - (int)size();
-
-  if (d < 0)
-    _data[i] = s;
-  else if (d == 0)
-    _data.push_back(s);
-  else
-  {
-    _data.resize(i + 1);
-    _data[i] = s;
-  }
-  _computeTime.reset();
-}
-
 void
 Scalars::range(float& min, float& max)
 {
@@ -81,6 +61,4 @@ Scalars::range(float& min, float& max)
   max = _range[1];
 }
 
-} // end namespace vis
-
-} // end namespace cg
+} // end namespace cg::vis

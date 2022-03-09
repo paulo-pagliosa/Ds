@@ -28,7 +28,7 @@
 // Class definition for generic vis mapper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/03/2022
+// Last revision: 08/03/2022
 
 #ifndef __Mapper_h
 #define __Mapper_h
@@ -39,18 +39,15 @@
 #include "Filter.h"
 #include "Scalars.h"
 
-namespace cg
-{ // begin namespace cg
-
-namespace vis
-{ // begin namespace vis
+namespace cg::vis
+{ // begin namespace cg>::vis
 
 
 /////////////////////////////////////////////////////////////////////
 //
 // AbstractMapper: vis abstract mapper class
 // ==============
-class AbstractMapper: public PrimitiveMapper, public Object
+class AbstractMapper: public PrimitiveMapper, public virtual Object
 {
 public:
   bool useVertexColors{true};
@@ -145,15 +142,13 @@ Mapper<Input>::render(GLRenderer& renderer) const
   if (this->_buildTime < input->modifiedTime())
   {
     this->_bounds = input->bounds();
-    this->mapColors(input->scalars());
+    this->mapColors(input->vertexScalars());
     this->_buildTime.modified();
   }
   renderer.flags.enable(GLRenderer::DrawBounds, this->drawBounds);
   return this->draw(renderer);
 }
 
-} // end namespace vis
-
-} // end namespace cg
+} // end namespace cg::vis
 
 #endif // __Mapper_h

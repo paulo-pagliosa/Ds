@@ -28,31 +28,23 @@
 // Class definition for generic vis cell.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/02/2022
+// Last revision: 08/03/2022
 
 #ifndef __Cell_h
 #define __Cell_h
 
 #include "core/SharedObject.h"
+#include <cstdint>
 
-namespace cg
-{ // begin namespace cg
-
-namespace vis
-{ // begin namespace vis
-
-//
-// Forward definitions
-//
-class PolyData;
-class Scalars;
+namespace cg::vis
+{ // begin namespace cg::vis
 
 
 /////////////////////////////////////////////////////////////////////
 //
 // Cell: generic vis cell class
 // ====
-template <typename DataSet, int nv>
+template <typename DataSet, int32_t nv>
 class Cell: public SharedObject
 {
 public:
@@ -85,8 +77,6 @@ protected:
 
 }; // Cell
 
-} // end namespace vis
-
-} // end namespace cg
+} // end namespace cg::vis
 
 #endif // __Cell_h

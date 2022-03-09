@@ -28,7 +28,7 @@
 // Class definition for vis sphere source.
 //
 // Author: Paulo Pagliosa
-// Last revision: 18/02/2022
+// Last revision: 08/03/2022
 
 #ifndef __SphereSource_h
 #define __SphereSource_h
@@ -36,11 +36,8 @@
 #include "Source.h"
 #include "TriCellMesh.h"
 
-namespace cg
-{ // begin namespace cg
-
-namespace vis
-{ // begin namespace vis
+namespace cg::vis
+{ // begin namespace cg::vis
 
 
 /////////////////////////////////////////////////////////////////////
@@ -74,8 +71,6 @@ private:
 
 }; // SphereSource
 
-} // end namespace vis
-
-} // end namespace cg
+} // end namespace cg::vis
 
 #endif // __SphereSource_h
