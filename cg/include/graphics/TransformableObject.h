@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2022 Paulo Pagliosa.                              |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,17 +23,18 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: MeshSweeper.h
+// OVERVIEW: TransformableObject.h
 // ========
-// Class definition for mesh sweeper.
+// Class definition for generic transformable object.
 //
 // Author: Paulo Pagliosa
 // Last revision: 11/03/2022
 
-#ifndef __MeshSweeper_h
-#define __MeshSweeper_h
+#ifndef __TransformableObject_h
+#define __TransformableObject_h
 
-#include "geometry/TriangleMesh.h"
+#include "core/SharedObject.h"
+#include "math/Matrix4x4.h"
 
 namespace cg
 { // begin namespace cg
@@ -41,18 +42,39 @@ namespace cg
 
 /////////////////////////////////////////////////////////////////////
 //
-// MeshSweeper: mesh sweeper class
-// ===========
-class MeshSweeper
+// TransformableObject: generic transformable object class
+// ===================
+class TransformableObject: public virtual SharedObject
 {
 public:
-  static TriangleMesh* makeBox();
-  static TriangleMesh* makeCone(int = 16);
-  static TriangleMesh* makeCylinder(int = 16);
-  static TriangleMesh* makeSphere(int = 16);
+  const auto& localToWorldMatrix() const
+  {
+    return _localToWorld;
+  }
 
-}; // MeshSweeper
+  const auto& worldToLocalMatrix() const
+  {
+    return _worldToLocal;
+  }
+
+  virtual void setTransform(const mat4f&, const mat4f&);
+  virtual void setTransform(const vec3f&, const quatf&, const vec3f&);
+
+  auto& compose(const TransformableObject& other)
+  {
+    auto l2w = other._localToWorld * _localToWorld;
+    auto w2l = _worldToLocal * other._worldToLocal;
+
+    setTransform(l2w, w2l);
+    return *this;
+  }
+
+protected:
+  mat4f _localToWorld{1.0f};
+  mat4f _worldToLocal{1.0f};
+
+}; // TransformableObject
 
 } // end namespace cg
 
-#endif // __MeshSweeper_h
+#endif // __TransformableObject_h

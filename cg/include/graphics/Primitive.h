@@ -28,13 +28,14 @@
 // Class definition for primitive.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/02/2022
+// Last revision: 10/03/2022
 
 #ifndef __Primitive_h
 #define __Primitive_h
 
 #include "graphics/Material.h"
 #include "graphics/Shape.h"
+#include "graphics/TransformableObject.h"
 
 namespace cg
 { // begin namespace cg
@@ -49,64 +50,44 @@ using PrimitiveArray = Array<Reference<Primitive>>;
 //
 // Primitive: generic primitive model class
 // =========
-class Primitive: public virtual SharedObject
+class Primitive: public TransformableObject
 {
 public:
   virtual const TriangleMesh* tesselate() const;
   virtual bool canIntersect() const;
 
-  bool intersect(const Ray3f&) const;
   bool intersect(const Ray3f&, Intersection&) const;
+  bool intersect(const Ray3f&) const;
   virtual Material* material() const;
 
   virtual vec3f normal(const Intersection&) const = 0;
   virtual Bounds3f bounds() const = 0;
 
-  auto& localToWorldMatrix() const
-  {
-    return _localToWorld;
-  }
+  virtual void setMaterial(Material*);
 
-  auto& worldToLocalMatrix() const
-  {
-    return _worldToLocal;
-  }
-
-  auto& normalMatrix() const
+  const auto& normalMatrix() const
   {
     return  _normalMatrix;
   }
  
-  virtual void setMaterial(Material*);
-
-  void setTransform(const mat4f& l2w, const mat4f& w2l)
-  {
-    _localToWorld = l2w;
-    _worldToLocal = w2l;
-    _normalMatrix = w2l.transposed();
-  }
-
-  void setTransform(const vec3f&, const quatf&, const vec3f&);
+  void setTransform(const mat4f&, const mat4f&) override;
+  void setTransform(const vec3f&, const quatf&, const vec3f&) override;
 
 protected:
   Reference<Material> _material;
-  mat4f _localToWorld;
-  mat4f _worldToLocal;
   mat3f _normalMatrix;
 
   // Protected constructor
   Primitive():
     _material{Material::defaultMaterial()},
-    _localToWorld{1},
-    _worldToLocal{1},
     _normalMatrix{1}
   {
     // do nothing
   }
 
 protected:
-  virtual bool localIntersect(const Ray3f&) const;
   virtual bool localIntersect(const Ray3f&, Intersection&) const;
+  virtual bool localIntersect(const Ray3f&) const;
 
 }; // Primitive
 

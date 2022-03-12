@@ -28,7 +28,7 @@
 // Class definition for simple triangle mesh.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2022
+// Last revision: 11/03/2022
 
 #ifndef __TriangleMesh_h
 #define __TriangleMesh_h
@@ -119,6 +119,7 @@ public:
 
 private:
   Data _data;
+  mutable Bounds3f _bounds;
 
 }; // TriangleMesh
 

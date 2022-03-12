@@ -28,7 +28,7 @@
 // Class definition for material.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/01/2022
+// Last revision: 11/03/2022
 
 #ifndef __Material_h
 #define __Material_h
@@ -61,6 +61,11 @@ public:
     shine{100}
   {
     spot = specular = Color::white;
+  }
+
+  auto clone() const
+  {
+    return new Material{*this};
   }
 
 private:

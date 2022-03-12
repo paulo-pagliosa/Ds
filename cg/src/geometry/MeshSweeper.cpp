@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2020 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for mesh sweeper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 15/06/2020
+// Last revision: 11/03/2022
 
 #include "geometry/MeshSweeper.h"
 #include <vector>
@@ -98,8 +98,8 @@ setBoxTriangles(TriangleMesh::Triangle* t)
 TriangleMesh*
 MeshSweeper::makeBox()
 {
-  const int nv{24}; // number of vertices and normals
-  const int nt{12}; // number of triangles
+  constexpr auto nv = 24; // number of vertices and normals
+  constexpr auto nt = 12; // number of triangles
   TriangleMesh::Data data;
 
   data.vertexCount = nv;
@@ -116,8 +116,8 @@ MeshSweeper::makeBox()
 TriangleMesh*
 MeshSweeper::makeCone(int ns)
 {
-  const int nt{ns * 2}; // number of triangles
-  const int nv{nt + 2}; // number of vertices and normals
+  const auto nt = ns * 2; // number of triangles
+  const auto nv = nt + 2; // number of vertices and normals
   TriangleMesh::Data data;
 
   data.vertexCount = nv;
@@ -125,47 +125,103 @@ MeshSweeper::makeCone(int ns)
   data.vertexNormals = new vec3f[nv];
   data.triangleCount = nt;
   data.triangles = new TriangleMesh::Triangle[nt];
-  if (true)
-  {
-    const auto a = float(2 * M_PI) / ns;
-    const auto c = cos(a);
-    const auto s = sin(a);
-    auto x = 1.0f;
-    auto z = 0.0f;
-    const auto h = vec3f::up();
-    const auto N = -h;
-    int i{0};
-    int j{ns + 1};
 
-    for (; i < ns; i++, j++)
-    {
-      const auto p = vec3f{x, 0, z};
-
-      data.vertices[i] = data.vertices[j] = p;
-      data.vertexNormals[i] = p;
-      data.vertexNormals[j] = N;
-
-      const auto tx = x;
-      const auto tz = z;
-
-      x = c * tx - s * tz;
-      z = s * tx + c * tz;
-    }
-    data.vertices[i] = h;
-    data.vertices[j] = {0, 0, 0};
-    data.vertexNormals[i] = h;
-    data.vertexNormals[j] = N;
-  }
-
+  const auto a = 2 * math::pi<float>() / ns;
+  const auto c = cos(a);
+  const auto s = sin(a);
+  const auto t = ns + 1;
+  auto x = 1.0f;
+  auto z = 0.0f;
+  const auto h = vec3f::up();
+  const auto N = -h;
+  auto vertex = data.vertices;
+  auto vertexNormal = data.vertexNormals;
   auto triangle = data.triangles;
+  auto i = 0;
+  auto j = t;
 
-  for (int t = ns + 1, i = 0; i < ns; i++)
+  for (; i < ns; ++i, ++j, ++triangle)
   {
-    int j{(i + 1) % ns};
+    vertex[i] = vertex[j] = vertexNormal[i] = {x, 0, z};
+    vertexNormal[j] = N;
 
-    (triangle + ns)->setVertices(nv - 1, j + t, i + t);
-    (triangle++)->setVertices(ns, i, j);
+    const auto tx = x;
+    const auto tz = z;
+
+    x = c * tx - s * tz;
+    z = s * tx + c * tz;
+
+    auto i1 = (i + 1) % ns;
+
+    triangle[ns].setVertices(nv - 1, i1 + t, i + t);
+    triangle->setVertices(ns, i, i1);
   }
+  vertex[i] = vertexNormal[i] = h;
+  vertex[j] = vec3f::null();
+  vertexNormal[j] = N;
+  return new TriangleMesh{std::move(data)};
+}
+
+inline void
+setQuad(TriangleMesh::Triangle* t, int i, int j, int k, int l)
+{
+  t[0].setVertices(i, j, k);
+  t[1].setVertices(k, l, i);
+}
+
+TriangleMesh*
+MeshSweeper::makeCylinder(int ns)
+{
+  const auto nt = ns * 4; // number of triangles
+  const auto nv = nt + 2; // number of vertices and normals
+  TriangleMesh::Data data;
+
+  data.vertexCount = nv;
+  data.vertices = new vec3f[nv];
+  data.vertexNormals = new vec3f[nv];
+  data.triangleCount = nt;
+  data.triangles = new TriangleMesh::Triangle[nt];
+
+  const auto a = 2 * math::pi<float>() / ns;
+  const auto c = cos(a);
+  const auto s = sin(a);
+  const auto t = ns + 1;
+  auto x = 1.0f;
+  auto z = 0.0f;
+  const auto h = vec3f::up();
+  const auto N = -h;
+  auto vertex = data.vertices;
+  auto vertexNormal = data.vertexNormals;
+  auto triangle = data.triangles;
+  auto i = 0;
+  auto j = t;
+  auto k = j + ns;
+  auto l = k + ns;
+
+  for (; i < ns; i++, j++, ++k, ++l)
+  {
+    vertex[i] = vertex[j] = vertexNormal[j] = vertexNormal[k] = {x, 0, z};
+    vertexNormal[i] = N;
+    vertex[k] = vertex[l] = {x, 1, z};
+    vertexNormal[l] = h;
+
+    const auto tx = x;
+    const auto tz = z;
+
+    x = c * tx - s * tz;
+    z = s * tx + c * tz;
+
+    auto i1 = (i + 1) % ns;
+    auto j1 = i1 + t;
+    auto k1 = j1 + ns;
+
+    triangle[i].setVertices(ns, i1, i);
+    setQuad(&triangle[2 * i + ns], j, j1, k1, k);
+    triangle[l - 1].setVertices(nv - 1, l, k1 + ns);
+  }
+  vertex[l] = vertexNormal[l] = h;
+  vertex[i] = vec3f::null();
+  vertexNormal[i] = N;
   return new TriangleMesh{std::move(data)};
 }
 
@@ -211,7 +267,7 @@ MeshSweeper::makeSphere(int ns)
       auto t = cos(pAngle);
       auto y = sin(pAngle);
       auto v = 1 - (float)p / nl;
-      float mAngle{0};
+      auto mAngle = 0.0f;
 
       for (int m = 0; m <= ns; ++m, mAngle += mStep)
       {

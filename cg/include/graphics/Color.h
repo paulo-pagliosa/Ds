@@ -28,7 +28,7 @@
 // Class definition for RGB color.
 //
 // Author: Paulo Pagliosa
-// Last revision: 02/02/2022
+// Last revision: 11/03/2022
 
 #ifndef __Color_h
 #define __Color_h
@@ -79,7 +79,7 @@ public:
     setRGB(r, g, b, a);
   }
 
-  /// Constructs a Color ibject from c[4].
+  /// Constructs a Color object from c[4].
   HOST DEVICE
   explicit Color(const float* c)
   {

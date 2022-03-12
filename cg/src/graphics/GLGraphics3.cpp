@@ -28,7 +28,7 @@
 // Source file for OpenGL 3D graphics.
 //
 // Author: Paulo Pagliosa
-// Last revision: 25/02/2022
+// Last revision: 11/03/2022
 
 #include "geometry/MeshSweeper.h"
 #include "graphics/GLGraphics3.h"
@@ -198,6 +198,16 @@ GLGraphics3::sphere()
   if (_sphere == nullptr)
     _sphere = MeshSweeper::makeSphere();
   return _sphere;
+}
+
+TriangleMesh*
+GLGraphics3::cylinder()
+{
+  static Reference<TriangleMesh> _cylinder;
+
+  if (_cylinder == nullptr)
+    _cylinder = MeshSweeper::makeCylinder();
+  return _cylinder;
 }
 
 GLGraphics3::GLGraphics3():

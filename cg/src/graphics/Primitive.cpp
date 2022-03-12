@@ -28,7 +28,7 @@
 // Source file for primitive.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/02/2022
+// Last revision: 10/03/2022
 
 #include "graphics/Primitive.h"
 
@@ -112,25 +112,17 @@ Primitive::setMaterial(Material* m)
 }
 
 void
+Primitive::setTransform(const mat4f& l2w, const mat4f& w2l)
+{
+  TransformableObject::setTransform(l2w, w2l);
+  _normalMatrix = mat3f{w2l}.transposed();
+}
+
+void
 Primitive::setTransform(const vec3f& p, const quatf& q, const vec3f& s)
 {
-  mat3f r{q};
-
-  _localToWorld[0].set(r[0] * s[0]);
-  _localToWorld[1].set(r[1] * s[1]);
-  _localToWorld[2].set(r[2] * s[2]);
-  _localToWorld[3].set(p, 1);
-  r[0] *= math::inverse(s[0]);
-  r[1] *= math::inverse(s[1]);
-  r[2] *= math::inverse(s[2]);
-  _normalMatrix.set(r);
-  _worldToLocal[0].set(r[0][0], r[1][0], r[2][0]);
-  _worldToLocal[1].set(r[0][1], r[1][1], r[2][1]);
-  _worldToLocal[2].set(r[0][2], r[1][2], r[2][2]);
-  _worldToLocal[3][0] = -(r[0].dot(p));
-  _worldToLocal[3][1] = -(r[1].dot(p));
-  _worldToLocal[3][2] = -(r[2].dot(p));
-  _worldToLocal[3][3] = 1;
+  TransformableObject::setTransform(p, q, s);
+  _normalMatrix = mat3f{_worldToLocal}.transposed();
 }
 
 

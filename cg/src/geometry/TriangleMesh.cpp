@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2020 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for simple triangle mesh.
 //
 // Author: Paulo Pagliosa
-// Last revision: 15/06/2020
+// Last revision: 11/03/2022
 
 #include "geometry/MeshSweeper.h"
 #include <memory>
@@ -61,11 +61,10 @@ TriangleMesh::~TriangleMesh()
 Bounds3f
 TriangleMesh::bounds() const
 {
-  Bounds3f bounds;
-
-  for (int i = 0; i < _data.vertexCount; i++)
-    bounds.inflate(_data.vertices[i]);
-  return bounds;
+  if (_bounds.empty())
+    for (int i = 0; i < _data.vertexCount; i++)
+      _bounds.inflate(_data.vertices[i]);
+  return _bounds;
 }
 
 void

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2022 Paulo Pagliosa.                              |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,17 +23,14 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: MeshSweeper.h
+// OVERVIEW: TransformableObject.h
 // ========
-// Class definition for mesh sweeper.
+// Source file for generic transformable object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/03/2022
+// Last revision: 10/03/2022
 
-#ifndef __MeshSweeper_h
-#define __MeshSweeper_h
-
-#include "geometry/TriangleMesh.h"
+#include "graphics/TransformableObject.h"
 
 namespace cg
 { // begin namespace cg
@@ -41,18 +38,36 @@ namespace cg
 
 /////////////////////////////////////////////////////////////////////
 //
-// MeshSweeper: mesh sweeper class
-// ===========
-class MeshSweeper
+// TransformableObject implementation
+// ===================
+void
+TransformableObject::setTransform(const mat4f& l2w, const mat4f& w2l)
 {
-public:
-  static TriangleMesh* makeBox();
-  static TriangleMesh* makeCone(int = 16);
-  static TriangleMesh* makeCylinder(int = 16);
-  static TriangleMesh* makeSphere(int = 16);
+  _localToWorld = l2w;
+  _worldToLocal = w2l;
+}
 
-}; // MeshSweeper
+void
+TransformableObject::setTransform(const vec3f& p,
+  const quatf& q,
+  const vec3f& s)
+{
+  mat3f r{q};
+
+  _localToWorld[0].set(r[0] * s[0]);
+  _localToWorld[1].set(r[1] * s[1]);
+  _localToWorld[2].set(r[2] * s[2]);
+  _localToWorld[3].set(p, 1);
+  r[0] *= math::inverse(s[0]);
+  r[1] *= math::inverse(s[1]);
+  r[2] *= math::inverse(s[2]);
+  _worldToLocal[0].set(r[0][0], r[1][0], r[2][0]);
+  _worldToLocal[1].set(r[0][1], r[1][1], r[2][1]);
+  _worldToLocal[2].set(r[0][2], r[1][2], r[2][2]);
+  _worldToLocal[3][0] = -(r[0].dot(p));
+  _worldToLocal[3][1] = -(r[1].dot(p));
+  _worldToLocal[3][2] = -(r[2].dot(p));
+  _worldToLocal[3][3] = 1;
+}
 
 } // end namespace cg
-
-#endif // __MeshSweeper_h
