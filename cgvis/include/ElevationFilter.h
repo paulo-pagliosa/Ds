@@ -28,7 +28,7 @@
 // Class definition for vis elevation filter.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/03/2022
+// Last revision: 10/03/2022
 
 #ifndef __ElevationFilter_h
 #define __ElevationFilter_h
@@ -59,15 +59,6 @@ public:
   static Reference<ElevationFilter<T>> New()
   {
     return new ElevationFilter<T>;
-  }
-
-  ElevationFilter():
-    _direction{ElevationDirection::Points},
-    _p1{0, 0, 0},
-    _p2{0, 0, 1}
-  {
-    _scalarRange[0] = 0;
-    _scalarRange[1] = 1;
   }
 
   auto minScalar() const
@@ -104,6 +95,15 @@ private:
   float _scalarRange[2];
   vec3f _p1;
   vec3f _p2;
+
+  ElevationFilter():
+    _direction{ElevationDirection::Points},
+    _p1{0, 0, 0},
+    _p2{0, 0, 1}
+  {
+    _scalarRange[0] = 0;
+    _scalarRange[1] = 1;
+  }
 
   void execute() override;
 

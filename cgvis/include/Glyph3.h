@@ -28,13 +28,13 @@
 // Class definition for vis 3D glyph filter.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/03/2022
+// Last revision: 11/03/2022
 
 #ifndef __Glyph3_h
 #define __Glyph3_h
 
 #include "Filter.h"
-#include "PolyData.h"
+#include "PolyMesh.h"
 
 namespace cg::vis
 { // begin namespace cg::vis
@@ -55,12 +55,12 @@ public:
 
   constexpr static auto minScaleFactor = 0.001f;
 
-  PolyData* source() const
+  PolyMesh* source() const
   {
     return _source;
   }
 
-  void setSource(const PolyData* source)
+  void setSource(const PolyMesh* source)
   {
     if (_source != source)
     {
@@ -107,11 +107,11 @@ protected:
 
   Glyph3Base();
 
-  PolyData* makeDefaultSource() const;
-  void execute(const Points&, PolyData&);
+  Reference<PolyMesh> makeDefaultSource() const;
+  void execute(const Points&, PolyMesh&);
 
 private:
-  Reference<PolyData> _source;
+  Reference<PolyMesh> _source;
   ScaleMode _scaleMode;
   float _range[2];
   float _scaleFactor;
@@ -125,7 +125,7 @@ private:
 // Glyph3: vis 3D glyph filter class
 // ======
 template <typename Input>
-class Glyph3: public Filter<Input, PolyData>, public Glyph3Base
+class Glyph3: public Filter<Input, PolyMesh>, public Glyph3Base
 {
 public:
   static Reference<Glyph3<Input>> New()
@@ -144,7 +144,7 @@ template <typename Input>
 void
 Glyph3<Input>::execute()
 {
-  auto output = new PolyData;
+  auto output = new PolyMesh;
 
   this->setOutput(output);
 

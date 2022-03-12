@@ -28,7 +28,7 @@
 // Class definition for vis poly data.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/03/2022
+// Last revision: 11/03/2022
 
 #ifndef __PolyData_h
 #define __PolyData_h
@@ -80,6 +80,11 @@ public:
   Color pointColor{Color::red};
   Color lineColor{0.4f, 0.4f, 0.4f};
   Color triangleColor{Color::white};
+
+  static Reference<PolyData> New()
+  {
+    return new PolyData;
+  }
 
   auto& bounds() const
   {
@@ -159,6 +164,8 @@ private:
   float _pointSize{4};
   Bounds3f _bounds;
   Reference<Locator> _locator;
+
+  PolyData() = default;
 
   int addVertex(const vec3f& p);
 

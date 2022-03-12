@@ -28,7 +28,7 @@
 // Soure file for vis tri mesh.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/03/2022
+// Last revision: 11/03/2022
 
 #include "TriCellMesh.h"
 
@@ -56,13 +56,13 @@ TriCellMesh::tesselate() const
 vec3f
 TriCellMesh::normal(const Intersection& hit) const
 {
-  return _geometry->normal(hit);
+  return _normalMatrix.transform(_geometry->normal(hit)).versor();
 }
 
 Bounds3f
 TriCellMesh::bounds() const
 {
-  return _bounds;
+  return {_bounds, _localToWorld};
 }
 
 bool
@@ -74,20 +74,15 @@ TriCellMesh::localIntersect(const Ray3f& ray) const
 bool
 TriCellMesh::localIntersect(const Ray3f& ray, Intersection& hit) const
 {
-  return _geometry->intersect(ray, hit);
+  return _geometry->intersect(ray, hit) ?
+    void(hit.object = this), true :
+    false;
 }
 
 Object*
 TriCellMesh::clone() const
 {
-  // TODO: check
-  auto o = new TriCellMesh{*mesh()};
-
-  o->setVertexScalars(vertexScalars());
-  o->setCellScalars(cellScalars());
-  o->setVertexVectors(vertexVectors());
-  o->setCellVectors(cellVectors());
-  return o;
+  return new TriCellMesh{*this};
 }
 
 } // end namespace cg::vis

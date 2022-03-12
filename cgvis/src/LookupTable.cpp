@@ -28,9 +28,10 @@
 // Source file for lookup table.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/03/2022
+// Last revision: 11/03/2022
 
 #include "LookupTable.h"
+#include <cassert>
 
 namespace cg::vis
 { // begin namespace cg::vis
@@ -40,13 +41,69 @@ namespace cg::vis
 //
 // LookupTable implementation
 // ===========
+Reference<LookupTable>
+LookupTable::jet(int size)
+{
+  assert(size > 0);
+  return new LookupTable{size, float(2) / 3, 0};
+}
+
+Reference<LookupTable>
+LookupTable::winter(int size)
+{
+  assert(size > 0);
+  return new LookupTable{size, float(2) / 3, float(1) / 3};
+}
+
+Reference<LookupTable>
+LookupTable::gray(const Color& scale, int size)
+{
+  assert(size > 0);
+
+  auto l = new LookupTable{size};
+  auto d = 1 / (float)math::max(size - 1, 1);
+
+  for (int i = 0; i < size; ++i)
+  {
+    auto c = scale * (i * d);
+
+    if (c.r > 1)
+      c.r = 1;
+    if (c.g > 1)
+      c.g = 1;
+    if (c.b > 1)
+      c.b = 1;
+    l->_colors[i] = c;
+  }
+  return l;
+}
+
+Reference<LookupTable>
+LookupTable::cooper(int size)
+{
+  return gray(Color{1.2500f, 0.7812f, 0.4975f}, size);
+}
+
 LookupTable::LookupTable(int size):
   _colors(size)
 {
   _scalarRange[0] = 0;
   _scalarRange[1] = 1;
   _hueRange[0] = 0;
-  _hueRange[1] = 0.66667f;
+  _hueRange[1] = 0;
+  _saturationRange[0] = 1;
+  _saturationRange[1] = 1;
+  _valueRange[0] = 1;
+  _valueRange[1] = 1;
+}
+
+LookupTable::LookupTable(int size, float minHue, float maxHue):
+  _colors(size)
+{
+  _scalarRange[0] = 0;
+  _scalarRange[1] = 1;
+  _hueRange[0] = minHue;
+  _hueRange[1] = maxHue;
   _saturationRange[0] = 1;
   _saturationRange[1] = 1;
   _valueRange[0] = 1;

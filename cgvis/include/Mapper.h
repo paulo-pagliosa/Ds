@@ -28,7 +28,7 @@
 // Class definition for generic vis mapper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/03/2022
+// Last revision: 11/03/2022
 
 #ifndef __Mapper_h
 #define __Mapper_h
@@ -47,7 +47,7 @@ namespace cg::vis
 //
 // AbstractMapper: vis abstract mapper class
 // ==============
-class AbstractMapper: public PrimitiveMapper, public virtual Object
+class AbstractMapper: public PrimitiveMapper, public Object
 {
 public:
   bool useVertexColors{true};

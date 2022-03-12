@@ -28,7 +28,7 @@
 // Class definition for generic vis cell.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/03/2022
+// Last revision: 11/03/2022
 
 #ifndef __Cell_h
 #define __Cell_h
@@ -45,7 +45,7 @@ namespace cg::vis
 // Cell: generic vis cell class
 // ====
 template <typename DataSet, int32_t nv>
-class Cell: public SharedObject
+class Cell: public virtual SharedObject
 {
 public:
   constexpr auto vertexCount() const
@@ -58,7 +58,7 @@ public:
     return _vertexIds[i];
   }
 
-  const auto& vertex(int i) const
+  auto vertex(int i) const
   {
     return _dataSet->vertex(vertexId(i));
   }

@@ -44,7 +44,7 @@ namespace cg::vis
 void
 ConeSource::execute()
 {
-  setOutput(new TriCellMesh{*MeshSweeper::makeCone(_resolution)});
+  setOutput(TriCellMesh::New(*MeshSweeper::makeCone(_resolution)));
 #ifdef _DEBUG
   puts("CONE SOURCE EXECUTED");
 #endif // _DEBUG

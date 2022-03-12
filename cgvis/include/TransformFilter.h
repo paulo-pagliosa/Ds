@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2022 Paulo Pagliosa.                              |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,133 +23,101 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: Source.h
+// OVERVIEW: TransformFilter.h
 // ========
-// Class definition for generic vis source.
+// Class definition for vis transform filter.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/03/2022
+// Last revision: 10/03/2022
 
-#ifndef __Source_h
-#define __Source_h
+#ifndef __TransformFilter_h
+#define __TransformFilter_h
 
-#include "core/Exception.h"
-#include "Object.h"
-#include <stdexcept>
+#include "Filter.h"
+#include "Transform.h"
 
 namespace cg::vis
 { // begin namespace cg::vis
 
-//
-// Forward definition
-//
-template <typename Output> class Source;
-
 
 /////////////////////////////////////////////////////////////////////
 //
-// AbstractSource: abstract vis source class
-// ==============
-class AbstractSource: public Object
-{
-public:
-  virtual void update();
-
-protected:
-  Timestamp _executeTime;
-
-  virtual void start();
-  virtual void execute() = 0;
-  virtual void end();
-
-}; // AbstractSource
-
-
-/////////////////////////////////////////////////////////////////////
-//
-// OutputPort: output port class
-// ==========
+// TransformFilter: vis transform filter class
+// ===============
 template <typename T>
-class OutputPort
+class TransformFilter final: public Filter<T, T>
 {
 public:
-  OutputPort(Source<T>& source):
-    _source{&source}
+  static Reference<TransformFilter<T>> New()
   {
-    // do nothing
+    return new TransformFilter<T>;
   }
 
-  Source<T>* source() const
+  const auto& position() const
   {
-    return _source;
+    return _position;
   }
 
-  T* data() const
+  void setPosition(const vec3f& position)
   {
-    return _data;
+    _position = position;
   }
 
-  void setData(const T* data)
+  const auto& rotation() const
   {
-    _data = data;
+    return _rotation;
+  }
+
+  void setRotation(const quatf& rotation)
+  {
+    _rotation = rotation;
+  }
+
+  void setRotation(const vec3f& angles)
+  {
+    _rotation = quatf::eulerAngles(angles);
+  }
+
+  const auto& scale() const
+  {
+    return _scale;
+  }
+
+  void setScale(const vec3f& scale)
+  {
+    _scale = scale;
+  }
+
+  void setScale(float scale)
+  {
+    setScale(vec3f{scale});
   }
 
 private:
-  Source<T>* _source;
-  Reference<T> _data;
-
-}; // OutputPort
-
-
-/////////////////////////////////////////////////////////////////////
-//
-// Source: generic vis source class
-// ======
-template <typename Output>
-class Source: public AbstractSource
-{
-public:
-  auto output() const
-  {
-    return _outputPort.data();
-  }
-
-  const OutputPort<Output>* outputPort() const
-  {
-    return &_outputPort;
-  }
-
-  OutputPort<Output>* outputPort()
-  {
-    return &_outputPort;
-  }
-
-protected:
-  Source():
-    _outputPort{*this}
-  {
-    // do nothing
-  }
-
-  void setOutput(const Output* data)
-  {
-    _outputPort.setData(data);
-  }
+  vec3f _position{0.0f};
+  quatf _rotation{quatf::identity()};
+  vec3f _scale{1.0f};
 
   void execute() override;
 
-private:
-  OutputPort<Output> _outputPort;
+}; // TransformFilter
 
-}; // Source
-
-template <typename Output>
+template <typename T>
 void
-Source<Output>::execute()
+TransformFilter<T>::execute()
 {
-  throw bad_invocation("Source<T>", __func__);
+  auto input = this->input();
+  auto output = Object::makeCopy(input);
+
+  if (output == nullptr)
+    throw std::runtime_error("TransformFilter::execute(): no output");
+  this->setOutput(output);
+  output->setTransform(_position, _rotation, _scale);
+#if _DEBUG
+  puts("TRANSFORM FILTER EXECUTED");
+#endif // _DEBUG
 }
 
 } // end namespace cg::vis
 
-#endif // __Source_h
+#endif // __TransformFilter_h

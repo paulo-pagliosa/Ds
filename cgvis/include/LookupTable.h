@@ -28,7 +28,7 @@
 // Class definition for lookup table.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/03/2022
+// Last revision: 11/03/2022
 
 #ifndef __LookupTable_h
 #define __LookupTable_h
@@ -45,12 +45,13 @@ namespace cg::vis
 //
 // LookupTable: lookup table class
 // ===========
-class LookupTable: public virtual Object
+class LookupTable: public Object
 {
 public:
-  LookupTable(int size = 256);
-
-  void build();
+  static Reference<LookupTable> jet(int = 256);
+  static Reference<LookupTable> winter(int = 256);
+  static Reference<LookupTable> gray(const Color& = Color::white, int = 256);
+  static Reference<LookupTable> cooper(int = 256);
 
   void setScalarRange(float min, float max);
 
@@ -115,6 +116,8 @@ public:
     return _valueRange[1];
   }
 
+  void build();
+
   const Color& mapValue(float) const;
 
   auto size() const
@@ -139,6 +142,9 @@ protected:
   float _saturationRange[2];
   float _valueRange[2];
   Timestamp _buildTime;
+
+  LookupTable(int);
+  LookupTable(int, float, float);
 
 }; // LookupTable
 

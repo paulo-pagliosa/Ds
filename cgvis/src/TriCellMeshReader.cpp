@@ -28,7 +28,7 @@
 // Source file for vis tri cell mesh reader.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/03/2022
+// Last revision: 11/03/2022
 
 #include "utils/MeshReader.h"
 #include "TriCellMeshReader.h"
@@ -63,7 +63,7 @@ TriCellMeshReader::setPath(const std::string& filename)
 void
 TriCellMeshReader::execute()
 {
-  setOutput(new TriCellMesh{*MeshReader::readOBJ(_path.string().c_str())});
+  setOutput(TriCellMesh::New(*MeshReader::readOBJ(_path.string().c_str())));
 #ifdef _DEBUG
   puts("MESH READER EXECUTED");
 #endif // _DEBUG

@@ -28,7 +28,7 @@
 // Class definition for generic vis data set.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/03/2022
+// Last revision: 10/03/2022
 
 #ifndef __DataSet_h
 #define __DataSet_h
@@ -46,7 +46,7 @@ using Vectors = DataArray<vec3f>;
 //
 // DataSet: generic vis data set class
 // =======
-class DataSet: public virtual Object
+class DataSet: public Object
 {
 public:
   int32_t vertexCount() const
@@ -120,6 +120,14 @@ protected:
   Reference<Scalars> _cellScalars;
   Reference<Vectors> _vertexVectors;
   Reference<Vectors> _cellVectors;
+
+  void cloneAttributes(const DataSet& other)
+  {
+    _vertexScalars = other._vertexScalars;
+    _cellScalars = other._cellScalars;
+    _vertexVectors = other._vertexVectors;
+    _cellVectors = other._cellVectors;
+  }
 
 }; // DataSet
 

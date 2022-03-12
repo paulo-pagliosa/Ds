@@ -28,7 +28,7 @@
 // Source file for generic vis scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/03/2022
+// Last revision: 11/03/2022
 
 #include "SceneWindow.h"
 
@@ -147,27 +147,6 @@ SceneWindow::inspectCurrentNode()
   else if (auto light = _currentNode.as<Light>())
     inspectLight(*light);
 }
-
-/*
-void
-SceneWindow::inspect(Transform* transform)
-{
-  if (!ImGui::CollapsingHeader("Transform"))
-    return;
-
-  vec3f temp;
-
-  temp = transform->position();
-  if (ImGui::dragVec3("Position", temp))
-    transform->setPosition(temp);
-  temp = transform->eulerAngles();
-  if (ImGui::dragVec3("Rotation", temp))
-    transform->setEulerAngles(temp);
-  temp = transform->scale();
-  if (ImGui::dragVec3("Scale", temp, 0.001f, math::Limits<float>::inf()))
-    transform->setScale(temp);
-}
-*/
 
 inline ImU32
 toImU32(const Color& c)
@@ -289,6 +268,8 @@ void
 SceneWindow::inspectPolyDataMapper(SceneWindow& window,
   AbstractMapper& mapper)
 {
+  // TODO: edit polydata properties
+  /*
   if (auto m = dynamic_cast<PolyDataMapper*>(&mapper))
   {
     auto polyData = m->input();
@@ -303,6 +284,7 @@ SceneWindow::inspectPolyDataMapper(SceneWindow& window,
       ImGui::colorEdit3("Triangle", polyData->triangleColor);
     }
   }
+  */
 }
 
 void

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2022 Paulo Pagliosa.                              |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,133 +23,67 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: Source.h
+// OVERVIEW: PolyMesh.h
 // ========
-// Class definition for generic vis source.
+// Class definition for vis poly mesh.
 //
 // Author: Paulo Pagliosa
 // Last revision: 11/03/2022
 
-#ifndef __Source_h
-#define __Source_h
+#ifndef __PolyMesh_h
+#define __PolyMesh_h
 
-#include "core/Exception.h"
-#include "Object.h"
-#include <stdexcept>
+#include "core/List.h"
+#include "Transform.h"
+#include "TriCellMesh.h"
 
 namespace cg::vis
 { // begin namespace cg::vis
 
-//
-// Forward definition
-//
-template <typename Output> class Source;
-
 
 /////////////////////////////////////////////////////////////////////
 //
-// AbstractSource: abstract vis source class
-// ==============
-class AbstractSource: public Object
+// PolyMesh: vis poly mesh class
+// ========
+class PolyMesh: public TransformableObject, public DataSet
 {
 public:
-  virtual void update();
+  static Reference<PolyMesh> New()
+  {
+    return new PolyMesh;
+  }
+
+  Material* material() const
+  {
+    return _material;
+  }
+
+  void add(const TriCellMesh& mesh)
+  {
+    _elements.add(&mesh);
+  }
+
+  auto add(const PolyMesh& mesh)
+  {
+    _elements.add(&mesh);
+  }
 
 protected:
-  Timestamp _executeTime;
+  using Elements = List<Reference<TransformableObject>>;
 
-  virtual void start();
-  virtual void execute() = 0;
-  virtual void end();
+  Reference<Material> _material;
+  Elements _elements;
 
-}; // AbstractSource
-
-
-/////////////////////////////////////////////////////////////////////
-//
-// OutputPort: output port class
-// ==========
-template <typename T>
-class OutputPort
-{
-public:
-  OutputPort(Source<T>& source):
-    _source{&source}
+  PolyMesh():
+    _material{new Material{Color::white}}
   {
     // do nothing
   }
 
-  Source<T>* source() const
-  {
-    return _source;
-  }
+  void updateMeshTransform(TriCellMesh*) const;
 
-  T* data() const
-  {
-    return _data;
-  }
-
-  void setData(const T* data)
-  {
-    _data = data;
-  }
-
-private:
-  Source<T>* _source;
-  Reference<T> _data;
-
-}; // OutputPort
-
-
-/////////////////////////////////////////////////////////////////////
-//
-// Source: generic vis source class
-// ======
-template <typename Output>
-class Source: public AbstractSource
-{
-public:
-  auto output() const
-  {
-    return _outputPort.data();
-  }
-
-  const OutputPort<Output>* outputPort() const
-  {
-    return &_outputPort;
-  }
-
-  OutputPort<Output>* outputPort()
-  {
-    return &_outputPort;
-  }
-
-protected:
-  Source():
-    _outputPort{*this}
-  {
-    // do nothing
-  }
-
-  void setOutput(const Output* data)
-  {
-    _outputPort.setData(data);
-  }
-
-  void execute() override;
-
-private:
-  OutputPort<Output> _outputPort;
-
-}; // Source
-
-template <typename Output>
-void
-Source<Output>::execute()
-{
-  throw bad_invocation("Source<T>", __func__);
-}
+}; // PolyMesh
 
 } // end namespace cg::vis
 
-#endif // __Source_h
+#endif // __PolyMesh_h

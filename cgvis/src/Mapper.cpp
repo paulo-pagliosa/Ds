@@ -28,7 +28,7 @@
 // Source file for generic vis mapper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/03/2022
+// Last revision: 11/03/2022
 
 #include "Mapper.h"
 
@@ -70,7 +70,7 @@ AbstractMapper::updateLookupTableRange(Scalars& scalars) const
 
   scalars.range(min, max);
   if (nullptr == _lookupTable)
-    _lookupTable = new LookupTable;
+    _lookupTable = LookupTable::jet();
   _lookupTable->setScalarRange(min, max);
 }
 

@@ -28,7 +28,7 @@
 // Class definition for vis tri cell mesh.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/03/2022
+// Last revision: 11/03/2022
 
 #ifndef __TriCellMesh_h
 #define __TriCellMesh_h
@@ -44,7 +44,7 @@ namespace cg::vis
 //
 // Forward definition
 //
-class TriCellMeshMapper;
+class PolyMesh;
 
 
 /////////////////////////////////////////////////////////////////////
@@ -56,11 +56,14 @@ class TriCellMesh: public Primitive, public DataSet
 public:
   using cell_type = TriCell<TriCellMesh>;
 
-  TriCellMesh(const TriangleMesh& mesh):
-    _geometry{new TriangleMeshShape{mesh}},
-    _bounds{mesh.bounds()}
+  static Reference<TriCellMesh> New(const TriangleMesh& mesh, Material* m)
   {
-    setMaterial(new Material(*material()));
+    return new TriCellMesh{mesh, m};
+  }
+
+  static auto New(const TriangleMesh& mesh)
+  {
+    return New(mesh, nullptr);
   }
 
   auto mesh() const
@@ -73,9 +76,9 @@ public:
     return (uint32_t)mesh()->data().vertexCount;
   }
 
-  const auto& vertex(int i) const
+  auto vertex(int i) const
   {
-    return mesh()->data().vertices[i];
+    return _localToWorld.transform3x4(meshVertex(i));
   }
 
   auto cellCount() const
@@ -93,9 +96,34 @@ private:
   Reference<TriangleMeshShape> _geometry;
   Bounds3f _bounds;
 
+  TriCellMesh(const TriangleMesh& mesh, Material* m):
+    _geometry{new TriangleMeshShape{mesh}},
+    _bounds{mesh.bounds()}
+  {
+    setMaterial(m != nullptr ? m : material()->clone());
+  }
+
+  TriCellMesh(const TriCellMesh& other, Material* m = nullptr):
+    _geometry{new TriangleMeshShape{*other.mesh()}},
+    _bounds{other._bounds}
+  {
+    _localToWorld = other._localToWorld;
+    _worldToLocal = other._worldToLocal;
+    _normalMatrix = other._normalMatrix;
+    setMaterial(m != nullptr ? m : other.material()->clone());
+    cloneAttributes(other);
+  }
+
+  const vec3f& meshVertex(int i) const
+  {
+    return mesh()->data().vertices[i];
+  }
+
   bool localIntersect(const Ray3f&) const override;
   bool localIntersect(const Ray3f&, Intersection&) const override;
   Object* clone() const override;
+
+  friend PolyMesh;
 
 }; // TriCellMesh
 

@@ -28,7 +28,7 @@
 // Class definition for vis contour filter.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/03/2022
+// Last revision: 11/03/2022
 
 #ifndef __ContourFilter_h
 #define __ContourFilter_h
@@ -104,7 +104,7 @@ template <typename Input>
 void
 ContourFilter<Input>::execute()
 {
-  auto output = new PolyData;
+  auto output = PolyData::New();
 
   this->setOutput(output);
 

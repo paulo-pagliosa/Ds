@@ -23,133 +23,31 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: Source.h
+// OVERVIEW: Transform.cpp
 // ========
-// Class definition for generic vis source.
+// Source file for vis transform.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/03/2022
+// Last revision: 10/03/2022
 
-#ifndef __Source_h
-#define __Source_h
-
-#include "core/Exception.h"
-#include "Object.h"
-#include <stdexcept>
+#include "Transform.h"
 
 namespace cg::vis
 { // begin namespace cg::vis
 
-//
-// Forward definition
-//
-template <typename Output> class Source;
-
 
 /////////////////////////////////////////////////////////////////////
 //
-// AbstractSource: abstract vis source class
-// ==============
-class AbstractSource: public Object
+// Transform implementation
+// =========
+Transform::Transform(TransformableObject& object):
+  _object{&object},
+  _position{0.0f},
+  _rotation{quatf::identity()},
+  _eulerAngles{0.0f},
+  _scale{1.0f}
 {
-public:
-  virtual void update();
-
-protected:
-  Timestamp _executeTime;
-
-  virtual void start();
-  virtual void execute() = 0;
-  virtual void end();
-
-}; // AbstractSource
-
-
-/////////////////////////////////////////////////////////////////////
-//
-// OutputPort: output port class
-// ==========
-template <typename T>
-class OutputPort
-{
-public:
-  OutputPort(Source<T>& source):
-    _source{&source}
-  {
-    // do nothing
-  }
-
-  Source<T>* source() const
-  {
-    return _source;
-  }
-
-  T* data() const
-  {
-    return _data;
-  }
-
-  void setData(const T* data)
-  {
-    _data = data;
-  }
-
-private:
-  Source<T>* _source;
-  Reference<T> _data;
-
-}; // OutputPort
-
-
-/////////////////////////////////////////////////////////////////////
-//
-// Source: generic vis source class
-// ======
-template <typename Output>
-class Source: public AbstractSource
-{
-public:
-  auto output() const
-  {
-    return _outputPort.data();
-  }
-
-  const OutputPort<Output>* outputPort() const
-  {
-    return &_outputPort;
-  }
-
-  OutputPort<Output>* outputPort()
-  {
-    return &_outputPort;
-  }
-
-protected:
-  Source():
-    _outputPort{*this}
-  {
-    // do nothing
-  }
-
-  void setOutput(const Output* data)
-  {
-    _outputPort.setData(data);
-  }
-
-  void execute() override;
-
-private:
-  OutputPort<Output> _outputPort;
-
-}; // Source
-
-template <typename Output>
-void
-Source<Output>::execute()
-{
-  throw bad_invocation("Source<T>", __func__);
+  // do nothing
 }
 
 } // end namespace cg::vis
-
-#endif // __Source_h

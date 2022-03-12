@@ -28,7 +28,7 @@
 // Source file for vis 3D glyph filter.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/03/2022
+// Last revision: 11/03/2022
 
 #include "Glyph3.h"
 
@@ -59,19 +59,97 @@ Glyph3Base::setRange(float min, float max)
   modified();
 }
 
-PolyData*
+Reference<PolyMesh>
 Glyph3Base::makeDefaultSource() const
 {
+  auto m = PolyMesh::New();
+
   // TODO
-  return nullptr;
+  return m;
 }
 
 void
-Glyph3Base::execute(const Points& points, PolyData& output)
+Glyph3Base::execute(const Points& points, PolyMesh& output)
 {
   if (_source == nullptr)
     _source = makeDefaultSource();
-  // TODO
+  /*
+  tGraphicModel* source = 0;
+  tPolygonExtractor pe;
+
+  if (Source)
+  {
+    pe.SetInput(Source);
+    pe.Execute();
+    source = pe.GetOutput();
+  }
+  if (source == 0)
+    return;
+
+  t3DTransfMatrix t;
+  t3DTransfMatrix temp;
+
+  for (auto& p : points)
+  {
+    tGraphicModel* glyph = source->MakeObject(*Output);
+    t3DPoint* point = pit.Current();
+
+    // translate source to Input point
+    t.Translate(point->Position);
+
+    t3DVector v = point->Vector;
+    double scale = v.Length();
+    bool scaleSourceFlag = false;
+
+    if (scale > 0)
+    {
+      // if there is no x or y component
+      if (IsZero(v.x) && IsZero(v.y))
+      {
+        // just flip z if we need to
+        if (v.z < 0)
+        {
+          temp.Rotate(t3DVector::YAxis, ToRadians(180));
+          t *= temp;
+        }
+      }
+      else
+      {
+        t3DVector axis(v.x * 0.5, v.y * 0.5, (v.z + scale) * 0.5);
+
+        temp.Rotate(axis, ToRadians(180));
+        t *= temp;
+      }
+      scaleSourceFlag = true;
+    }
+    // determine scale factor from scalars if appropriate
+    if (ScaleMode == ScaleByScalar)
+    {
+      // scale = point->Scalar;
+      if (Clamping)
+      {
+        double d = Range[1] - Range[0];
+
+        if (IsZero(d))
+          d = 1.0;
+        scale = scale < Range[0] ? Range[0] :
+          (scale > Range[1] ? Range[1] : scale);
+        scale = (scale - Range[0]) / d;
+      }
+      scaleSourceFlag = true;
+    }
+    // scale data if appropriate
+    if (scaleSourceFlag)
+    {
+      scale *= ScaleFactor;
+      if (scale == 0.0)
+        scale = 1.0e-10;
+      temp.Scale(t3DVector(scale, scale, scale));
+      t *= temp;
+    }
+    glyph->Transform(t);
+  }
+  */
 }
 
 } // end namespace cg::vis

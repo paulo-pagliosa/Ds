@@ -28,7 +28,7 @@
 // Source file for vis box source.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/03/2022
+// Last revision: 11/03/2022
 
 #include "geometry/MeshSweeper.h"
 #include "BoxSource.h"
@@ -44,7 +44,7 @@ namespace cg::vis
 void
 BoxSource::execute()
 {
-  setOutput(new TriCellMesh{*MeshSweeper::makeBox()});
+  setOutput(TriCellMesh::New(*MeshSweeper::makeBox()));
 #ifdef _DEBUG
   puts("BOX SOURCE EXECUTED");
 #endif // _DEBUG

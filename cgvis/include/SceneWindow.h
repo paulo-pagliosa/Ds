@@ -28,7 +28,7 @@
 // Class definition for generic vis scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/03/2022
+// Last revision: 11/03/2022
 
 #ifndef __VisSceneWindow_h
 #define __VisSceneWindow_h
@@ -105,8 +105,6 @@ private:
   }
 
   void inspectCurrentNode();
-
-  //void inspect(Transform*);
 
   SceneBase* makeScene() override;
 

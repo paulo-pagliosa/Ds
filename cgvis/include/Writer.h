@@ -28,7 +28,7 @@
 // Class definition for generic vis writer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/03/2022
+// Last revision: 11/03/2022
 
 #ifndef __Writer_h
 #define __Writer_h
@@ -44,7 +44,7 @@ namespace cg::vis
 // Writer: generic vis writer class
 // ======
 template <typename Input>
-class Writer: public virtual Object
+class Writer: public Object
 {
 public:
   void setInputConnection(OutputPort<Input>* port)

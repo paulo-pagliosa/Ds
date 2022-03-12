@@ -28,7 +28,7 @@
 // Class definition for generic vis data array.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/03/2022
+// Last revision: 11/03/2022
 
 #ifndef __DataArray_h
 #define __DataArray_h
@@ -45,7 +45,7 @@ namespace cg::vis
 // DataArray: generic vis data array class
 // =========
 template <typename T>
-class DataArray: public virtual Object
+class DataArray: public Object
 {
 public:
   using data_type = T;

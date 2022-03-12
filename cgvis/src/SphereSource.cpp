@@ -28,7 +28,7 @@
 // Source file for vis sphere source.
 //
 // Author: Paulo Pagliosa
-// Last revision: 98/03/2022
+// Last revision: 11/03/2022
 
 #include "geometry/MeshSweeper.h"
 #include "SphereSource.h"
@@ -44,7 +44,7 @@ namespace cg::vis
 void
 SphereSource::execute()
 {
-  setOutput(new TriCellMesh{*MeshSweeper::makeSphere(_resolution)});
+  setOutput(TriCellMesh::New(*MeshSweeper::makeSphere(_resolution)));
 #ifdef _DEBUG
   puts("SPHERE SOURCE EXECUTED");
 #endif // _DEBUG
