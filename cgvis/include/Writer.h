@@ -44,7 +44,7 @@ namespace cg::vis
 // Writer: generic vis writer class
 // ======
 template <typename Input>
-class Writer: public Object
+class Writer: public virtual Object
 {
 public:
   void setInputConnection(OutputPort<Input>* port)

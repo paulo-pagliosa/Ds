@@ -47,7 +47,7 @@ namespace cg::vis
 //
 // AbstractMapper: vis abstract mapper class
 // ==============
-class AbstractMapper: public PrimitiveMapper, public Object
+class AbstractMapper: public PrimitiveMapper, public virtual Object
 {
 public:
   bool useVertexColors{true};

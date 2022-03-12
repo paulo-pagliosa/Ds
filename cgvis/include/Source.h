@@ -50,7 +50,7 @@ template <typename Output> class Source;
 //
 // AbstractSource: abstract vis source class
 // ==============
-class AbstractSource: public Object
+class AbstractSource: public virtual Object
 {
 public:
   virtual void update();
