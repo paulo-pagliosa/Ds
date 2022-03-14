@@ -23,14 +23,17 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: PolyMesh.cpp
+// OVERVIEW: PointSet.h
 // ========
-// Source file for vis poly mesh.
+// Class definition for vis point set.
 //
 // Author: Paulo Pagliosa
 // Last revision: 14/03/2022
 
-#include "PolyMesh.h"
+#ifndef __VisPointSet_h
+#define __VisPointSet_h
+
+#include "DataSet.h"
 
 namespace cg::vis
 { // begin namespace cg::vis
@@ -38,16 +41,25 @@ namespace cg::vis
 
 /////////////////////////////////////////////////////////////////////
 //
-// PolyMesh implementation
-// ========
-Bounds3f
-PolyMesh::Instance::bounds() const
+// PoinSet: vis point set class
+// =======
+class PointSet: public DataSet
 {
-  Bounds3f b;
+public:
+  static Reference<PointSet> New()
+  {
+    return new PointSet;
+  }
 
-  for (const auto& e : geometry->elements())
-    b.inflate({e.bounds(), localToWorld});
-  return b;
-}
+  // TODO
+
+private:
+  PointSet() = default;
+
+}; // PointSet
 
 } // end namespace cg::vis
+
+#endif // __PointSet_h
+
+

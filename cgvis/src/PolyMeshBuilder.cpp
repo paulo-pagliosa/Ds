@@ -23,14 +23,14 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: PolyMesh.cpp
+// OVERVIEW: PolyMeshBuilder.cpp
 // ========
-// Source file for vis poly mesh.
+// Source file for vis poly mesh builder.
 //
 // Author: Paulo Pagliosa
 // Last revision: 14/03/2022
 
-#include "PolyMesh.h"
+#include "PolyMeshBuilder.h"
 
 namespace cg::vis
 { // begin namespace cg::vis
@@ -38,16 +38,15 @@ namespace cg::vis
 
 /////////////////////////////////////////////////////////////////////
 //
-// PolyMesh implementation
-// ========
-Bounds3f
-PolyMesh::Instance::bounds() const
+// PolyMeshBuilder implementation
+// ===============
+void
+PolyMeshBuilder::makeInstance(const PolyMeshGeometry& geometry)
 {
-  Bounds3f b;
+  PolyMesh::Instance i{&geometry, _localToWorld, normalMatrix(), color};
 
-  for (const auto& e : geometry->elements())
-    b.inflate({e.bounds(), localToWorld});
-  return b;
+  _mesh->_instances.add(i);
+  _mesh->_bounds.inflate(i.bounds());
 }
 
 } // end namespace cg::vis

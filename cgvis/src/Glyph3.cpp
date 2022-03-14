@@ -28,8 +28,9 @@
 // Source file for vis 3D glyph filter.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/03/2022
+// Last revision: 14/03/2022
 
+#include "geometry/MeshSweeper.h"
 #include "Glyph3.h"
 
 namespace cg::vis
@@ -59,13 +60,17 @@ Glyph3Base::setRange(float min, float max)
   modified();
 }
 
-Reference<PolyMesh>
+Reference<PolyMeshGeometry>
 Glyph3Base::makeDefaultSource() const
 {
-  auto m = PolyMesh::New();
+  auto g = PolyMeshGeometry::New();
+  auto t = g->transform();
 
-  // TODO
-  return m;
+  t->setScale({1, 0.001f, 1});
+  g->addElement(*MeshSweeper::makeCylinder());
+  t->set({0, 1, 0}, quatf::identity(), vec3f{0.3f});
+  g->addElement(*MeshSweeper::makeCone());
+  return g;
 }
 
 void

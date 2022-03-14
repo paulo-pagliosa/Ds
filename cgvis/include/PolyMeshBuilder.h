@@ -23,144 +23,49 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: PolyMesh.h
+// OVERVIEW: PolyMeshBuilder.h
 // ========
-// Class definition for vis poly mesh.
+// Class definition for vis poly mesh builder.
 //
 // Author: Paulo Pagliosa
 // Last revision: 14/03/2022
 
-#ifndef __PolyMesh_h
-#define __PolyMesh_h
+#ifndef __PolyMeshBuilder_h
+#define __PolyMeshBuilder_h
 
-#include "core/List.h"
-#include "Transform.h"
-#include "TriCellMesh.h"
+#include "PolyMesh.h"
 
 namespace cg::vis
 { // begin namespace cg::vis
 
-class PolyMeshBuilder;
 
-class PolyMeshHelper: public TransformableObject
+/////////////////////////////////////////////////////////////////////
+//
+// PolyMeshBuilder: vis poly mesh buider class
+// ===============
+class PolyMeshBuilder: public PolyMeshHelper
 {
 public:
-  Transform* transform()
+  Color color{Color::white};
+
+  PolyMesh* mesh() const
   {
-    return &_transform;
+    return _mesh;
   }
 
+  void makeInstance(const PolyMeshGeometry&);
+
 protected:
-  PolyMeshHelper():
-    _transform{*this}
+  Reference<PolyMesh> _mesh;
+
+  PolyMeshBuilder():
+    _mesh{new PolyMesh}
   {
     // do nothing
   }
 
-  auto normalMatrix() const
-  {
-    return mat3f{_worldToLocal}.transposed();
-  }
-
-private:
-  Transform _transform;
-
-}; // PolyMeshHelper
-
-class PolyMeshGeometry: public PolyMeshHelper
-{
-public:
-  class Element
-  {
-  public:
-    const Reference<TriangleMesh> mesh;
-    const mat4f localToWorld;
-    const mat3f normalMatrix;
-
-    auto bounds() const
-    {
-      return Bounds3f{mesh->bounds(), localToWorld};
-    }
-
-  }; // Element
-
-  static Reference<PolyMeshGeometry> New()
-  {
-    return new PolyMeshGeometry;
-  }
-
-  void addElement(const TriangleMesh& mesh)
-  {
-    _elements.add({&mesh, _localToWorld, normalMatrix()});
-  }
-
-  void clear()
-  {
-    _elements.clear();
-  }
-
-  auto elementCount() const
-  {
-    return (int)_elements.size();
-  }
-
-  const auto& elements() const
-  {
-    return _elements;
-  }
-
-private:
-  List<Element> _elements;
-
-  PolyMeshGeometry() = default;
-
-}; // PolyMeshGeometry
-
-
-/////////////////////////////////////////////////////////////////////
-//
-// PolyMesh: vis poly mesh class
-// ========
-class PolyMesh: public DataSet
-{
-public:
-  class Instance
-  {
-  public:
-    const Reference<PolyMeshGeometry> geometry;
-    const mat4f localToWorld;
-    const mat3f normalMatrix;
-    const Color color;
-
-    Bounds3f bounds() const;
-
-  }; // Instance
-
-  const auto& bounds() const
-  {
-    return _bounds;
-  }
-
-  auto instanceCount() const
-  {
-    return (int)_instances.size();
-  }
-
-  const auto& instances() const
-  {
-    return _instances;
-  }
-
-private:
-  Bounds3f _bounds;
-  List<Instance> _instances;
-
-  PolyMesh() = default;
-
-  friend PolyMeshBuilder;
-
-}; // PolyMesh
+}; // PolyMeshBuilder
 
 } // end namespace cg::vis
 
-#endif // __PolyMesh_h
+#endif // __PolyMeshBuilder_h

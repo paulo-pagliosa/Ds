@@ -28,7 +28,7 @@
 // Source file for vis transform.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/03/2022
+// Last revision: 14/03/2022
 
 #include "Transform.h"
 
@@ -48,6 +48,16 @@ Transform::Transform(TransformableObject& object):
   _scale{1.0f}
 {
   // do nothing
+}
+
+void
+Transform::reset()
+{
+  _position.set(0.0f);
+  _rotation = quatf::identity();
+  _eulerAngles.set(0.0f);
+  _scale.set(1.0f);
+  update();
 }
 
 } // end namespace cg::vis

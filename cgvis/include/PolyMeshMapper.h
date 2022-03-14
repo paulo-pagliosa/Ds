@@ -23,144 +23,44 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: PolyMesh.h
+// OVERVIEW: PolyMeshMapper.h
 // ========
-// Class definition for vis poly mesh.
+// Class definition for vis poly mesh mapper.
 //
 // Author: Paulo Pagliosa
 // Last revision: 14/03/2022
 
-#ifndef __PolyMesh_h
-#define __PolyMesh_h
+#ifndef __PolyMeshMapper_h
+#define __PolyMeshMapper_h
 
-#include "core/List.h"
-#include "Transform.h"
-#include "TriCellMesh.h"
+#include "Mapper.h"
+#include "PolyMesh.h"
 
 namespace cg::vis
 { // begin namespace cg::vis
 
-class PolyMeshBuilder;
-
-class PolyMeshHelper: public TransformableObject
-{
-public:
-  Transform* transform()
-  {
-    return &_transform;
-  }
-
-protected:
-  PolyMeshHelper():
-    _transform{*this}
-  {
-    // do nothing
-  }
-
-  auto normalMatrix() const
-  {
-    return mat3f{_worldToLocal}.transposed();
-  }
-
-private:
-  Transform _transform;
-
-}; // PolyMeshHelper
-
-class PolyMeshGeometry: public PolyMeshHelper
-{
-public:
-  class Element
-  {
-  public:
-    const Reference<TriangleMesh> mesh;
-    const mat4f localToWorld;
-    const mat3f normalMatrix;
-
-    auto bounds() const
-    {
-      return Bounds3f{mesh->bounds(), localToWorld};
-    }
-
-  }; // Element
-
-  static Reference<PolyMeshGeometry> New()
-  {
-    return new PolyMeshGeometry;
-  }
-
-  void addElement(const TriangleMesh& mesh)
-  {
-    _elements.add({&mesh, _localToWorld, normalMatrix()});
-  }
-
-  void clear()
-  {
-    _elements.clear();
-  }
-
-  auto elementCount() const
-  {
-    return (int)_elements.size();
-  }
-
-  const auto& elements() const
-  {
-    return _elements;
-  }
-
-private:
-  List<Element> _elements;
-
-  PolyMeshGeometry() = default;
-
-}; // PolyMeshGeometry
-
 
 /////////////////////////////////////////////////////////////////////
 //
-// PolyMesh: vis poly mesh class
-// ========
-class PolyMesh: public DataSet
+// PolyMeshMapper: vis poly mesh mapper class
+// ==============
+class PolyMeshMapper final: public Mapper<PolyMesh>
 {
 public:
-  class Instance
+  static Reference<PolyMeshMapper> New()
   {
-  public:
-    const Reference<PolyMeshGeometry> geometry;
-    const mat4f localToWorld;
-    const mat3f normalMatrix;
-    const Color color;
-
-    Bounds3f bounds() const;
-
-  }; // Instance
-
-  const auto& bounds() const
-  {
-    return _bounds;
+    return new PolyMeshMapper;
   }
 
-  auto instanceCount() const
-  {
-    return (int)_instances.size();
-  }
-
-  const auto& instances() const
-  {
-    return _instances;
-  }
+  const char* name() const override;
 
 private:
-  Bounds3f _bounds;
-  List<Instance> _instances;
+  bool draw(GLRenderer&) const override;
 
-  PolyMesh() = default;
+  static void draw(GLRenderer&, const PolyMesh::Instance&);
 
-  friend PolyMeshBuilder;
-
-}; // PolyMesh
+}; // PolyMeshMapper
 
 } // end namespace cg::vis
 
-#endif // __PolyMesh_h
+#endif // __PolyMeshMapper_h

@@ -28,13 +28,13 @@
 // Class definition for vis 3D glyph filter.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/03/2022
+// Last revision: 14/03/2022
 
 #ifndef __Glyph3_h
 #define __Glyph3_h
 
 #include "Filter.h"
-#include "PolyMesh.h"
+#include "PolyMeshBuilder.h"
 
 namespace cg::vis
 { // begin namespace cg::vis
@@ -44,7 +44,7 @@ namespace cg::vis
 //
 // Glyph3Base: vis 3D glyph base class
 // ==========
-class Glyph3Base: public virtual Object
+class Glyph3Base: public virtual Object, public PolyMeshBuilder
 {
 public:
   enum class ScaleMode
@@ -55,12 +55,12 @@ public:
 
   constexpr static auto minScaleFactor = 0.001f;
 
-  PolyMesh* source() const
+  PolyMeshGeometry* source() const
   {
     return _source;
   }
 
-  void setSource(const PolyMesh* source)
+  void setSource(const PolyMeshGeometry* source)
   {
     if (_source != source)
     {
@@ -102,19 +102,33 @@ public:
     }
   }
 
+  auto clamping() const
+  {
+    return _clamping;
+  }
+
+  void setClamping(bool clamping)
+  {
+    if (clamping != _clamping)
+    {
+      _clamping = clamping;
+      modified();
+    }
+  }
+
 protected:
   using Points = std::vector<vec3f>;
 
   Glyph3Base();
 
-  Reference<PolyMesh> makeDefaultSource() const;
+  Reference<PolyMeshGeometry> makeDefaultSource() const;
   void execute(const Points&, PolyMesh&);
 
 private:
-  Reference<PolyMesh> _source;
-  ScaleMode _scaleMode;
+  Reference<PolyMeshGeometry> _source;
   float _range[2];
   float _scaleFactor;
+  ScaleMode _scaleMode;
   bool _clamping;
 
 }; // Glyph3Base
@@ -163,4 +177,4 @@ Glyph3<Input>::execute()
 
 } // end namespace cg::vis
 
-#endif
+#endif // __Glyph3_h

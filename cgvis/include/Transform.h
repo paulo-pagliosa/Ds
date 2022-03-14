@@ -28,7 +28,7 @@
 // Class definition for vis transform.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/03/2022
+// Last revision: 14/03/2022
 
 #ifndef __VisTransform_h
 #define __VisTransform_h
@@ -43,7 +43,7 @@ namespace cg::vis
 //
 // Transform: vis transform class
 // =========
-class Transform final
+class Transform
 {
 public:
   /// Constructs an identity transform.
@@ -108,6 +108,18 @@ public:
     setScale(vec3f{scale});
   }
 
+  /// Sets the position, rotation, and scale of this transform.
+  void set(const vec3f& position,
+    const quatf& rotation,
+    const vec3f& scale)
+  {
+    _position = position;
+    _eulerAngles = (_rotation = rotation).eulerAngles();
+    _scale = scale;
+    update();
+
+  }
+
   /// Translates this transform.
   void translate(const vec3f& t)
   {
@@ -167,6 +179,9 @@ public:
   {
     return _rotation.rotate(d);
   }
+
+  /// Reset this transform.
+  void reset();
 
 private:
   TransformableObject* _object;

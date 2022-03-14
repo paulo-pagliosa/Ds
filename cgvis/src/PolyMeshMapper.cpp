@@ -23,14 +23,14 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: PolyMesh.cpp
+// OVERVIEW: PolyMeshMapper.cpp
 // ========
-// Source file for vis poly mesh.
+// Source file for vis poly mesh mapper.
 //
 // Author: Paulo Pagliosa
 // Last revision: 14/03/2022
 
-#include "PolyMesh.h"
+#include "PolyMeshMapper.h"
 
 namespace cg::vis
 { // begin namespace cg::vis
@@ -38,16 +38,33 @@ namespace cg::vis
 
 /////////////////////////////////////////////////////////////////////
 //
-// PolyMesh implementation
-// ========
-Bounds3f
-PolyMesh::Instance::bounds() const
+// PolyMeshMapper implementation
+// ==============
+const char*
+PolyMeshMapper::name() const
 {
-  Bounds3f b;
+  return "PolyMesh Mapper";
+}
 
-  for (const auto& e : geometry->elements())
-    b.inflate({e.bounds(), localToWorld});
-  return b;
+inline void
+PolyMeshMapper::draw(GLRenderer& renderer, const PolyMesh::Instance& instance)
+{
+  renderer.setMeshColor(instance.color);
+  for (const auto& e : instance.geometry->elements())
+  {
+    const auto m = instance.localToWorld * e.localToWorld;
+    const auto n = instance.normalMatrix * e.normalMatrix;
+
+    renderer.drawMesh(*e.mesh, m, n);
+  }
+}
+
+bool
+PolyMeshMapper::draw(GLRenderer& renderer) const
+{
+  for (const auto& i : input()->instances())
+    draw(renderer, i);
+  return true;
 }
 
 } // end namespace cg::vis
