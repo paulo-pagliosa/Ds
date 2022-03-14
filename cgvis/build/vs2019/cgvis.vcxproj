@@ -28,6 +28,8 @@
     <ClInclude Include="..\..\include\Object.h" />
     <ClInclude Include="..\..\include\PointLocator.h" />
     <ClInclude Include="..\..\include\PolyData.h" />
+    <ClInclude Include="..\..\include\PolyMeshMapper.h" />
+    <ClInclude Include="..\..\include\PolyMeshBuilder.h" />
     <ClInclude Include="..\..\include\SceneWindow.h" />
     <ClInclude Include="..\..\include\Scalars.h" />
     <ClInclude Include="..\..\include\Scene.h" />
@@ -51,6 +53,8 @@
     <ClCompile Include="..\..\src\PolyData.cpp" />
     <ClCompile Include="..\..\src\PolyDataMapper.cpp" />
     <ClCompile Include="..\..\src\PolyMesh.cpp" />
+    <ClCompile Include="..\..\src\PolyMeshMapper.cpp" />
+    <ClCompile Include="..\..\src\PolyMeshBuilder.cpp" />
     <ClCompile Include="..\..\src\SceneWindow.cpp" />
     <ClCompile Include="..\..\src\Scalars.cpp" />
     <ClCompile Include="..\..\src\Scene.cpp" />
