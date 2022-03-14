@@ -28,7 +28,7 @@
 // Class definition for generic vis data array.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/03/2022
+// Last revision: 14/03/2022
 
 #ifndef __DataArray_h
 #define __DataArray_h
@@ -71,6 +71,16 @@ public:
     return _data[i];
   }
 
+  auto begin() const
+  {
+    return _data.begin();
+  }
+
+  auto end() const
+  {
+    return _data.end();
+  }
+
   void add(const T& value)
   {
     _data.push_back(value);
@@ -80,7 +90,7 @@ public:
   void set(int i, const T& value);
 
 protected:
-  std::vector<float> _data;
+  std::vector<T> _data;
   Timestamp _computeTime;
 
 }; // DataArray
