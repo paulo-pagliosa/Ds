@@ -43,18 +43,51 @@ namespace cg::vis
 //
 // PoinSet: vis point set class
 // =======
-class PointSet: public DataSet
+class PointSet: public DataSet, public DataArray<vec3f>
 {
 public:
-  static Reference<PointSet> New()
+  using Points = DataArray<vec3f>;
+
+  static Reference<PointSet> New(uint32_t size = 0)
   {
-    return new PointSet;
+    return new PointSet{size};
   }
 
-  // TODO
+  auto vertexCount() const
+  {
+    return size();
+  }
+
+  const auto& vertex(int i) const
+  {
+    return get(i);
+  }
+
+  auto bounds() const
+  {
+    return _bounds;
+  }
+
+  void add(const vec3f& p)
+  {
+    Points::add(p);
+    _bounds.inflate(p);
+  }
+
+  void set(int i, const vec3f& p)
+  {
+    Points::set(i, p);
+    _bounds.inflate(p);
+  }
 
 private:
-  PointSet() = default;
+  Bounds3f _bounds;
+
+  PointSet(uint32_t size):
+    Points{size}
+  {
+    // do nothing
+  }
 
 }; // PointSet
 

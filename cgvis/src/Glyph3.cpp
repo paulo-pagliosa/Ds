@@ -74,87 +74,79 @@ Glyph3Base::makeDefaultSource() const
 }
 
 void
-Glyph3Base::execute(const Points& points, PolyMesh& output)
+Glyph3Base::execute(const PointSet& points)
 {
+  auto np = points.size();
+
+  if (np == 0)
+  {
+#ifdef _DEBUG
+    puts("Glyph3: no points");
+#endif // _DEBUG
+    return;
+  }
+
+  auto vectors = points.vertexVectors();
+
+  if (vectors == nullptr)
+  {
+#ifdef _DEBUG
+    puts("Glyph3: no vector field");
+#endif // _DEBUG
+    return;
+  }
+  else if (np != vectors->size())
+    throw std::logic_error("Glyph3: bad vector field");
+
+  auto scalars = points.vertexScalars();
+
+  if (scalars == nullptr)
+  {
+    if (_scaleMode == ScaleMode::Scalar)
+    {
+#ifdef _DEBUG
+      puts("Glyph3: no scalar field");
+#endif // _DEBUG
+      return;
+    }
+  }
+  else if (np != scalars->size())
+    throw std::logic_error("Glyph3: bad scalar field");
   if (_source == nullptr)
     _source = makeDefaultSource();
-  /*
-  tGraphicModel* source = 0;
-  tPolygonExtractor pe;
-
-  if (Source)
+  for(decltype(np) i = 0; i < np; ++i)
   {
-    pe.SetInput(Source);
-    pe.Execute();
-    source = pe.GetOutput();
-  }
-  if (source == 0)
-    return;
+    const auto& v = vectors->get(i);
+    auto scale = v.length();
 
-  t3DTransfMatrix t;
-  t3DTransfMatrix temp;
+    if (math::isZero(scale))
+      continue;
 
-  for (auto& p : points)
-  {
-    tGraphicModel* glyph = source->MakeObject(*Output);
-    t3DPoint* point = pit.Current();
+    auto rotation = quatf::identity();
 
-    // translate source to Input point
-    t.Translate(point->Position);
-
-    t3DVector v = point->Vector;
-    double scale = v.Length();
-    bool scaleSourceFlag = false;
-
-    if (scale > 0)
-    {
-      // if there is no x or y component
-      if (IsZero(v.x) && IsZero(v.y))
-      {
-        // just flip z if we need to
-        if (v.z < 0)
-        {
-          temp.Rotate(t3DVector::YAxis, ToRadians(180));
-          t *= temp;
-        }
-      }
-      else
-      {
-        t3DVector axis(v.x * 0.5, v.y * 0.5, (v.z + scale) * 0.5);
-
-        temp.Rotate(axis, ToRadians(180));
-        t *= temp;
-      }
-      scaleSourceFlag = true;
-    }
-    // determine scale factor from scalars if appropriate
-    if (ScaleMode == ScaleByScalar)
+    if (!math::isZero(v.x) || !math::isZero(v.y))
+      rotation.set(180, {v.x * 0.5f, v.y * 0.5f, (v.z + scale) * 0.5f});
+    else if (v.z < 0)
+      rotation.set(180, vec3f::up());
+    if (_scaleMode == ScaleMode::Scalar)
     {
       // scale = point->Scalar;
-      if (Clamping)
+      if (_clamping)
       {
-        double d = Range[1] - Range[0];
+        auto d = _range[1] - _range[0];
 
-        if (IsZero(d))
-          d = 1.0;
-        scale = scale < Range[0] ? Range[0] :
-          (scale > Range[1] ? Range[1] : scale);
-        scale = (scale - Range[0]) / d;
+        if (math::isZero(d))
+          d = 1.0f;
+        scale = math::clamp(scale, _range[0], _range[1]);
+        scale = (scale - _range[0]) / d;
       }
-      scaleSourceFlag = true;
     }
-    // scale data if appropriate
-    if (scaleSourceFlag)
-    {
-      scale *= ScaleFactor;
-      if (scale == 0.0)
-        scale = 1.0e-10;
-      temp.Scale(t3DVector(scale, scale, scale));
-      t *= temp;
-    }
-    glyph->Transform(t);
+    scale *= _scaleFactor;
+    if (scale <= 0)
+      scale = 1e-6f;
+    transform()->set(points.get(i), rotation, vec3f{scale});
+    makeInstance(*_source);
   }
-  */
 }
 
 } // end namespace cg::vis

@@ -45,7 +45,7 @@ namespace cg::vis
 // DataArray: generic vis data array class
 // =========
 template <typename T>
-class DataArray: public Object
+class DataArray: public virtual Object
 {
 public:
   using data_type = T;

@@ -21,6 +21,7 @@
     <ClInclude Include="..\..\include\ElevationFilter.h" />
     <ClInclude Include="..\..\include\Filter.h" />
     <ClInclude Include="..\..\include\Glyph3.h" />
+    <ClInclude Include="..\..\include\PointSet.h" />
     <ClInclude Include="..\..\include\PolyMesh.h" />
     <ClInclude Include="..\..\include\PolyDataMapper.h" />
     <ClInclude Include="..\..\include\LookupTable.h" />

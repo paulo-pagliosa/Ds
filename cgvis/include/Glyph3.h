@@ -35,6 +35,7 @@
 
 #include "Filter.h"
 #include "PolyMeshBuilder.h"
+#include "PointSet.h"
 
 namespace cg::vis
 { // begin namespace cg::vis
@@ -117,12 +118,10 @@ public:
   }
 
 protected:
-  using Points = std::vector<vec3f>;
-
   Glyph3Base();
 
   Reference<PolyMeshGeometry> makeDefaultSource() const;
-  void execute(const Points&, PolyMesh&);
+  void execute(const PointSet&);
 
 private:
   Reference<PolyMeshGeometry> _source;
@@ -158,21 +157,19 @@ template <typename Input>
 void
 Glyph3<Input>::execute()
 {
-  auto output = new PolyMesh;
-
-  this->setOutput(output);
-
   auto input = this->input();
-  auto nv = input->vertexCount();
 
-  if (nv == 0)
-    return;
+  if (auto nv = input->vertexCount(); nv > 0)
+  {
+    PointSet points{nv};
 
-  Points points(nv);
-
-  for (decltype(nv) i = 0; i < nv; ++i)
-    points[i] = input->vertex(i);
-  Glyph3Base::execute(points, *output);
+    for (decltype(nv) i = 0; i < nv; ++i)
+      points.set(i, input->vertex(i));
+    // TODO: SET VECTOR FIELD
+    points.setVertexScalars(input->vertexScalars());
+    Glyph3Base::execute(points);
+  }
+  this->setOutput(this->mesh());
 }
 
 } // end namespace cg::vis
