@@ -28,7 +28,7 @@
 // Source file for vis 3D glyph filter.
 //
 // Author: Paulo Pagliosa
-// Last revision: 15/03/2022
+// Last revision: 16/03/2022
 
 #include "geometry/MeshSweeper.h"
 #include "Glyph3.h"
@@ -147,6 +147,8 @@ Glyph3Base::execute(const PointSet& points)
     transform()->set(points.get(i), rotation, vec3f{scale});
     makeInstance(*_source);
   }
+  mesh()->setVertexScalars(scalars);
+  mesh()->setVertexVectors(vectors);
 }
 
 } // end namespace cg::vis

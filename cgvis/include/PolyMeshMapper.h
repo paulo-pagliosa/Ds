@@ -28,7 +28,7 @@
 // Class definition for vis poly mesh mapper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/03/2022
+// Last revision: 16/03/2022
 
 #ifndef __PolyMeshMapper_h
 #define __PolyMeshMapper_h

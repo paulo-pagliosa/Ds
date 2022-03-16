@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2020 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,13 +28,12 @@
 // Source file for graphics application.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/08/2020
+// Last revision: 16/03/2022
 
 #include "graphics/Application.h"
 #include <cstdarg>
 #include <cstdio>
-#include <iostream>
-#include <sstream>
+#include <filesystem>
 #include <stdexcept>
 
 namespace cg
@@ -103,7 +102,8 @@ terminateGlfw()
 //
 // Application implementation
 // ===========
-std::string Application::_assetDir;
+std::string Application::_baseDirectory;
+std::string Application::_assetsPath;
 int Application::_count;
 
 Application::Application(GLWindow* mainWindow):
@@ -120,11 +120,7 @@ Application::~Application()
     internal::terminateGlfw();
 }
 
-#ifdef _WIN32
-#define PATH_SEP '\\'
-#else
-#define PATH_SEP '/'
-#endif
+namespace fs = std::filesystem;
 
 int
 Application::run(int argc, char** argv)
@@ -140,14 +136,12 @@ Application::run(int argc, char** argv)
       if (glfwGetPrimaryMonitor() == nullptr)
         error("No monitors found");
     }
-    if (_assetDir.empty())
+    if (_assetsPath.empty())
     {
-      const auto exeFilename = argv[0];
+      auto basePath = fs::path{argv[0]}.parent_path();
 
-      if (const auto slash = strrchr(exeFilename, PATH_SEP))
-        _assetDir = std::string{exeFilename, slash} + "/assets/";
-      else
-        _assetDir = "./assets/";
+      _baseDirectory = basePath.empty() ? "./" : basePath.string() + '/';
+      _assetsPath = _baseDirectory + "assets/";
     }
     (void)argc;
     _mainWindow->show();
@@ -164,13 +158,13 @@ Application::run(int argc, char** argv)
 void
 Application::error(const char* format, ...)
 {
-  const int bufferSize{4096};
+  constexpr auto bufferSize = 4096;
   char buffer[bufferSize];
   va_list args;
 
   va_start(args, format);
   std::vsnprintf(buffer, bufferSize, format, args);
-  throw std::runtime_error(buffer);
+  throw std::runtime_error{buffer};
 }
 
 } // end namespace cg

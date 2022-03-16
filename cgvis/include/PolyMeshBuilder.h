@@ -28,7 +28,7 @@
 // Class definition for vis poly mesh builder.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/03/2022
+// Last revision: 16/03/2022
 
 #ifndef __PolyMeshBuilder_h
 #define __PolyMeshBuilder_h
@@ -46,8 +46,6 @@ namespace cg::vis
 class PolyMeshBuilder: public PolyMeshHelper
 {
 public:
-  Color color{Color::white};
-
   PolyMesh* mesh() const
   {
     return _mesh;

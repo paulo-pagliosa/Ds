@@ -28,7 +28,7 @@
 // Source file for vis poly mesh mapper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/03/2022
+// Last revision: 16/03/2022
 
 #include "PolyMeshMapper.h"
 
@@ -49,7 +49,6 @@ PolyMeshMapper::name() const
 inline void
 PolyMeshMapper::draw(GLRenderer& renderer, const PolyMesh::Instance& instance)
 {
-  renderer.setMeshColor(instance.color);
   for (const auto& e : instance.geometry->elements())
   {
     const auto m = instance.localToWorld * e.localToWorld;
@@ -62,8 +61,19 @@ PolyMeshMapper::draw(GLRenderer& renderer, const PolyMesh::Instance& instance)
 bool
 PolyMeshMapper::draw(GLRenderer& renderer) const
 {
+  const auto& colorMap = this->colorMap();
+  auto useColorMap = !colorMap.empty() && useVertexColors;
+  auto vid = 0;
+
   for (const auto& i : input()->instances())
+  {
+    if (useColorMap)
+      renderer.setMeshColor(colorMap[vid]);
+    else
+      renderer.setMeshColor(i.color);
     draw(renderer, i);
+    ++vid;
+  }
   return true;
 }
 

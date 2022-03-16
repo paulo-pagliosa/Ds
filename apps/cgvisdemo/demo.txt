@@ -1,0 +1,122 @@
+#include "graphics/Application.h"
+#include "ContourFilter.h"
+#include "ElevationFilter.h"
+#include "Glyph3.h"
+#include "PolyDataMapper.h"
+#include "PolyMeshMapper.h"
+#include "TransformFilter.h"
+#include "TriCellMeshMapper.h"
+#include "TriCellMeshNormals.h"
+#include "TriCellMeshReader.h"
+#include "SphereSource.h"
+#include "Scene.h"
+#include <utility>
+
+using namespace cg;
+using namespace cg::vis;
+
+std::pair<Actor*, Actor*>
+scalarDemo(Source<TriCellMesh>* source, LookupTable* colorTable)
+{
+  auto elevationFilter = ElevationFilter<TriCellMesh>::New();
+
+  elevationFilter->setInput(*source);
+  elevationFilter->setDirection(ElevationDirection::Z);
+
+  auto meshMapper = TriCellMeshMapper::New();
+
+  meshMapper->setInput(*elevationFilter);
+  meshMapper->setLookupTable(colorTable);
+
+  auto contourFilter = ContourFilter<TriCellMesh>::New();
+
+  contourFilter->setInput(*elevationFilter);
+  contourFilter->generateValues(10, 0, 1);
+
+  auto isolineMapper = PolyDataMapper::New();
+
+  isolineMapper->setInput(*contourFilter);
+  isolineMapper->setLookupTable(colorTable);
+  return {new Actor(*meshMapper), new Actor(*isolineMapper)};
+}
+
+Actor*
+vectorDemo(Source<TriCellMesh>* source, LookupTable* colorTable, GlyphScaleMode scaleMode)
+{
+  auto elevationFilter = ElevationFilter<TriCellMesh>::New();
+
+  elevationFilter->setInput(*source);
+  elevationFilter->setDirection(ElevationDirection::Z);
+
+  auto meshNormals = TriCellMeshNormals::New();
+
+  meshNormals->setInput(*elevationFilter);
+
+  auto glyphs = Glyph3<TriCellMesh>::New();
+
+  glyphs->setInput(*meshNormals);
+  glyphs->setScaleMode(scaleMode);
+  glyphs->setScaleFactor(0.7f);
+
+  auto glyphMapper = PolyMeshMapper::New();
+
+  glyphMapper->setInput(*glyphs);
+  glyphMapper->setLookupTable(colorTable);
+  return new Actor{*glyphMapper};
+}
+
+void
+demo(Scene& scene)
+{
+  try
+  {
+    {
+      auto colorTable = LookupTable::jet();
+      auto sphere = SphereSource::New();
+
+      sphere->setResolution(20);
+
+      auto [a1, a2] = scalarDemo(sphere, colorTable);
+      auto a3 = vectorDemo(sphere, colorTable, GlyphScaleMode::Vector);
+
+      scene.addActor(a1, "Sphere");
+      scene.addActor(a2, "Sphere Isolines");
+      scene.addActor(a3, "Sphere Normals");
+
+      auto ellipsoid = TransformFilter<TriCellMesh>::New();
+
+      ellipsoid->setInput(*sphere);
+      ellipsoid->setPosition(vec3f{3, 0, 0});
+      ellipsoid->setScale(vec3f{0.5f, 1.5f, 2});
+
+      auto [a4, a5] = scalarDemo(ellipsoid, colorTable);
+      auto a6 = vectorDemo(ellipsoid, colorTable, GlyphScaleMode::Scalar);
+
+      scene.addActor(a4, "Ellipsoid");
+      scene.addActor(a5, "Ellipsoid Isolines");
+      scene.addActor(a6, "Ellipsoid Normals");
+    }
+    {
+      auto colorTable = LookupTable::cooper();
+      auto reader = TriCellMeshReader::New();
+
+      reader->setPath(Application::baseDirectory() + "../cgdemo/assets/meshes/f-16.obj");
+
+      auto [a1, a2] = scalarDemo(reader, colorTable);
+
+      scene.addActor(a1, "F-16");
+      scene.addActor(a2, "F-16 Isolines");
+    }
+
+    auto light = new Light;
+
+    light->setType(Light::Type::Directional);
+    light->setEulerAngles({50, 30, 0});
+    scene.addLight(light, "Main Light");
+    scene.ambientLight = Color::gray;
+  }
+  catch (const std::exception& e)
+  {
+    std::cout << "Error: " << e.what() << '\n';
+  }
+}

@@ -28,7 +28,7 @@
 // Class definition for vis poly mesh.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/03/2022
+// Last revision: 16/03/2022
 
 #ifndef __PolyMesh_h
 #define __PolyMesh_h
@@ -130,11 +130,13 @@ public:
     const Reference<PolyMeshGeometry> geometry;
     const mat4f localToWorld;
     const mat3f normalMatrix;
-    const Color color;
+    Color color;
 
     Bounds3f bounds() const;
 
   }; // Instance
+
+  Color instanceColor{Color::white};
 
   const auto& bounds() const
   {

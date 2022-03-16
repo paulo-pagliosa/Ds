@@ -28,8 +28,9 @@
 // Source file for cg vis demo function.
 //
 // Author: Paulo Pagliosa
-// Last revision: 15/03/2022
+// Last revision: 16/03/2022
 
+#include "graphics/Application.h"
 #include "ContourFilter.h"
 #include "ElevationFilter.h"
 #include "Glyph3.h"
@@ -41,6 +42,9 @@
 #include "TriCellMeshReader.h"
 #include "SphereSource.h"
 #include "Scene.h"
+#include "imgui.h"
+#include <fstream>
+#include <sstream>
 #include <utility>
 
 namespace
@@ -50,7 +54,7 @@ using namespace cg;
 using namespace cg::vis;
 
 std::pair<Actor*, Actor*>
-scalarTest(Source<TriCellMesh>* source, LookupTable* colorTable)
+scalarDemo(Source<TriCellMesh>* source, LookupTable* colorTable)
 {
   auto elevationFilter = ElevationFilter<TriCellMesh>::New();
 
@@ -75,7 +79,9 @@ scalarTest(Source<TriCellMesh>* source, LookupTable* colorTable)
 }
 
 Actor*
-vectorTest(Source<TriCellMesh>* source, GlyphScaleMode scaleMode)
+vectorDemo(Source<TriCellMesh>* source,
+  LookupTable* colorTable,
+  GlyphScaleMode scaleMode)
 {
   auto elevationFilter = ElevationFilter<TriCellMesh>::New();
 
@@ -95,6 +101,7 @@ vectorTest(Source<TriCellMesh>* source, GlyphScaleMode scaleMode)
   auto glyphMapper = PolyMeshMapper::New();
 
   glyphMapper->setInput(*glyphs);
+  glyphMapper->setLookupTable(colorTable);
   return new Actor{*glyphMapper};
 }
 
@@ -113,21 +120,21 @@ demo(cg::vis::Scene& scene)
 
       sphere->setResolution(20);
 
-      auto [a1, a2] = scalarTest(sphere, colorTable);
-      auto a3 = vectorTest(sphere, GlyphScaleMode::Vector);
+      auto [a1, a2] = scalarDemo(sphere, colorTable);
+      auto a3 = vectorDemo(sphere, colorTable, GlyphScaleMode::Vector);
 
       scene.addActor(a1, "Sphere");
       scene.addActor(a2, "Sphere Isolines");
       scene.addActor(a3, "Sphere Normals");
 
-      auto transformFilter = TransformFilter<TriCellMesh>::New();
+      auto ellipsoid = TransformFilter<TriCellMesh>::New();
 
-      transformFilter->setInput(*sphere);
-      transformFilter->setPosition(vec3f{3, 0, 0});
-      transformFilter->setScale(vec3f{0.5f, 1.5f, 2});
+      ellipsoid->setInput(*sphere);
+      ellipsoid->setPosition(vec3f{3, 0, 0});
+      ellipsoid->setScale(vec3f{0.5f, 1.5f, 2});
 
-      auto [a4, a5] = scalarTest(transformFilter, colorTable);
-      auto a6 = vectorTest(transformFilter, GlyphScaleMode::Scalar);
+      auto [a4, a5] = scalarDemo(ellipsoid, colorTable);
+      auto a6 = vectorDemo(ellipsoid, colorTable, GlyphScaleMode::Scalar);
 
       scene.addActor(a4, "Ellipsoid");
       scene.addActor(a5, "Ellipsoid Isolines");
@@ -137,9 +144,10 @@ demo(cg::vis::Scene& scene)
       auto colorTable = LookupTable::cooper();
       auto reader = TriCellMeshReader::New();
 
-      reader->setPath("../../../cgdemo/assets/meshes/f-16.obj");
+      reader->setPath(Application::baseDirectory() +
+        "../cgdemo/assets/meshes/f-16.obj");
 
-      auto [a1, a2] = scalarTest(reader, colorTable);
+      auto [a1, a2] = scalarDemo(reader, colorTable);
 
       scene.addActor(a1, "F-16");
       scene.addActor(a2, "F-16 Isolines");
@@ -156,4 +164,27 @@ demo(cg::vis::Scene& scene)
   {
     std::cout << "Error: " << e.what() << '\n';
   }
+}
+
+void
+demoLog()
+{
+  static std::string demoCode;
+
+  if (demoCode.empty())
+  {
+    std::ifstream f(Application::baseDirectory() + "demo.txt");
+
+    if (!f)
+      throw std::runtime_error("Demo code file not found");
+#ifdef _DEBUG
+    puts("Reading demo.txt...");
+#endif // _DEBUG
+
+    std::ostringstream s;
+    
+    s << f.rdbuf();
+    demoCode = s.str();
+  }
+  ImGui::TextUnformatted(demoCode.c_str());
 }

@@ -28,7 +28,7 @@
 // Source file for generic vis scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/03/2022
+// Last revision: 16/03/2022
 
 #include "SceneWindow.h"
 
@@ -268,20 +268,20 @@ void
 SceneWindow::inspectPolyDataMapper(SceneWindow& window,
   AbstractMapper& mapper)
 {
-  // TODO: edit polydata properties
+  // TODO: edit poly data properties
   /*
   if (auto m = dynamic_cast<PolyDataMapper*>(&mapper))
   {
-    auto polyData = m->input();
-    auto ps = polyData->pointSize();
+    auto data = m->input();
+    auto ps = data->pointSize();
 
     if (ImGui::DragFloat("Point Size", &ps, 1, 1, 20))
-      polyData->setPointSize(ps);
+      data->setPointSize(ps);
     if (ImGui::CollapsingHeader("Colors"))
     {
-      ImGui::colorEdit3("Point", polyData->pointColor);
-      ImGui::colorEdit3("Line", polyData->lineColor);
-      ImGui::colorEdit3("Triangle", polyData->triangleColor);
+      ImGui::colorEdit3("Point", data->pointColor);
+      ImGui::colorEdit3("Line", data->lineColor);
+      ImGui::colorEdit3("Triangle", data->triangleColor);
     }
   }
   */
@@ -294,6 +294,20 @@ SceneWindow::inspectTriCellMeshMapper(SceneWindow& window,
   if (auto m = dynamic_cast<TriCellMeshMapper*>(&mapper))
     if (ImGui::CollapsingHeader("Material"))
       inspectMaterial(*m->input()->material());
+}
+
+void
+SceneWindow::inspectPolyMeshMapper(SceneWindow& window,
+  AbstractMapper& mapper)
+{
+  // TODO: edit poly mesh properties
+  /*
+  if (auto m = dynamic_cast<PolyMeshMapper*>(&mapper))
+  {
+    auto mesh = m->input();
+    ImGui::colorEdit3("Color", mesh->instanceColor);
+  }
+  */
 }
 
 } // end namespace cg::vis

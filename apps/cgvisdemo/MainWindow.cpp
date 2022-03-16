@@ -28,7 +28,7 @@
 // Source file for cg vis demo main window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 12/03/2022
+// Last revision: 16/03/2022
 
 #include "MainWindow.h"
 
@@ -36,6 +36,7 @@
 // Demo function
 //
 extern void demo(cg::vis::Scene&);
+extern void demoLog();
 
 namespace cg::vis
 { // begin namespace cg::vis
@@ -84,6 +85,7 @@ MainWindow::mainMenu()
       ImGui::MenuItem("Scene Window", nullptr, &_showHierarchy);
       ImGui::MenuItem("Inspector Window", nullptr, &_showInspector);
       ImGui::MenuItem("Editor View Settings", nullptr, &_showEditorView);
+      ImGui::MenuItem("Demo Code Window", nullptr, &_showLog);
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu("Tools"))
@@ -97,6 +99,18 @@ MainWindow::mainMenu()
     }
     ImGui::EndMainMenuBar();
   }
+}
+
+inline void
+MainWindow::logWindow()
+{
+  if (!_showLog)
+    return;
+  if (ImGui::Begin("Demo Code Window",
+    nullptr,
+    ImGuiWindowFlags_HorizontalScrollbar))
+    demoLog();
+  ImGui::End();
 }
 
 void
@@ -122,14 +136,18 @@ MainWindow::gui()
   editorView();
 
   constexpr auto iww = (float)420;
+  constexpr auto iwh = (float)360;
   auto rgt = w - iww;
-  auto awh = h / 3;
-  auto awy = h - awh;
+  auto lwy = iwh + top;
 
   // Inspector Window
   ImGui::SetNextWindowPos({rgt, top});
-  ImGui::SetNextWindowSize({iww, h - top});
+  ImGui::SetNextWindowSize({iww, iwh});
   inspectorWindow();
+  // Log Window
+  ImGui::SetNextWindowPos({rgt, lwy});
+  ImGui::SetNextWindowSize({iww, h - lwy});
+  logWindow();
 }
 
 } // end namespace cg::vis

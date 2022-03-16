@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018 Paulo Pagliosa.                              |
+//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for graphics application.
 //
 // Author: Paulo Pagliosa
-// Last revision: 06/08/2018
+// Last revision: 16/03/2022
 
 #ifndef __Application_h
 #define __Application_h
@@ -65,10 +65,16 @@ public:
   /// Throws a runtime error exception.
   static void error(const char* format, ...);
 
+  /// Returns the application base directory.
+  static const auto& baseDirectory()
+  {
+    return _baseDirectory;
+  }
+
   /// Returns the asset file path for \c filename.
   static std::string assetFilePath(const char* filename)
   {
-    return _assetDir + filename;
+    return _assetsPath + filename;
   }
 
   /// Loads shaders from files \c vs and \c fs into \c p.
@@ -87,7 +93,8 @@ private:
   int _id;
   GLWindow *_mainWindow;
 
-  static std::string _assetDir;
+  static std::string _baseDirectory;
+  static std::string _assetsPath;
   static int _count;
 
 }; // Application

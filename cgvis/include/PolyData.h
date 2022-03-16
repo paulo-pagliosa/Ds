@@ -28,7 +28,7 @@
 // Class definition for vis poly data.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/03/2022
+// Last revision: 16/03/2022
 
 #ifndef __PolyData_h
 #define __PolyData_h
@@ -120,7 +120,7 @@ public:
     return &_lines.back();
   }
 
-  const auto& addTriangle(const vec3f& p1, const vec3f& p2, const vec3f& p3)
+  const auto* addTriangle(const vec3f& p1, const vec3f& p2, const vec3f& p3)
   {
     auto vid1 = addVertex(p1);
     auto vid2 = addVertex(p2);

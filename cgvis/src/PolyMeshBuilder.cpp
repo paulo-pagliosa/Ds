@@ -28,7 +28,7 @@
 // Source file for vis poly mesh builder.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/03/2022
+// Last revision: 16/03/2022
 
 #include "PolyMeshBuilder.h"
 
@@ -43,7 +43,10 @@ namespace cg::vis
 void
 PolyMeshBuilder::makeInstance(const PolyMeshGeometry& geometry)
 {
-  PolyMesh::Instance i{&geometry, _localToWorld, normalMatrix(), color};
+  PolyMesh::Instance i{&geometry,
+    _localToWorld,
+    normalMatrix(),
+    _mesh->instanceColor};
 
   _mesh->_instances.add(i);
   _mesh->_bounds.inflate(i.bounds());

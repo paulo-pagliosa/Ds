@@ -28,7 +28,7 @@
 // Class definition for cg vis demo main window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/02/2022
+// Last revision: 16/03/2022
 
 #ifndef __MainWindow_h
 #define __MainWindow_h
@@ -53,12 +53,15 @@ public:
   }
 
 private:
+  bool _showLog{true};
+
   void initializeScene() override;
   void gui() override;
 
   void mainMenu();
   void fileMenu();
   void showOptions();
+  void logWindow();
 
 }; // MainWindow
 

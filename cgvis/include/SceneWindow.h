@@ -28,14 +28,15 @@
 // Class definition for generic vis scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/03/2022
+// Last revision: 16/03/2022
 
 #ifndef __VisSceneWindow_h
 #define __VisSceneWindow_h
 
-#include "graphics/SceneWindowBase.h"
 #include "graph/SceneNode.h"
+#include "graphics/SceneWindowBase.h"
 #include "PolyDataMapper.h"
+#include "PolyMeshMapper.h"
 #include "TriCellMeshMapper.h"
 #include "Scene.h"
 #include <typeinfo>
@@ -75,6 +76,7 @@ protected:
   {
     registerInspectFunction<PolyDataMapper>(inspectPolyDataMapper);
     registerInspectFunction<TriCellMeshMapper>(inspectTriCellMeshMapper);
+    registerInspectFunction<PolyMeshMapper>(inspectPolyMeshMapper);
   }
 
   void render() override;
@@ -90,6 +92,7 @@ protected:
 
   static void inspectPolyDataMapper(SceneWindow&, AbstractMapper&);
   static void inspectTriCellMeshMapper(SceneWindow&, AbstractMapper&);
+  static void inspectPolyMeshMapper(SceneWindow&, AbstractMapper&);
 
 private:
   using InspectMap = std::unordered_map<size_t, InspectFunction>;
