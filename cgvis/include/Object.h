@@ -28,7 +28,7 @@
 // Class definition for generic vis object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/03/2022
+// Last revision: 15/03/2022
 
 #ifndef __VisObject_h
 #define __VisObject_h
@@ -110,7 +110,7 @@ public:
   static T* makeCopy(T* ptr)
   {
     ASSERT_OBJECT(T, "Pointer to object expected");
-    return ptr == nullptr ? nullptr : (T*)((Object*)ptr)->clone();
+    return ptr == nullptr ? nullptr : ptr->clone();
   }
 
   auto modifiedTime() const
@@ -125,11 +125,6 @@ public:
 
 private:
   Timestamp _modifiedTime;
-
-  virtual Object* clone() const
-  {
-    return nullptr;
-  }
 
 }; // Object
 

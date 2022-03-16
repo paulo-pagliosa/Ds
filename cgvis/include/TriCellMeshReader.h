@@ -25,10 +25,10 @@
 //
 // OVERVIEW: TriCellMeshReader.h
 // ========
-// Class definition for vis tri cell mesh reader.
+// Class definition for vis triangle mesh reader.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/03/2022
+// Last revision: 15/03/2022
 
 #ifndef __TriCellMeshReader_h
 #define __TriCellMeshReader_h
@@ -48,7 +48,7 @@ namespace vis
 
 /////////////////////////////////////////////////////////////////////
 //
-// TriCellMeshReader: tri cell mesh reader class
+// TriCellMeshReader: triangle mesh reader class
 // =================
 class TriCellMeshReader final: public Source<TriCellMesh>
 {

@@ -28,7 +28,7 @@
 // Source file for vis 3D glyph filter.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/03/2022
+// Last revision: 15/03/2022
 
 #include "geometry/MeshSweeper.h"
 #include "Glyph3.h"
@@ -42,7 +42,7 @@ namespace cg::vis
 // Glyph3Base implementation
 // ==========
 Glyph3Base::Glyph3Base():
-  _scaleMode{ScaleMode::Scalar},
+  _scaleMode{GlyphScaleMode::Scalar},
   _scaleFactor{1},
   _clamping{false}
 {
@@ -66,9 +66,9 @@ Glyph3Base::makeDefaultSource() const
   auto g = PolyMeshGeometry::New();
   auto t = g->transform();
 
-  t->setScale({1, 0.001f, 1});
+  t->setScale({0.01f, 0.4f, 0.01f});
   g->addElement(*MeshSweeper::makeCylinder());
-  t->set({0, 1, 0}, quatf::identity(), vec3f{0.3f});
+  t->set({0, 0.4f, 0}, quatf::identity(), {0.05f, 0.2f, 0.05f});
   g->addElement(*MeshSweeper::makeCone());
   return g;
 }
@@ -102,7 +102,7 @@ Glyph3Base::execute(const PointSet& points)
 
   if (scalars == nullptr)
   {
-    if (_scaleMode == ScaleMode::Scalar)
+    if (_scaleMode == GlyphScaleMode::Scalar)
     {
 #ifdef _DEBUG
       puts("Glyph3: no scalar field");
@@ -124,13 +124,13 @@ Glyph3Base::execute(const PointSet& points)
 
     auto rotation = quatf::identity();
 
-    if (!math::isZero(v.x) || !math::isZero(v.y))
-      rotation.set(180, {v.x * 0.5f, v.y * 0.5f, (v.z + scale) * 0.5f});
-    else if (v.z < 0)
-      rotation.set(180, vec3f::up());
-    if (_scaleMode == ScaleMode::Scalar)
+    if (!math::isZero(v.x) || !math::isZero(v.z))
+      rotation.set(180, {v.x, v.y + scale, v.z});
+    else if (v.y < 0)
+      rotation.set(180, {0, 0, 1});
+    if (_scaleMode == GlyphScaleMode::Scalar)
     {
-      // scale = point->Scalar;
+      scale = scalars->get(i);
       if (_clamping)
       {
         auto d = _range[1] - _range[0];

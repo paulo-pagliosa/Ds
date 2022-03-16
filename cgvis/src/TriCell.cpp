@@ -25,10 +25,10 @@
 //
 // OVERVIEW: TriCell.cpp
 // ========
-// Source file for vis tri cell.
+// Source file for vis linear triangular cell.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/03/2022
+// Last revision: 15/03/2022
 
 #include "PolyData.h"
 #include "Scalars.h"

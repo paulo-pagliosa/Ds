@@ -28,14 +28,16 @@
 // Source file for cg vis demo function.
 //
 // Author: Paulo Pagliosa
-// Last revision: 12/03/2022
+// Last revision: 15/03/2022
 
 #include "ContourFilter.h"
 #include "ElevationFilter.h"
+#include "Glyph3.h"
 #include "PolyDataMapper.h"
 #include "PolyMeshMapper.h"
 #include "TransformFilter.h"
 #include "TriCellMeshMapper.h"
+#include "TriCellMeshNormals.h"
 #include "TriCellMeshReader.h"
 #include "SphereSource.h"
 #include "Scene.h"
@@ -48,7 +50,7 @@ using namespace cg;
 using namespace cg::vis;
 
 std::pair<Actor*, Actor*>
-pipelineTest(Source<TriCellMesh>* source, LookupTable* colorTable)
+scalarTest(Source<TriCellMesh>* source, LookupTable* colorTable)
 {
   auto elevationFilter = ElevationFilter<TriCellMesh>::New();
 
@@ -72,6 +74,30 @@ pipelineTest(Source<TriCellMesh>* source, LookupTable* colorTable)
   return {new Actor(*meshMapper), new Actor(*isolineMapper)};
 }
 
+Actor*
+vectorTest(Source<TriCellMesh>* source, GlyphScaleMode scaleMode)
+{
+  auto elevationFilter = ElevationFilter<TriCellMesh>::New();
+
+  elevationFilter->setInput(*source);
+  elevationFilter->setDirection(ElevationDirection::Z);
+
+  auto meshNormals = TriCellMeshNormals::New();
+
+  meshNormals->setInput(*elevationFilter);
+
+  auto glyphs = Glyph3<TriCellMesh>::New();
+
+  glyphs->setInput(*meshNormals);
+  glyphs->setScaleMode(scaleMode);
+  glyphs->setScaleFactor(0.7f);
+
+  auto glyphMapper = PolyMeshMapper::New();
+
+  glyphMapper->setInput(*glyphs);
+  return new Actor{*glyphMapper};
+}
+
 } // end namespace
 
 void
@@ -87,21 +113,25 @@ demo(cg::vis::Scene& scene)
 
       sphere->setResolution(20);
 
-      auto [a1, a2] = pipelineTest(sphere, colorTable);
+      auto [a1, a2] = scalarTest(sphere, colorTable);
+      auto a3 = vectorTest(sphere, GlyphScaleMode::Vector);
 
       scene.addActor(a1, "Sphere");
       scene.addActor(a2, "Sphere Isolines");
+      scene.addActor(a3, "Sphere Normals");
 
       auto transformFilter = TransformFilter<TriCellMesh>::New();
 
       transformFilter->setInput(*sphere);
-      transformFilter->setPosition(vec3f{2, 0, 0});
+      transformFilter->setPosition(vec3f{3, 0, 0});
       transformFilter->setScale(vec3f{0.5f, 1.5f, 2});
 
-      auto [a3, a4] = pipelineTest(transformFilter, colorTable);
+      auto [a4, a5] = scalarTest(transformFilter, colorTable);
+      auto a6 = vectorTest(transformFilter, GlyphScaleMode::Scalar);
 
-      scene.addActor(a3, "Transformed Sphere");
-      scene.addActor(a4, "Transformed Sphere Isolines");
+      scene.addActor(a4, "Ellipsoid");
+      scene.addActor(a5, "Ellipsoid Isolines");
+      scene.addActor(a6, "Ellipsoid Normals");
     }
     {
       auto colorTable = LookupTable::cooper();
@@ -109,7 +139,7 @@ demo(cg::vis::Scene& scene)
 
       reader->setPath("../../../cgdemo/assets/meshes/f-16.obj");
 
-      auto [a1, a2] = pipelineTest(reader, colorTable);
+      auto [a1, a2] = scalarTest(reader, colorTable);
 
       scene.addActor(a1, "F-16");
       scene.addActor(a2, "F-16 Isolines");

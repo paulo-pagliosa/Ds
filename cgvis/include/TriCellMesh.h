@@ -25,10 +25,10 @@
 //
 // OVERVIEW: TriCellMesh.h
 // ========
-// Class definition for vis tri cell mesh.
+// Class definition for vis triangle mesh.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/03/2022
+// Last revision: 15/03/2022
 
 #ifndef __TriCellMesh_h
 #define __TriCellMesh_h
@@ -49,7 +49,7 @@ class PolyMesh;
 
 /////////////////////////////////////////////////////////////////////
 //
-// TriCellMesh: vis tri cell mesh class
+// TriCellMesh: vis triangle mesh class
 // ===========
 class TriCellMesh: public Primitive, public DataSet
 {
@@ -92,6 +92,11 @@ public:
   virtual vec3f normal(const Intersection&) const override;;
   Bounds3f bounds() const override;
 
+  auto clone() const
+  {
+    return new TriCellMesh{*this};
+  }
+
 private:
   Reference<TriangleMeshShape> _geometry;
   Bounds3f _bounds;
@@ -121,7 +126,6 @@ private:
 
   bool localIntersect(const Ray3f&) const override;
   bool localIntersect(const Ray3f&, Intersection&) const override;
-  Object* clone() const override;
 
   friend PolyMesh;
 

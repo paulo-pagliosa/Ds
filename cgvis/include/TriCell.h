@@ -25,10 +25,10 @@
 //
 // OVERVIEW: TriCell.h
 // ========
-// Class definition for vis tri cell.
+// Class definition for vis linear triangular cell.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/03/2022
+// Last revision: 15/03/2022
 
 #ifndef __TriCell_h
 #define __TriCell_h
@@ -52,7 +52,7 @@ extern void contourTriangle(const vec3f* vertices,
 
 /////////////////////////////////////////////////////////////////////
 //
-// TriCell: vis tri cell class
+// TriCell: vis linear triangular cell class
 // =======
 template <typename DataSet>
 class TriCell: public Cell<DataSet, 3>

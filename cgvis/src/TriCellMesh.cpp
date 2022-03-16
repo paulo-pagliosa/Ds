@@ -25,10 +25,10 @@
 //
 // OVERVIEW: TriCellMesh.cpp
 // ========
-// Soure file for vis tri mesh.
+// Soure file for vis triangle mesh.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/03/2022
+// Last revision: 15/03/2022
 
 #include "TriCellMesh.h"
 
@@ -77,12 +77,6 @@ TriCellMesh::localIntersect(const Ray3f& ray, Intersection& hit) const
   return _geometry->intersect(ray, hit) ?
     void(hit.object = this), true :
     false;
-}
-
-Object*
-TriCellMesh::clone() const
-{
-  return new TriCellMesh{*this};
 }
 
 } // end namespace cg::vis

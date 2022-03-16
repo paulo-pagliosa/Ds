@@ -28,7 +28,7 @@
 // Class definition for vis 3D glyph filter.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/03/2022
+// Last revision: 15/03/2022
 
 #ifndef __Glyph3_h
 #define __Glyph3_h
@@ -40,6 +40,12 @@
 namespace cg::vis
 { // begin namespace cg::vis
 
+enum class GlyphScaleMode
+{
+  Scalar,
+  Vector
+};
+
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -48,12 +54,6 @@ namespace cg::vis
 class Glyph3Base: public virtual Object, public PolyMeshBuilder
 {
 public:
-  enum class ScaleMode
-  {
-    Scalar,
-    Vector
-  };
-
   constexpr static auto minScaleFactor = 0.001f;
 
   PolyMeshGeometry* source() const
@@ -94,7 +94,7 @@ public:
     return _scaleMode;
   }
 
-  void setScaleMode(ScaleMode scaleMode)
+  void setScaleMode(GlyphScaleMode scaleMode)
   {
     if (scaleMode != _scaleMode)
     {
@@ -127,7 +127,7 @@ private:
   Reference<PolyMeshGeometry> _source;
   float _range[2];
   float _scaleFactor;
-  ScaleMode _scaleMode;
+  GlyphScaleMode _scaleMode;
   bool _clamping;
 
 }; // Glyph3Base
@@ -161,13 +161,13 @@ Glyph3<Input>::execute()
 
   if (auto nv = input->vertexCount(); nv > 0)
   {
-    PointSet points{nv};
+    auto points = PointSet::New(nv);
 
     for (decltype(nv) i = 0; i < nv; ++i)
-      points.set(i, input->vertex(i));
-    // TODO: SET VECTOR FIELD
-    points.setVertexScalars(input->vertexScalars());
-    Glyph3Base::execute(points);
+      points->set(i, input->vertex(i));
+    points->setVertexScalars(input->vertexScalars());
+    points->setVertexVectors(input->vertexVectors());
+    Glyph3Base::execute(*points);
   }
   this->setOutput(this->mesh());
 }

@@ -25,10 +25,10 @@
 //
 // OVERVIEW: TriCellMeshReader.cpp
 // ========
-// Source file for vis tri cell mesh reader.
+// Source file for vis triangle mesh reader.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/03/2022
+// Last revision: 15/03/2022
 
 #include "utils/MeshReader.h"
 #include "TriCellMeshReader.h"

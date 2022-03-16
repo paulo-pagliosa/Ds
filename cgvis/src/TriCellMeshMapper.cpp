@@ -25,10 +25,10 @@
 //
 // OVERVIEW: TriCellMeshMapper.cpp
 // ========
-// Source file for vis tri cell mesh mapper.
+// Source file for vis triangle mesh mapper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/03/2022
+// Last revision: 15/03/2022
 
 #include "graphics/GLRenderer.h"
 #include "TriCellMeshMapper.h"

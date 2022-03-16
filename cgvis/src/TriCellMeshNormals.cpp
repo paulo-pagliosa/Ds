@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2022 Paulo Pagliosa.                              |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,19 +23,14 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: TriCellMeshMapper.h
+// OVERVIEW: TriCellMeshNormals.cpp
 // ========
-// Class definition for vis triangle mesh mapper.
+// Source file for vis triangle mesh normal extractor.
 //
 // Author: Paulo Pagliosa
 // Last revision: 15/03/2022
 
-#ifndef __TriCellMeshMapper_h
-#define __TriCellMeshMapper_h
-
-#include "Mapper.h"
-#include "TriCellMesh.h"
-#include "graphics/GLMesh.h"
+#include "TriCellMeshNormals.h"
 
 namespace cg::vis
 { // begin namespace cg::vis
@@ -43,30 +38,38 @@ namespace cg::vis
 
 /////////////////////////////////////////////////////////////////////
 //
-// TriCellMeshMapper: triangle mesh mapper class
-// =================
-class TriCellMeshMapper final: public Mapper<TriCellMesh>
+// TriCellMeshNormals implementation
+// ==================
+void
+TriCellMeshNormals::execute()
 {
-public:
-  using Base = Mapper<TriCellMesh>;
+  auto output = Object::makeCopy(input());
 
-  static Reference<TriCellMeshMapper> New()
+  if (output == nullptr)
+    throw std::runtime_error("TriCellMeshNormals::execute(): no output");
+  this->setOutput(output);
+
+  auto normals = output->mesh()->data().vertexNormals;
+
+  if (normals == nullptr)
   {
-    return new TriCellMeshMapper;
+    output->setVertexVectors(nullptr);
+    return;
   }
 
-  const char* name() const override;
+  auto nv = output->vertexCount();
+  auto vectors = output->vertexVectors();
 
-private:
-  mutable Reference<GLColorBuffer> _colorBuffer;
+  if (vectors == nullptr || nv != vectors->size())
+  {
+    vectors = new Vectors{nv};
+    output->setVertexVectors(vectors);
+  }
 
-  void renderColorMap() const;
+  const auto& normalMatrix = input()->normalMatrix();
 
-  bool mapColors(Scalars*) const override;
-  bool draw(GLRenderer&) const override;
-
-}; // TriCellMeshMapper
+  for (decltype(nv) i = 0; i < nv; ++i)
+    vectors->set(i, normalMatrix * normals[i]);
+}
 
 } // end namespace cg::vis
-
-#endif // __TriCellMeshMapper_h

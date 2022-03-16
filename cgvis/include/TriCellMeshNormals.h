@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2022 Paulo Pagliosa.                              |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,19 +23,18 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: TriCellMeshMapper.h
+// OVERVIEW: TriCellMeshNormals.h
 // ========
-// Class definition for vis triangle mesh mapper.
+// Class definition for vis triangle mesh normal extractor.
 //
 // Author: Paulo Pagliosa
 // Last revision: 15/03/2022
 
-#ifndef __TriCellMeshMapper_h
-#define __TriCellMeshMapper_h
+#ifndef __TriCellMeshNormals_h
+#define __TriCellMeshNormals_h
 
-#include "Mapper.h"
+#include "Filter.h"
 #include "TriCellMesh.h"
-#include "graphics/GLMesh.h"
 
 namespace cg::vis
 { // begin namespace cg::vis
@@ -43,30 +42,23 @@ namespace cg::vis
 
 /////////////////////////////////////////////////////////////////////
 //
-// TriCellMeshMapper: triangle mesh mapper class
-// =================
-class TriCellMeshMapper final: public Mapper<TriCellMesh>
+// TriCellMeshNormals: vis triangle mesh normal extractor class
+// ==================
+class TriCellMeshNormals: public Filter<TriCellMesh, TriCellMesh>
 {
 public:
-  using Base = Mapper<TriCellMesh>;
-
-  static Reference<TriCellMeshMapper> New()
+  static Reference<TriCellMeshNormals> New()
   {
-    return new TriCellMeshMapper;
+    return new TriCellMeshNormals;
   }
 
-  const char* name() const override;
+  void execute() override;
 
 private:
-  mutable Reference<GLColorBuffer> _colorBuffer;
+  TriCellMeshNormals() = default;
 
-  void renderColorMap() const;
-
-  bool mapColors(Scalars*) const override;
-  bool draw(GLRenderer&) const override;
-
-}; // TriCellMeshMapper
+}; // TriCellMeshNormals
 
 } // end namespace cg::vis
 
-#endif // __TriCellMeshMapper_h
+#endif // __TriCellMeshNormals_h
