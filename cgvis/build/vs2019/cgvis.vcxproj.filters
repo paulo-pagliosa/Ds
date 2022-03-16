@@ -107,6 +107,9 @@
     <ClInclude Include="..\..\include\PointSet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\TriCellMeshNormals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\Source.cpp">
@@ -170,6 +173,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\PolyMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\TriCellMeshNormals.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

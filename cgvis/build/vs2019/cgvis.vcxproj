@@ -41,6 +41,7 @@
     <ClInclude Include="..\..\include\TriCell.h" />
     <ClInclude Include="..\..\include\TriCellMesh.h" />
     <ClInclude Include="..\..\include\TriCellMeshMapper.h" />
+    <ClInclude Include="..\..\include\TriCellMeshNormals.h" />
     <ClInclude Include="..\..\include\TriCellMeshReader.h" />
     <ClInclude Include="..\..\include\Writer.h" />
   </ItemGroup>
@@ -65,6 +66,7 @@
     <ClCompile Include="..\..\src\TriCellMeshMapper.cpp" />
     <ClCompile Include="..\..\src\TriCell.cpp" />
     <ClCompile Include="..\..\src\TriCellMesh.cpp" />
+    <ClCompile Include="..\..\src\TriCellMeshNormals.cpp" />
     <ClCompile Include="..\..\src\TriCellMeshReader.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
