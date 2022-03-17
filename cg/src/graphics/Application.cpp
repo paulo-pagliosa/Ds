@@ -106,18 +106,18 @@ std::string Application::_baseDirectory;
 std::string Application::_assetsPath;
 int Application::_count;
 
-Application::Application(GLWindow* mainWindow):
-  _id{++_count},
-  _mainWindow{mainWindow}
-{
-  // do nothing
-}
-
 Application::~Application()
 {
   delete _mainWindow;
   if (--_count == 0)
     internal::terminateGlfw();
+}
+
+Application::Application(GLWindow* mainWindow):
+  _id{++_count},
+  _mainWindow{mainWindow}
+{
+  // do nothing
 }
 
 namespace fs = std::filesystem;
