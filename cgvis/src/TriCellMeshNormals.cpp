@@ -28,7 +28,7 @@
 // Source file for vis triangle mesh normal extractor.
 //
 // Author: Paulo Pagliosa
-// Last revision: 15/03/2022
+// Last revision: 16/03/2022
 
 #include "TriCellMeshNormals.h"
 
@@ -43,6 +43,7 @@ namespace cg::vis
 void
 TriCellMeshNormals::execute()
 {
+  // TODO: cell normal extraction
   auto output = Object::makeCopy(input());
 
   if (output == nullptr)
