@@ -55,6 +55,7 @@ public:
 private:
   bool _showLog{true};
 
+  void beginInitialize() override;
   void initializeScene() override;
   void gui() override;
 

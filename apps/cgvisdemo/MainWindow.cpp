@@ -30,6 +30,7 @@
 // Author: Paulo Pagliosa
 // Last revision: 16/03/2022
 
+#include "graphics/Application.h"
 #include "MainWindow.h"
 
 //
@@ -46,6 +47,15 @@ namespace cg::vis
 //
 // MainWindow implementation
 // ==========
+void
+MainWindow::beginInitialize()
+{
+  constexpr auto ffn = "../cgdemo/assets/fonts/Roboto-Regular.ttf";
+  auto fonts = ImGui::GetIO().Fonts;
+
+  fonts->AddFontFromFileTTF((Application::baseDirectory() + ffn).c_str(), 16);
+}
+
 void
 MainWindow::initializeScene()
 {
@@ -119,9 +129,9 @@ MainWindow::gui()
   mainMenu();
 
   constexpr auto evw = (float)360;
-  constexpr auto evh = (float)300;
+  constexpr auto evh = (float)308;
   constexpr auto lft = (float)0;
-  constexpr auto top = (float)20;
+  constexpr auto top = (float)23;
   auto w = (float)width();
   auto h = (float)height();
   auto evy = h - evh;
@@ -136,7 +146,7 @@ MainWindow::gui()
   editorView();
 
   constexpr auto iww = (float)420;
-  constexpr auto iwh = (float)360;
+  constexpr auto iwh = (float)380;
   auto rgt = w - iww;
   auto lwy = iwh + top;
 
