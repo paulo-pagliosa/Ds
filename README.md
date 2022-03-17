@@ -3,9 +3,10 @@
 Ds is an Open Source C++ class library for [OpenGL]-based graphics application
 development. It contains classes and templates for math objects (vectors,
 points, quaternions, and transformations), spatial data structures (grids,
-trees, and bounding volume hierarchies), scene graph management ([Unity]-like
-scene object hierarchy and components such as triangle meshes, lights, and
-cameras), and basic [OpenGL] rendering and ray-tracing support, among others.
+trees, and bounding volume hierarchies), scene graph management
+("[Unity]-like" scene object hierarchy and components such as triangle meshes,
+lights, and cameras), and basic [OpenGL] rendering and ray-tracing support,
+among others.
 
 Ds has been employed in the teaching of subjects such as computer graphics,
 visualization, and games, in undergraduate and graduate courses of Computer
@@ -44,10 +45,10 @@ is available [here](/apps/cgdemo/assets/scenes/).
 
 ## Ds-Vis
 
-Ds-Vis is a simple scientific visualization library extending Ds. The API
-contains classes and templates for datasets and processes. A dataset consists
-of a structure (geometry and topology defined by vertices and cells) and
-attributes (e.g., scalars and/or vectors at vertices and cells). The API
+Ds-Vis is a simple "[VTK]-like" scientific visualization library extending Ds.
+The API contains classes and templates for datasets and processes. A dataset
+consists of a structure (geometry and topology defined by vertices and cells)
+and attributes (e.g., scalars and/or vectors at vertices and cells). The API
 provides classes for point sets, triangle meshes, triangle mesh intancing,
 and sets of graphics primitives containing points, lines, and triangles.
 Processes can be sources (dataset producers), filters (dataset transformers),
@@ -104,6 +105,7 @@ feature you would like to request, please send an e-mail to:<br/>
 [GLFW]: <https://www.glfw.org>
 [Dear ImGui]: <https://github.com/ocornut/imgui>
 [CUDA]: <https://developer.nvidia.com/cuda-downloads>
+[VTK]: <https://vtk.org/>
 [cgdemo]: <https://user-images.githubusercontent.com/32277980/153728061-df2b3644-176b-44cc-bbc0-ba3011012ee0.png>
 [cgdemo-scene]: <https://user-images.githubusercontent.com/32277980/153728083-cd875b86-2d29-41d2-8b01-b2a610d5e7d1.png>
 [cgvisdemo]: <https://user-images.githubusercontent.com/32277980/158721233-25ec422a-9922-4b92-89d2-e5a41376d25d.png>
