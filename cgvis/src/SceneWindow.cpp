@@ -300,7 +300,7 @@ void
 SceneWindow::inspectPolyMeshMapper(SceneWindow& window,
   AbstractMapper& mapper)
 {
-  // TODO: edit poly mesh properties
+  // TODO: edit poly mesh color
   /*
   if (auto m = dynamic_cast<PolyMeshMapper*>(&mapper))
   {

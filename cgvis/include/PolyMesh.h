@@ -40,6 +40,9 @@
 namespace cg::vis
 { // begin namespace cg::vis
 
+//
+// Forward definition
+//
 class PolyMeshBuilder;
 
 class PolyMeshHelper: public TransformableObject

@@ -59,21 +59,21 @@ public:
   {
     Color color;
     float size;
-    int id;
+    const int id;
 
   }; // PointData
 
   struct LineData
   {
     Color color;
-    int ids[2];
+    const int ids[2];
 
   }; // LineData
 
   struct TriangleData
   {
     Color color;
-    int ids[3];
+    const int ids[3];
 
   }; // TriangleData
 

@@ -28,7 +28,7 @@
 // Class definition for vis poly mesh builder.
 //
 // Author: Paulo Pagliosa
-// Last revision: 16/03/2022
+// Last revision: 15/03/2022
 
 #ifndef __PolyMeshBuilder_h
 #define __PolyMeshBuilder_h

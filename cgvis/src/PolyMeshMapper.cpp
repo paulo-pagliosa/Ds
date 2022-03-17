@@ -63,16 +63,16 @@ PolyMeshMapper::draw(GLRenderer& renderer) const
 {
   const auto& colorMap = this->colorMap();
   auto useColorMap = !colorMap.empty() && useVertexColors;
-  auto vid = 0;
+  auto id = 0;
 
-  for (const auto& i : input()->instances())
+  for (const auto& instance : input()->instances())
   {
     if (useColorMap)
-      renderer.setMeshColor(colorMap[vid]);
+      renderer.setMeshColor(colorMap[id]);
     else
-      renderer.setMeshColor(i.color);
-    draw(renderer, i);
-    ++vid;
+      renderer.setMeshColor(instance.color);
+    draw(renderer, instance);
+    ++id;
   }
   return true;
 }

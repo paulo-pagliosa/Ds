@@ -66,6 +66,7 @@ Glyph3Base::makeDefaultSource() const
   auto g = PolyMeshGeometry::New();
   auto t = g->transform();
 
+  // Arrow
   t->setScale({0.01f, 0.4f, 0.01f});
   g->addElement(*MeshSweeper::makeCylinder());
   t->set({0, 0.4f, 0}, quatf::identity(), {0.05f, 0.2f, 0.05f});

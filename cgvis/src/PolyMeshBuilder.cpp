@@ -43,13 +43,13 @@ namespace cg::vis
 void
 PolyMeshBuilder::makeInstance(const PolyMeshGeometry& geometry)
 {
-  PolyMesh::Instance i{&geometry,
+  PolyMesh::Instance instance{&geometry,
     _localToWorld,
     normalMatrix(),
     _mesh->instanceColor};
 
-  _mesh->_instances.add(i);
-  _mesh->_bounds.inflate(i.bounds());
+  _mesh->_instances.add(instance);
+  _mesh->_bounds.inflate(instance.bounds());
 }
 
 } // end namespace cg::vis

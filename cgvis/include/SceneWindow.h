@@ -101,13 +101,12 @@ private:
   InspectMap _inspectFunctions;
 
   bool treeNode(graph::SceneNode, ImGuiTreeNodeFlags);
+  void inspectCurrentNode();
 
   auto inspectFunction(AbstractMapper& mapper)
   {
     return _inspectFunctions[typeid(mapper).hash_code()];
   }
-
-  void inspectCurrentNode();
 
   SceneBase* makeScene() override;
 
