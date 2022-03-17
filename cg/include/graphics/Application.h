@@ -47,11 +47,11 @@ namespace cg
 class Application
 {
 public:
-  /// Constructs an instance of Application.
-  Application(GLWindow* mainWindow);
-
   /// Destructor.
   virtual ~Application();
+
+  /// Constructs an instance of Application.
+  Application(GLWindow* mainWindow);
 
   /// Returns the title of this application.
   auto id() const
