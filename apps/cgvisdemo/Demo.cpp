@@ -25,7 +25,7 @@
 //
 // OVERVIEW: Demo.cpp
 // ========
-// Source file for cg vis demo function.
+// Source file for vis demo function.
 //
 // Author: Paulo Pagliosa
 // Last revision: 16/03/2022
@@ -88,13 +88,13 @@ vectorDemo(Source<TriCellMesh>* source,
   elevationFilter->setInput(*source);
   elevationFilter->setDirection(ElevationDirection::Z);
 
-  auto meshNormals = TriCellMeshNormals::New();
+  auto normals = TriCellMeshNormals::New();
 
-  meshNormals->setInput(*elevationFilter);
+  normals->setInput(*elevationFilter);
 
   auto glyphs = Glyph3<TriCellMesh>::New();
 
-  glyphs->setInput(*meshNormals);
+  glyphs->setInput(*normals);
   glyphs->setScaleMode(scaleMode);
   glyphs->setScaleFactor(0.7f);
 

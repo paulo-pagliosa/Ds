@@ -48,13 +48,13 @@ vectorDemo(Source<TriCellMesh>* source, LookupTable* colorTable, GlyphScaleMode 
   elevationFilter->setInput(*source);
   elevationFilter->setDirection(ElevationDirection::Z);
 
-  auto meshNormals = TriCellMeshNormals::New();
+  auto normals = TriCellMeshNormals::New();
 
-  meshNormals->setInput(*elevationFilter);
+  normals->setInput(*elevationFilter);
 
   auto glyphs = Glyph3<TriCellMesh>::New();
 
-  glyphs->setInput(*meshNormals);
+  glyphs->setInput(*normals);
   glyphs->setScaleMode(scaleMode);
   glyphs->setScaleFactor(0.7f);
 
