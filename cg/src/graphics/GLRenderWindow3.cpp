@@ -28,7 +28,7 @@
 // Source file for OpenGL 3D render window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 09/11/2021
+// Last revision: 17/05/2022
 
 #include "graphics/GLRenderWindow3.h"
 
@@ -36,7 +36,7 @@ namespace cg
 { // begin namespace cg
 
 
-//////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 //
 // GLRenderWindow3 implementation
 // ===============

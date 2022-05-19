@@ -28,7 +28,7 @@
 // Class definition for OpenGL 3D render window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/02/2022
+// Last revision: 19/05/2022
 
 #ifndef __GLRenderWindow3_h
 #define __GLRenderWindow3_h
@@ -40,12 +40,15 @@
 namespace cg
 { // begin namespace cg
 
+template <size_t D> class GLRenderWindow;
 
-//////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////
 //
 // GLRenderWindow3: OpenGL 3D render window
 // ===============
-class GLRenderWindow3: public GLWindow
+template <>
+class GLRenderWindow<3>: public GLWindow
 {
 public:
   using GLWindow::GLWindow;
@@ -56,6 +59,11 @@ public:
   }
 
 protected:
+  Camera* camera() const
+  {
+    return _camera;
+  }
+
   void initialize() override;
   void render() override;
 
@@ -97,7 +105,9 @@ private:
   int _mouseY;
 
 }; // GLRenderWindow3
-   
+
+using GLRenderWindow3 = GLRenderWindow<3>;
+
 } // end namespace cg
 
 #endif // __GLRenderWindow3_h

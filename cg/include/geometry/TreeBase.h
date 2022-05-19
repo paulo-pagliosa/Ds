@@ -28,7 +28,7 @@
 // Class definition for quadtree/octree base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 18/02/2022
+// Last revision: 19/05/2022
 
 #ifndef __TreeBase_h
 #define __TreeBase_h
@@ -75,6 +75,11 @@ template <int D>
 class TreeNodeBase
 {
 public:
+  static constexpr auto dim()
+  {
+    return D;
+  }
+
 #ifdef _COLORED_TREE
   int color;
 #endif // _COLORED_TREE
@@ -119,7 +124,7 @@ template <int D>
 class TreeBranchNodeBase: public TreeNodeBase<D>
 {
 public:
-  constexpr static auto N = (int)ipow2<D>();
+  static constexpr auto N = (int)ipow2<D>();
 
   TreeBranchNodeBase()
   {
@@ -210,6 +215,11 @@ class TreeBase: public SharedObject
 {
 public:
   static_assert(D == 2 || D == 3, "Tree: bad dimension");
+
+  static constexpr auto dim()
+  {
+    return D;
+  }
 
   ~TreeBase() override
   {
@@ -323,6 +333,11 @@ template <int D>
 class TreeIteratorBase
 {
 public:
+  static constexpr auto dim()
+  {
+    return D;
+  }
+
   bool operator ==(const TreeIteratorBase<D>& other) const
   {
     return _node == other._node;
@@ -358,23 +373,17 @@ public:
     return _node->depth();
   }
 
-  template <typename iterator>
-  friend auto child(const iterator& tit, int i)
+  void pushChild(int i)
   {
-    // TODO: check iterator type
-    auto cit = tit;
-    auto p = (TreeIteratorBase<D>*)&cit;
-
-    if (p->_node->isLeaf())
-      p->_node = nullptr;
+    if (_node->isLeaf())
+      _node = nullptr;
     else
     {
-      auto c = ((TreeBranchNodeBase<D>*)p->_node)->child(i);
+      auto child = ((TreeBranchNodeBase<D>*)_node)->child(i);
 
-      if ((p->_node = c) != nullptr)
-        p->_key.pushChild(i);
+      if ((_node = child) != nullptr)
+        _key.pushChild(i);
     }
-    return cit;
   }
 
 #ifdef _COLORED_TREE
@@ -451,6 +460,16 @@ TreeIteratorBase<D>::operator ++()
     }
   }
   return *this;
+}
+
+template <typename iterator>
+inline auto
+child(const iterator& tit, int i)
+{
+  auto cit = tit;
+
+  cit.pushChild(i);
+  return cit;
 }
 
 
