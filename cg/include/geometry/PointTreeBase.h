@@ -28,7 +28,7 @@
 // Class definition for point quadtree/octree base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/12/2021
+// Last revision: 25/05/2022
 
 #ifndef __PointTreeBase_h
 #define __PointTreeBase_h
@@ -386,7 +386,7 @@ PointTree<D, real, PA, IL>::knnSearch(KNN& knn,
       nq.insert(d2, NodeEntry{child, childKey});
     }
   for (auto n = nq.size(), i = 0;
-    i < n && ptb::epsilon<real>() + nq.key(i) <= searchSize2(n2, r2);
+    i < n && ptb::epsilon<real>() + nq.key(i) <= ptb::searchSize2(n2, r2);
     ++i)
   {
     const auto& e = nq.value(i);
