@@ -28,7 +28,7 @@
 // Source file for triangle mesh mapper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 21/01/2022
+// Last revision: 15/07/2022
 
 #include "graphics/GLRenderer.h"
 #include "graphics/TriangleMeshMapper.h"
@@ -41,10 +41,9 @@ namespace cg
 //
 // TriangleMeshMapper implementation
 // ==================
-TriangleMeshMapper::TriangleMeshMapper(const TriangleMesh& mesh):
-  _mesh{&mesh},
-  _shape{new TriangleMeshShape{mesh}}
+TriangleMeshMapper::TriangleMeshMapper(const TriangleMesh& mesh)
 {
+  _shape = new TriangleMeshShape{mesh};
   _primitive = new ShapeInstance{*_shape};
 }
 
@@ -59,6 +58,12 @@ TriangleMeshMapper::render(GLRenderer& renderer) const
 {
   renderer.drawMesh(*_primitive);
   return true;
+}
+
+Bounds3f
+TriangleMeshMapper::bounds() const
+{
+  return _primitive->bounds();
 }
 
 Primitive*

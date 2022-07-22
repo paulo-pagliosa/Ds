@@ -28,7 +28,7 @@
 // Class definition for OpenGL 3D graphics.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/03/2022
+// Last revision: 19/07/2022
 
 #ifndef __GLGraphics3_h
 #define __GLGraphics3_h
@@ -147,7 +147,6 @@ public:
     setView(camera.position(), vpMatrix(&camera));
   }
 
-protected:
   void setFlatMode(bool value)
   {
     _flatMode = value;

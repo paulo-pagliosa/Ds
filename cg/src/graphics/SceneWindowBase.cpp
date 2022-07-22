@@ -28,7 +28,7 @@
 // Source file for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 26/02/2022
+// Last revision: 20/07/2022
 
 #include "graphics/SceneWindowBase.h"
 
@@ -116,6 +116,7 @@ void
 SceneWindowBase::render()
 {
   _editor->render();
+  drawAttachments();
   _editor->drawGround();
 }
 
@@ -147,6 +148,11 @@ SceneWindowBase::initializeScene()
   // do nothing
 }
 
+void
+SceneWindowBase::drawAttachments()
+{
+  // do nothing
+}
 
 bool
 SceneWindowBase::onResize(int width, int height)
@@ -208,6 +214,9 @@ SceneWindowBase::editorView()
     ImGui::colorEdit3("Edges", edgeColor);
     ImGui::SameLine();
     ImGui::Checkbox("###showEdges", &showEdges);
+    _editor->renderMode = showEdges ?
+      GLRenderer::RenderMode::HiddenLines :
+      GLRenderer::RenderMode::Smooth;
   }
   ImGui::Separator();
   ImGui::Checkbox("Show Ground", &_editor->showGround);
@@ -250,6 +259,7 @@ SceneWindowBase::preview(Camera& camera)
 
     _editor->setCamera(camera);
     _editor->render();
+    drawAttachments();
     _editor->setCamera(*ec);
     // Update to continue drawing in the same frame
     _editor->update();

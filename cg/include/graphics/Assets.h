@@ -28,7 +28,7 @@
 // Class definition for assets.
 //
 // Author: Paulo Pagliosa
-// Last revision: 03/02/2022
+// Last revision: 13/07/2022
 
 #ifndef __Assets_h
 #define __Assets_h
@@ -56,7 +56,9 @@ using MaterialMapIterator = typename MaterialMap::const_iterator;
 class Assets
 {
 public:
-  static void initialize();
+  static constexpr auto dflMaxMeshSize = 1ULL << 20;
+
+  static void initialize(size_t = dflMaxMeshSize);
 
   static MeshMap& meshes()
   {
@@ -86,6 +88,8 @@ private:
   static bool _initialized;
   static MeshMap _meshes;
   static MaterialMap _materials;
+  static size_t _maxMeshSize;
+  static size_t _meshSize;
 
 }; // Assets
 

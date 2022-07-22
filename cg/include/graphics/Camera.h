@@ -28,7 +28,7 @@
 // Class definition for camera.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/02/2022
+// Last revision: 19/07/2022
 
 #ifndef __Camera_h
 #define __Camera_h
@@ -49,7 +49,7 @@ class Camera: public NameableObject
 {
 public:
   static constexpr float minAngle = 1;
-  static constexpr float maxAngle = 179;
+  static constexpr float maxAngle = 120;
   static constexpr float minHeight = 0.01f;
   static constexpr float minAspect = 0.1f;
   static constexpr float minDistance = 0.01f;

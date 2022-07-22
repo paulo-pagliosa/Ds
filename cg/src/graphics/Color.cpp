@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2018 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for RGB color.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/08/2018
+// Last revision: 14/07/2022
 
 #include "graphics/Color.h"
 
@@ -52,11 +52,13 @@ Color Color::darkGray(136, 136, 136);
 Color Color::gray(194, 194, 194);
 
 Color
-Color::HSV2RGB(float hue, float saturation, float value)
+Color::HSV2RGB(float hue, float saturation, float value, float alpha)
 {
+  Color color;
+
+  color.a = alpha;
   hue = hue - 360 * int(hue * math::inverse<float>(360));
 
-  Color color;
   auto f = int(hue * math::inverse<float>(120));
   auto d = (hue - 120 * f) * math::inverse<float>(60);
 

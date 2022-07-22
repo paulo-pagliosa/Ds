@@ -28,7 +28,7 @@
 // Source file for generic graph scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 26/02/2022
+// Last revision: 22/07/2022
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
@@ -370,7 +370,7 @@ SceneWindow::inspectPrimitive(SceneWindow&, TriangleMeshProxy& proxy)
       auto mit = *(MeshMapIterator*)payload->Data;
 
       assert(mit->second != nullptr);
-      proxy.setMesh(*mit->second, mit->first);
+      proxy.setMesh(*Assets::loadMesh(mit), mit->first);
     }
     ImGui::EndDragDropTarget();
   }
@@ -512,7 +512,6 @@ SceneWindow::assetsWindow()
       ImGui::Selectable(name, &selected);
       if (ImGui::BeginDragDropSource())
       {
-        Assets::loadMesh(mit);
         ImGui::Text(name);
         ImGui::SetDragDropPayload("TriangleMesh", &mit, sizeof(mit));
         ImGui::EndDragDropSource();

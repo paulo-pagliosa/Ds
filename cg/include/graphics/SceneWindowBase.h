@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 26/02/2022
+// Last revision: 20/07/2022
 
 #ifndef __SceneWindowBase_h
 #define __SceneWindowBase_h
@@ -72,6 +72,7 @@ protected:
   virtual void beginInitialize();
   virtual void endInitialize();
   virtual void initializeScene();
+  virtual void drawAttachments();
   virtual bool onResize(int, int);
   virtual bool onPickObject(int, int);
   virtual bool onPressKey(int);

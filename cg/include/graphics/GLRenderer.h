@@ -28,13 +28,14 @@
 // Class definition for OpenGL Renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/02/2022
+// Last revision: 20/07/2022
 
 #ifndef __GLRenderer_h
 #define __GLRenderer_h
 
 #include "graphics/GLGraphics3.h"
 #include "graphics/GLRendererBase.h"
+#include <functional>
 
 namespace cg
 { // begin namespace Graphics
@@ -49,7 +50,7 @@ class GLRenderer: public GLRendererBase, public GLGraphics3
 public:
   constexpr static auto maxLights = 8;
 
-  using RenderFunction = void (*)(GLRenderer&);
+  using RenderFunction = std::function<void(GLRenderer&)>;
   using GLGraphics3::drawMesh;
 
   /// Constructs a GL renderer object.
@@ -76,7 +77,7 @@ public:
   float pixelsLength(float d) const;
 
 protected:
-  RenderFunction _renderFunction{};
+  RenderFunction _renderFunction;
   vec3f _basePoint;
   float _basePointZ;
   float _windowViewportRatio;

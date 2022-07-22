@@ -47,9 +47,36 @@ namespace fs = std::filesystem;
 bool Assets::_initialized;
 MeshMap Assets::_meshes;
 MaterialMap Assets::_materials;
+size_t Assets::_maxMeshSize;
+size_t Assets::_meshSize;
+
+static inline auto
+meshSize(const TriangleMesh* m)
+{
+  return m->data().vertexCount;
+}
+
+static inline auto
+unmapUnusedMeshes(MeshMap& meshes)
+{
+  size_t ms{};
+
+  for (auto& [name, mesh] : meshes)
+    if (mesh != nullptr)
+      if (mesh->referenceCount() > 1)
+        ms += meshSize(mesh);
+      else
+      {
+#ifdef _DEBUG
+        printf("**Releasing mesh '%s'...\n", name.c_str());
+#endif // _DEBUG
+        mesh = nullptr;
+      }
+  return ms;
+}
 
 void
-Assets::initialize()
+Assets::initialize(size_t maxMeshSize)
 {
   if (!_initialized)
   {
@@ -67,6 +94,7 @@ Assets::initialize()
     auto dm = Material::defaultMaterial();
 
     _materials[dm->name()] = dm;
+    _maxMeshSize = maxMeshSize ? maxMeshSize : dflMaxMeshSize;
     _initialized = true;
   }
 }
@@ -83,8 +111,23 @@ Assets::loadMesh(MeshMapIterator mit)
   {
     auto filename = "meshes/" + mit->first;
 
-    m = Application::loadMesh(filename.c_str());
-    _meshes[mit->first] = m;
+    if (m = Application::loadMesh(filename.c_str()))
+    {
+      auto s = meshSize(m);
+
+      if (_meshSize + s > _maxMeshSize)
+        // If unable to release any cached mesh, then delete
+        // the last loaded mesh and return null
+        if (auto ms = unmapUnusedMeshes(_meshes); ms != _meshSize)
+          _meshSize = ms;
+        else
+        {
+          delete m;
+          return nullptr;
+        }
+      _meshSize += s;
+      _meshes[mit->first] = m;
+    }
   }
   return m;
 }

@@ -28,7 +28,7 @@
 // Class definition for RGB color.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/03/2022
+// Last revision: 16/07/2022
 
 #ifndef __Color_h
 #define __Color_h
@@ -74,7 +74,7 @@ public:
 
   /// Constructs a Color object from (r, g, b, a).
   HOST DEVICE
-  explicit Color(float r, float g, float b, float a = 0)
+  explicit Color(float r, float g, float b, float a = 1)
   {
     setRGB(r, g, b, a);
   }
@@ -86,11 +86,11 @@ public:
     setRGB(c);
   }
 
-  /// Constructs a Color object from (r, g, b).
+  /// Constructs a Color object from (r, g, b, a).
   HOST DEVICE
-  explicit Color(int r, int g, int b)
+  explicit Color(int r, int g, int b, int a = 255)
   {
-    setRGB(r, g, b);
+    setRGB(r, g, b, a);
   }
 
   /// Constructs a Color object from v.
@@ -103,7 +103,7 @@ public:
 
   /// Sets this object to (r, g, b, a).
   HOST DEVICE
-  void setRGB(float r, float g, float b, float a = 0)
+  void setRGB(float r, float g, float b, float a = 1)
   {
     this->r = r;
     this->g = g;
@@ -121,14 +121,14 @@ public:
     a = c[3];
   }
 
-  /// Sets this object from (r, g, b).
+  /// Sets this object from (r, g, b, a).
   HOST DEVICE
-  void setRGB(int r, int g, int b)
+  void setRGB(int r, int g, int b, int a = 255)
   {
     this->r = r * math::inverse<float>(255);
     this->g = g * math::inverse<float>(255);
     this->b = b * math::inverse<float>(255);
-    this->a = 0;
+    this->a = a * math::inverse<float>(255);
   }
 
   /// Sets this object from v.
@@ -275,7 +275,7 @@ public:
   static Color darkGray;
   static Color gray;
 
-  static Color HSV2RGB(float, float, float);
+  static Color HSV2RGB(float, float, float, float = 1);
 
 }; // Color
 
