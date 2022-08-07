@@ -270,20 +270,27 @@ SceneWindowBase::preview(Camera& camera)
   ImGui::End();
 }
 
-void
+bool
 SceneWindowBase::showErrorMessage(const char* message) const
 {
+  auto open = false;
+
   ImGui::OpenPopup("Error Message");
   if (ImGui::BeginPopupModal("Error Message",
     nullptr,
     ImGuiWindowFlags_AlwaysAutoResize))
   {
+    open = true;
     ImGui::Text(message);
     ImGui::Separator();
     if (ImGui::Button("Close"))
+    {
       ImGui::CloseCurrentPopup();
+      open = false;
+    }
     ImGui::EndPopup();
   }
+  return open;
 }
 
 bool

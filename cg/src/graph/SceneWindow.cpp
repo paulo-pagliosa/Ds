@@ -28,7 +28,7 @@
 // Source file for generic graph scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 03/08/2022
+// Last revision: 05/08/2022
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
@@ -415,7 +415,7 @@ SceneWindow::addComponentMenu()
 inline void
 SceneWindow::addComponentButton(SceneObject& object)
 {
-  auto ok = true;
+  static auto ok = true;
 
   if (ImGui::Button("Add Component"))
     ImGui::OpenPopup("AddComponentPopup");
@@ -432,7 +432,7 @@ SceneWindow::addComponentButton(SceneObject& object)
     ImGui::EndPopup();
   }
   if (!ok)
-    showErrorMessage("Unable to add this component type.");
+    ok = !showErrorMessage("Unable to add this component type.");
 }
 
 inline void

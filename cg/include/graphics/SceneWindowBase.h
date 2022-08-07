@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 20/07/2022
+// Last revision: 05/08/2022
 
 #ifndef __SceneWindowBase_h
 #define __SceneWindowBase_h
@@ -79,7 +79,7 @@ protected:
 
   void editorView();
   void preview(Camera&);
-  void showErrorMessage(const char*) const;
+  bool showErrorMessage(const char*) const;
 
   Ray3f makeRay(int, int) const;
 
