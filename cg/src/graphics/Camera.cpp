@@ -28,7 +28,7 @@
 // Source file for camera.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/02/2022
+// Last revision: 08/08/2022
 
 #include "graphics/Camera.h"
 #include <algorithm>
@@ -333,9 +333,9 @@ Camera::setNearPlane(float F)
 }
 
 inline void
-Camera::rotate(const quatf& rotation)
+Camera::rotate(float angle, const vec3f& axis)
 {
-  _rotation = rotation * _rotation;
+  _rotation = quatf{angle, _rotation.rotate(axis)} * _rotation;
   _eulerAngles = _rotation.eulerAngles();
 }
 
@@ -350,7 +350,7 @@ Camera::azimuth(float angle)
 {
   if (!math::isZero(angle))
   {
-    rotate(quatf{angle, vec3f{0, 1, 0}});
+    rotate(angle, vec3f{0, 1, 0});
 
     auto r = mat3f{_rotation};
 
@@ -371,11 +371,11 @@ Camera::elevation(float angle)
 {
   if (!math::isZero(angle))
   {
-    rotate(quatf{angle, vec3f{1, 0, 0}});
+    rotate(angle, vec3f{1, 0, 0});
 
     auto r = mat3f{_rotation};
 
-    _position = _focalPoint + vec3f{r[2]} *_distance;
+    _position = _focalPoint + vec3f{r[2]} * _distance;
     updateView(r);
   }
 }
@@ -391,7 +391,7 @@ Camera::roll(float angle)
 {
   if (!math::isZero(angle))
   {
-    rotate(quatf{angle, vec3f{0, 0, 1}});
+    rotate(angle, vec3f{0, 0, 1});
     updateView();
   }
 }
@@ -407,7 +407,7 @@ Camera::yaw(float angle)
 {
   if (!math::isZero(angle))
   {
-    rotate(quatf{angle, vec3f{0, 1, 0}});
+    rotate(angle, vec3f::up());
     updateView();
     updateFocalPoint();
   }
@@ -425,7 +425,7 @@ Camera::pitch(float angle)
 {
   if (!math::isZero(angle))
   {
-    rotate(quatf{angle, vec3f{1, 0, 0}});
+    rotate(angle, vec3f{1, 0, 0});
     updateView();
     updateFocalPoint();
   }
@@ -442,7 +442,7 @@ Camera::rotateYX(float ay, float ax, bool orbit)
 //|  ay with a pitch of ax, in this order.              |
 //[]---------------------------------------------------[]
 {
-  auto q = quatf{ay, vec3f{0, 1, 0}} * _rotation;
+  auto q = quatf{ay, vec3f::up()} * _rotation;
   auto u = q.rotate(vec3f{1, 0, 0});
 
   _rotation = quatf{ax, u} * q;
@@ -452,7 +452,7 @@ Camera::rotateYX(float ay, float ax, bool orbit)
 
   if (orbit)
   {
-    _position = _focalPoint + vec3f{r[2]} *_distance;
+    _position = _focalPoint + vec3f{r[2]} * _distance;
     updateView(r);
   }
   else

@@ -28,7 +28,7 @@
 // Class definition for camera.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/07/2022
+// Last revision: 08/08/2022
 
 #ifndef __Camera_h
 #define __Camera_h
@@ -150,7 +150,7 @@ private:
 
   void updateFocalPoint();
   void setRotation(const mat3f&);
-  void rotate(const quatf&);
+  void rotate(float, const vec3f&);
   void updateView(const mat3f&);
   void updateView();
   void updateProjection();
