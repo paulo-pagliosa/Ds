@@ -28,7 +28,7 @@
 // Class definition for OpenGL texture FBO.
 //
 // Author: Paulo Pagliosa
-// Last revision: 31/01/2022
+// Last revision: 10/08/2022
 
 #ifndef __GLTextureFramebuffer_h
 #define __GLTextureFramebuffer_h
@@ -66,7 +66,6 @@ public:
   }
 
   void use();
-
   void disuse();
 
 private:
