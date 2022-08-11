@@ -28,13 +28,14 @@
 // Class definition for generic renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/02/2022
+// Last revision: 10/08/2022
 
 #ifndef __Renderer_h
 #define __Renderer_h
 
 #include "graphics/Camera.h"
 #include "graphics/SceneBase.h"
+#include <utility>
 
 namespace cg
 { // begin namespace cg
@@ -83,6 +84,11 @@ public:
     h = _viewport.h;
   }
 
+  auto imageSize() const
+  {
+    return std::pair{_viewport.w, _viewport.h};
+  }
+
   void setScene(SceneBase&);
   void setCamera(Camera&);
   void setImageSize(int, int);
@@ -99,6 +105,12 @@ protected:
   Viewport _viewport{0, 0, 1, 1};
 
 }; // Renderer
+
+inline auto
+normalize(const vec4f& p)
+{
+  return vec3f{p} * math::inverse(p.w);
+}
 
 } // end namespace cg
 

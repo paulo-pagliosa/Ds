@@ -28,8 +28,9 @@
 // Source file for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 20/07/2022
+// Last revision: 08/08/2022
 
+#include "graphics/Renderer.h"
 #include "graphics/SceneWindowBase.h"
 
 namespace ImGui
@@ -404,12 +405,6 @@ SceneWindowBase::keyInputEvent(int key, int action, int mods)
 
 namespace
 { // begin namespace
-
-inline auto
-normalize(const vec4f& p)
-{
-  return vec3f{p} *math::inverse(p.w);
-}
 
 inline auto
 viewportToNDC(int x, int y)
