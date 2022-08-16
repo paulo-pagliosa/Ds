@@ -28,7 +28,7 @@
 // Source file for simple triangle mesh.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/03/2022
+// Last revision: 16/08/2022
 
 #include "geometry/MeshSweeper.h"
 #include <memory>
@@ -58,7 +58,7 @@ TriangleMesh::~TriangleMesh()
   delete []_data.triangles;
 }
 
-Bounds3f
+const Bounds3f&
 TriangleMesh::bounds() const
 {
   if (_bounds.empty())
@@ -100,6 +100,7 @@ TriangleMesh::TRS(const mat4f& trs)
 
   for (int i = 0; i < nv; ++i)
     _data.vertices[i] = trs.transform3x4(_data.vertices[i]);
+  _bounds.setEmpty();
   if (_data.vertexNormals == nullptr)
     return;
 
@@ -107,6 +108,21 @@ TriangleMesh::TRS(const mat4f& trs)
 
   for (int i = 0; i < nv; ++i)
     _data.vertexNormals[i] = (r * _data.vertexNormals[i]).versor();
+}
+
+void
+TriangleMesh::normalize()
+{
+  auto b = bounds();
+  auto c = b.center();
+  auto s = b.size();
+  auto m = 1 / s.max();
+  auto v = _data.vertices;
+
+  for (int i = 0; i < _data.vertexCount; ++i, ++v)
+    *v = (*v - c) * m;
+  s *= m * 0.5f;
+  _bounds.set(-s, s);
 }
 
 static inline void

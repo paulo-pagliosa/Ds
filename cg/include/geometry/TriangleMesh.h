@@ -28,7 +28,7 @@
 // Class definition for simple triangle mesh.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/03/2022
+// Last revision: 16/08/2022
 
 #ifndef __TriangleMesh_h
 #define __TriangleMesh_h
@@ -95,10 +95,11 @@ public:
   /// Destructor.
   ~TriangleMesh();
 
-  Bounds3f bounds() const;
+  const Bounds3f& bounds() const;
 
   void computeNormals();
   void TRS(const mat4f& trs);
+  void normalize();
 
   const Data& data() const
   {
