@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{4780518D-AFF4-44A9-BF4B-4329D56FF751}</ProjectGuid>
+    <RootNamespace>cg</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>..\..\lib\</OutDir>
+    <TargetName>$(ProjectName)D</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>..\..\lib\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile />
+      <AdditionalIncludeDirectories>../../externals/include;../../include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+    <Lib>
+      <OutputFile>..\..\lib\$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalDependencies>glfw3.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../../externals/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile />
+      <AdditionalIncludeDirectories>../../externals/include;../../include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
+      <OutputFile>..\..\lib\$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalDependencies>glfw3.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../../externals/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\core\AllocableObject.h" />
+    <ClInclude Include="..\..\include\core\Array.h" />
+    <ClInclude Include="..\..\include\core\BlockAllocable.h" />
+    <ClInclude Include="..\..\include\core\BlockAllocator.h" />
+    <ClInclude Include="..\..\include\core\Exception.h" />
+    <ClInclude Include="..\..\include\core\Flags.h" />
+    <ClInclude Include="..\..\include\core\List.h" />
+    <ClInclude Include="..\..\include\core\NameableObject.h" />
+    <ClInclude Include="..\..\include\core\ObjectList.h" />
+    <ClInclude Include="..\..\include\core\ContentHolder.h" />
+    <ClInclude Include="..\..\include\core\Globals.h" />
+    <ClInclude Include="..\..\include\core\ListBase.h" />
+    <ClInclude Include="..\..\include\core\ObjectPool.h" />
+    <ClInclude Include="..\..\include\core\SharedObject.h" />
+    <ClInclude Include="..\..\include\core\SoA.h" />
+    <ClInclude Include="..\..\include\core\StandardAllocator.h" />
+    <ClInclude Include="..\..\include\debug\AnimatedAlgorithm.h" />
+    <ClInclude Include="..\..\include\geometry\Bounds2.h" />
+    <ClInclude Include="..\..\include\geometry\Bounds3.h" />
+    <ClInclude Include="..\..\include\geometry\BVH.h" />
+    <ClInclude Include="..\..\include\geometry\Grid2.h" />
+    <ClInclude Include="..\..\include\geometry\Grid3.h" />
+    <ClInclude Include="..\..\include\geometry\GridBase.h" />
+    <ClInclude Include="..\..\include\geometry\Index2.h" />
+    <ClInclude Include="..\..\include\geometry\Index3.h" />
+    <ClInclude Include="..\..\include\geometry\IndexList.h" />
+    <ClInclude Include="..\..\include\geometry\Intersection.h" />
+    <ClInclude Include="..\..\include\geometry\KNNHelper.h" />
+    <ClInclude Include="..\..\include\geometry\Line.h" />
+    <ClInclude Include="..\..\include\geometry\MeshSweeper.h" />
+    <ClInclude Include="..\..\include\geometry\Octree.h" />
+    <ClInclude Include="..\..\include\geometry\ParticleSystem.h" />
+    <ClInclude Include="..\..\include\geometry\Quad.h" />
+    <ClInclude Include="..\..\include\geometry\Point2.h" />
+    <ClInclude Include="..\..\include\geometry\Point3.h" />
+    <ClInclude Include="..\..\include\geometry\PointGrid2.h" />
+    <ClInclude Include="..\..\include\geometry\PointGrid3.h" />
+    <ClInclude Include="..\..\include\geometry\PointGridBase.h" />
+    <ClInclude Include="..\..\include\geometry\PointHolder.h" />
+    <ClInclude Include="..\..\include\geometry\PointOctree.h" />
+    <ClInclude Include="..\..\include\geometry\PointQuadtree.h" />
+    <ClInclude Include="..\..\include\geometry\PointTreeBase.h" />
+    <ClInclude Include="..\..\include\geometry\Quadtree.h" />
+    <ClInclude Include="..\..\include\geometry\Ray.h" />
+    <ClInclude Include="..\..\include\geometry\TreeBase.h" />
+    <ClInclude Include="..\..\include\geometry\Triangle.h" />
+    <ClInclude Include="..\..\include\geometry\TriangleMesh.h" />
+    <ClInclude Include="..\..\include\geometry\TriangleMeshBVH.h" />
+    <ClInclude Include="..\..\include\graphics\Actor.h" />
+    <ClInclude Include="..\..\include\graphics\Application.h" />
+    <ClInclude Include="..\..\include\graphics\Assets.h" />
+    <ClInclude Include="..\..\include\graphics\Camera.h" />
+    <ClInclude Include="..\..\include\graphics\Color.h" />
+    <ClInclude Include="..\..\include\graphics\GLBuffer.h" />
+    <ClInclude Include="..\..\include\graphics\GLFramebuffer.h" />
+    <ClInclude Include="..\..\include\graphics\GLGraphics2.h" />
+    <ClInclude Include="..\..\include\graphics\GLGraphics3.h" />
+    <ClInclude Include="..\..\include\graphics\GLGraphicsBase.h" />
+    <ClInclude Include="..\..\include\graphics\GLImage.h" />
+    <ClInclude Include="..\..\include\graphics\GLMesh.h" />
+    <ClInclude Include="..\..\include\graphics\GLMeshRenderer.h" />
+    <ClInclude Include="..\..\include\graphics\GLProgram.h" />
+    <ClInclude Include="..\..\include\graphics\GLRenderer.h" />
+    <ClInclude Include="..\..\include\graphics\GLRendererBase.h" />
+    <ClInclude Include="..\..\include\graphics\GLRenderWindow2.h" />
+    <ClInclude Include="..\..\include\graphics\GLRenderWindow3.h" />
+    <ClInclude Include="..\..\include\graphics\GLTextureFramebuffer.h" />
+    <ClInclude Include="..\..\include\graphics\GLWindow.h" />
+    <ClInclude Include="..\..\include\graphics\Image.h" />
+    <ClInclude Include="..\..\include\graphics\Light.h" />
+    <ClInclude Include="..\..\include\graphics\Material.h" />
+    <ClInclude Include="..\..\include\graphics\Primitive.h" />
+    <ClInclude Include="..\..\include\graphics\PrimitiveBVH.h" />
+    <ClInclude Include="..\..\include\graphics\PrimitiveMapper.h" />
+    <ClInclude Include="..\..\include\graphics\Renderer.h" />
+    <ClInclude Include="..\..\include\graphics\SceneBase.h" />
+    <ClInclude Include="..\..\include\graphics\SceneEditor.h" />
+    <ClInclude Include="..\..\include\graphics\SceneWindowBase.h" />
+    <ClInclude Include="..\..\include\graphics\Shape.h" />
+    <ClInclude Include="..\..\include\graphics\TransformableObject.h" />
+    <ClInclude Include="..\..\include\graphics\TriangleMeshMapper.h" />
+    <ClInclude Include="..\..\include\graphics\TriangleMeshShape.h" />
+    <ClInclude Include="..\..\include\graph\CameraProxy.h" />
+    <ClInclude Include="..\..\include\graph\Component.h" />
+    <ClInclude Include="..\..\include\graph\ComponentProxy.h" />
+    <ClInclude Include="..\..\include\graph\LightProxy.h" />
+    <ClInclude Include="..\..\include\graph\PrimitiveProxy.h" />
+    <ClInclude Include="..\..\include\graph\Scene.h" />
+    <ClInclude Include="..\..\include\graph\SceneNode.h" />
+    <ClInclude Include="..\..\include\graph\SceneObject.h" />
+    <ClInclude Include="..\..\include\graph\SceneObjectBuilder.h" />
+    <ClInclude Include="..\..\include\graph\SceneWindow.h" />
+    <ClInclude Include="..\..\include\graph\Transform.h" />
+    <ClInclude Include="..\..\include\math\Matrix3x3.h" />
+    <ClInclude Include="..\..\include\math\Matrix4x4.h" />
+    <ClInclude Include="..\..\include\math\Quaternion.h" />
+    <ClInclude Include="..\..\include\math\Real.h" />
+    <ClInclude Include="..\..\include\math\RealLimits.h" />
+    <ClInclude Include="..\..\include\math\Vector2.h" />
+    <ClInclude Include="..\..\include\math\Vector3.h" />
+    <ClInclude Include="..\..\include\math\Vector4.h" />
+    <ClInclude Include="..\..\include\utils\MeshReader.h" />
+    <ClInclude Include="..\..\include\utils\Stopwatch.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\externals\src\gl3w.c" />
+    <ClCompile Include="..\..\externals\src\imgui.cpp" />
+    <ClCompile Include="..\..\externals\src\imgui_draw.cpp" />
+    <ClCompile Include="..\..\externals\src\imgui_impl_glfw.cpp" />
+    <ClCompile Include="..\..\externals\src\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="..\..\externals\src\imgui_tables.cpp" />
+    <ClCompile Include="..\..\externals\src\imgui_widgets.cpp" />
+    <ClCompile Include="..\..\include\graphics\TriangleMeshMapper.cpp" />
+    <ClCompile Include="..\..\src\core\BlockAllocator.cpp" />
+    <ClCompile Include="..\..\src\core\NameableObject.cpp" />
+    <ClCompile Include="..\..\src\core\Exception.cpp" />
+    <ClCompile Include="..\..\src\debug\AnimatedAlgorithm.cpp" />
+    <ClCompile Include="..\..\src\geometry\BVH.cpp" />
+    <ClCompile Include="..\..\src\geometry\IndexList.cpp" />
+    <ClCompile Include="..\..\src\geometry\MeshSweeper.cpp" />
+    <ClCompile Include="..\..\src\geometry\TriangleMesh.cpp" />
+    <ClCompile Include="..\..\src\geometry\TriangleMeshBVH.cpp" />
+    <ClCompile Include="..\..\src\graphics\Application.cpp" />
+    <ClCompile Include="..\..\src\graphics\Assets.cpp" />
+    <ClCompile Include="..\..\src\graphics\Camera.cpp" />
+    <ClCompile Include="..\..\src\graphics\Color.cpp" />
+    <ClCompile Include="..\..\src\graphics\GLFramebuffer.cpp" />
+    <ClCompile Include="..\..\src\graphics\GLGraphics2.cpp" />
+    <ClCompile Include="..\..\src\graphics\GLGraphics3.cpp" />
+    <ClCompile Include="..\..\src\graphics\GLGraphicsBase.cpp" />
+    <ClCompile Include="..\..\src\graphics\GLImage.cpp" />
+    <ClCompile Include="..\..\src\graphics\GLMesh.cpp" />
+    <ClCompile Include="..\..\src\graphics\GLMeshRenderer.cpp" />
+    <ClCompile Include="..\..\src\graphics\GLProgram.cpp" />
+    <ClCompile Include="..\..\src\graphics\GLRenderer.cpp" />
+    <ClCompile Include="..\..\src\graphics\GLRendererBase.cpp" />
+    <ClCompile Include="..\..\src\graphics\GLRenderWindow2.cpp" />
+    <ClCompile Include="..\..\src\graphics\GLRenderWindow3.cpp" />
+    <ClCompile Include="..\..\src\graphics\GLTextureFramebuffer.cpp" />
+    <ClCompile Include="..\..\src\graphics\GLWindow.cpp" />
+    <ClCompile Include="..\..\src\graphics\Image.cpp" />
+    <ClCompile Include="..\..\src\graphics\Light.cpp" />
+    <ClCompile Include="..\..\src\graphics\Primitive.cpp" />
+    <ClCompile Include="..\..\src\graphics\PrimitiveBVH.cpp" />
+    <ClCompile Include="..\..\src\graphics\PrimitiveMapper.cpp" />
+    <ClCompile Include="..\..\src\graphics\Renderer.cpp" />
+    <ClCompile Include="..\..\src\graphics\SceneEditor.cpp" />
+    <ClCompile Include="..\..\src\graphics\SceneWindowBase.cpp" />
+    <ClCompile Include="..\..\src\graphics\Shape.cpp" />
+    <ClCompile Include="..\..\src\graphics\TransformableObject.cpp" />
+    <ClCompile Include="..\..\src\graphics\TriangleMeshShape.cpp" />
+    <ClCompile Include="..\..\src\graph\CameraProxy.cpp" />
+    <ClCompile Include="..\..\src\graph\Component.cpp" />
+    <ClCompile Include="..\..\src\graph\LightProxy.cpp" />
+    <ClCompile Include="..\..\src\graph\PrimitiveProxy.cpp" />
+    <ClCompile Include="..\..\src\graph\SceneObject.cpp" />
+    <ClCompile Include="..\..\src\graph\SceneObjectBuilder.cpp" />
+    <ClCompile Include="..\..\src\graph\SceneWindow.cpp" />
+    <ClCompile Include="..\..\src\graph\Transform.cpp" />
+    <ClCompile Include="..\..\src\utils\MeshReader.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>

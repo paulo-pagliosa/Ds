@@ -21,8 +21,8 @@ The current master version is 1.1 and supports Windows 10 and later. All
 headers and source files are in the [cg/](/cg) folder. The only dependencies
 are [GLFW] and [Dear ImGui]. All headers, source files, and libraries needed
 are already included in the [cg/externals/](/cg/externals) folder.
-The project file for Visual Studio 2019 is located in the
-[cg/build/vs2019/](/cg/build/vs2019) folder. There is also a pre-compiled
+The project file for Visual Studio 2022 is located in the
+[cg/build/vs2022/](/cg/build/vs2022) folder. There is also a pre-compiled
 binary available in the [cg/lib/](/cg/lib) folder.
 
 ## Ds Demo
@@ -30,8 +30,8 @@ binary available in the [cg/lib/](/cg/lib) folder.
 Ds Demo is a simple ray-tracing application built on top of Ds. The headers,
 source files, and a Windows binary are available in the
 [apps/cgdemo/](/apps/cgdemo) folder. The Solution and project files for
-Visual Studio 2019 are in the
-[apps/cgdemo/build/vs2019](/apps/cgdemo/build/vs2019).
+Visual Studio 2022 are in the
+[apps/cgdemo/build/vs2022](/apps/cgdemo/build/vs2022).
 
 ![cgdemo]
 
@@ -58,8 +58,8 @@ of another filter or sink. A mapper is a type of sink capable of rendering its
 input dataset. Every actor in a scene has a mapper.
 
 All headers and source files of Ds-Vis are in the [cgvis/](/cgvis) folder.
-The project file for Visual Studio 2019 is located in the
-[cgvis/build/vs2019/](/cgvis/build/vs2019) folder. A pre-compiled binary is
+The project file for Visual Studio 2022 is located in the
+[cgvis/build/vs2022/](/cgvis/build/vs2022) folder. A pre-compiled binary is
 available in the [cgvis/lib/](/cgvis/lib) folder.
 
 ### Ds-Vis Demo
@@ -67,8 +67,8 @@ available in the [cgvis/lib/](/cgvis/lib) folder.
 Ds-Vis Demo is a visualization application built using Ds and Ds-Vis. The
 headers, source files, and a Windows binary are available in the
 [apps/cgvisdemo/](/apps/cgvisdemo) folder. The Solution and project files for
-Visual Studio 2019 are in the
-[apps/cgvisdemo/build/vs2019](/apps/cgvisdemo/build/vs2019).
+Visual Studio 2022 are in the
+[apps/cgvisdemo/build/vs2022](/apps/cgvisdemo/build/vs2022).
 
 ![cgvisdemo]
 

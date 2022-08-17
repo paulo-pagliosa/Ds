@@ -28,7 +28,7 @@
 // Class definition for OpenGL FBO.
 //
 // Author: Paulo Pagliosa
-// Last revision: 31/01/2022
+// Last revision: 17/08/2022
 
 #ifndef __GLFramebuffer_h
 #define __GLFramebuffer_h
@@ -183,6 +183,9 @@ private:
 
 }; // ReadBufferBase
 
+template <typename>
+inline constexpr bool dependent_false_v = false;
+
 template <typename T>
 class ReadBuffer: public ReadBufferBase
 {
@@ -213,7 +216,9 @@ public:
       return READ(GL_FLOAT);
     else
     {
-      static_assert(false, "Invalid FBO read buffer type");
+      // See dependent_false_v<T> workaround in
+      // https://en.cppreference.com/w/cpp/language/if
+      static_assert(dependent_false_v<T>, "Invalid FBO read buffer type");
       return nullptr;
     }
   }
