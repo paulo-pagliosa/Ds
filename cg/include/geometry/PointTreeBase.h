@@ -28,7 +28,7 @@
 // Class definition for point quadtree/octree base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 25/05/2022
+// Last revision: 22/08/2022
 
 #ifndef __PointTreeBase_h
 #define __PointTreeBase_h
@@ -90,18 +90,24 @@ public:
   using vec_type = Vector<real, D>;
   using KNN = KNNHelper<vec_type>;
 
-  using SplitTest = std::function<bool(const PA&, IL&, int)>;
+  using SplitTest = std::function<bool(const PA&, IL&, uint32_t)>;
 
   PointTree(const PA& points,
     SplitTest spliTest,
     uint32_t maxDepth = 20,
-    bool squared = true);
+    bool squared = true,
+    bool fullTree = false);
 
   PointTree(const PA& points,
     uint32_t splitThreshold = 20,
     uint32_t maxDepth = 20,
-    bool squared = true):
-    type{points, defaultSplitTest(splitThreshold), maxDepth, squared}
+    bool squared = true,
+    bool fullTree = false):
+    PointTree{points,
+      defaultSplitTest(splitThreshold),
+      maxDepth,
+      squared,
+      fullTree}
   {
     // do nothing
   }
@@ -114,10 +120,10 @@ public:
     // do nothing
   }
 
-  void rebuild()
+  void rebuild(bool fullTree = false)
   {
     this->clear();
-    build();
+    build(fullTree);
   }
 
   int findNearestNeighbors(const vec_type& point,
@@ -150,8 +156,8 @@ protected:
     this->makeLeaf(this->key(point), mask, branch)->data().add(i);
   }
 
-  bool splitChildren(BranchNode* branch);
-  bool split(LeafNode* leaf);
+  bool splitChildren(BranchNode* branch, bool);
+  bool split(LeafNode* leaf, bool);
 
   void moveDataToChildren(LeafNode* leaf,
     BranchNode* branch,
@@ -173,41 +179,43 @@ private:
 
   static SplitTest defaultSplitTest(uint32_t splitThreshold)
   {
-    return [=](const PA&, IL& list, int) -> bool
+    return [=](const PA&, IL& list, uint32_t) -> bool
     {
       return list.size() > splitThreshold;
     };
   }
 
-  void build();
+  void build(bool = false);
 
 }; // PointTree
 
 template <int D, typename real, typename PA, typename IL>
 PointTree<D, real, PA, IL>::PointTree(const PA& points,
   SplitTest splitTest,
-  uint32_t maxDepth, bool squared):
+  uint32_t maxDepth,
+  bool squared,
+  bool fullTree):
   Base{points, maxDepth, squared},
   _splitTest{splitTest}
 {
-  build();
+  build(fullTree);
 }
 
 template <int D, typename real, typename PA, typename IL>
 void
-PointTree<D, real, PA, IL>::build()
+PointTree<D, real, PA, IL>::build(bool fullTree)
 {
   using index_type = decltype(this->_points.size());
 
   for (index_type n = this->_points.size(), i = 0; i < n; ++i)
     addPoint(this->_points[i], int(i));
   if (_splitTest != nullptr)
-    splitChildren(this->root());
+    splitChildren(this->root(), fullTree);
 }
 
 template <int D, typename real, typename PA, typename IL>
 bool
-PointTree<D, real, PA, IL>::splitChildren(BranchNode* branch)
+PointTree<D, real, PA, IL>::splitChildren(BranchNode* branch, bool fullTree)
 {
   if (branch->depth() + 1 == this->_maxDepth)
     return false;
@@ -216,14 +224,22 @@ PointTree<D, real, PA, IL>::splitChildren(BranchNode* branch)
   auto s = false;
 
   for (int i = 0; i < N; i++)
-    if (auto child = branch->child(i))
-      s |= split((LeafNode *)child);
+  {
+    auto child = branch->child(i);
+
+    if (child == nullptr)
+      if (fullTree)
+        child = this->createLeafChild(branch, i);
+      else
+        continue;
+    s |= split((LeafNode*)child, fullTree);
+  }
   return s;
 }
 
 template <int D, typename real, typename PA, typename IL>
 bool
-PointTree<D, real, PA, IL>::split(LeafNode* leaf)
+PointTree<D, real, PA, IL>::split(LeafNode* leaf, bool fullTree)
 {
   if (!_splitTest(this->_points, leaf->data(), leaf->depth()))
     return false;
@@ -234,7 +250,7 @@ PointTree<D, real, PA, IL>::split(LeafNode* leaf)
   for (auto index : leaf->data())
     addPoint(this->_points[index], index, mask, branch);
   this->deleteLeaf(leaf);
-  return splitChildren(branch);
+  return splitChildren(branch, fullTree);
 }
 
 template <int D, typename real, typename PA, typename IL>

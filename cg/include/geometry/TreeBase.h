@@ -28,7 +28,7 @@
 // Class definition for quadtree/octree base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/05/2022
+// Last revision: 22/08/2022
 
 #ifndef __TreeBase_h
 #define __TreeBase_h
@@ -802,7 +802,7 @@ protected:
     --this->_leafCount;
   }
 
-  BranchNode* splitEmpty(LeafNode* leaf)
+  BranchNode* splitEmptyLeaf(LeafNode* leaf)
   {
     if (leaf->depth() == this->_maxDepth)
       return nullptr;
@@ -1046,6 +1046,6 @@ RegionTree<D, real, LT, BT>::balanceTree()
   }
 }
 
-} // namespace cg
+} // end namespace cg
 
 #endif // __TreeBase_h
