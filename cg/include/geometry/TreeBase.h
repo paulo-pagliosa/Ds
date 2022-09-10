@@ -28,7 +28,7 @@
 // Class definition for quadtree/octree base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/08/2022
+// Last revision: 10/09/2022
 
 #ifndef __TreeBase_h
 #define __TreeBase_h
@@ -312,6 +312,8 @@ TreeBase<D>::clear()
     delete _root->_children[i];
     _root->_children[i] = nullptr;
   }
+  _leafCount = 0;
+  _branchCount = 1;
 }
 
 template <int D>
@@ -636,7 +638,7 @@ public:
 
   static void setFatFactor(real s)
   {
-    if (s > 1)
+    if (s >= 1)
       _fatFactor = s;
   }
 

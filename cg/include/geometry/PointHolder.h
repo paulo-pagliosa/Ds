@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2021 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for point holder.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/12/2021
+// Last revision: 10/09/2022
 
 #ifndef __PointHolder_h
 #define __PointHolder_h
@@ -43,7 +43,7 @@ namespace cg
 //
 // PointHolder: point holder class
 // ===========
-template <typename PointArray>
+template <int D, typename real, typename PointArray>
 class PointHolder
 {
 public:
@@ -61,7 +61,16 @@ protected:
     // do nothing
   }
 
-  template <int D, typename real>
+  template <typename P>
+  void setPositions(const P& points)
+  {
+    if (auto n = _points.size(); n != points.size())
+      throw std::logic_error("PointHolder: bad points");
+    else
+      for (decltype(n) i = 0; i < n; ++i)
+        _points[i].set(points[i]);
+  }
+
   static auto computeBounds(const PointArray& points, bool squared)
   {
     using size_type = decltype(points.size());

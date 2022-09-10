@@ -28,7 +28,7 @@
 // Class definition for point grid base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/02/2022
+// Last revision: 10/09/2022
 
 #ifndef __PointGridBase_h
 #define __PointGridBase_h
@@ -50,16 +50,16 @@ template <int, typename, typename, typename> class PointGridSearcher;
 // =============
 template <int D, typename real, typename PA, typename IL>
 class PointGridBase: public RegionGrid<D, real, IL>,
-  public PointHolder<PA>
+  public PointHolder<D, real, PA>
 {
 protected:
   ASSERT_INDEX_LIST(IL, "IndexList expected");
 
   using Base = RegionGrid<D, real, IL>;
-  using PointSet = PointHolder<PA>;
+  using PointSet = PointHolder<D, real, PA>;
 
-  PointGridBase(const PA& points, real h, bool squared = false):
-    Base{PointSet::computeBounds<D, real>(points, squared), h},
+  PointGridBase(const Bounds<real, D>& bounds, const PA& points, real h):
+    Base{bounds, h},
     PointSet(points)
   {
     // do nothing
@@ -70,8 +70,7 @@ protected:
     Base{std::move(other)},
     PointSet(points)
   {
-    if (points.size() != other.points().size())
-      throw std::logic_error("PointGridBase(): bad points");
+    this->setPositions(other.points());
   }
 
 }; // PointGridBase
@@ -87,11 +86,18 @@ class PointGrid: public PointGridBase<D, real, PA, IL>
 public:
   using type = PointGrid<D, real, PA, IL>;
   using Base = PointGridBase<D, real, PA, IL>;
+  using PointSet = typename Base::PointSet;
   using vec_type = Vector<real, D>;
   using KNN = KNNHelper<vec_type>;
   using Searcher = PointGridSearcher<D, real, PA, IL>;
 
-  PointGrid(const PA& points, real h, bool squared = true);
+  PointGrid(const Bounds<real, D>& bounds, const PA& points, real h);
+
+  PointGrid(const PA& points, real h, bool squared = true):
+    type{PointSet::computeBounds(points, squared), points, h}
+  {
+    // do nothing
+  }
 
   template <typename P>
   PointGrid(PointGrid<D, real, P, IL>&& other, const PA& points):
@@ -133,8 +139,10 @@ protected:
 }; // PointGrid
 
 template <int D, typename real, typename PA, typename IL>
-PointGrid<D, real, PA, IL>::PointGrid(const PA& points, real h, bool squared):
-  Base{points, h, squared}
+PointGrid<D, real, PA, IL>::PointGrid(const Bounds<real, D>& bounds,
+  const PA& points,
+  real h):
+  Base{bounds, points, h}
 {
   using index_type = decltype(points.size());
 

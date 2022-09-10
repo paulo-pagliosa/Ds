@@ -28,7 +28,7 @@
 // Class definition for point quadtree/octree base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/08/2022
+// Last revision: 10/09/2022
 
 #ifndef __PointTreeBase_h
 #define __PointTreeBase_h
@@ -47,18 +47,19 @@ namespace cg
 // PointTreeBase: point tree base class
 // =============
 template <int D, typename real, typename PA, typename IL>
-class PointTreeBase: public RegionTree<D, real, IL>, public PointHolder<PA>
+class PointTreeBase: public RegionTree<D, real, IL>,
+  public PointHolder<D, real, PA>
 {
 protected:
   ASSERT_INDEX_LIST(IL, "IndexList expected");
 
   using Base = RegionTree<D, real, IL>;
-  using PointSet = PointHolder<PA>;
+  using PointSet = PointHolder<D, real, PA>;
 
-  PointTreeBase(const PA& points,
-    uint32_t maxDepth = 20,
-    bool squared = false):
-    Base{PointSet::computeBounds<D, real>(points, squared), maxDepth},
+  PointTreeBase(const Bounds<real, D>& bounds,
+    const PA& points,
+    uint32_t maxDepth = 20):
+    Base{bounds, maxDepth},
     PointSet(points)
   {
     // do nothing
@@ -69,8 +70,7 @@ protected:
     Base{std::move(other)},
     PointSet(points)
   {
-    if (points.size() != other.points().size())
-      throw std::logic_error("PointTreeBase(): bad points");
+    this->setPositions(other.points());
   }
 
 }; // PointTreeBase
@@ -86,28 +86,58 @@ class PointTree: public PointTreeBase<D, real, PA, IL>
 public:
   using type = PointTree<D, real, PA, IL>;
   using Base = PointTreeBase<D, real, PA, IL>;
+  using PointSet = typename Base::PointSet;
   using key_type = TreeKey<D>;
   using vec_type = Vector<real, D>;
+  using bounds_type = Bounds<real, D>;
   using KNN = KNNHelper<vec_type>;
 
   using SplitTest = std::function<bool(const PA&, IL&, uint32_t)>;
 
-  PointTree(const PA& points,
-    SplitTest spliTest,
+  PointTree(const bounds_type& bounds,
+    const PA& points,
+    SplitTest splitTest,
     uint32_t maxDepth = 20,
-    bool squared = true,
     bool fullTree = false);
+
+  PointTree(const bounds_type& bounds,
+    const PA& points,
+    uint32_t splitThreshold = 20,
+    uint32_t maxDepth = 20,
+    bool fullTree = false):
+    type{bounds,
+      points,
+      defaultSplitTest(splitThreshold),
+      maxDepth,
+      fullTree}
+  {
+    // do nothing
+  }
+
+  PointTree(const PA& points,
+    SplitTest splitTest,
+    uint32_t maxDepth = 20,
+    bool fullTree = false,
+    bool squared = true):
+    type{PointSet::computeBounds(points, squared),
+      points,
+      splitTest,
+      maxDepth,
+      fullTree}
+  {
+    // do nothing
+  }
 
   PointTree(const PA& points,
     uint32_t splitThreshold = 20,
     uint32_t maxDepth = 20,
-    bool squared = true,
-    bool fullTree = false):
-    PointTree{points,
+    bool fullTree = false,
+    bool squared = true):
+    type{points,
       defaultSplitTest(splitThreshold),
       maxDepth,
-      squared,
-      fullTree}
+      fullTree,
+      squared}
   {
     // do nothing
   }
@@ -190,12 +220,12 @@ private:
 }; // PointTree
 
 template <int D, typename real, typename PA, typename IL>
-PointTree<D, real, PA, IL>::PointTree(const PA& points,
+PointTree<D, real, PA, IL>::PointTree(const bounds_type& bounds,
+  const PA& points,
   SplitTest splitTest,
   uint32_t maxDepth,
-  bool squared,
   bool fullTree):
-  Base{points, maxDepth, squared},
+  Base{bounds, points, maxDepth},
   _splitTest{splitTest}
 {
   build(fullTree);

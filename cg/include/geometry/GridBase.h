@@ -28,7 +28,7 @@
 // Class definition for grid base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/02/2022
+// Last revision: 10/09/2022
 
 #ifndef __GridBase_h
 #define __GridBase_h
@@ -351,12 +351,11 @@ public:
 
   static void setFatFactor(real s)
   {
-    if (s > 1)
+    if (s >= 1)
       _fatFactor = s;
   }
 
   RegionGrid(const bounds_type& bounds, real h);
-
   RegionGrid(const bounds_type& bounds, const index_type& size);
 
   RegionGrid(const bounds_type& bounds, id_type size):
