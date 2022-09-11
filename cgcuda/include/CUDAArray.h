@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2021 Paulo Pagliosa.                              |
+//| Copyright (C) 2021, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Classes for host and CUDA arrays.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/04/2021
+// Last revision: 11/09/2022
 
 #ifndef __CUDAArray_h
 #define __CUDAArray_h
@@ -176,7 +176,7 @@ public:
 
   SoA(const host::SoA<Args...>& other)
   {
-    this->resize(other.size());
+    this->realloc(other.size());
     this->template copyArrayToDevice<0>(other);
   }
 

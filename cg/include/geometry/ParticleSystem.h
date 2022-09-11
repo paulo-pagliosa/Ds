@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2020 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for particle system.
 //
 // Author: Paulo Pagliosa
-// Last revision: 30/05/2020
+// Last revision: 11/09/2022
 
 #ifndef __ParticleSystem_h
 #define __ParticleSystem_h
@@ -55,16 +55,25 @@ public:
   ParticleSystem() = default;
 
   ParticleSystem(size_t capacity):
-    _data{capacity},
-    _capacity{capacity}
+    _data{capacity}
   {
     // do nothing
   }
 
-  void resize(size_t capacity)
+  auto capacity() const
   {
-    // TODO: move old data
-    _data.resize(_size = _capacity = capacity);
+    return _data.size();
+  }
+
+  auto size() const
+  {
+    return _size;
+  }
+
+  void realloc(size_t capacity)
+  {
+    if (_data.realloc(capacity))
+      _size = 0;
   }
 
   void clear()
@@ -74,7 +83,7 @@ public:
 
   bool add(const vec_type& p, const Args&... args)
   {
-    if (_size == _capacity)
+    if (_size == capacity())
       return false;
     set(_size++, p, args...);
     return true;
@@ -86,16 +95,6 @@ public:
       return false;
     _data.swap(i, --_size);
     return true;
-  }
-
-  auto size() const
-  {
-    return _size;
-  }
-
-  auto capacity() const
-  {
-    return _data.size();
   }
 
   template <size_t I>
@@ -166,7 +165,6 @@ public:
 protected:
   Data _data;
   size_t _size{};
-  size_t _capacity{};
 
 }; // ParticleSystem
 

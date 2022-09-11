@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2021 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -27,8 +27,8 @@
 // ========
 // Class definition for structure of arrays.
 //
-// Authors: Paulo Pagliosa and Marcio Peres
-// Last revision: 03/02/2021
+// Author: Paulo Pagliosa
+// Last revision: 11/09/2022
 
 #ifndef __SoA_h
 #define __SoA_h
@@ -73,6 +73,8 @@ struct Data<0, Arrays<T, Args...>>
 template<size_t I, typename T, typename... Args>
 struct Data<I, Arrays<T, Args...>>: Data<I - 1, Arrays<Args...>>
 {
+  // empty
+
 }; // Data
 
 template <typename... Args>
@@ -117,8 +119,7 @@ template <typename T, typename... Args>
 class Arrays<T, Args...>: private Arrays<Args...>
 {
 public:
-  static_assert(!std::is_void<T>::value,
-    "SoA: array type cannot be void");
+  static_assert(!std::is_void_v<T>, "SoA: array type cannot be void");
 
   using Base = Arrays<Args...>;
 
@@ -442,10 +443,10 @@ public:
     this->_size = 0;
   }
 
-  SoA(size_t size):
-    type{}
+  SoA(size_t size)
   {
-    resize(size);
+    if ((this->_size = size) != 0)
+      this->_arrays.template allocate<Allocator>(size);
   }
 
   SoA(const type&) = delete;
@@ -470,14 +471,14 @@ public:
     return *this;
   }
 
-  void resize(size_t size)
+  bool realloc(size_t size)
   {
     if (size == this->_size)
-      return;
+      return false;
     this->~SoA();
-    if (size != 0)
+    if ((this->_size = size) != 0)
       this->_arrays.template allocate<Allocator>(size);
-    this->_size = size;
+    return true;
   }
 
   auto cbegin() const

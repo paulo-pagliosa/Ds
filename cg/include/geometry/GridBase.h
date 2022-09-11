@@ -28,7 +28,7 @@
 // Class definition for grid base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/09/2022
+// Last revision: 11/09/2022
 
 #ifndef __GridBase_h
 #define __GridBase_h
@@ -463,7 +463,7 @@ boundsSize(const Bounds<real, D>& bounds)
 
   for (int i = 0; i < D; i++)
     if (s[i] <= 0)
-      throw std::runtime_error("RegionGrid(): bad bounds");
+      throw std::runtime_error("RegionGrid: bad bounds");
   return s;
 }
 
@@ -474,7 +474,7 @@ RegionGrid<D, real, T>::RegionGrid(const bounds_type& bounds, real h):
   _bounds{bounds}
 {
   if (h <= 0)
-    throw std::runtime_error("RegionGrid(): bad cell size");
+    throw std::runtime_error("RegionGrid: bad cell size");
   _bounds.inflate(_fatFactor);
 
   const auto s = internal::boundsSize(_bounds);
@@ -578,7 +578,7 @@ GridDataBase<D, T>::resize(const index_type& size)
   auto length = size.prod();
 
   if (length <= 0)
-    throw std::runtime_error("GridData(): bad size");
+    throw std::runtime_error("GridData: bad size");
   if (length != _length)
   {
     delete []_data;

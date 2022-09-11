@@ -28,7 +28,7 @@
 // Class definition for quadtree/octree base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/09/2022
+// Last revision: 11/09/2022
 
 #ifndef __TreeBase_h
 #define __TreeBase_h
@@ -267,7 +267,7 @@ protected:
     _maxDepth{maxDepth}
   {
     if (maxDepth < 1 || maxDepth > 64)
-      throw std::logic_error("TreeBase(): bad max depth");
+      throw std::logic_error("TreeBase: bad max depth");
     _depthMask = sizeBits(maxDepth - 1);
     root->_parent = nullptr;
     root->_index = -1;
