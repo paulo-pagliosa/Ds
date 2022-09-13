@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2021 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for generic 3D point grid.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/12/2021
+// Last revision: 12/09/2022
 
 #ifndef __PointGrid3_h
 #define __PointGrid3_h
@@ -50,10 +50,11 @@ class PointGridSearcher<3, real, PA, IL>
 public:
   using Grid = PointGrid<3, real, PA, IL>;
   using vec_type = typename Grid::vec_type;
+  using pid_list = typename Grid::pid_list;
 
   static size_t findNeighbors(const Grid& grid,
     const vec_type& point,
-    IndexList& nids);
+    pid_list& nids);
 
 }; // PointGridSearcher
 
@@ -61,7 +62,7 @@ template <typename real, typename PA, typename IL>
 size_t
 PointGridSearcher<3, real, PA, IL>::findNeighbors(const Grid& grid,
   const vec_type& point,
-  IndexList& nids)
+  pid_list& nids)
 {
   auto s = grid.index(point);
   const auto& n = grid.size();
@@ -97,7 +98,7 @@ PointGridSearcher<3, real, PA, IL>::findNeighbors(const Grid& grid,
   return nids.size();
 }
 
-template <typename real, typename PA, typename IL = IndexList>
+template <typename real, typename PA, typename IL = IndexList<>>
 using PointGrid3 = PointGrid<3, real, PA, IL>;
 
 } // namespace cg

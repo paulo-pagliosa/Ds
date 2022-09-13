@@ -28,12 +28,13 @@
 // Class definition for particle system.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/09/2022
+// Last revision: 12/09/2022
 
 #ifndef __ParticleSystem_h
 #define __ParticleSystem_h
 
 #include "core/SoA.h"
+#include "geometry/IndexList.h"
 #include "math/Matrix4x4.h"
 
 namespace cg
@@ -44,17 +45,17 @@ namespace cg
 //
 // ParticleSystem: particle system class
 // ==============
-template <int D, typename real, typename Allocator, typename... Args>
+template <class Allocator, class index_t, class Vector, class... Args>
 class ParticleSystem
 {
 public:
-  using vec_type = Vector<real, D>;
-  using Data = SoA<Allocator, vec_type, Args...>;
-  using type = ParticleSystem<D, real, Allocator, Args...>;
+  using point_id = index_t;
+  using Data = SoA<Allocator, index_t, Vector, Args...>;
+  using type = ParticleSystem<Allocator, index_t, Vector, Args...>;
 
   ParticleSystem() = default;
 
-  ParticleSystem(size_t capacity):
+  ParticleSystem(index_t capacity):
     _data{capacity}
   {
     // do nothing
@@ -70,10 +71,10 @@ public:
     return _size;
   }
 
-  void realloc(size_t capacity)
+  void reallocate(index_t capacity)
   {
-    if (_data.realloc(capacity))
-      _size = 0;
+    if (_data.reallocate(capacity))
+      clear();
   }
 
   void clear()
@@ -81,63 +82,71 @@ public:
     _size = 0;
   }
 
-  bool add(const vec_type& p, const Args&... args)
+  bool add(const Vector& p, const Args&... args)
   {
-    if (_size == capacity())
+    point_id i;
+ 
+    if (_freeList.size() > 0)
+    {
+      auto f = _freeList.begin();
+
+      i = *f;
+      _freeList.remove(f);
+    }
+    else if (_size < capacity())
+      i = _size++;
+    else
       return false;
-    set(_size++, p, args...);
+    set(i, p, args...);
     return true;
   }
 
-  bool remove(size_t i)
+  bool remove(point_id i)
   {
-    if (i >= _size)
-      return false;
-    _data.swap(i, --_size);
-    return true;
+    return i > 0 && i <= _size ? _freeList.add(i) : false;
   }
 
   template <size_t I>
-  constexpr const auto& get(size_t i) const
+  const auto& get(point_id i) const
   {
-    assert(i < _size);
+    assert(i >= 0 && i < _size);
     return _data.template get<I>(i);
   }
 
   template <size_t I>
-  constexpr auto& get(size_t i)
+  auto& get(point_id i)
   {
-    assert(i < _size);
+    assert(i >= 0 && i < _size);
     return _data.template get<I>(i);
   }
 
-  void set(size_t i, const vec_type& p, const Args&... args)
+  void set(point_id i, const Vector& p, const Args&... args)
   {
-    assert(i < _size);
+    assert(i >= 0 && i < _size);
     _data.set(i, p, args...);
   }
 
-  constexpr const auto& position(size_t i) const
+  const auto& position(point_id i) const
   {
     return this->template get<0>(i);
   }
 
-  constexpr auto& position(size_t i)
+  auto& position(point_id i)
   {
     return this->template get<0>(i);
   }
 
-  constexpr void setPosition(size_t i, const vec_type& p)
+  void setPosition(point_id i, const Vector& p)
   {
     position(i) = p;
   }
 
-  const auto& operator [](size_t i) const
+  const auto& operator [](point_id i) const
   {
     return position(i);
   }
 
-  auto& operator [](size_t i)
+  auto& operator [](point_id i)
   {
     return position(i);
   }
@@ -164,16 +173,11 @@ public:
 
 protected:
   Data _data;
-  size_t _size{};
+  point_id _size{};
+  IndexList<point_id> _freeList;
+  // TODO: bitset of inactive point flags
 
 }; // ParticleSystem
-
-
-template <typename real, typename Allocator, typename... Args>
-using ParticleSystem2 = ParticleSystem<2, real, Allocator, Args...>;
-
-template <typename real, typename Allocator, typename... Args>
-using ParticleSystem3 = ParticleSystem<3, real, Allocator, Args...>;
 
 } // end namespace cg
 

@@ -28,7 +28,7 @@
 // Class definition for point grid base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/09/2022
+// Last revision: 12/09/2022
 
 #ifndef __PointGridBase_h
 #define __PointGridBase_h
@@ -53,7 +53,7 @@ class PointGridBase: public RegionGrid<D, real, IL>,
   public PointHolder<D, real, PA>
 {
 protected:
-  ASSERT_INDEX_LIST(IL, "IndexList expected");
+  ASSERT_INDEX_LIST(IL, "Index list expected");
 
   using Base = RegionGrid<D, real, IL>;
   using PointSet = PointHolder<D, real, PA>;
@@ -80,16 +80,18 @@ protected:
 //
 // PointGrid: generic point tree class
 // =========
-template <int D, typename real, typename PA, typename IL = IndexList>
+template <int D, typename real, typename PA, typename IL = IndexList<>>
 class PointGrid: public PointGridBase<D, real, PA, IL>
 {
 public:
   using type = PointGrid<D, real, PA, IL>;
   using Base = PointGridBase<D, real, PA, IL>;
   using PointSet = typename Base::PointSet;
+  using point_id = typename IL::value_type;
+  using pid_list = IndexList<point_id>;
   using vec_type = Vector<real, D>;
-  using KNN = KNNHelper<vec_type>;
-  using Searcher = PointGridSearcher<D, real, PA, IL>;
+  using KNN = KNNHelper<vec_type, point_id>;
+  using Searcher = PointGridSearcher<D, real, PA, pid_list>;
 
   PointGrid(const Bounds<real, D>& bounds, const PA& points, real h);
 
@@ -108,32 +110,33 @@ public:
 
   int findNearestNeighbors(const vec_type& point,
     int k,
-    int indices[],
+    point_id indices[],
     real* distances = nullptr,
     typename KNN::Norm norm = KNN::squaredNorm) const;
 
-  size_t findNeighbors(const vec_type& point, IndexList& nids) const
+  size_t findNeighbors(const vec_type& point, pid_list& nids) const
   {
     return Searcher::findNeighbors(*this, point, nids);
   }
 
-  size_t findNeighbors(size_t i, IndexList& nids) const
+  size_t findNeighbors(size_t i, pid_list& nids) const
   {
     assert(i < this->_points.size());
     return findNeighbors(vec_type{this->_points[i]}, nids);
   }
 
-  template <typename I>
-  void addPoint(I i)
+  bool addPoint(point_id i)
   {
     assert(i < this->_points.size());
-    addPoint(this->_points[i], (int)i);
+    return addPoint(this->_points[i], i);
   }
 
 protected:
-  void addPoint(const vec_type& point, int i)
+  bool addPoint(const vec_type& point, point_id i)
   {
-    (*this)[this->id(point)].add(i);
+    if (this->bounds().contains(point))
+      return (*this)[this->id(point)].add(i);
+    return false;
   }
 
 }; // PointGrid
@@ -144,17 +147,15 @@ PointGrid<D, real, PA, IL>::PointGrid(const Bounds<real, D>& bounds,
   real h):
   Base{bounds, points, h}
 {
-  using index_type = decltype(points.size());
-
-  for (index_type n = points.size(), i = 0; i < n; ++i)
-    addPoint(points[i], (int)i);
+  for (point_id n = points.size(), i = 0; i < n; ++i)
+    addPoint(points[i], i);
 }
 
 template <int D, typename real, typename PA, typename IL>
 int
 PointGrid<D, real, PA, IL>::findNearestNeighbors(const vec_type& p,
   int k,
-  int indices[],
+  point_id indices[],
   real* distances,
   typename KNN::Norm norm) const
 {

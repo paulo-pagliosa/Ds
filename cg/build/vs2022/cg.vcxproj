@@ -209,7 +209,6 @@
     <ClCompile Include="..\..\src\core\Exception.cpp" />
     <ClCompile Include="..\..\src\debug\AnimatedAlgorithm.cpp" />
     <ClCompile Include="..\..\src\geometry\BVH.cpp" />
-    <ClCompile Include="..\..\src\geometry\IndexList.cpp" />
     <ClCompile Include="..\..\src\geometry\MeshSweeper.cpp" />
     <ClCompile Include="..\..\src\geometry\TriangleMesh.cpp" />
     <ClCompile Include="..\..\src\geometry\TriangleMeshBVH.cpp" />

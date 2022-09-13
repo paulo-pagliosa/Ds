@@ -28,7 +28,7 @@
 // Class definition for grid base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/09/2022
+// Last revision: 12/09/2022
 
 #ifndef __GridBase_h
 #define __GridBase_h
@@ -58,12 +58,12 @@ template <int D, typename T>
 class GridConstIterator
 {
 public:
+  using grid_type = Grid<D, T>;
+  using id_type = typename grid_type::id_type;
   using const_iterator = GridConstIterator<D, T>;
   using value_type = const T;
   using pointer = value_type*;
   using reference = value_type&;
-  using grid_type = Grid<D, T>;
-  using id_type = typename grid_type::id_type;
 
   GridConstIterator() = default;
 
@@ -147,13 +147,13 @@ template <int D, typename T>
 class GridIterator: public GridConstIterator<D, T>
 {
 public:
-  using iterator = GridIterator<D, T>;
+  using grid_type = Grid<D, T>;
+  using id_type = typename grid_type::id_type;
   using const_iterator = GridConstIterator<D, T>;
+  using iterator = GridIterator<D, T>;
   using value_type = T;
   using pointer = value_type*;
   using reference = value_type&;
-  using grid_type = Grid<D, T>;
-  using id_type = typename grid_type::id_type;
 
   using const_iterator::GridConstIterator;
 
@@ -206,13 +206,11 @@ template <int D, typename T>
 class Grid: public SharedObject
 {
 public:
-  using id_type = int64_t;
-  using value_type = T;
-  using reference = value_type&;
-  using const_reference = const value_type&;
-  using iterator = GridIterator<D, T>;
-  using const_iterator = GridConstIterator<D, T>;
   using grid_type = Grid<D, T>;
+  using const_iterator = GridConstIterator<D, T>;
+  using iterator = GridIterator<D, T>;
+  using value_type = T;
+  using id_type = int64_t;
   using index_type = Index<D, id_type>;
 
   Grid(const index_type& size):
@@ -263,22 +261,22 @@ public:
     return _data.index(id);
   }
 
-  const_reference operator [](id_type id) const
+  const auto& operator [](id_type id) const
   {
     return _data[id];
   }
 
-  reference operator [](id_type id)
+  auto& operator [](id_type id)
   {
     return _data[id];
   }
 
-  const_reference operator [](const index_type& index) const
+  const auto& operator [](const index_type& index) const
   {
     return (*this)[id(index)];
   }
 
-  reference operator [](const index_type& index)
+  auto& operator [](const index_type& index)
   {
     return (*this)[id(index)];
   }
@@ -450,7 +448,7 @@ private:
 }; // RegionGrid
 
 template <int D, typename real, typename T>
-real RegionGrid<D, real, T>::_fatFactor = dflFatFactor;
+inline real RegionGrid<D, real, T>::_fatFactor = dflFatFactor;
 
 namespace internal
 { // begin namespace internal
@@ -541,13 +539,13 @@ public:
     return _length;
   }
 
-  const T& operator [](id_type id) const
+  const auto& operator [](id_type id) const
   {
     assert(id >= 0 && id < _length);
     return _data[id];
   }
 
-  T& operator [](id_type id)
+  auto& operator [](id_type id)
   {
     assert(id >= 0 && id < _length);
     return _data[id];

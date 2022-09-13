@@ -28,7 +28,7 @@
 // Class definition for quadtree/octree base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/09/2022
+// Last revision: 12/09/2022
 
 #ifndef __TreeBase_h
 #define __TreeBase_h
@@ -144,7 +144,7 @@ public:
     return false;
   }
 
-  auto* child(int index) const
+  auto child(int index) const
   {
     assert(index >= 0 && index < N);
     return _children[index];
@@ -195,7 +195,8 @@ class TreeBranchNode: public TreeBranchNodeBase<D>,
   public ContentHolder<T>
 {
 public:
-  template <typename Node> Node* createChild(int index)
+  template <typename Node>
+  Node* createChild(int index)
   {
     auto child = new Node;
 
@@ -558,12 +559,12 @@ public:
     return this->_node->parent()->index();
   }
 
-  const data_type& data() const
+  const auto& data() const
   {
     return leafNode()->data();
   }
 
-  data_type& data()
+  auto& data()
   {
     return leafNode()->data();
   }
@@ -857,7 +858,7 @@ private:
       return node < other.node;
     }
 
-    static NodeIt null()
+    static auto null()
     {
       NodeIt n;
 

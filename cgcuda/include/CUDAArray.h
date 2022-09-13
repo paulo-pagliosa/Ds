@@ -28,7 +28,7 @@
 // Classes for host and CUDA arrays.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/09/2022
+// Last revision: 12/09/2022
 
 #ifndef __CUDAArray_h
 #define __CUDAArray_h
@@ -167,22 +167,22 @@ namespace cuda
 //
 // SoA: CUDA SoA class
 // ===
-template <typename... Args>
-class SoA: public cg::SoA<ArrayAllocator, Args...>
+template <typename index_t, typename... Args>
+class SoA: public cg::SoA<ArrayAllocator, index_t, Args...>
 {
 public:
-  using type = SoA<Args...>;
-  using cg::SoA<ArrayAllocator, Args...>::SoA;
+  using type = SoA<index_t, Args...>;
+  using cg::SoA<ArrayAllocator, index_t, Args...>::SoA;
 
-  SoA(const host::SoA<Args...>& other)
+  SoA(const host::SoA<index_t, Args...>& other)
   {
-    this->realloc(other.size());
+    this->reallocate(other.size());
     this->template copyArrayToDevice<0>(other);
   }
 
 private:
   template <size_t I>
-  void copyArrayToDevice(const host::SoA<Args...>& other)
+  void copyArrayToDevice(const host::SoA<index_t, Args...>& other)
   {
     if constexpr (I < sizeof...(Args))
     {

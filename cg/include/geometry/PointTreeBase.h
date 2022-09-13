@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2016, 2021 Paulo Pagliosa.                        |
+//| Copyright (C) 2016, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for point quadtree/octree base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/09/2022
+// Last revision: 12/09/2022
 
 #ifndef __PointTreeBase_h
 #define __PointTreeBase_h
@@ -51,7 +51,7 @@ class PointTreeBase: public RegionTree<D, real, IL>,
   public PointHolder<D, real, PA>
 {
 protected:
-  ASSERT_INDEX_LIST(IL, "IndexList expected");
+  ASSERT_INDEX_LIST(IL, "Index list expected");
 
   using Base = RegionTree<D, real, IL>;
   using PointSet = PointHolder<D, real, PA>;
@@ -80,17 +80,19 @@ protected:
 //
 // PointTree: generic point tree class
 // =========
-template <int D, typename real, typename PA, typename IL = IndexList>
+template <int D, typename real, typename PA, typename IL = IndexList<>>
 class PointTree: public PointTreeBase<D, real, PA, IL>
 {
 public:
   using type = PointTree<D, real, PA, IL>;
   using Base = PointTreeBase<D, real, PA, IL>;
   using PointSet = typename Base::PointSet;
-  using key_type = TreeKey<D>;
+  using point_id = typename IL::value_type;
+  using pid_list = IndexList<point_id>;
   using vec_type = Vector<real, D>;
+  using key_type = TreeKey<D>;
   using bounds_type = Bounds<real, D>;
-  using KNN = KNNHelper<vec_type>;
+  using KNN = KNNHelper<vec_type, point_id>;
 
   using SplitTest = std::function<bool(const PA&, IL&, uint32_t)>;
 
@@ -158,13 +160,15 @@ public:
 
   int findNearestNeighbors(const vec_type& point,
     int k,
-    int indices[],
+    point_id indices[],
     real* distances = nullptr,
     typename KNN::Norm norm = KNN::squaredNorm) const;
 
-  size_t findNeighbors(const vec_type& point, real radius, IndexList& list) const;
+  size_t findNeighbors(const vec_type& point,
+    real radius,
+    pid_list& list) const;
 
-  size_t findNeighbors(int i, real radius, IndexList& list) const
+  size_t findNeighbors(int i, real radius, pid_list& list) const
   {
     return findNeighbors(vec_type{this->_points[i]}, radius, list);
   }
@@ -173,17 +177,21 @@ protected:
   using BranchNode = typename Base::BranchNode;
   using LeafNode = typename Base::LeafNode;
 
-  void addPoint(const vec_type& point, int i)
+  bool addPoint(const vec_type& point, point_id i)
   {
-    this->makeLeaf(this->key(point))->data().add(i);
+    if (this->bounds().contains(point))
+      return this->makeLeaf(this->key(point))->data().add(i);
+    return false;
   }
 
-  void addPoint(const vec_type& point,
-    int i,
+  bool addPoint(const vec_type& point,
+    point_id i,
     uint64_t mask,
     BranchNode* branch)
   {
-    this->makeLeaf(this->key(point), mask, branch)->data().add(i);
+    if (this->bounds().contains(point))
+      return this->makeLeaf(this->key(point), mask, branch)->data().add(i);
+    return false;
   }
 
   bool splitChildren(BranchNode* branch, bool);
@@ -197,7 +205,7 @@ protected:
     real radius,
     const key_type& key,
     BranchNode* branch,
-    IndexList& list) const;
+    pid_list& list) const;
 
   real knnSearch(KNN& knn,
     real r2,
@@ -235,10 +243,8 @@ template <int D, typename real, typename PA, typename IL>
 void
 PointTree<D, real, PA, IL>::build(bool fullTree)
 {
-  using index_type = decltype(this->_points.size());
-
-  for (index_type n = this->_points.size(), i = 0; i < n; ++i)
-    addPoint(this->_points[i], int(i));
+  for (point_id n = this->_points.size(), i = 0; i < n; ++i)
+    addPoint(this->_points[i], i);
   if (_splitTest != nullptr)
     splitChildren(this->root(), fullTree);
 }
@@ -332,9 +338,9 @@ template <int D, typename real, typename PA, typename IL>
 size_t
 PointTree<D, real, PA, IL>::findNeighbors(const vec_type& p,
   real radius,
-  IndexList& list) const
+  pid_list& list) const
 {
-  if (/*!this->bounds().contains(p) || */ radius <= 0)
+  if (/*!this->bounds().contains(p) || */radius <= 0)
     return 0;
   list.clear();
   radiusSearch(p, radius * radius, key_type{0LL}, this->root(), list);
@@ -347,7 +353,7 @@ PointTree<D, real, PA, IL>::radiusSearch(const vec_type& p,
   real r2,
   const key_type& key,
   BranchNode* branch,
-  IndexList& list) const
+  pid_list& list) const
 {
   auto depth = branch->depth() + 1;
   auto s2 = ptb::searchSize2(this->nodeSize(depth).squaredNorm(), r2);
@@ -374,7 +380,7 @@ template <int D, typename real, typename PA, typename IL>
 int
 PointTree<D, real, PA, IL>::findNearestNeighbors(const vec_type& p,
   int k,
-  int indices[],
+  point_id indices[],
   real* distances,
   typename KNN::Norm norm) const
 {

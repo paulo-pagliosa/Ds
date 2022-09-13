@@ -28,7 +28,7 @@
 // Class definition for index list.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/02/2022
+// Last revision: 12/09/2022
 
 #ifndef __IndexList_h
 #define __IndexList_h
@@ -39,63 +39,75 @@
 namespace cg
 { // begin namespace cg
 
-class IndexList;
-class IndexListIterator;
+template <typename T> class IndexList;
+template <typename T> class IndexListIterator;
+
+template <typename T>
+inline constexpr bool
+isSignedInt()
+{
+  return std::is_integral_v<T> && std::is_signed_v<T>;
+}
+
+#define ASSERT_SIGNED(T, msg) static_assert(isSignedInt<T>(), msg)
 
 
 /////////////////////////////////////////////////////////////////////
 //
 // IndexListNode: index list node class
 // =============
-class IndexListNode: public BlockAllocable<IndexListNode, 1024>
+template <typename T>
+class IndexListNode: public BlockAllocable<IndexListNode<T>, 1024>
 {
 public:
   IndexListNode() = default;
 
 private:
-  using value_type = int;
+  T _index{-1};
+  IndexListNode<T>* _next{};
 
-  value_type _index{-1};
-  IndexListNode* _next{};
-
-  IndexListNode(value_type index, IndexListNode* next):
+  IndexListNode(T index, IndexListNode<T>* next):
     _index{index}, _next{next}
   {
     // do nothing
   }
 
-  static IndexListNode* _null;
+  static IndexListNode<T>* null;
 
-  friend IndexList;
-  friend IndexListIterator;
+  friend IndexList<T>;
+  friend IndexListIterator<T>;
 
 }; // IndexListNode
+
+namespace il
+{ // begin namespace il
+
+template <typename T>
+inline static IndexListNode<T> nullIndex;
+
+} // end namespace il
+
+template <typename T>
+inline IndexListNode<T>* IndexListNode<T>::null = &il::nullIndex<T>;
 
 
 /////////////////////////////////////////////////////////////////////
 //
 // IndexListIterator: index list iterator class
 // =================
+template <typename T>
 class IndexListIterator
 {
 public:
-  using iterator = IndexListIterator;
-  using index_type = IndexListNode::value_type;
+  using value_type = T;
+  using list = IndexList<T>;
+  using iterator = IndexListIterator<T>;
 
-  IndexListIterator(IndexListNode*& node, const IndexList& list):
-#ifdef _DEBUG
-    _list{&list},
-#endif // _DEBUG
-    _node{&node}
-  {
-    (void)list;
-  }
-
-  const index_type& operator *() const
+  const value_type& operator *() const
   {
 #ifdef _DEBUG
-    if (_list == nullptr || *_node == IndexListNode::_null)
-      throw std::logic_error("Index list iterator not dereferencable");
+    if (_list == nullptr || *_node == IndexListNode<T>::null)
+      throw std::logic_error("IndexList: iterator not dereferencable");
 #endif // _DEBUG
     return (*_node)->_index;
   }
@@ -103,8 +115,8 @@ public:
   iterator& operator ++()
   {
 #ifdef _DEBUG
-    if (_list == nullptr || *_node == IndexListNode::_null)
-      throw std::logic_error("Index list iterator not incrementable");
+    if (_list == nullptr || *_node == IndexListNode<T>::null)
+      throw std::logic_error("IndexList: iterator not incrementable");
 #endif // _DEBUG
     _node = &(*_node)->_next;
     return *this;
@@ -118,27 +130,36 @@ public:
     return temp;
   }
 
-  bool operator ==(const IndexListIterator& other) const
+  bool operator ==(const iterator& other) const
   {
 #ifdef _DEBUG
     if (_list != other._list)
-      throw std::logic_error("Index list iterators incompatible");
+      throw std::logic_error("IndexList: iterators incompatible");
 #endif // _DEBUG
     return *_node == *other._node;
   }
 
-  bool operator !=(const IndexListIterator& other) const
+  bool operator !=(const iterator& other) const
   {
     return !operator ==(other);
   }
 
 private:
-  IndexListNode** _node;
+  IndexListNode<T>** _node;
 #ifdef _DEBUG
-  const IndexList* _list;
+  const list* _list;
 #endif // _DEBUG
 
-  friend class IndexList;
+  IndexListIterator(IndexListNode<T>*& node, const list& list):
+#ifdef _DEBUG
+    _list{&list},
+#endif // _DEBUG
+    _node{&node}
+  {
+    (void)list;
+  }
+
+  friend list;
 
 }; // IndexListIterator
 
@@ -147,24 +168,35 @@ private:
 //
 // IndexList: index list class
 // =========
-class IndexList
+class IndexListBase
+{
+protected:
+  IndexListBase() = default;
+
+}; // IndexListBase
+
+template <typename T = int>
+class IndexList: public IndexListBase
 {
 public:
-  using iterator = IndexListIterator;
-  using index_type = IndexListNode::value_type;
+  ASSERT_SIGNED(T, "IndexList: signed integral type expected");
+
+  using value_type = T;
+  using list = IndexList<T>;
+  using iterator = IndexListIterator<T>;
 
   IndexList():
-    _head{IndexListNode::_null},
+    _head{IndexListNode<T>::null},
     _size{0}
   {
     // do nothing
   }
 
-  IndexList(IndexList&& other) noexcept:
+  IndexList(list&& other) noexcept:
     _head{other._head},
     _size{other._size}
   {
-    other._head = IndexListNode::_null;
+    other._head = IndexListNode<T>::null;
     other._size = 0;
   }
 
@@ -173,18 +205,18 @@ public:
     clear();
   }
 
-  IndexList& operator =(IndexList&& other) noexcept
+  list& operator =(list&& other) noexcept
   {
     clear();
     _head = other._head;
-    other._head = IndexListNode::_null;
+    other._head = IndexListNode<T>::null;
     other._size = 0;
     return *this;
   }
 
-  auto add(index_type index)
+  auto add(value_type index)
   {
-    _head = new IndexListNode{index, _head};
+    _head = new IndexListNode<T>{index, _head};
     return ++_size;
   }
 
@@ -197,18 +229,23 @@ public:
 
   iterator begin() const
   {
-    return iterator{const_cast<IndexList*>(this)->_head, *this};
+    return iterator{const_cast<list*>(this)->_head, *this};
   }
 
   iterator end() const
   {
-    return iterator{IndexListNode::_null, *this};
+    return iterator{IndexListNode<T>::null, *this};
   }
 
   iterator remove(iterator i);
 
+  auto removeFront()
+  {
+    return remove(begin());
+  }
+
 private:
-  IndexListNode* _head;
+  IndexListNode<T>* _head;
   size_t _size;
 
   friend iterator;
@@ -216,9 +253,43 @@ private:
 }; // IndexList
 
 template <typename T>
-inline constexpr bool isIndexList()
+void
+IndexList<T>::clear()
 {
-  return std::is_assignable_v<IndexList, T>;
+  while (_head != IndexListNode<T>::null)
+  {
+    auto temp = _head;
+
+    _head = temp->_next;
+    delete temp;
+  }
+  _size = 0;
+}
+
+template <typename T>
+typename IndexList<T>::iterator
+IndexList<T>::remove(iterator i)
+{
+#ifdef _DEBUG
+  if (i._list != this)
+    throw std::logic_error("IndexList: bad iterator");
+#endif // _DEBUG
+  if (*i._node != IndexListNode<T>::null)
+  {
+    auto temp = *i._node;
+
+    *i._node = temp->_next;
+    delete temp;
+    --_size;
+  }
+  return i;
+}
+
+template <typename T>
+inline constexpr bool
+isIndexList()
+{
+  return std::is_assignable_v<IndexListBase, T>;
 }
 
 #define ASSERT_INDEX_LIST(T, msg) static_assert(isIndexList<T>(), msg)

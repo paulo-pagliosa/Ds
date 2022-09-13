@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2016, 2021 Paulo Pagliosa.                        |
+//| Copyright (C) 2016, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for KNN helper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 06/12/2021
+// Last revision: 12/09/2022
 
 #ifndef __KNNHelper_h
 #define __KNNHelper_h
@@ -44,14 +44,14 @@ namespace cg
 //
 // KNNHelper: KNNHelper class
 // =========
-template <typename Vector>
+template <typename Vector, typename Index = int>
 class KNNHelper
 {
 public:
   using real = typename Vector::value_type;
   using Norm = std::function<real(const Vector&)>;
 
-  template <typename V>
+  template<typename Value>
   class Queue
   {
   public:
@@ -68,27 +68,27 @@ public:
       delete []_entries;
     }
 
-    real key(int i) const
+    auto key(int i) const
     {
       return _entries[i].key;
     }
 
-    const V& value(int i) const
+    const auto& value(int i) const
     {
       return _entries[i].value;
     }
 
-    real maxKey() const
+    auto maxKey() const
     {
       return key(_n);
     }
 
-    int size() const
+    auto size() const
     {
       return _n;
     }
 
-    bool insert(real key, const V& value)
+    bool insert(real key, const Value& value)
     {
       if (key >= this->key(_k))
         return false;
@@ -113,7 +113,7 @@ public:
     struct Entry
     {
       real key;
-      V value;
+      Value value;
 
       Entry():
         key{std::numeric_limits<real>::max()}
@@ -127,7 +127,7 @@ public:
     int _n;
     Entry* _entries;
 
-  }; // Queue
+  }; // IndexQueue
 
   static real squaredNorm(const Vector& p)
   {
@@ -136,7 +136,7 @@ public:
 
   KNNHelper(const Vector& p, int k, Norm norm = squaredNorm):
     _sample{p},
-    _queue(k),
+    _queue{k},
     _norm{norm}
   {
     // do nothing
@@ -147,36 +147,36 @@ public:
     _norm = norm ? norm : squaredNorm;
   }
 
-  bool test(const Vector&p, int id)
+  bool test(const Vector&p, Index id)
   {
     return _queue.insert(_norm(_sample - p), id);
   }
 
-  bool test(const Vector&p, int id, real maxd)
+  bool test(const Vector&p, Index id, real maxd)
   {
     auto d = _norm(_sample - p);
     return d < maxd ? _queue.insert(d, id) : false;
   }
 
-  const Vector& sample() const
+  const auto& sample() const
   {
     return _sample;
   }
 
-  real maxSquaredDistance() const
+  auto maxSquaredDistance() const
   {
     return _queue.maxKey();
   }
 
-  int results(int indices[], real* distances = nullptr) const
+  auto results(Index indices[], real* distances = nullptr) const
   {
-    int k = _queue.size();
+    auto k = _queue.size();
 
     if (distances == nullptr)
-      for (int i = 0; i < k; ++i)
+      for (auto i = 0; i < k; ++i)
         indices[i] = _queue.value(i);
     else
-      for (int i = 0; i < k; ++i)
+      for (auto i = 0; i < k; ++i)
       {
         indices[i] = _queue.value(i);
         distances[i] = _queue.key(i);
@@ -186,7 +186,7 @@ public:
 
 private:
   Vector _sample;
-  Queue<int> _queue;
+  Queue<Index> _queue;
   Norm _norm;
 
 }; // KNNHelper

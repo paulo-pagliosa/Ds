@@ -28,7 +28,7 @@
 // Class definition for structure of arrays.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/09/2022
+// Last revision: 12/09/2022
 
 #ifndef __SoA_h
 #define __SoA_h
@@ -41,49 +41,50 @@
 namespace cg
 { // begin namespace cg
 
-template <typename... Args> class SoABase;
+template <typename index_t, typename... Args> class SoABase;
 
 namespace soa
 { // begin namespace soa
 
-template <typename... Args> class Arrays;
-template <size_t I, typename Arrays> struct Data;
+template <typename index_t, typename... Args> class Arrays;
+template <size_t I, typename index_t, typename Arrays> struct Data;
 
 template <typename>
 constexpr bool as_false = false;
 
-template <size_t I>
-struct Data<I, Arrays<>>
+template <size_t I, typename index_t>
+struct Data<I, index_t, Arrays<index_t>>
 {
   // Enforce bounds checking
-  static_assert(as_false<std::integral_constant<size_t, I>>,
+  static_assert(as_false<std::integral_constant<index_t, I>>,
     "SoA: array index out of bounds");
 
 }; // Data
 
-template <typename T, typename... Args>
-struct Data<0, Arrays<T, Args...>>
+template <typename index_t, typename T, typename... Args>
+struct Data<0, index_t, Arrays<index_t, T, Args...>>
 {
   // Select first array
   using type = T*;
-  using array_type = Arrays<T, Args...>;
+  using array_type = Arrays<index_t, T, Args...>;
 
 }; // Data
 
-template<size_t I, typename T, typename... Args>
-struct Data<I, Arrays<T, Args...>>: Data<I - 1, Arrays<Args...>>
+template<size_t I, typename index_t, typename T, typename... Args>
+struct Data<I, index_t, Arrays<index_t, T, Args...>>:
+  public Data<I - 1, index_t, Arrays<index_t, Args...>>
 {
   // empty
 
 }; // Data
 
-template <typename... Args>
+template <typename index_t, typename... Args>
 class Arrays
 {
 public:
   template <typename Allocator>
   HOST DEVICE
-  void allocate(size_t n)
+  void allocate(index_t n)
   {
     // do nothing
   }
@@ -96,37 +97,37 @@ public:
   }
 
   HOST DEVICE
-  void get(size_t i, std::tuple<Args...>& t) const
+  void get(index_t i, std::tuple<Args...>& t) const
   {
     // do nothing
   }
 
   HOST DEVICE
-  void set(size_t i, const std::tuple<Args...>& t)
+  void set(index_t i, const std::tuple<Args...>& t)
   {
     // do nothing
   }
 
   HOST DEVICE
-  void swap(size_t i, size_t j)
+  void swap(index_t i, index_t j)
   {
     // do nothing
   }
 
 }; // Arrays
 
-template <typename T, typename... Args>
-class Arrays<T, Args...>: private Arrays<Args...>
+template <typename index_t, typename T, typename... Args>
+class Arrays<index_t, T, Args...>: private Arrays<index_t, Args...>
 {
 public:
   static_assert(!std::is_void_v<T>, "SoA: array type cannot be void");
 
-  using Base = Arrays<Args...>;
+  using Base = Arrays<index_t, Args...>;
 
   T* data;
 
   HOST DEVICE
-  constexpr const Base& base() const
+  const Base& base() const
   {
     return *this;
   }
@@ -138,7 +139,7 @@ public:
   }
 
   template <typename Allocator>
-  void allocate(size_t count)
+  void allocate(index_t count)
   {
     Base::template allocate<Allocator>(count);
     data = Allocator::template allocate<T>(count);
@@ -151,20 +152,20 @@ public:
     Base::template free<Allocator>();
   }
 
-  void get(size_t i, std::tuple<T, Args...>& t) const
+  void get(index_t i, std::tuple<T, Args...>& t) const
   {
     std::get<0>(t) = data[i];
     Base::get(i, (std::tuple<Args...>&)t);
   }
 
-  void set(size_t i, const std::tuple<T, Args...>& t)
+  void set(index_t i, const std::tuple<T, Args...>& t)
   {
     Base::set(i, (std::tuple<Args...>&)t);
     data[i] = std::get<0>(t);
   }
 
   HOST DEVICE
-  void swap(size_t i, size_t j)
+  void swap(index_t i, index_t j)
   {
     std::swap(data[i], data[j]);
     Base::swap(i, j);
@@ -179,16 +180,16 @@ public:
 //
 // SoAConstIterator: SoA const iterator class
 // ================
-template <typename... Args>
+template <typename index_t, typename... Args>
 class SoAConstIterator
 {
 public:
-  using const_iterator = SoAConstIterator<Args...>;
-  using SoA = SoABase<Args...>;
+  using const_iterator = SoAConstIterator<index_t, Args...>;
+  using SoA = SoABase<index_t, Args...>;
 
   SoAConstIterator() = default;
 
-  SoAConstIterator(const SoA* soa, size_t index):
+  SoAConstIterator(const SoA* soa, index_t index):
     _soa{const_cast<SoA*>(soa)},
     _index{index}
   {
@@ -251,26 +252,26 @@ public:
 
 protected:
   SoA* _soa{};
-  size_t _index{};
+  index_t _index{};
 
-}; // ConstSoAIterator
+}; // SoAConstIterator
 
 
 /////////////////////////////////////////////////////////////////////
 //
 // SoAIterator: SoA iterator class
 // ===========
-template <typename... Args>
-class SoAIterator: public SoAConstIterator<Args...>
+template <typename index_t, typename... Args>
+class SoAIterator: public SoAConstIterator<index_t, Args...>
 {
 public:
-  using const_iterator = SoAConstIterator<Args...>;
-  using iterator = SoAIterator<Args...>;
-  using SoA = SoABase<Args...>;
+  using const_iterator = SoAConstIterator<index_t, Args...>;
+  using iterator = SoAIterator<index_t,Args...>;
+  using SoA = SoABase<index_t, Args...>;
 
   SoAIterator() = default;
 
-  SoAIterator(SoA* soa, size_t index):
+  SoAIterator(SoA* soa, index_t index):
     const_iterator{const_cast<SoA*>(soa), index}
   {
     // do nothing
@@ -328,43 +329,40 @@ public:
 //
 // SoABase: structure of arrays base class
 // =======
-template <typename... Args>
+template <typename index_t, typename... Args>
 class SoABase
 {
 public:
   static constexpr auto arrayCount = sizeof...(Args);
 
+  using index_type = index_t;
   using tuple_type = std::tuple<Args...>;
 
   HOST DEVICE
-  size_t size() const
+  auto size() const
   {
     return _size;
   }
 
   template <size_t I>
   HOST DEVICE
-  constexpr const auto data() const
+  const auto data() const
   {
-    using namespace soa;
-    using array_type = typename Data<I, Arrays<Args...>>::array_type;
-
-    return ((array_type&)_arrays).data;
+    using dt = soa::Data<I, index_t, soa::Arrays<index_t, Args...>>;
+    return ((typename dt::array_type&)_arrays).data;
   }
 
   template <size_t I>
   HOST DEVICE
-  constexpr auto data()
+  auto data()
   {
-    using namespace soa;
-    using array_type = typename Data<I, Arrays<Args...>>::array_type;
-
-    return ((array_type&)_arrays).data;
+    using dt = soa::Data<I, index_t, soa::Arrays<index_t, Args...>>;
+    return ((typename dt::array_type&)_arrays).data;
   }
 
   template <size_t I>
   HOST DEVICE
-  constexpr const auto& get(size_t i) const
+  const auto& get(index_t i) const
   {
 #ifndef __NVCC__
     assert(i < _size);
@@ -374,7 +372,7 @@ public:
 
   template <size_t I>
   HOST DEVICE
-  constexpr auto& get(size_t i)
+  auto& get(index_t i)
   {
 #ifndef __NVCC__
     assert(i < _size);
@@ -382,12 +380,12 @@ public:
     return this->template data<I>()[i];
   }
 
-  constexpr void set(size_t i, const Args&... args)
+  void set(index_t i, const Args&... args)
   {
     setTuple(i, tuple_type(args...));
   }
 
-  tuple_type tuple(size_t i) const
+  tuple_type tuple(index_t i) const
   {
     tuple_type t;
 
@@ -395,7 +393,7 @@ public:
     return t;
   }
 
-  void setTuple(size_t i, const tuple_type& t)
+  void setTuple(index_t i, const tuple_type& t)
   {
 #ifndef __NVCC__
     assert(i < _size);
@@ -404,7 +402,7 @@ public:
   }
 
   HOST DEVICE
-  void swap(size_t i, size_t j)
+  void swap(index_t i, index_t j)
   {
 #ifndef __NVCC__
     assert(i < _size && j < _size);
@@ -413,8 +411,8 @@ public:
   }
 
 protected:
-  soa::Arrays<Args...> _arrays;
-  size_t _size;
+  soa::Arrays<index_t, Args...> _arrays;
+  index_t _size;
 
 }; // SoABase
 
@@ -423,14 +421,14 @@ protected:
 //
 // SoA: structure of arrays class
 // ===
-template <typename Allocator, typename... Args>
-class SoA: public SoABase<Args...>
+template <typename Allocator, typename index_t, typename... Args>
+class SoA: public SoABase<index_t, Args...>
 {
 public:
-  using Base = SoABase<Args...>;
-  using type = SoA<Allocator, Args...>;
-  using const_iterator = SoAConstIterator<Args...>;
-  using iterator = SoAIterator<Args...>;
+  using Base = SoABase<index_t, Args...>;
+  using type = SoA<Allocator, index_t, Args...>;
+  using const_iterator = SoAConstIterator<index_t, Args...>;
+  using iterator = SoAIterator<index_t, Args...>;
 
   ~SoA()
   {
@@ -443,7 +441,7 @@ public:
     this->_size = 0;
   }
 
-  SoA(size_t size)
+  SoA(index_t size)
   {
     if ((this->_size = size) != 0)
       this->_arrays.template allocate<Allocator>(size);
@@ -471,7 +469,7 @@ public:
     return *this;
   }
 
-  bool realloc(size_t size)
+  bool reallocate(index_t size)
   {
     if (size == this->_size)
       return false;
@@ -519,7 +517,7 @@ namespace soa
 template <size_t I, typename SoA>
 HOST DEVICE
 inline const auto&
-get(const SoA& soa, size_t i)
+get(const SoA& soa, typename SoA::index_type i)
 {
   return soa.template get<I>(i);
 }
@@ -527,7 +525,7 @@ get(const SoA& soa, size_t i)
 template <size_t I, typename SoA>
 HOST DEVICE
 inline auto&
-get(SoA& soa, size_t i)
+get(SoA& soa, typename SoA::index_type i)
 {
   return soa.template get<I>(i);
 }
@@ -535,15 +533,15 @@ get(SoA& soa, size_t i)
 template <typename SoA>
 HOST DEVICE
 inline auto
-tuple(SoA& soa, size_t i)
+tuple(const SoA& soa, typename SoA::index_type i)
 {
   return soa.tuple(i);
 }
 
-template <typename... Args>
+template <typename index_t, typename... Args>
 HOST DEVICE
 inline void
-set(SoABase<Args...>& soa, size_t i, const Args&... args)
+set(SoABase<index_t, Args...>& soa, index_t i, const Args&... args)
 {
   return soa.set(i, args...);
 }
@@ -551,7 +549,7 @@ set(SoABase<Args...>& soa, size_t i, const Args&... args)
 template <typename SoA>
 HOST DEVICE
 inline auto
-setTuple(SoA& soa, size_t i, typename SoA::tuple_type& t)
+setTuple(SoA& soa, typename SoA::index_type i, typename SoA::tuple_type& t)
 {
   return soa.setTuple(i, t);
 }

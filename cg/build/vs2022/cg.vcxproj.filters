@@ -394,9 +394,6 @@
     <ClCompile Include="..\..\src\debug\AnimatedAlgorithm.cpp">
       <Filter>Source Files\debug</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\geometry\IndexList.cpp">
-      <Filter>Source Files\geometry</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\geometry\MeshSweeper.cpp">
       <Filter>Source Files\geometry</Filter>
     </ClCompile>

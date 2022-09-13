@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2020 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for 2D index.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/08/2020
+// Last revision: 12/09/2022
 
 #ifndef __Index2_h
 #define __Index2_h
@@ -39,7 +39,14 @@
 namespace cg
 { // begin namespace cg
 
-#define ASSERT_INT(T, msg) static_assert(std::is_integral_v<T>, msg)
+template <typename T>
+inline constexpr bool
+isInt()
+{
+  return std::is_integral_v<T>;
+}
+
+#define ASSERT_INT(T, msg) static_assert(isInt<T>(), msg)
 
 template <int D, typename T = int64_t> struct Index;
 
