@@ -28,7 +28,7 @@
 // Class definition for point locator.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/03/2022
+// Last revision: 14/09/2022
 
 #ifndef __PointLocator_h
 #define __PointLocator_h
@@ -50,7 +50,7 @@ class PointLocator: public SharedObject
 {
 public:
   using PointSet = std::vector<Point>;
-  using Grid = RegionGrid3<real, IndexList>;
+  using Grid = RegionGrid3<real, IndexList<>>;
   using id_type = typename Grid::id_type;
 
   static constexpr auto eps = (real)1e-5;
