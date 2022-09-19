@@ -28,7 +28,7 @@
 // Classes for host and CUDA arrays.
 //
 // Author: Paulo Pagliosa
-// Last revision: 12/09/2022
+// Last revision: 14/09/2022
 
 #ifndef __CUDAArray_h
 #define __CUDAArray_h
@@ -154,8 +154,8 @@ Array<T>::Array(const cuda::Array<T>& other):
 namespace host
 { // begin namespace host
 
-template <typename... Args>
-using SoA = cg::SoA<ArrayAllocator, Args...>;
+template <typename index_t, typename... Args>
+using SoA = cg::SoA<ArrayAllocator, index_t, Args...>;
 
 } // end namespace host
 
