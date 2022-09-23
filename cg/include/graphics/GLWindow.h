@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2020 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for OpenGL window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/08/2020
+// Last revision: 23/09/2022
 
 #ifndef __GLWindow_h
 #define __GLWindow_h
@@ -84,7 +84,7 @@ protected:
   virtual bool keyInputEvent(int key, int action, int mods);
 
   /// Initializes this window.
-  virtual void initialize();
+  virtual void initialize(int argc = 0, char** argv = nullptr);
 
   /// Updates the scene associated with this window.
   virtual void update();
@@ -135,17 +135,17 @@ protected:
   }
 
 private:
+  GLFWwindow* _window{};
   std::string _title;
   int _width;
   int _height;
-  GLFWwindow* _window{};
-  bool _paused{};
   float _deltaTime{};
+  bool _paused{};
 
   void registerGlfwCallBacks();
   void centerWindow();
   void mainLoop();
-  void show();
+  void show(int, char**);
 
   static void cursorEnterWindowCallBack(GLFWwindow*, int);
   static void mouseMoveCallBack(GLFWwindow*, double, double);

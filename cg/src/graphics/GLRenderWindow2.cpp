@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2020 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for OpenGL 2D render window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 09/11/2021
+// Last revision: 23/09/2022
 
 #include "graphics/GLRenderWindow2.h"
 
@@ -41,7 +41,7 @@ namespace cg
 // GLRenderWindow2 implementation
 // ===============
 void
-GLRenderWindow2::initialize()
+GLRenderWindow2::initialize(int, char**)
 {
   _g2 = new GLGraphics2();
   _g2->setAspectRatio(float(width()) / height());
@@ -77,11 +77,10 @@ GLRenderWindow2::windowResizeEvent(int width, int height)
 }
 
 bool
-GLRenderWindow2::keyInputEvent(int key, int action, int mods)
+GLRenderWindow2::keyInputEvent(int key, int action, int)
 {
   if (ImGui::GetIO().WantCaptureKeyboard || action == GLFW_RELEASE)
     return false;
-  (void)mods;
 
   const auto delta = _g2->bounds().size() * MOVE_SCALE;
   auto d = vec2f::null();
@@ -117,11 +116,10 @@ GLRenderWindow2::scrollEvent(double, double yOffset)
 }
 
 bool
-GLRenderWindow2::mouseButtonInputEvent(int button, int actions, int mods)
+GLRenderWindow2::mouseButtonInputEvent(int button, int actions, int)
 {
   if (ImGui::GetIO().WantCaptureMouse)
     return false;
-  (void)mods;
 
   auto active = actions == GLFW_PRESS;
 

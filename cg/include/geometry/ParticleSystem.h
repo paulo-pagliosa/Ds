@@ -28,7 +28,7 @@
 // Class definition for particle system.
 //
 // Author: Paulo Pagliosa
-// Last revision: 12/09/2022
+// Last revision: 19/09/2022
 
 #ifndef __ParticleSystem_h
 #define __ParticleSystem_h
@@ -49,7 +49,7 @@ template <class Allocator, class index_t, class Vector, class... Args>
 class ParticleSystem
 {
 public:
-  using point_id = index_t;
+  using PointId = index_t;
   using Data = SoA<Allocator, index_t, Vector, Args...>;
   using type = ParticleSystem<Allocator, index_t, Vector, Args...>;
 
@@ -84,7 +84,7 @@ public:
 
   bool add(const Vector& p, const Args&... args)
   {
-    point_id i;
+    PointId i;
  
     if (_freeList.size() > 0)
     {
@@ -101,52 +101,52 @@ public:
     return true;
   }
 
-  bool remove(point_id i)
+  bool remove(PointId i)
   {
     return i > 0 && i <= _size ? _freeList.add(i) : false;
   }
 
   template <size_t I>
-  const auto& get(point_id i) const
+  const auto& get(PointId i) const
   {
     assert(i >= 0 && i < _size);
     return _data.template get<I>(i);
   }
 
   template <size_t I>
-  auto& get(point_id i)
+  auto& get(PointId i)
   {
     assert(i >= 0 && i < _size);
     return _data.template get<I>(i);
   }
 
-  void set(point_id i, const Vector& p, const Args&... args)
+  void set(PointId i, const Vector& p, const Args&... args)
   {
     assert(i >= 0 && i < _size);
     _data.set(i, p, args...);
   }
 
-  const auto& position(point_id i) const
+  const auto& position(PointId i) const
   {
     return this->template get<0>(i);
   }
 
-  auto& position(point_id i)
+  auto& position(PointId i)
   {
     return this->template get<0>(i);
   }
 
-  void setPosition(point_id i, const Vector& p)
+  void setPosition(PointId i, const Vector& p)
   {
     position(i) = p;
   }
 
-  const auto& operator [](point_id i) const
+  const auto& operator [](PointId i) const
   {
     return position(i);
   }
 
-  auto& operator [](point_id i)
+  auto& operator [](PointId i)
   {
     return position(i);
   }
@@ -173,8 +173,8 @@ public:
 
 protected:
   Data _data;
-  point_id _size{};
-  IndexList<point_id> _freeList;
+  PointId _size{};
+  IndexList<PointId> _freeList;
   // TODO: bitset of inactive point flags
 
 }; // ParticleSystem

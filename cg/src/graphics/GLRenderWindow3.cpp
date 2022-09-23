@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2020 Paulo Pagliosa.                              |
+//| Copyright (C) 2020, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for OpenGL 3D render window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/05/2022
+// Last revision: 23/09/2022
 
 #include "graphics/GLRenderWindow3.h"
 
@@ -41,7 +41,7 @@ namespace cg
 // GLRenderWindow3 implementation
 // ===============
 void
-GLRenderWindow3::initialize()
+GLRenderWindow3::initialize(int, char**)
 {
   _camera = new Camera{};
   _camera->setAspectRatio((float)width() / (float)height());
@@ -89,11 +89,10 @@ constexpr auto ZOOM_SCALE = 1.01f;
 }
 
 bool
-GLRenderWindow3::keyInputEvent(int key, int action, int mods)
+GLRenderWindow3::keyInputEvent(int key, int action, int)
 {
   if (ImGui::GetIO().WantCaptureKeyboard || action == GLFW_RELEASE)
     return false;
-  (void)mods;
 
   const auto delta = _camera->distance() * CAMERA_RES;
   auto d = vec3f::null();
@@ -135,11 +134,10 @@ GLRenderWindow3::scrollEvent(double, double yOffset)
 }
 
 bool
-GLRenderWindow3::mouseButtonInputEvent(int button, int actions, int mods)
+GLRenderWindow3::mouseButtonInputEvent(int button, int actions, int)
 {
   if (ImGui::GetIO().WantCaptureMouse)
     return false;
-  (void)mods;
 
   auto active = actions == GLFW_PRESS;
 

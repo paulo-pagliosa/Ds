@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2019 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for OpenGL 2D render window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 09/11/2021
+// Last revision: 23/09/2022
 
 #ifndef __GLRenderWindow2_h
 #define __GLRenderWindow2_h
@@ -59,7 +59,7 @@ public:
   }
 
 protected:
-  void initialize() override;
+  void initialize(int, char**) override;
   void render() override;
 
   virtual void renderScene();

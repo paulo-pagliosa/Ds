@@ -28,7 +28,7 @@
 // Class definition for OpenGL 3D render window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/05/2022
+// Last revision: 23/09/2022
 
 #ifndef __GLRenderWindow3_h
 #define __GLRenderWindow3_h
@@ -64,7 +64,7 @@ protected:
     return _camera;
   }
 
-  void initialize() override;
+  void initialize(int, char**) override;
   void render() override;
 
   virtual GLGraphics3* makeRenderer(Camera&);

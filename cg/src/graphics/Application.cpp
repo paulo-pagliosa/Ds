@@ -28,7 +28,7 @@
 // Source file for graphics application.
 //
 // Author: Paulo Pagliosa
-// Last revision: 16/03/2022
+// Last revision: 23/09/2022
 
 #include "graphics/Application.h"
 #include <cstdarg>
@@ -134,7 +134,7 @@ Application::run(int argc, char** argv)
       if (!internal::initializeGlfw())
         error("Unable to initialize GLFW");
       if (glfwGetPrimaryMonitor() == nullptr)
-        error("No monitors found");
+        error("No monitor found");
     }
     if (_assetsPath.empty())
     {
@@ -144,7 +144,7 @@ Application::run(int argc, char** argv)
       _assetsPath = _baseDirectory + "assets/";
     }
     (void)argc;
-    _mainWindow->show();
+    _mainWindow->show(argc - 1, argv + 1);
     return EXIT_SUCCESS;
   }
   catch (const std::exception& e)

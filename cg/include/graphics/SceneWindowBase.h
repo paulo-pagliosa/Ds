@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 05/08/2022
+// Last revision: 23/09/2022
 
 #ifndef __SceneWindowBase_h
 #define __SceneWindowBase_h
@@ -65,7 +65,7 @@ protected:
     return _editor;
   }
 
-  void initialize() override;
+  void initialize(int, char**) override;
   void render() override;
 
   virtual void newScene();
