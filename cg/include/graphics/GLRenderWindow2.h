@@ -59,7 +59,7 @@ public:
   }
 
 protected:
-  void initialize(int, char**) override;
+  void initialize() override;
   void render() override;
 
   virtual void renderScene();

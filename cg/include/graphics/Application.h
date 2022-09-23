@@ -28,7 +28,7 @@
 // Class definition for graphics application.
 //
 // Author: Paulo Pagliosa
-// Last revision: 16/03/2022
+// Last revision: 23/09/2022
 
 #ifndef __Application_h
 #define __Application_h
@@ -90,8 +90,10 @@ public:
   }
 
 private:
+  GLWindow* _mainWindow;
+  char** _argv;
+  int _argc;
   int _id;
-  GLWindow *_mainWindow;
 
   static std::string _baseDirectory;
   static std::string _assetsPath;

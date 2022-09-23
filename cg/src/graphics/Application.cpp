@@ -57,7 +57,7 @@ maxWindowSize()
   auto monitors = glfwGetMonitors(&monitorCount);
 
   if (monitorCount == 0)
-    Application::error("No monitors found");
+    Application::error("No monitor found");
 
   struct { int w, h; } size{};
 
@@ -114,8 +114,10 @@ Application::~Application()
 }
 
 Application::Application(GLWindow* mainWindow):
+  _mainWindow{mainWindow},
   _id{++_count},
-  _mainWindow{mainWindow}
+  _argv{},
+  _argc{}
 {
   // do nothing
 }
@@ -134,7 +136,7 @@ Application::run(int argc, char** argv)
       if (!internal::initializeGlfw())
         error("Unable to initialize GLFW");
       if (glfwGetPrimaryMonitor() == nullptr)
-        error("No monitor found");
+        error("No monitors found");
     }
     if (_assetsPath.empty())
     {
@@ -143,8 +145,9 @@ Application::run(int argc, char** argv)
       _baseDirectory = basePath.empty() ? "./" : basePath.string() + '/';
       _assetsPath = _baseDirectory + "assets/";
     }
-    (void)argc;
-    _mainWindow->show(argc - 1, argv + 1);
+    _argv = argv + 1;
+    _argc = argc - 1;
+    _mainWindow->show();
     return EXIT_SUCCESS;
   }
   catch (const std::exception& e)

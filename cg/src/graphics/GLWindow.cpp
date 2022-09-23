@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2020 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for OpenGL window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 23/09/2022
+// Last revision: 14/08/2020
 
 #include "graphics/Application.h"
 #include "imgui_impl_glfw.h"
@@ -105,10 +105,9 @@ GLWindow::keyInputEvent(int key, int action, int mods)
 }
 
 void
-GLWindow::initialize(int argc, char** argv)
+GLWindow::initialize()
 {
-  (void)argc;
-  (void)argv;
+  // do nothing
 }
 
 void
@@ -222,7 +221,7 @@ createGlfwWindow(const char* title, int width, int height)
 }
 
 void
-GLWindow::show(int argc, char** argv)
+GLWindow::show()
 {
   // Create the GLFW window.
   glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
@@ -259,7 +258,7 @@ GLWindow::show(int argc, char** argv)
     ;
   glfwSwapInterval(1);
   // Initialize the app.
-  initialize(argc, argv);
+  initialize();
   // Poll and handle user events.
   mainLoop();
   // Terminate the app.

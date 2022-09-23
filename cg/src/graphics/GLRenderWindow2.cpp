@@ -41,7 +41,7 @@ namespace cg
 // GLRenderWindow2 implementation
 // ===============
 void
-GLRenderWindow2::initialize(int, char**)
+GLRenderWindow2::initialize()
 {
   _g2 = new GLGraphics2();
   _g2->setAspectRatio(float(width()) / height());

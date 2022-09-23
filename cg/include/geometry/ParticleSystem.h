@@ -85,7 +85,7 @@ public:
   bool add(const Vector& p, const Args&... args)
   {
     PointId i;
- 
+
     if (_freeList.size() > 0)
     {
       auto f = _freeList.begin();

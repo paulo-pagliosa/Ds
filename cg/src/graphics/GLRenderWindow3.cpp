@@ -23,7 +23,7 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: GLRenderWindow3.h
+// OVERVIEW: GLRenderWindow3.cpp
 // ========
 // Source file for OpenGL 3D render window.
 //
@@ -41,7 +41,7 @@ namespace cg
 // GLRenderWindow3 implementation
 // ===============
 void
-GLRenderWindow3::initialize(int, char**)
+GLRenderWindow3::initialize()
 {
   _camera = new Camera{};
   _camera->setAspectRatio((float)width() / (float)height());
@@ -61,9 +61,8 @@ GLRenderWindow3::render()
 }
 
 GLGraphics3*
-GLRenderWindow3::makeRenderer(Camera& camera)
+GLRenderWindow3::makeRenderer(Camera&)
 {
-  (void)camera;
   return new GLGraphics3{};
 }
 

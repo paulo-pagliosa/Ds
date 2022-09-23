@@ -28,7 +28,7 @@
 // Source file for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 23/09/2022
+// Last revision: 08/08/2022
 
 #include "graphics/Renderer.h"
 #include "graphics/SceneWindowBase.h"
@@ -92,7 +92,7 @@ namespace cg
 // SceneWindowBase implementation
 // ===============
 void
-SceneWindowBase::initialize(int, char**)
+SceneWindowBase::initialize()
 {
   beginInitialize();
 

@@ -84,7 +84,7 @@ protected:
   virtual bool keyInputEvent(int key, int action, int mods);
 
   /// Initializes this window.
-  virtual void initialize(int argc = 0, char** argv = nullptr);
+  virtual void initialize();
 
   /// Updates the scene associated with this window.
   virtual void update();
@@ -145,7 +145,7 @@ private:
   void registerGlfwCallBacks();
   void centerWindow();
   void mainLoop();
-  void show(int, char**);
+  void show();
 
   static void cursorEnterWindowCallBack(GLFWwindow*, int);
   static void mouseMoveCallBack(GLFWwindow*, double, double);
