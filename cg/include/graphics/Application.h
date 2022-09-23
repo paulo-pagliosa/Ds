@@ -62,6 +62,19 @@ public:
   /// Runs this application.
   int run(int argc, char** argv);
 
+  /// Returns the number of command line arguments of this application.
+  auto argc() const
+  {
+    return _argc;
+  }
+
+  /// Returns the i-th command line argument of this application.
+  auto argv(int i) const
+  {
+    assert(i >= 0 & i < _argc);
+    return _argv[i];
+  }
+
   /// Throws a runtime error exception.
   static void error(const char* format, ...);
 
