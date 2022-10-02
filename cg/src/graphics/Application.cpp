@@ -115,20 +115,18 @@ Application::~Application()
 
 Application::Application(GLWindow* mainWindow):
   _mainWindow{mainWindow},
-  _id{++_count},
-  _argv{},
-  _argc{}
+  _id{++_count}
 {
   // do nothing
 }
-
-namespace fs = std::filesystem;
 
 int
 Application::run(int argc, char** argv)
 {
   try
   {
+    namespace fs = std::filesystem;
+
     if (_mainWindow == nullptr)
       error("Undefined main window");
     if (_count == 1)
@@ -145,9 +143,7 @@ Application::run(int argc, char** argv)
       _baseDirectory = basePath.empty() ? "./" : basePath.string() + '/';
       _assetsPath = _baseDirectory + "assets/";
     }
-    _argv = argv + 1;
-    _argc = argc - 1;
-    _mainWindow->show();
+    _mainWindow->show(argc - 1, argv + 1);
     return EXIT_SUCCESS;
   }
   catch (const std::exception& e)

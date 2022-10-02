@@ -40,6 +40,8 @@
 namespace cg
 { // begin namespace cg
 
+class Application;
+
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -74,6 +76,17 @@ protected:
 
   /// Constructs an intance of GLWindow.
   GLWindow(const char* title, int width, int height);
+
+  auto argc() const
+  {
+    return _argc;
+  }
+
+  auto argv(int i) const
+  {
+    assert(i >= 0 && i < _argc);
+    return _argv[i];
+  }
 
   // Event handlers.
   virtual bool cursorEnterWindowEvent(int entered);
@@ -136,16 +149,18 @@ protected:
 
 private:
   GLFWwindow* _window{};
-  std::string _title;
+  char** _argv;
+  int _argc;
   int _width;
   int _height;
   float _deltaTime{};
+  std::string _title;
   bool _paused{};
 
   void registerGlfwCallBacks();
   void centerWindow();
   void mainLoop();
-  void show();
+  void show(int, char**);
 
   static void cursorEnterWindowCallBack(GLFWwindow*, int);
   static void mouseMoveCallBack(GLFWwindow*, double, double);
@@ -154,7 +169,7 @@ private:
   static void windowResizeCallBack(GLFWwindow*, int, int);
   static void keyInputCallBack(GLFWwindow*, int, int, int, int);
 
-  friend class Application;
+  friend Application;
 
 }; // GLWindow
 

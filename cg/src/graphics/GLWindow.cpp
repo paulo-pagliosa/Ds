@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2020 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for OpenGL window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/08/2020
+// Last revision: 23/09/2022
 
 #include "graphics/Application.h"
 #include "imgui_impl_glfw.h"
@@ -43,9 +43,10 @@ namespace cg
 // GLWindow implementation
 // ========
 GLWindow::GLWindow(const char* title, int width, int height):
+  _width{width}, _height{height},
   _title{title},
-  _width{width},
-  _height{height}
+  _argc{},
+  _argv{}
 {
   // do nothing
 }
@@ -221,7 +222,7 @@ createGlfwWindow(const char* title, int width, int height)
 }
 
 void
-GLWindow::show()
+GLWindow::show(int argc, char** argv)
 {
   // Create the GLFW window.
   glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
@@ -257,6 +258,8 @@ GLWindow::show()
   while (glGetError() != GL_NO_ERROR)
     ;
   glfwSwapInterval(1);
+  _argc = argc;
+  _argv = argv;
   // Initialize the app.
   initialize();
   // Poll and handle user events.
