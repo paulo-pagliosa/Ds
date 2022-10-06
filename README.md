@@ -78,10 +78,10 @@ Some of the goals for 2022 are:
 
 - Full API documentation
 - CMake project and support for macOS and Linux with Clang and GCC
-- Textured ans transparent materials
+- Textured and transparent materials
 - ~~Basic scientific visualization API~~
 - Demos for 2D/3D neighbor particle searching with regular grids and
-quadtrees/octress
+quadtrees/octrees
 - Bézier and B-spline curves and surfaces rendering API
 
 ## Credits
