@@ -28,7 +28,7 @@
 // Class definition for triangle mesh shape.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/02/2022
+// Last revision: 25/10/2022
 
 #ifndef __TriangleMeshShape_h
 #define __TriangleMeshShape_h
@@ -65,7 +65,7 @@ protected:
   TriangleMeshBVH* bvh() const;
 
 private:
-  Reference<TriangleMesh>_mesh;
+  Reference<TriangleMesh> _mesh;
   mutable Reference<TriangleMeshBVH> _bvh;
 
   bool localIntersect(const Ray3f&) const final;
