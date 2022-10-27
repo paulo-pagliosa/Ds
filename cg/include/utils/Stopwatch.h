@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019 Paulo Pagliosa.                              |
+//| Copyright (C) 2019, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for stopwatch.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/04/2019
+// Last revision: 26/10/2022
 
 #ifndef __Stopwatch_h
 #define __Stopwatch_h
@@ -46,7 +46,7 @@ namespace cg
 class Stopwatch
 {
 public:
-  using ms = std::chrono::milliseconds;
+  using ms = std::chrono::duration<double, std::milli>;
   using ms_time = decltype(ms{}.count());
 
   void start()
@@ -93,7 +93,8 @@ public:
   }
 
 private:
-  using time_point = std::chrono::high_resolution_clock::time_point;
+  using clock_type = std::chrono::steady_clock;
+  using time_point = decltype(clock_type::now());
 
   time_point _st{};
   time_point _ct{};
@@ -102,7 +103,7 @@ private:
 
   static time_point now()
   {
-    return std::chrono::high_resolution_clock::now();
+    return clock_type::now();
   }
 
   static ms_time time(const time_point& t1, const time_point& t2)
