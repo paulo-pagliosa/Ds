@@ -28,7 +28,7 @@
 // Source file for simple ray tracer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 07/02/2022
+// Last revision: 27/10/2022
 
 #include "graphics/Camera.h"
 #include "utils/Stopwatch.h"
@@ -45,7 +45,7 @@ namespace
 inline void
 printElapsedTime(const char* s, Stopwatch::ms_time time)
 {
-  printf("%sElapsed time: %llu ms\n", s, time);
+  printf("%sElapsed time: %g ms\n", s, time);
 }
 
 } // end namespace
