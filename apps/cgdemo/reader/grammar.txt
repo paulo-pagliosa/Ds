@@ -69,7 +69,7 @@ ChildObjectBlock:
   ObjectBlock
 
 Transform:
-  TRANSFORM "{" TransformItem "}"
+  TRANSFORM "{" TransformItem* "}"
 
 TransformItem:
   POSITION Vec3
