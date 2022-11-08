@@ -28,7 +28,7 @@
 // Source file for OpenGL window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 23/09/2022
+// Last revision: 07/11/2022
 
 #include "graphics/Application.h"
 #include "imgui_impl_glfw.h"
@@ -175,13 +175,13 @@ GLWindow::mainLoop()
 {
   while (!glfwWindowShouldClose(_window))
   {
-    _deltaTime = 1000.0f / ImGui::GetIO().Framerate;
-    // Pool and handle events.
-    glfwPollEvents();
-    // Start the Dear ImGui frame
+    // Start the Dear ImGui frame.
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
+    _deltaTime = 1000.0f / ImGui::GetIO().Framerate;
+    // Pool and handle events.
+    glfwPollEvents();
     if (!_paused)
       // Update the scene.
       update();

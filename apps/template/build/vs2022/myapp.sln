@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32929.385
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "myapp", "myapp.vcxproj", "{619445A0-D2FF-4DA0-B852-1B7CCF28C127}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cg", "..\..\..\..\cg\build\vs2022\cg.vcxproj", "{4780518D-AFF4-44A9-BF4B-4329D56FF751}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{619445A0-D2FF-4DA0-B852-1B7CCF28C127}.Debug|x64.ActiveCfg = Debug|x64
+		{619445A0-D2FF-4DA0-B852-1B7CCF28C127}.Debug|x64.Build.0 = Debug|x64
+		{619445A0-D2FF-4DA0-B852-1B7CCF28C127}.Release|x64.ActiveCfg = Release|x64
+		{619445A0-D2FF-4DA0-B852-1B7CCF28C127}.Release|x64.Build.0 = Release|x64
+		{4780518D-AFF4-44A9-BF4B-4329D56FF751}.Debug|x64.ActiveCfg = Debug|x64
+		{4780518D-AFF4-44A9-BF4B-4329D56FF751}.Debug|x64.Build.0 = Debug|x64
+		{4780518D-AFF4-44A9-BF4B-4329D56FF751}.Release|x64.ActiveCfg = Release|x64
+		{4780518D-AFF4-44A9-BF4B-4329D56FF751}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D0498FE0-6333-4460-A8C5-841F2393619A}
+	EndGlobalSection
+EndGlobal
