@@ -175,13 +175,13 @@ GLWindow::mainLoop()
 {
   while (!glfwWindowShouldClose(_window))
   {
+    // Pool and handle events.
+    glfwPollEvents();
     // Start the Dear ImGui frame.
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
     _deltaTime = 1000.0f / ImGui::GetIO().Framerate;
-    // Pool and handle events.
-    glfwPollEvents();
     if (!_paused)
       // Update the scene.
       update();
