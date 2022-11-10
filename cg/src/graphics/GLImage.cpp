@@ -28,7 +28,7 @@
 // Source file for OpenGL image.
 //
 // Author: Paulo Pagliosa
-// Last revision: 31/01/2022
+// Last revision: 10/11/2022
 
 #include "graphics/GLImage.h"
 #include <memory>
@@ -71,7 +71,7 @@ static const char* fragmentShader = STRINGIFY(
 // Auxiliary functions
 //
 inline GLuint
-createTexture(int w, int h)
+createRGBTexture(int w, int h)
 {
   GLuint id;
 
@@ -211,7 +211,7 @@ GLImage::drawer()
   static Drawer* instance;
 
   if (instance == nullptr)
-    instance = new Drawer();
+    instance = new Drawer{};
   return instance;
 }
 
@@ -221,10 +221,15 @@ GLImage::draw(int x, int y) const
   drawer()->draw(*this, x, y);
 }
 
-void
-GLImage::draw(uint32_t texture, int x, int y, int width, int height)
+uint32_t
+GLImage::createTexture(int w, int h)
 {
-  drawer()->draw(texture, x, y, width, height);
+  return createRGBTexture(w, h);
+}
+void
+GLImage::drawTexture(uint32_t id, int x, int y, int w, int h)
+{
+  drawer()->draw(id, x, y, w, h);
 }
 
 } // end namespace cg

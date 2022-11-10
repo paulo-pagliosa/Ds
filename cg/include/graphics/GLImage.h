@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018 Paulo Pagliosa.                              |
+//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for OpenGL image.
 //
 // Author: Paulo Pagliosa
-// Last revision: 21/11/2018
+// Last revision: 10/11/2022
 
 #ifndef __GLImage_h
 #define __GLImage_h
@@ -63,8 +63,11 @@ public:
     return _handle;
   }
 
-  // Draws a texture.
-  static void draw(uint32_t texture, int x, int y, int width, int height);
+  // Creates an RGB texture.
+  static uint32_t createTexture(int width, int height);
+
+  // Draws an RGB texture.
+  static void drawTexture(uint32_t id, int x, int y, int width, int height);
 
 private:
   class Drawer;
