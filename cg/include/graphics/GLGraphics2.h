@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019 Paulo Pagliosa.                              |
+//| Copyright (C) 2019, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for OpenGL 2D graphics.
 //
 // Author: Paulo Pagliosa
-// Last revision: 16/02/2019
+// Last revision: 14/11/2022
 
 #ifndef __GLGraphics2_h
 #define __GLGraphics2_h
@@ -52,7 +52,7 @@ public:
   View2();
 
   /// Returns the bounds of this view.
-  const Bounds2f& bounds() const
+  const auto& bounds() const
   {
     return _bounds;
   }
@@ -61,7 +61,7 @@ public:
   void setBounds(const Bounds2f& bounds);
 
   /// Returns the aspect ratio of this view.
-  float aspectRatio() const
+  auto aspectRatio() const
   {
     return _aspectRatio;
   }
@@ -74,6 +74,12 @@ public:
 
   /// Changes the window center of this view.
   void pan(float x, float y);
+
+  template <typename V>
+  void pan(const V& p)
+  {
+    pan(float(p.x), float(p.y));
+  }
 
   /// Updates the view matrix of this view.
   void updateView();
