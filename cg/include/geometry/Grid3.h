@@ -28,7 +28,7 @@
 // Class definition for 3D grid.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/02/2022
+// Last revision: 13/12/2022
 
 #ifndef __Grid3_h
 #define __Grid3_h
@@ -53,9 +53,9 @@ public:
 
   GridData() = default;
 
-  GridData(const index_type& index)
+  GridData(const index_type& size)
   {
-    initialize(index);
+    resize(size);
   }
 
   GridData(GridData<3, T>&& other):
@@ -64,9 +64,9 @@ public:
     _size_xy = other._size_xy;
   }
 
-  void initialize(const index_type& size)
+  void resize(const index_type& size)
   {
-    Base::initialize(size);
+    Base::resize(size);
     _size_xy = size.x * size.y;
   }
 

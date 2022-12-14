@@ -28,7 +28,7 @@
 // Class definition for point quadtree/octree base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 12/09/2022
+// Last revision: 14/12/2022
 
 #ifndef __PointTreeBase_h
 #define __PointTreeBase_h
@@ -57,7 +57,7 @@ protected:
   using PointSet = PointHolder<D, real, PA>;
 
   PointTreeBase(const Bounds<real, D>& bounds,
-    const PA& points,
+    PA& points,
     uint32_t maxDepth = 20):
     Base{bounds, maxDepth},
     PointSet(points)
@@ -66,7 +66,7 @@ protected:
   }
 
   template <typename P>
-  PointTreeBase(PointTreeBase<D, real, P, IL>&& other, const PA& points):
+  PointTreeBase(PointTreeBase<D, real, P, IL>&& other, PA& points):
     Base{std::move(other)},
     PointSet(points)
   {
@@ -97,13 +97,13 @@ public:
   using SplitTest = std::function<bool(const PA&, IL&, uint32_t)>;
 
   PointTree(const bounds_type& bounds,
-    const PA& points,
+    PA& points,
     SplitTest splitTest,
     uint32_t maxDepth = 20,
     bool fullTree = false);
 
   PointTree(const bounds_type& bounds,
-    const PA& points,
+    PA& points,
     uint32_t splitThreshold = 20,
     uint32_t maxDepth = 20,
     bool fullTree = false):
@@ -116,7 +116,7 @@ public:
     // do nothing
   }
 
-  PointTree(const PA& points,
+  PointTree(PA& points,
     SplitTest splitTest,
     uint32_t maxDepth = 20,
     bool fullTree = false,
@@ -130,7 +130,7 @@ public:
     // do nothing
   }
 
-  PointTree(const PA& points,
+  PointTree(PA& points,
     uint32_t splitThreshold = 20,
     uint32_t maxDepth = 20,
     bool fullTree = false,
@@ -145,7 +145,7 @@ public:
   }
 
   template <typename P>
-  PointTree(PointTree<D, real, P>&& other, const PA& points):
+  PointTree(PointTree<D, real, P>&& other, PA& points):
     Base{std::move(other), points},
     _splitTest{other._splitTest}
   {
@@ -170,7 +170,7 @@ public:
 
   size_t findNeighbors(int i, real radius, pid_list& list) const
   {
-    return findNeighbors(vec_type{this->_points[i]}, radius, list);
+    return findNeighbors(vec_type{this->points()[i]}, radius, list);
   }
 
 protected:
@@ -229,7 +229,7 @@ private:
 
 template <int D, typename real, typename PA, typename IL>
 PointTree<D, real, PA, IL>::PointTree(const bounds_type& bounds,
-  const PA& points,
+  PA& points,
   SplitTest splitTest,
   uint32_t maxDepth,
   bool fullTree):
@@ -243,8 +243,10 @@ template <int D, typename real, typename PA, typename IL>
 void
 PointTree<D, real, PA, IL>::build(bool fullTree)
 {
-  for (point_id n = this->_points.size(), i = 0; i < n; ++i)
-    addPoint(this->_points[i], i);
+  const auto& points = this->points();
+
+  for (point_id n = points.size(), i = 0; i < n; ++i)
+    addPoint(points[i], i);
   if (_splitTest != nullptr)
     splitChildren(this->root(), fullTree);
 }
@@ -277,14 +279,16 @@ template <int D, typename real, typename PA, typename IL>
 bool
 PointTree<D, real, PA, IL>::split(LeafNode* leaf, bool fullTree)
 {
-  if (!_splitTest(this->_points, leaf->data(), leaf->depth()))
+  const auto& points = this->points();
+
+  if (!_splitTest(points, leaf->data(), leaf->depth()))
     return false;
 
   auto branch = this->createBranchInPlaceOf(leaf);
   uint64_t mask{this->_depthMask >> branch->depth()};
 
   for (auto index : leaf->data())
-    addPoint(this->_points[index], index, mask, branch);
+    addPoint(points[index], index, mask, branch);
   this->deleteLeaf(leaf);
   return splitChildren(branch, fullTree);
 }
@@ -297,42 +301,36 @@ PointTree<D, real, PA, IL>::moveDataToChildren(LeafNode* leaf,
 {
   (void)key;
 
+  const auto& points = this->points();
   uint64_t mask{this->_depthMask >> branch->depth()};
 
   for (auto index : leaf->data())
   {
-    auto i = this->key(this->_points[index]).childIndex(mask);
+    auto i = this->key(points[index]).childIndex(mask);
     auto child = (LeafNode *)branch->child(i);
 
     child->data().add(index);
   }
 }
 
-namespace ptb
-{ // begin namespace ptb
+namespace internal::pt
+{ // begin namespace internal::pt
 
 template <typename real>
-inline real
+inline auto
 searchSize2(real d2, real r2)
 {
   return d2 * real(0.25) + r2 + sqrt(d2 * r2);
 }
 
 template <typename real>
-inline constexpr real
-epsilon()
+inline constexpr auto
+eps(real x)
 {
-  return std::numeric_limits<real>::epsilon();
+  return std::numeric_limits<real>::epsilon() + x;
 }
 
-template <typename real>
-inline constexpr real
-inf()
-{
-  return std::numeric_limits<real>::max();
-}
-
-} // end namespace ptb
+} // end namespace internal::pt
 
 template <int D, typename real, typename PA, typename IL>
 size_t
@@ -355,9 +353,10 @@ PointTree<D, real, PA, IL>::radiusSearch(const vec_type& p,
   BranchNode* branch,
   pid_list& list) const
 {
-  auto depth = branch->depth() + 1;
-  auto s2 = ptb::searchSize2(this->nodeSize(depth).squaredNorm(), r2);
   constexpr auto N = (int)ipow2<D>();
+  auto depth = branch->depth() + 1;
+  auto s2 = internal::pt::searchSize2(this->nodeSize(depth).squaredNorm(), r2);
+  const auto& points = this->points();
 
   for (int i = 0; i < N; i++)
     if (auto child = branch->child(i))
@@ -365,13 +364,13 @@ PointTree<D, real, PA, IL>::radiusSearch(const vec_type& p,
       auto childKey = key_type(key).pushChild(i);
       auto d2 = (p - this->center(childKey, depth)).squaredNorm();
 
-      if (ptb::epsilon<real>() + d2 > s2)
+      if (internal::pt::eps(d2) > s2)
         continue;
       if (!child->isLeaf())
         radiusSearch(p, r2, childKey, (BranchNode*)child, list);
       else
         for (auto index : ((LeafNode*)child)->data())
-          if ((p - this->_points[index]).squaredNorm() <= r2)
+          if ((p - points[index]).squaredNorm() <= r2)
             list.add(index);
     }
 }
@@ -390,13 +389,14 @@ PointTree<D, real, PA, IL>::findNearestNeighbors(const vec_type& p,
   */
 
   KNN knn{p, k, norm};
-  auto n = this->_points.size();
+  const auto& points = this->points();
+  auto n = points.size();
 
   if (n <= k)
-    for (int i = 0; i < n; ++i)
-      knn.test(this->_points[i], i);
+    for (decltype(n) i = 0; i < n; ++i)
+      knn.test(points[i], i);
   else
-    knnSearch(knn, ptb::inf<real>(), key_type{0LL}, this->root());
+    knnSearch(knn, math::Limits<real>::inf(), key_type{0LL}, this->root());
   return knn.results(indices, distances);
 }
 
@@ -437,8 +437,12 @@ PointTree<D, real, PA, IL>::knnSearch(KNN& knn,
 
       nq.insert(d2, NodeEntry{child, childKey});
     }
+
+  const auto& points = this->points();
+
   for (auto n = nq.size(), i = 0;
-    i < n && ptb::epsilon<real>() + nq.key(i) <= ptb::searchSize2(n2, r2);
+    i < n &&
+    internal::pt::eps(nq.key(i)) <= internal::pt::searchSize2(n2, r2);
     ++i)
   {
     const auto& e = nq.value(i);
@@ -447,7 +451,7 @@ PointTree<D, real, PA, IL>::knnSearch(KNN& knn,
       r2 = knnSearch(knn, r2, e.key, (BranchNode*)e.node);
     else
       for (auto index : ((LeafNode*)e.node)->data())
-        knn.test(this->_points[index], index, r2);
+        knn.test(points[index], index, r2);
   }
   return r2;
 }

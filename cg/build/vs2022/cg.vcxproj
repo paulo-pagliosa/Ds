@@ -122,7 +122,7 @@
     <ClInclude Include="..\..\include\geometry\Line.h" />
     <ClInclude Include="..\..\include\geometry\MeshSweeper.h" />
     <ClInclude Include="..\..\include\geometry\Octree.h" />
-    <ClInclude Include="..\..\include\geometry\ParticleSystem.h" />
+    <ClInclude Include="..\..\include\geometry\PointArray.h" />
     <ClInclude Include="..\..\include\geometry\Quad.h" />
     <ClInclude Include="..\..\include\geometry\Point2.h" />
     <ClInclude Include="..\..\include\geometry\Point3.h" />

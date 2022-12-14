@@ -28,7 +28,7 @@
 // Class definition for point grid base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 12/09/2022
+// Last revision: 14/12/2022
 
 #ifndef __PointGridBase_h
 #define __PointGridBase_h
@@ -58,17 +58,17 @@ protected:
   using Base = RegionGrid<D, real, IL>;
   using PointSet = PointHolder<D, real, PA>;
 
-  PointGridBase(const Bounds<real, D>& bounds, const PA& points, real h):
+  PointGridBase(const Bounds<real, D>& bounds, PA& points, real h):
     Base{bounds, h},
-    PointSet(points)
+    PointSet{points}
   {
     // do nothing
   }
 
   template <typename P>
-  PointGridBase(PointGridBase<D, real, P, IL>&& other, const PA& points):
+  PointGridBase(PointGridBase<D, real, P, IL>&& other, PA& points):
     Base{std::move(other)},
-    PointSet(points)
+    PointSet{points}
   {
     this->setPositions(other.points());
   }
@@ -93,16 +93,16 @@ public:
   using KNN = KNNHelper<vec_type, point_id>;
   using Searcher = PointGridSearcher<D, real, PA, pid_list>;
 
-  PointGrid(const Bounds<real, D>& bounds, const PA& points, real h);
+  PointGrid(const Bounds<real, D>& bounds, PA& points, real h);
 
-  PointGrid(const PA& points, real h, bool squared = true):
+  PointGrid(PA& points, real h, bool squared = true):
     type{PointSet::computeBounds(points, squared), points, h}
   {
     // do nothing
   }
 
   template <typename P>
-  PointGrid(PointGrid<D, real, P, IL>&& other, const PA& points):
+  PointGrid(PointGrid<D, real, P, IL>&& other, PA& points):
     Base{std::move(other), points}
   {
     // do nothing
@@ -121,14 +121,14 @@ public:
 
   size_t findNeighbors(size_t i, pid_list& nids) const
   {
-    assert(i < this->_points.size());
-    return findNeighbors(vec_type{this->_points[i]}, nids);
+    assert(i < this->points().size());
+    return findNeighbors(vec_type{this->points()[i]}, nids);
   }
 
   bool addPoint(point_id i)
   {
-    assert(i < this->_points.size());
-    return addPoint(this->_points[i], i);
+    assert(i < this->points().size());
+    return addPoint(this->points()[i], i);
   }
 
 protected:
@@ -143,11 +143,11 @@ protected:
 
 template <int D, typename real, typename PA, typename IL>
 PointGrid<D, real, PA, IL>::PointGrid(const Bounds<real, D>& bounds,
-  const PA& points,
+  PA& points,
   real h):
   Base{bounds, points, h}
 {
-  for (point_id n = points.size(), i = 0; i < n; ++i)
+  for (point_id n = (point_id)points.size(), i = 0; i < n; ++i)
     addPoint(points[i], i);
 }
 
@@ -165,11 +165,12 @@ PointGrid<D, real, PA, IL>::findNearestNeighbors(const vec_type& p,
   */
 
   KNN knn{p, k, norm};
-  auto n = this->_points.size();
+  const auto& points = this->points();
+  auto n = points.size;
 
   if (n <= k)
-    for (int i = 0; i < n; ++i)
-      knn.test(this->_points[i], i);
+    for (decltype(n) i = 0; i < n; ++i)
+      knn.test(points[i], i);
   else
   {
     // TODO

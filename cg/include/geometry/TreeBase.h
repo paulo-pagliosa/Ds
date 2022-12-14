@@ -28,7 +28,7 @@
 // Class definition for quadtree/octree base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 12/09/2022
+// Last revision: 14/12/2022
 
 #ifndef __TreeBase_h
 #define __TreeBase_h
@@ -842,8 +842,7 @@ private:
     NodeIt() = default;
 
     NodeIt(TreeNodeBase<D>* node, const key_type& key):
-      node{node},
-      key{key}
+      node{node}, key{key}
     {
       // do nothing
     }

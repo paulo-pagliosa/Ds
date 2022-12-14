@@ -28,7 +28,7 @@
 // Class definition for point holder.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/09/2022
+// Last revision: 14/12/2022
 
 #ifndef __PointHolder_h
 #define __PointHolder_h
@@ -43,7 +43,7 @@ namespace cg
 //
 // PointHolder: point holder class
 // ===========
-template <int D, typename real, typename PointArray>
+template <int D, typename real, typename PA>
 class PointHolder
 {
 public:
@@ -52,11 +52,14 @@ public:
     return _points;
   }
 
-protected:
-  const PointArray& _points;
+  auto& points()
+  {
+    return _points;
+  }
 
-  PointHolder(const PointArray& points):
-    _points(points)
+protected:
+  PointHolder(PA& points):
+    _points{points}
   {
     // do nothing
   }
@@ -71,7 +74,7 @@ protected:
         _points[i].set(points[i]);
   }
 
-  static auto computeBounds(const PointArray& points, bool squared)
+  static auto computeBounds(const PA& points, bool squared)
   {
     using size_type = decltype(points.size());
 
@@ -90,9 +93,11 @@ protected:
     return bounds;
   }
 
+private:
+  PA& _points;
+
 }; // PointHolder
 
 } // namespace cg
 
 #endif // __PointHolder_h
-

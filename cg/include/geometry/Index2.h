@@ -28,7 +28,7 @@
 // Class definition for 2D index.
 //
 // Author: Paulo Pagliosa
-// Last revision: 12/09/2022
+// Last revision: 13/12/2022
 
 #ifndef __Index2_h
 #define __Index2_h
@@ -81,17 +81,11 @@ struct Index<2, T>
     set(i, j);
   }
 
-  HOST DEVICE
-  explicit Index(base_type i)
-  {
-    set(i, i);
-  }
-
   template <typename V>
   HOST DEVICE
   explicit Index(const V& v)
   {
-    set(base_type(v.x), base_type(v.y));
+    set(v);
   }
 
   HOST DEVICE
@@ -99,6 +93,16 @@ struct Index<2, T>
   {
     x = i;
     y = j;
+  }
+
+  template <typename V>
+  HOST DEVICE
+  void set(const V& v)
+  {
+    if constexpr (std::is_integral_v<V>)
+      x = y = base_type(v);
+    else
+      set(base_type(v.x), base_type(v.y));
   }
 
   HOST DEVICE

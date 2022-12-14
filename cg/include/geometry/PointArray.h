@@ -23,15 +23,15 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: ParticleSystem.h
+// OVERVIEW: PointArray.h
 // ========
-// Class definition for particle system.
+// Class definition for point array.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/09/2022
+// Last revision: 12/12/2022
 
-#ifndef __ParticleSystem_h
-#define __ParticleSystem_h
+#ifndef __PointArray_h
+#define __PointArray_h
 
 #include "core/SoA.h"
 #include "geometry/IndexList.h"
@@ -43,19 +43,19 @@ namespace cg
 
 //////////////////////////////////////////////////////////
 //
-// ParticleSystem: particle system class
-// ==============
+// PointArray: point array class
+// ==========
 template <class Allocator, class index_t, class Vector, class... Args>
-class ParticleSystem
+class PointArray
 {
 public:
   using PointId = index_t;
   using Data = SoA<Allocator, index_t, Vector, Args...>;
-  using type = ParticleSystem<Allocator, index_t, Vector, Args...>;
+  using type = PointArray<Allocator, index_t, Vector, Args...>;
 
-  ParticleSystem() = default;
+  PointArray() = default;
 
-  ParticleSystem(index_t capacity):
+  PointArray(index_t capacity):
     _data{capacity}
   {
     // do nothing
@@ -103,7 +103,7 @@ public:
 
   bool remove(PointId i)
   {
-    return i > 0 && i <= _size ? _freeList.add(i) : false;
+    return i >= 0 && i < _size ? _freeList.add(i) : false;
   }
 
   template <size_t I>
@@ -177,8 +177,8 @@ protected:
   IndexList<PointId> _freeList;
   // TODO: bitset of inactive point flags
 
-}; // ParticleSystem
+}; // PointArray
 
 } // end namespace cg
 
-#endif // __ParticleSystem_h
+#endif // __PointArray_h

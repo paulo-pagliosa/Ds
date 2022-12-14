@@ -38,6 +38,15 @@
 #include "graphics/GLImage.h"
 #include "RayTracer.h"
 
+namespace cg::graph
+{ // begin namespace cg::graph
+
+class HelixProxy;
+class SweepMeshProxy;
+
+} // end namespace cg::graph
+
+
 using namespace cg;
 using namespace cg::graph;
 
@@ -89,6 +98,9 @@ private:
   void readScene(const std::string& filename);
 
   static void buildDefaultMeshes();
+
+  static void inspectHelix(SceneWindow&, HelixProxy&);
+  static void inspectSweepMesh(SceneWindow&, SweepMeshProxy&);
 
 }; // MainWindow
 

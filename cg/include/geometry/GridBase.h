@@ -28,7 +28,7 @@
 // Class definition for grid base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 12/09/2022
+// Last revision: 14/12/2022
 
 #ifndef __GridBase_h
 #define __GridBase_h
@@ -206,12 +206,19 @@ template <int D, typename T>
 class Grid: public SharedObject
 {
 public:
+  static_assert(D == 2 || D == 3, "Grid: bad dimension");
+
   using grid_type = Grid<D, T>;
+  using id_type = int64_t;
+  using index_type = Index<D, id_type>;
   using const_iterator = GridConstIterator<D, T>;
   using iterator = GridIterator<D, T>;
   using value_type = T;
-  using id_type = int64_t;
-  using index_type = Index<D, id_type>;
+
+  static constexpr auto dim()
+  {
+    return D;
+  }
 
   Grid(const index_type& size):
     _data{size}
@@ -221,13 +228,6 @@ public:
 
   explicit Grid(id_type n):
     _data{index_type{n}}
-  {
-    // do nothing
-  }
-
-  template <typename... Args>
-  explicit Grid(Args&&... size):
-    _data{index_type{std::forward<Args>(size)...}}
   {
     // do nothing
   }
@@ -331,10 +331,10 @@ public:
 
   using Base = Grid<D, T>;
   using id_type = typename Base::id_type;
+  using index_type = typename Base::index_type;
   using grid_type = RegionGrid<D, real, T>;
-  using index_type = Index<D, id_type>;
-  using vec_type = Vector<real, D>;
   using bounds_type = Bounds<real, D>;
+  using vec_type = Vector<real, D>;
 
   using Base::index;
   using Base::id;
@@ -363,10 +363,10 @@ public:
   }
 
   RegionGrid(grid_type&& other):
-    Base{other},
+    Base{std::move(other)},
     _bounds{other._bounds},
     _cellSize{other._cellSize},
-    _inverseCellSize{other._inverseCellScale}
+    _inverseCellSize{other._inverseCellSize}
   {
     // do nothing
   }
@@ -450,8 +450,8 @@ private:
 template <int D, typename real, typename T>
 inline real RegionGrid<D, real, T>::_fatFactor = dflFatFactor;
 
-namespace internal
-{ // begin namespace internal
+namespace internal::rg
+{ // begin namespace internal::rg
 
 template <typename real, int D>
 inline auto
@@ -465,7 +465,7 @@ boundsSize(const Bounds<real, D>& bounds)
   return s;
 }
 
-} // end namespace internal
+} // end namespace internal::rg
 
 template <int D, typename real, typename T>
 RegionGrid<D, real, T>::RegionGrid(const bounds_type& bounds, real h):
@@ -475,7 +475,7 @@ RegionGrid<D, real, T>::RegionGrid(const bounds_type& bounds, real h):
     throw std::runtime_error("RegionGrid: bad cell size");
   _bounds.inflate(_fatFactor);
 
-  const auto s = internal::boundsSize(_bounds);
+  const auto s = internal::rg::boundsSize(_bounds);
   const auto invH = math::inverse(h);
   index_type size;
 
@@ -494,7 +494,7 @@ RegionGrid<D, real, T>::RegionGrid(const bounds_type& bounds,
 {
   _bounds.inflate(_fatFactor);
 
-  auto s = internal::boundsSize(_bounds);
+  auto s = internal::rg::boundsSize(_bounds);
 
   Base::resize(size);
   for (int i = 0; i < D; ++i)
@@ -514,12 +514,25 @@ public:
   ASSERT_NOT_VOID(T, "Grid data type cannot be void");
 
   using id_type = typename Grid<D, T>::id_type;
-  using index_type = Index<D, id_type>;
+  using index_type = typename Grid<D, T>::index_type;
 
   GridDataBase():
-    _size{id_type(0)}
+    _size{0}
   {
     // do nothing
+  }
+
+  GridDataBase(const index_type& size)
+  {
+    resize(size);
+  }
+
+  GridDataBase(GridDataBase<D, T>&& other)
+  {
+    _data = other._data;
+    _length = other._length;
+    _size = other._size;
+    other._data = nullptr;
   }
 
   ~GridDataBase()
@@ -555,17 +568,6 @@ protected:
   T* _data{};
   id_type _length{};
   index_type _size;
-
-  GridDataBase(const index_type& size)
-  {
-    resize(size);
-  }
-
-  GridDataBase(GridDataBase<D, T>&& other)
-  {
-    *this = other;
-    other._data = nullptr;
-  }
 
 }; // GridDataBase
 

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2020 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for 3D index.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/08/2020
+// Last revision: 13/12/2022
 
 #ifndef __Index3_h
 #define __Index3_h
@@ -77,7 +77,17 @@ struct Index<3, T>
   HOST DEVICE
   explicit Index(const V& v)
   {
-    set(base_type(v.x), base_type(v.y), base_type(v.z));
+    set(v);
+  }
+
+  template <typename V>
+  HOST DEVICE
+  void set(const V& v)
+  {
+    if constexpr (std::is_integral_v<V>)
+      x = y = z = base_type(v);
+    else
+      set(base_type(v.x), base_type(v.y), base_type(v.z));
   }
 
   HOST DEVICE
