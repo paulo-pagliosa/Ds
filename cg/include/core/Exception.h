@@ -28,7 +28,7 @@
 // Definition for common exceptions.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/02/2022
+// Last revision: 14/12/2022
 
 #ifndef __Exception_h
 #define __Exception_h
@@ -38,6 +38,7 @@
 namespace cg
 { // begin namespace cg
 
+void runtimeError(const char*, ...);
 std::logic_error bad_invocation(const char*, const char*);
 
 } // end namespace cg

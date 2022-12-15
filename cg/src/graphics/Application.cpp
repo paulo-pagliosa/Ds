@@ -28,26 +28,24 @@
 // Source file for graphics application.
 //
 // Author: Paulo Pagliosa
-// Last revision: 23/09/2022
+// Last revision: 14/12/2022
 
+#include "core/Exception.h"
 #include "graphics/Application.h"
-#include <cstdarg>
-#include <cstdio>
 #include <filesystem>
-#include <stdexcept>
 
 namespace cg
 { // begin namespace cg
 
-namespace internal
-{ // begin namespace internal
+namespace internal::app
+{ // begin namespace internal::app
 
 static int glfwInitialized;
 
 static void
 errorCallback(int error, const char* description)
 {
-  Application::error("GLFW (%d): %s", error, description);
+  runtimeError("GLFW error (%d): %s", error, description);
 }
 
 inline auto
@@ -57,7 +55,7 @@ maxWindowSize()
   auto monitors = glfwGetMonitors(&monitorCount);
 
   if (monitorCount == 0)
-    Application::error("No monitor found");
+    runtimeError("No monitor found");
 
   struct { int w, h; } size{};
 
@@ -95,7 +93,7 @@ terminateGlfw()
   }
 }
 
-} // end namespace internal
+} // end namespace internal::app
 
 
 /////////////////////////////////////////////////////////////////////
@@ -110,7 +108,7 @@ Application::~Application()
 {
   delete _mainWindow;
   if (--_count == 0)
-    internal::terminateGlfw();
+    internal::app::terminateGlfw();
 }
 
 Application::Application(GLWindow* mainWindow):
@@ -128,13 +126,13 @@ Application::run(int argc, char** argv)
     namespace fs = std::filesystem;
 
     if (_mainWindow == nullptr)
-      error("Undefined main window");
+      runtimeError("Undefined main window");
     if (_count == 1)
     {
-      if (!internal::initializeGlfw())
-        error("Unable to initialize GLFW");
+      if (!internal::app::initializeGlfw())
+        runtimeError("Unable to initialize GLFW");
       if (glfwGetPrimaryMonitor() == nullptr)
-        error("No monitors found");
+        runtimeError("No monitors found");
     }
     if (_assetsPath.empty())
     {
@@ -152,18 +150,6 @@ Application::run(int argc, char** argv)
     (void)getchar();
     return EXIT_FAILURE;
   }
-}
-
-void
-Application::error(const char* format, ...)
-{
-  constexpr auto bufferSize = 4096;
-  char buffer[bufferSize];
-  va_list args;
-
-  va_start(args, format);
-  std::vsnprintf(buffer, bufferSize, format, args);
-  throw std::runtime_error{buffer};
 }
 
 } // end namespace cg

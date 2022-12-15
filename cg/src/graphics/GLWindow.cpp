@@ -28,8 +28,9 @@
 // Source file for OpenGL window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 07/11/2022
+// Last revision: 14/12/2022
 
+#include "core/Exception.h"
 #include "graphics/Application.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -232,13 +233,13 @@ GLWindow::show(int argc, char** argv)
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   _window = createGlfwWindow(_title.c_str(), _width, _height);
   if (_window == nullptr)
-    Application::error("Unable to create GLFW window");
+    runtimeError("Unable to create GLFW window");
   glfwSetWindowUserPointer(_window, this);
   centerWindow();
   glfwMakeContextCurrent(_window);
   gl3wInit();
   if (!gl3wIsSupported(4, 0))
-    Application::error("OpenGL v400 is not supported");
+    runtimeError("OpenGL v400 is not supported");
   glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
   registerGlfwCallBacks();
   // Setup Dear ImGui binding.

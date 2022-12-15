@@ -28,12 +28,26 @@
 // Source file for common exceptions.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/02/2022
+// Last revision: 14/12/2022
 
 #include "core/Exception.h"
+#include <cstdarg>
+#include <cstdio>
 
 namespace cg
 { // begin namespace cg
+
+void
+runtimeError(const char* format, ...)
+{
+  constexpr auto bufferSize = 4096;
+  char buffer[bufferSize];
+  va_list args;
+
+  va_start(args, format);
+  std::vsnprintf(buffer, bufferSize, format, args);
+  throw std::runtime_error{buffer};
+}
 
 std::logic_error
 bad_invocation(const char* c, const char* f)
