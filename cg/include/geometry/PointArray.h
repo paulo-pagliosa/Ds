@@ -28,7 +28,7 @@
 // Class definition for point array.
 //
 // Author: Paulo Pagliosa
-// Last revision: 12/12/2022
+// Last revision: 15/12/2022
 
 #ifndef __PointArray_h
 #define __PointArray_h
@@ -82,7 +82,7 @@ public:
     _size = 0;
   }
 
-  bool add(const Vector& p, const Args&... args)
+  auto add(const Vector& p, const Args&... args)
   {
     PointId i;
 
@@ -96,9 +96,9 @@ public:
     else if (_size < capacity())
       i = _size++;
     else
-      return false;
+      return -1;
     set(i, p, args...);
-    return true;
+    return i;
   }
 
   bool remove(PointId i)

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2020 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for 2D vector.
 //
 // Author: Paulo Pagliosa
-// Last revision: 02/06/2020
+// Last revision: 15/12/2022
 
 #ifndef __Vector2_h
 #define __Vector2_h
@@ -61,7 +61,7 @@ class Vector<real, 2>
 public:
   ASSERT_REAL(real, "Vector2: floating point type expected");
 
-  using vec2 = Vector<real, 2>;
+  using type = Vector<real, 2>;
   using value_type = real;
 
   real x;
@@ -98,7 +98,7 @@ public:
 
   /// Sets this object to v.
   HOST DEVICE
-  void set(const vec2& v)
+  void set(const type& v)
   {
     *this = v;
   }
@@ -132,7 +132,7 @@ public:
 
   template <typename T>
   HOST DEVICE
-  vec2& operator =(const T& v)
+  auto& operator =(const T& v)
   {
     set(v);
     return *this;
@@ -140,9 +140,9 @@ public:
 
   /// Returns a null vector.
   HOST DEVICE
-  static vec2 null()
+  static type null()
   {
-    return vec2{real(0)};
+    return type{real(0)};
   }
 
   /// Returns ths size of this object.
@@ -154,27 +154,27 @@ public:
 
   /// Returns true if this object is equal to v.
   HOST DEVICE
-  bool equals(const vec2& v, real eps = math::Limits<real>::eps()) const
+  bool equals(const type& v, real eps = math::Limits<real>::eps()) const
   {
     return math::isNull(x - v.x, y - v.y, eps);
   }
 
   HOST DEVICE
-  bool operator ==(const vec2& v) const
+  bool operator ==(const type& v) const
   {
     return equals(v);
   }
 
   /// Returns true if this object is not equal to v.
   HOST DEVICE
-  bool operator !=(const vec2& v) const
+  bool operator !=(const type& v) const
   {
     return !operator ==(v);
   }
 
   /// Returns a reference to this object += v.
   HOST DEVICE
-  vec2& operator +=(const vec2& v)
+  auto& operator +=(const type& v)
   {
     x += v.x;
     y += v.y;
@@ -183,7 +183,7 @@ public:
 
   /// Returns a reference to this object -= v.
   HOST DEVICE
-  vec2& operator -=(const vec2& v)
+  auto& operator -=(const type& v)
   {
     x -= v.x;
     y -= v.y;
@@ -192,7 +192,7 @@ public:
 
   /// Returns a reference to this object *= s.
   HOST DEVICE
-  vec2& operator *=(real s)
+  auto& operator *=(real s)
   {
     x *= s;
     y *= s;
@@ -201,7 +201,7 @@ public:
 
   /// Returns a reference to this object *= v.
   HOST DEVICE
-  vec2& operator *=(const vec2& v)
+  auto& operator *=(const type& v)
   {
     x *= v.x;
     y *= v.y;
@@ -210,14 +210,14 @@ public:
 
   /// Returns a reference to the i-th coordinate of this object.
   HOST DEVICE
-  real& operator [](int i)
+  auto& operator [](int i)
   {
     return (&x)[i];
   }
 
   /// Returns the i-th coordinate of this object.
   HOST DEVICE
-  const real& operator [](int i) const
+  const auto& operator [](int i) const
   {
     return (&x)[i];
   }
@@ -231,37 +231,37 @@ public:
 
   /// Returns this object + v.
   HOST DEVICE
-  vec2 operator +(const vec2& v) const
+  type operator +(const type& v) const
   {
-    return vec2{x + v.x, y + v.y};
+    return {x + v.x, y + v.y};
   }
 
   /// Returns this object - v.
   HOST DEVICE
-  vec2 operator -(const vec2& v) const
+  type operator -(const type& v) const
   {
-    return vec2{x - v.x, y - v.y};
+    return {x - v.x, y - v.y};
   }
 
   /// Returns a vector in the direction opposite to this object.
   HOST DEVICE
-  vec2 operator -() const
+  type operator -() const
   {
-    return vec2{-x, -y};
+    return {-x, -y};
   }
 
   /// Returns the scalar multiplication of this object and s.
   HOST DEVICE
-  vec2 operator *(real s) const
+  type operator *(real s) const
   {
-    return vec2{x * s, y * s};
+    return {x * s, y * s};
   }
 
   /// Returns the multiplication of this object and v.
   HOST DEVICE
-  vec2 operator *(const vec2& v) const
+  type operator *(const type& v) const
   {
-    return vec2{x * v.x, y * v.y};
+    return {x * v.x, y * v.y};
   }
 
   /// Returns true if this object is null.
@@ -301,14 +301,14 @@ public:
 
   /// Returns the inverse of this object.
   HOST DEVICE
-  vec2 inverse() const
+  type inverse() const
   {
-    return vec2{1 / x, 1 / y};
+    return {1 / x, 1 / y};
   }
 
   /// Inverts and returns a reference to this object.
   HOST DEVICE
-  vec2& invert()
+  auto& invert()
   {
     x = 1 / x;
     y = 1 / y;
@@ -317,7 +317,7 @@ public:
 
   /// Negates and returns a reference to this object.
   HOST DEVICE
-  vec2& negate()
+  auto& negate()
   {
     x = -x;
     y = -y;
@@ -326,7 +326,7 @@ public:
 
   /// Normalizes and returns a reference to this object.
   HOST DEVICE
-  vec2& normalize(real eps = math::Limits<real>::eps())
+  auto& normalize(real eps = math::Limits<real>::eps())
   {
     const auto len = length();
 
@@ -337,21 +337,21 @@ public:
 
   /// Returns the unit vector of this this object.
   HOST DEVICE
-  vec2 versor(real eps = math::Limits<real>::eps()) const
+  type versor(real eps = math::Limits<real>::eps()) const
   {
-    return vec2{*this}.normalize(eps);
+    return type{*this}.normalize(eps);
   }
 
   /// Returns the unit vector of v.
   HOST DEVICE
-  static vec2 versor(const vec2& v, real eps = math::Limits<real>::eps())
+  static type versor(const type& v, real eps = math::Limits<real>::eps())
   {
     return v.versor(eps);
   }
 
   /// Returns the dot product of this object and v.
   HOST DEVICE
-  real dot(const vec2& v) const
+  real dot(const type& v) const
   {
     return x * v.x + y * v.y;
   }
@@ -360,12 +360,12 @@ public:
   HOST DEVICE
   real dot(real x, real y) const
   {
-    return dot(vec2{x, y});
+    return dot(type{x, y});
   }
 
   /// Returns the dot product of v and w.
   HOST DEVICE
-  static real dot(const vec2& v, const vec2& w)
+  static real dot(const type& v, const type& w)
   {
     return v.dot(w);
   }
@@ -381,11 +381,30 @@ template <typename real> using Vector2 = Vector<real, 2>;
 
 /// Returns the scalar multiplication of s and v.
 template <typename real>
-HOST DEVICE inline Vector2<real>
+HOST DEVICE inline auto
 operator *(real s, const Vector2<real>& v)
 {
   return v * s;
 }
+
+namespace math
+{ // begin namespace math
+
+template <typename real>
+inline Vector2<real>
+min(const Vector2<real>& a, const Vector2<real>& b)
+{
+  return {math::min(a.x, b.x), math::min(a.y, b.y)};
+}
+
+template <typename real>
+inline Vector2<real>
+max(const Vector2<real>& a, const Vector2<real>& b)
+{
+  return {math::max(a.x, b.x), math::max(a.y, b.y)};
+}
+
+} // end namespace math
 
 using vec2f = Vector2<float>;
 using vec2d = Vector2<double>;
