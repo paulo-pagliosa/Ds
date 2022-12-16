@@ -28,7 +28,7 @@
 // Class definition for 3D grid.
 //
 // Author: Paulo Pagliosa
-// Last revision: 13/12/2022
+// Last revision: 16/12/2022
 
 #ifndef __Grid3_h
 #define __Grid3_h
@@ -82,7 +82,7 @@ public:
     i.z = id / _size_xy;
     id -= _size_xy * i.z;
     i.y = id / this->_size.x;
-    i.x = id - this->_size * i.y;
+    i.x = id - this->_size.x * i.y;
     return i;
   }
 
