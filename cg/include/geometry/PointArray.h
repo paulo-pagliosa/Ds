@@ -28,14 +28,13 @@
 // Class definition for point array.
 //
 // Author: Paulo Pagliosa
-// Last revision: 15/12/2022
+// Last revision: 16/12/2022
 
 #ifndef __PointArray_h
 #define __PointArray_h
 
 #include "core/SoA.h"
 #include "geometry/IndexList.h"
-#include "math/Matrix4x4.h"
 
 namespace cg
 { // begin namespace cg
@@ -49,6 +48,8 @@ template <class Allocator, class index_t, class Vector, class... Args>
 class PointArray
 {
 public:
+  ASSERT_SIGNED(index_t, "PointArray: signed integral type expected");
+
   using PointId = index_t;
   using Data = SoA<Allocator, index_t, Vector, Args...>;
   using type = PointArray<Allocator, index_t, Vector, Args...>;
@@ -56,7 +57,8 @@ public:
   PointArray() = default;
 
   PointArray(index_t capacity):
-    _data{capacity}
+    _data{capacity},
+    _flag{capacity}
   {
     // do nothing
   }
@@ -71,39 +73,51 @@ public:
     return _size;
   }
 
+  auto activeCount() const
+  {
+    return _activeCount;
+  }
+
   void reallocate(index_t capacity)
   {
-    if (_data.reallocate(capacity))
-      clear();
+    _data.reallocate(capacity);
+    _flag.reallocate(capacity);
+    clear();
   }
 
   void clear()
   {
-    _size = 0;
+    _size = _activeCount = 0;
   }
 
   auto add(const Vector& p, const Args&... args)
   {
     PointId i;
 
-    if (_freeList.size() > 0)
+    if (_freeList != eol)
     {
-      auto f = _freeList.begin();
-
-      i = *f;
-      _freeList.remove(f);
+      i = _freeList;
+      _freeList = _flag.template get<0>(i);
     }
     else if (_size < capacity())
       i = _size++;
     else
       return -1;
-    set(i, p, args...);
+    _data.set(i, p, args...);
+    _flag.set(i, activeFlag);
+    _activeCount++;
     return i;
   }
 
   bool remove(PointId i)
   {
-    return i >= 0 && i < _size ? _freeList.add(i) : false;
+    return i >= 0 && i < _size ? deactivate(i), true : false;
+  }
+
+  bool active(PointId i) const
+  {
+    assert(i >= 0 && i < _size);
+    return _flag.template get<0>(i) == activeFlag;
   }
 
   template <size_t I>
@@ -172,10 +186,32 @@ public:
   }
 
 protected:
+  using Flag = SoA<Allocator, index_t, index_t>;
+
+  static constexpr index_t eol{-1};
+  static constexpr index_t activeFlag{-2};
+
   Data _data;
-  PointId _size{};
-  IndexList<PointId> _freeList;
-  // TODO: bitset of inactive point flags
+  Flag _flag;
+  index_t _size{};
+  index_t _activeCount{};
+  index_t _freeList{eol};
+
+  void deactivate(PointId i)
+  {
+    if (!active(i))
+      return;
+    if (--_activeCount == 0)
+    {
+      _size = 0;
+      _freeList = eol;
+    }
+    else
+    {
+      _flag.set(i, _freeList);
+      _freeList = i;
+    }
+  }
 
 }; // PointArray
 
