@@ -28,7 +28,7 @@
 // Class definition for point grid base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/12/2022
+// Last revision: 17/12/2022
 
 #ifndef __PointGridBase_h
 #define __PointGridBase_h
@@ -65,12 +65,11 @@ protected:
     // do nothing
   }
 
-  template <typename P>
-  PointGridBase(PointGridBase<D, real, P, IL>&& other, PA& points):
+  PointGridBase(PointGridBase<D, real, PA, IL>&& other):
     Base{std::move(other)},
-    PointSet{points}
+    PointSet{other.points()}
   {
-    this->setPositions(other.points());
+    // do nothing
   }
 
 }; // PointGridBase
@@ -101,9 +100,8 @@ public:
     // do nothing
   }
 
-  template <typename P>
-  PointGrid(PointGrid<D, real, P, IL>&& other, PA& points):
-    Base{std::move(other), points}
+  PointGrid(PointGrid<D, real, PA, IL>&& other):
+    Base{std::move(other)}
   {
     // do nothing
   }

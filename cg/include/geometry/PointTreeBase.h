@@ -28,7 +28,7 @@
 // Class definition for point quadtree/octree base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/12/2022
+// Last revision: 17/12/2022
 
 #ifndef __PointTreeBase_h
 #define __PointTreeBase_h
@@ -60,17 +60,16 @@ protected:
     PA& points,
     uint32_t maxDepth = 20):
     Base{bounds, maxDepth},
-    PointSet(points)
+    PointSet{points}
   {
     // do nothing
   }
 
-  template <typename P>
-  PointTreeBase(PointTreeBase<D, real, P, IL>&& other, PA& points):
+  PointTreeBase(PointTreeBase<D, real, PA, IL>&& other):
     Base{std::move(other)},
-    PointSet(points)
+    PointSet{other.points()}
   {
-    this->setPositions(other.points());
+    // do nothing
   }
 
 }; // PointTreeBase
@@ -144,9 +143,8 @@ public:
     // do nothing
   }
 
-  template <typename P>
-  PointTree(PointTree<D, real, P>&& other, PA& points):
-    Base{std::move(other), points},
+  PointTree(PointTree<D, real, PA, IL>&& other):
+    Base{std::move(other)},
     _splitTest{other._splitTest}
   {
     // do nothing

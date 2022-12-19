@@ -28,7 +28,7 @@
 // Class definition for quadtree/octree base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/12/2022
+// Last revision: 19/12/2022
 
 #ifndef __TreeBase_h
 #define __TreeBase_h
@@ -899,6 +899,8 @@ RegionTree<D, real, LT, BT>::RegionTree(const bounds_type& bounds,
   TreeBase<D>{new BranchNode(), maxDepth},
   _bounds{bounds}
 {
+  if (bounds.empty())
+    throw std::runtime_error("RegionTree: empty bounds");
   _bounds.inflate(_fatFactor);
   _resolution = _bounds.size() * (1 / real(this->sizeBits(maxDepth)));
   _scale = _resolution.inverse();
