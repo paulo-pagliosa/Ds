@@ -28,7 +28,7 @@
 // Class definition for RGB color.
 //
 // Author: Paulo Pagliosa
-// Last revision: 16/07/2022
+// Last revision: 22/12/2022
 
 #ifndef __Color_h
 #define __Color_h
@@ -144,7 +144,7 @@ public:
 
   template <typename V>
   HOST DEVICE
-  Color& operator =(const V& v)
+  auto& operator =(const V& v)
   {
     setRGB(v);
     return *this;
@@ -180,28 +180,28 @@ public:
 
   /// Returns the i-th component of this object.
   HOST DEVICE
-  const float& operator [](int i) const
+  const auto& operator [](int i) const
   {
     return (&r)[i];
   }
 
   /// Returns a reference to the i-th component of this object.
   HOST DEVICE
-  float& operator [](int i)
+  auto& operator [](int i)
   {
     return (&r)[i];
   }
 
   /// Returns a pointer to the elements of this object.
   HOST DEVICE
-  explicit operator const float*() const
+  explicit operator const float* () const
   {
     return &r;
   }
 
   /// Returns a reference to this object += c.
   HOST DEVICE
-  Color& operator +=(const Color& c)
+  auto& operator +=(const Color& c)
   {
     r += c.r;
     g += c.g;
@@ -211,7 +211,7 @@ public:
 
   /// Returns a reference to this object -= c.
   HOST DEVICE
-  Color& operator -=(const Color& c)
+  auto& operator -=(const Color& c)
   {
     r -= c.r;
     g -= c.g;
@@ -221,7 +221,7 @@ public:
 
   /// Returns a reference to this object *= c.
   HOST DEVICE
-  Color& operator *=(const Color& c)
+  auto& operator *=(const Color& c)
   {
     r *= c.r;
     g *= c.g;
@@ -231,7 +231,7 @@ public:
 
   /// Returns a reference to this object *= s.
   HOST DEVICE
-  Color& operator *=(float s)
+  auto& operator *=(float s)
   {
     r *= s;
     g *= s;
@@ -281,11 +281,49 @@ public:
 
 /// Returns the color s * c.
 template <typename real>
-HOST DEVICE inline Color
+HOST DEVICE inline auto
 operator *(real s, const Color& c)
 {
   return c * float(s);
 }
+
+#define R_SHIFT 0x00u
+#define G_SHIFT 0x08u
+#define B_SHIFT 0x10u
+#define A_SHIFT 0x18u
+
+constexpr inline uint32_t
+packColor(uint32_t r, uint32_t g, uint32_t b, uint32_t a = 255)
+{
+  return a << A_SHIFT | b << B_SHIFT | g << G_SHIFT | r << R_SHIFT;
+}
+
+inline uint32_t
+packColor(const Color& c)
+{
+  const auto r = uint32_t(c.r * 255);
+  const auto g = uint32_t(c.g * 255);
+  const auto b = uint32_t(c.b * 255);
+  const auto a = uint32_t(c.a * 255);
+
+  return packColor(r, g, b, a);
+}
+
+inline Color
+unpackColor(uint32_t c)
+{
+  auto r = ((c >> R_SHIFT) & 0xFF) * math::inverse<float>(255);
+  auto g = ((c >> G_SHIFT) & 0xFF) * math::inverse<float>(255);
+  auto b = ((c >> B_SHIFT) & 0xFF) * math::inverse<float>(255);
+  auto a = ((c >> A_SHIFT) & 0xFF) * math::inverse<float>(255);
+
+  return Color{r, g, b, a};
+}
+
+#undef R_SHIFT
+#undef G_SHIFT
+#undef B_SHIFT
+#undef A_SHIFT
 
 } // end namespace cg
 

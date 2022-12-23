@@ -28,7 +28,7 @@
 // Class definition for point quadtree/octree base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/12/2022
+// Last revision: 22/12/2022
 
 #ifndef __PointTreeBase_h
 #define __PointTreeBase_h
@@ -83,7 +83,6 @@ template <int D, typename real, typename PA, typename IL = IndexList<>>
 class PointTree: public PointTreeBase<D, real, PA, IL>
 {
 public:
-  using type = PointTree<D, real, PA, IL>;
   using Base = PointTreeBase<D, real, PA, IL>;
   using PointSet = typename Base::PointSet;
   using point_id = typename IL::value_type;
@@ -92,6 +91,8 @@ public:
   using key_type = TreeKey<D>;
   using bounds_type = Bounds<real, D>;
   using KNN = KNNHelper<vec_type, point_id>;
+  using tree_type = PointTree<D, real, PA, IL>;
+  using leaf_iterator = typename Base::leaf_iterator;
 
   using SplitTest = std::function<bool(const PA&, IL&, uint32_t)>;
 
@@ -106,7 +107,7 @@ public:
     uint32_t splitThreshold = 20,
     uint32_t maxDepth = 20,
     bool fullTree = false):
-    type{bounds,
+    tree_type{bounds,
       points,
       defaultSplitTest(splitThreshold),
       maxDepth,
@@ -120,7 +121,7 @@ public:
     uint32_t maxDepth = 20,
     bool fullTree = false,
     bool squared = true):
-    type{PointSet::computeBounds(points, squared),
+    tree_type{PointSet::computeBounds(points, squared),
       points,
       splitTest,
       maxDepth,
@@ -134,7 +135,7 @@ public:
     uint32_t maxDepth = 20,
     bool fullTree = false,
     bool squared = true):
-    type{points,
+    tree_type{points,
       defaultSplitTest(splitThreshold),
       maxDepth,
       fullTree,
@@ -192,8 +193,8 @@ protected:
     return false;
   }
 
-  bool splitChildren(BranchNode* branch, bool);
-  bool split(LeafNode* leaf, bool);
+  bool splitChildren(BranchNode* branch, bool fullTree);
+  bool split(LeafNode* leaf, bool fullTree);
 
   void moveDataToChildren(LeafNode* leaf,
     BranchNode* branch,

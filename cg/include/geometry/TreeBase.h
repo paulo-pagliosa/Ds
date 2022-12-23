@@ -28,7 +28,7 @@
 // Class definition for quadtree/octree base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/12/2022
+// Last revision: 22/12/2022
 
 #ifndef __TreeBase_h
 #define __TreeBase_h
@@ -242,6 +242,11 @@ public:
   auto depth() const
   {
     return _depth;
+  }
+
+  auto maxDepth() const
+  {
+    return _maxDepth;
   }
 
 protected:
@@ -831,6 +836,16 @@ protected:
   auto nodeSize(uint32_t depth) const
   {
     return _resolution * real(this->sizeBits(this->_maxDepth - depth));
+  }
+
+  static auto leafNode(const leaf_iterator& lit)
+  {
+    return lit.leafNode();
+  }
+
+  static auto leafIterator(LeafNode* leaf, const key_type& key)
+  {
+    return leaf_iterator{leaf, key};
   }
 
 private:
