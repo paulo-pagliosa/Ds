@@ -28,7 +28,7 @@
 // Class definition for quadtree/octree base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/12/2022
+// Last revision: 29/12/2022
 
 #ifndef __TreeBase_h
 #define __TreeBase_h
@@ -395,9 +395,20 @@ public:
   }
 
 #ifdef _COLORED_TREE
+  const auto& color() const
+  {
+    return _node->color;
+  }
+
   auto& color()
   {
     return _node->color;
+  }
+
+  template <typename I>
+  void setColor(I color)
+  {
+    _node->color = (int)color;
   }
 #endif // _COLORED_TREE
 
