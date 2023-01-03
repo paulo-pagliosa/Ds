@@ -28,7 +28,7 @@
 // Class definition for index list.
 //
 // Author: Paulo Pagliosa
-// Last revision: 12/09/2022
+// Last revision: 31/12/2022
 
 #ifndef __IndexList_h
 #define __IndexList_h
@@ -225,6 +225,11 @@ public:
   auto size() const
   {
     return _size;
+  }
+
+  bool empty() const
+  {
+    return _size == 0;
   }
 
   iterator begin() const
