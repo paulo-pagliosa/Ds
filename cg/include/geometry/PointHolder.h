@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for point holder.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/12/2022
+// Last revision: 14/01/2023
 
 #ifndef __PointHolder_h
 #define __PointHolder_h
@@ -57,6 +57,8 @@ public:
     return _points;
   }
 
+  static Bounds<real, D> computeBounds(const PA& points, bool squared = false);
+
 protected:
   PointHolder(PA& points):
     _points{points}
@@ -74,29 +76,31 @@ protected:
         _points[i].set(points[i]);
   }
 
-  static auto computeBounds(const PA& points, bool squared)
-  {
-    using size_type = decltype(points.size());
-
-    Bounds<real, D> bounds;
-
-    for (size_type n = points.size(), i = 0; i < n; ++i)
-      bounds.inflate(points[i]);
-    if (squared)
-    {
-      auto s = Vector<real, D>{bounds.maxSize() * real(0.5)};
-      auto c = bounds.center();
-
-      bounds.inflate(c - s);
-      bounds.inflate(c + s);
-    }
-    return bounds;
-  }
-
 private:
   PA& _points;
 
 }; // PointHolder
+
+template <int D, typename real, typename PA>
+Bounds<real, D>
+PointHolder<D, real, PA>::computeBounds(const PA& points, bool squared)
+{
+  using size_type = decltype(points.size());
+
+  Bounds<real, D> bounds;
+
+  for (size_type n = points.size(), i = 0; i < n; ++i)
+    bounds.inflate(points[i]);
+  if (squared)
+  {
+    auto s = Vector<real, D>{bounds.maxSize() * real(0.5)};
+    auto c = bounds.center();
+
+    bounds.inflate(c - s);
+    bounds.inflate(c + s);
+  }
+  return bounds;
+}
 
 } // namespace cg
 

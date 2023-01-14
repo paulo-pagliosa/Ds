@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for quadtree/octree base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/12/2022
+// Last revision: 12/01/2023
 
 #ifndef __TreeBase_h
 #define __TreeBase_h
@@ -81,7 +81,7 @@ public:
   }
 
 #ifdef _COLORED_TREE
-  int color;
+  mutable int color;
 #endif // _COLORED_TREE
 
   virtual ~TreeNodeBase() = default;
