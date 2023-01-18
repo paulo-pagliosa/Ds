@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2016, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2016, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for point quadtree/octree base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/12/2022
+// Last revision: 17/01/2023
 
 #ifndef __PointTreeBase_h
 #define __PointTreeBase_h
@@ -245,7 +245,8 @@ PointTree<D, real, PA, IL>::build(bool fullTree)
   const auto& points = this->points();
 
   for (point_id n = points.size(), i = 0; i < n; ++i)
-    addPoint(points[i], i);
+    if (this->activePoint(i))
+      addPoint(points[i], i);
   if (_splitTest != nullptr)
     splitChildren(this->root(), fullTree);
 }

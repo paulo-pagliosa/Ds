@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for point array.
 //
 // Author: Paulo Pagliosa
-// Last revision: 16/12/2022
+// Last revision: 17/01/2023
 
 #ifndef __PointArray_h
 #define __PointArray_h
@@ -88,6 +88,7 @@ public:
   void clear()
   {
     _size = _activeCount = 0;
+    _freeList = eol;
   }
 
   auto add(const Vector& p, const Args&... args)

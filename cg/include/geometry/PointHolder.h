@@ -28,7 +28,7 @@
 // Class definition for point holder.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/01/2023
+// Last revision: 17/01/2023
 
 #ifndef __PointHolder_h
 #define __PointHolder_h
@@ -38,6 +38,13 @@
 namespace cg
 { // begin namespace cg
 
+template <typename index_t, typename PA>
+inline auto
+activePointFlag(const PA&, index_t)
+{
+  return true;
+}
+
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -46,7 +53,16 @@ namespace cg
 template <int D, typename real, typename PA>
 class PointHolder
 {
+private:
+  PA& _points;
+
 public:
+  template <typename index_t>
+  auto activePoint(index_t index) const
+  {
+    return activePointFlag(_points, index);
+  }
+
   const auto& points() const
   {
     return _points;
@@ -75,9 +91,6 @@ protected:
       for (decltype(n) i = 0; i < n; ++i)
         _points[i].set(points[i]);
   }
-
-private:
-  PA& _points;
 
 }; // PointHolder
 
