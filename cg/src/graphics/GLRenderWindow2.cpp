@@ -28,7 +28,7 @@
 // Source file for OpenGL 2D render window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 20/01/2023
+// Last revision: 23/01/2023
 
 #include "graphics/GLRenderWindow2.h"
 
@@ -160,7 +160,8 @@ GLRenderWindow2::mouseMoveEvent(double xPos, double yPos)
     }
     else if (_dragFlags.isSet(DragBits::Pan))
     {
-      // TODO: pan
+      const auto dt = _g2->bounds().size() * MOVE_SCALE;
+      _g2->pan(dt.x * dx, -dt.y * dy);
     }
   }
   return true;
