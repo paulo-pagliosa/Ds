@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for OpenGL 2D graphics.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/11/2022
+// Last revision: 23/01/2023
 
 #ifndef __GLGraphics2_h
 #define __GLGraphics2_h
@@ -59,6 +59,12 @@ public:
 
   /// Sets the bounds of this view.
   void setBounds(const Bounds2f& bounds);
+
+  template <typename B>
+  void setBounds(const B& bounds)
+  {
+    setBounds({vec2f{bounds.min()}, vec2f{bounds.max()}});
+  }
 
   /// Returns the aspect ratio of this view.
   auto aspectRatio() const
@@ -115,6 +121,24 @@ public:
   void drawTriangle(const vec2f& p1, const vec2f& p2, const vec2f& p3);
   void drawCircumference(const vec2f& center, float radius);
   void drawBounds(const Bounds2f& bounds);
+
+  template <typename V>
+  void drawPoint(const V& p)
+  {
+    drawPoint(vec2f{p});
+  }
+
+  template <typename V>
+  void drawLine(const V& p1, const V& p2)
+  {
+    drawLine(vec2f{p1}, vec2f{p2});
+  }
+
+  template <typename B>
+  void drawBounds(const B& bounds)
+  {
+    drawBounds({vec2f{bounds.min()}, vec2f{bounds.max()}});
+  }
 
   /// Transform screen coordinates \c p to world coordinates.
   vec2f screenToWorld(const vec2f& p) const;
