@@ -28,7 +28,7 @@
 // Source file for OpenGL 2D render window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 23/01/2023
+// Last revision: 26/01/2023
 
 #include "graphics/GLRenderWindow2.h"
 
@@ -51,7 +51,7 @@ namespace
 {
 
 constexpr auto MOVE_SCALE = 0.01f;
-constexpr auto ZOOM_SCALE = 1.01f;
+constexpr auto ZOOM_SCALE = 1.05f;
 
 }
 
