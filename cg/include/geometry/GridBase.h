@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for grid base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/12/2022
+// Last revision: 27/01/2023
 
 #ifndef __GridBase_h
 #define __GridBase_h
@@ -307,6 +307,16 @@ public:
 
 protected:
   Grid() = default;
+
+  const auto& data() const
+  {
+    return _data;
+  }
+
+  auto& data()
+  {
+    return _data;
+  }
 
   void resize(const index_type& size)
   {
