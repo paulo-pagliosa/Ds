@@ -28,7 +28,7 @@
 // Class definition for point holder.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/01/2023
+// Last revision: 28/01/2023
 
 #ifndef __PointHolder_h
 #define __PointHolder_h
@@ -54,30 +54,30 @@ template <int D, typename real, typename PA>
 class PointHolder
 {
 private:
-  PA& _points;
+  PA* _points;
 
 public:
   template <typename index_t>
   auto activePoint(index_t index) const
   {
-    return activePointFlag(_points, index);
+    return activePointFlag(*_points, index);
   }
 
   const auto& points() const
   {
-    return _points;
+    return *_points;
   }
 
   auto& points()
   {
-    return _points;
+    return *_points;
   }
 
   static Bounds<real, D> computeBounds(const PA& points, bool squared = false);
 
 protected:
   PointHolder(PA& points):
-    _points{points}
+    _points{&points}
   {
     // do nothing
   }
@@ -85,11 +85,16 @@ protected:
   template <typename P>
   void setPositions(const P& points)
   {
-    if (auto n = _points.size(); n != points.size())
+    if (auto n = _points->size(); n != points.size())
       throw std::logic_error("PointHolder: bad points");
     else
       for (decltype(n) i = 0; i < n; ++i)
-        _points[i].set(points[i]);
+        (*_points)[i].set(points[i]);
+  }
+
+  void setPoints(PA& points)
+  {
+    _points = &points;
   }
 
 }; // PointHolder

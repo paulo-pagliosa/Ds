@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2016, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2016, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for point grid base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/12/2022
+// Last revision: 28/01/2023
 
 #ifndef __PointGridBase_h
 #define __PointGridBase_h
@@ -145,8 +145,9 @@ PointGrid<D, real, PA, IL>::PointGrid(const Bounds<real, D>& bounds,
   real h):
   Base{bounds, points, h}
 {
-  for (point_id n = (point_id)points.size(), i = 0; i < n; ++i)
-    addPoint(points[i], i);
+  for (point_id n = points.size(), i = 0; i < n; ++i)
+    if (this->activePoint(i))
+      addPoint(points[i], i);
 }
 
 template <int D, typename real, typename PA, typename IL>

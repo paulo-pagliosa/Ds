@@ -28,7 +28,7 @@
 // Class definition for point quadtree/octree base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/01/2023
+// Last revision: 28/01/2023
 
 #ifndef __PointTreeBase_h
 #define __PointTreeBase_h
@@ -151,9 +151,10 @@ public:
     // do nothing
   }
 
-  void rebuild(bool fullTree = false)
+  void rebuild(bool clear, bool fullTree = false)
   {
-    this->clear();
+    if (clear)
+      this->clear();
     build(fullTree);
   }
 
@@ -176,6 +177,8 @@ protected:
   using BranchNode = typename Base::BranchNode;
   using LeafNode = typename Base::LeafNode;
 
+  SplitTest _splitTest;
+
   bool addPoint(const vec_type& point, point_id i)
   {
     if (this->bounds().contains(point))
@@ -183,15 +186,15 @@ protected:
     return false;
   }
 
-  bool addPoint(const vec_type& point,
+  void movePoint(const vec_type& point,
     point_id i,
     uint64_t mask,
     BranchNode* branch)
   {
-    if (this->bounds().contains(point))
-      return this->makeLeaf(this->key(point), mask, branch)->data().add(i);
-    return false;
+    this->makeLeaf(this->key(point), mask, branch)->data().add(i);
   }
+
+  void removePoints();
 
   bool splitChildren(BranchNode* branch, bool fullTree);
   bool split(LeafNode* leaf, bool fullTree);
@@ -212,8 +215,6 @@ protected:
     BranchNode* branch) const;
 
 private:
-  SplitTest _splitTest;
-
   static SplitTest defaultSplitTest(uint32_t splitThreshold)
   {
     return [=](const PA&, IL& list, uint32_t) -> bool
@@ -266,11 +267,14 @@ PointTree<D, real, PA, IL>::splitChildren(BranchNode* branch, bool fullTree)
     auto child = branch->child(i);
 
     if (child == nullptr)
+    {
       if (fullTree)
         child = this->createLeafChild(branch, i);
       else
         continue;
-    s |= split((LeafNode*)child, fullTree);
+    }
+    s |= child->isLeaf() ? split((LeafNode*)child, fullTree) :
+      splitChildren((BranchNode*)child, fullTree);
   }
   return s;
 }
@@ -288,7 +292,7 @@ PointTree<D, real, PA, IL>::split(LeafNode* leaf, bool fullTree)
   uint64_t mask{this->_depthMask >> branch->depth()};
 
   for (auto index : leaf->data())
-    addPoint(points[index], index, mask, branch);
+    movePoint(points[index], index, mask, branch);
   this->deleteLeaf(leaf);
   return splitChildren(branch, fullTree);
 }
@@ -311,6 +315,23 @@ PointTree<D, real, PA, IL>::moveDataToChildren(LeafNode* leaf,
 
     child->data().add(index);
   }
+}
+
+template <int D, typename real, typename PA, typename IL>
+void
+PointTree<D, real, PA, IL>::removePoints()
+{
+  auto& points = this->points();
+
+  for (auto cell = this->leafBegin(); !cell.isNull(); ++cell)
+    for (auto& pids = cell.data(); !pids.empty();)
+    {
+      auto pit = pids.begin();
+      auto pid = *pit;
+
+      pids.remove(pit);
+      points.remove(pid);
+    }
 }
 
 namespace internal::pt
