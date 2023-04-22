@@ -9,7 +9,7 @@ lights, and cameras), and basic [OpenGL] rendering and ray-tracing support,
 among others.
 
 Ds has been employed in the teaching of subjects such as computer graphics,
-visualization, and games, in undergraduate and graduate courses of Computer
+visualization, and games, in undergraduate and graduate courses in Computer
 Science at the [Faculty of Computing](https://www.facom.ufms.br) of the
 [Federal University of Mato Grosso do Sul](https://www.ufms.br). Ds has
 also been used in several research projects in physics-based animation
@@ -35,7 +35,7 @@ Visual Studio 2022 are in the
 
 ![cgdemo]
 
-The ray-tracing relies on bounding volume hierarchies (BVHs) for accelerating
+The ray tracing relies on bounding volume hierarchies (BVHs) for accelerating
 ray/object intersections. Also, the code includes a scene reader with a LL(1)
 parser. The grammar for the specification of a scene and its scene objects is
 [here](/apps/cgdemo/reader/grammar.txt). The scene file shown in this example
@@ -49,7 +49,7 @@ Ds-Vis is a simple "[VTK]-like" scientific visualization library extending Ds.
 The API contains classes and templates for datasets and processes. A dataset
 consists of a structure (geometry and topology defined by vertices and cells)
 and attributes (e.g., scalars and/or vectors at vertices and cells). The API
-provides classes for point sets, triangle meshes, triangle mesh intancing,
+provides classes for point sets, triangle meshes, triangle mesh instancing,
 and sets of graphics primitives containing points, lines, and triangles.
 Processes can be sources (dataset producers), filters (dataset transformers),
 and sinks (dataset consumers). Processes are connected to each other in a
@@ -74,7 +74,7 @@ Visual Studio 2022 are in the
 
 ## Upcoming Changes
 
-Some of the goals for 2022 are:
+Some of the goals for 2023 are:
 
 - Full API documentation
 - CMake project and support for macOS and Linux with Clang and GCC
