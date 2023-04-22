@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for material.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/03/2022
+// Last revision: 21/04/2023
 
 #ifndef __Material_h
 #define __Material_h
@@ -52,13 +52,17 @@ public:
   Color spot; // specular spot color
   float shine; // specular spot exponent
   Color specular; // specular color
+  Color transparency; // transparency color
+  float ior; // index of refraction
 
   static const Material* defaultMaterial();
 
   Material(const Color& color):
     ambient{0.2f * color},
     diffuse{0.8f * color},
-    shine{100}
+    shine{100},
+    transparency{Color::black},
+    ior{1}
   {
     spot = specular = Color::white;
   }

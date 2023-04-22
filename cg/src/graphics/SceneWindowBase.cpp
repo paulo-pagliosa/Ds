@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2020, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2020, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/08/2022
+// Last revision: 21/04/2023
 
 #include "graphics/Renderer.h"
 #include "graphics/SceneWindowBase.h"
@@ -589,6 +589,8 @@ SceneWindowBase::inspectMaterial(Material& material)
   ImGui::colorEdit3("Spot", material.spot);
   ImGui::DragFloat("Shine", &material.shine, 1, 1, 1000);
   ImGui::colorEdit3("Specular", material.specular);
+  ImGui::colorEdit3("Transparency", material.transparency);
+  ImGui::DragFloat("IOR", &material.ior, 0.01f, 1, 5);
 }
 
 } // end namespace cg

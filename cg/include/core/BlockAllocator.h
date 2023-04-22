@@ -28,7 +28,7 @@
 // Class definition for block allocator.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2023
+// Last revision: 01/02/2023
 
 #ifndef __BlockAllocator_h
 #define __BlockAllocator_h
@@ -273,8 +273,8 @@ public:
    *
    * \returns A pointer to an object of type T, allocated by a
    * call to \ref allocate() and constructed from arguments \p
-   * args. The returned objected can be freed and destroyed by
-   * a call to \ref destroy().
+   * args. The returned object can be freed and destroyed by a
+   * call to \ref destroy().
    */
   template <typename... Args>
   static value_type* construct(Args&&... args)
