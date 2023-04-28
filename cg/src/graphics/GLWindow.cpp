@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for OpenGL window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/12/2022
+// Last revision: 28/04/2023
 
 #include "core/Exception.h"
 #include "graphics/Application.h"
@@ -237,6 +237,7 @@ GLWindow::show(int argc, char** argv)
   glfwSetWindowUserPointer(_window, this);
   centerWindow();
   glfwMakeContextCurrent(_window);
+  glfwSwapInterval(1);
   gl3wInit();
   if (!gl3wIsSupported(4, 0))
     runtimeError("OpenGL v400 is not supported");
@@ -245,8 +246,7 @@ GLWindow::show(int argc, char** argv)
   // Setup Dear ImGui binding.
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
-  ImGui_ImplGlfw_InitForOpenGL(_window, false);
-  ImGui_ImplOpenGL3_Init("#version 400");
+  ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
   // Setup style.
   auto& style = ImGui::GetStyle();
@@ -255,10 +255,12 @@ GLWindow::show(int argc, char** argv)
   style.FrameBorderSize = 1.0f;
   style.Alpha = 0.9f;
   ImGui::StyleColorsDark();
+  ImGui_ImplGlfw_InitForOpenGL(_window, false);
+  ImGui_ImplOpenGL3_Init("#version 400");
+
   // Clear error buffer.
   while (glGetError() != GL_NO_ERROR)
     ;
-  glfwSwapInterval(1);
   _argc = argc;
   _argv = argv;
   // Initialize the app.
@@ -325,6 +327,7 @@ GLWindow::mouseButtonCallBack(GLFWwindow* window,
   int mods)
 {
   getWindow(window)->mouseButtonInputEvent(button, actions, mods);
+  ImGui_ImplGlfw_MouseButtonCallback(window, button, actions, mods);
 }
 
 void

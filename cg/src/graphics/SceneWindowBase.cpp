@@ -28,7 +28,7 @@
 // Source file for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 21/04/2023
+// Last revision: 28/04/2023
 
 #include "graphics/Renderer.h"
 #include "graphics/SceneWindowBase.h"
@@ -467,8 +467,7 @@ SceneWindowBase::inspectCamera(Camera& camera)
       &fov,
       Camera::minAngle,
       Camera::maxAngle,
-      "%.0f deg",
-      1.0f))
+      "%.0f deg"))
       camera.setViewAngle(fov);
   }
   else
@@ -576,8 +575,7 @@ SceneWindowBase::inspectLight(Light& light)
     &angle,
     Light::minSpotAngle,
     Light::maxSpotAngle,
-    "%.0f deg",
-    1.0f))
+    "%.0f deg"))
     light.setSpotAngle(angle);
 }
 
