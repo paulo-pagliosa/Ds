@@ -17,7 +17,7 @@ and geometric processing.
 
 ## Compiling Ds
 
-The current master version is 1.1 and supports Windows 10 and later. All
+The current master version is 1.11 and supports Windows 10 and later. All
 headers and source files are in the [cg/](/cg) folder. The only dependencies
 are [GLFW] and [Dear ImGui]. All headers, source files, and libraries needed
 are already included in the [cg/externals/](/cg/externals) folder.
