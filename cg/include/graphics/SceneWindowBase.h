@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2020, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2023, 2022 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 05/08/2022
+// Last revision: 12/05/2023
 
 #ifndef __SceneWindowBase_h
 #define __SceneWindowBase_h
@@ -54,7 +54,11 @@ public:
   }
 
 protected:
-  Color _selectedWireframeColor{255, 102, 0};
+  Color _selectedWireframeColor[2]
+  {
+    Color{255, 102, 0}, // parent
+    Color{98, 119, 155, 64} // children
+  };
   bool _showEditorView{true};
   bool _showPreview{true};
 

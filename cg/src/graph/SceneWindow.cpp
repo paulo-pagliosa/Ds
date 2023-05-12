@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2020, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2020, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for generic graph scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 05/08/2022
+// Last revision: 12/05/2023
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
@@ -80,15 +80,9 @@ SceneWindow::drawComponents(const SceneObject& object)
   for (auto end = components.end(), cit = ++components.begin(); cit != end;)
   {
     Component* c{*cit++};
+    auto isCurrent = c->sceneObject() == _currentNode;
 
-    if (auto proxy = graph::asLight(c))
-      editor->drawLight(*proxy->light());
-    else if (auto proxy = graph::asCamera(c))
-    {
-      editor->drawCamera(*proxy->camera());
-      preview(*proxy->camera());
-    }
-    else if (auto proxy = graph::asPrimitive(c))
+    if (auto proxy = graph::asPrimitive(c))
     {
       auto p = proxy->mapper()->primitive();
 
@@ -96,10 +90,18 @@ SceneWindow::drawComponents(const SceneObject& object)
       if (auto mesh = p->tesselate())
       {
         editor->setPolygonMode(GLGraphics3::LINE);
-        editor->setMeshColor(_selectedWireframeColor);
+        editor->setMeshColor(_selectedWireframeColor[!isCurrent]);
         editor->drawMesh(*mesh, p->localToWorldMatrix(), p->normalMatrix());
       }
     }
+    else if (isCurrent)
+      if (auto proxy = graph::asLight(c))
+        editor->drawLight(*proxy->light());
+      else if (auto proxy = graph::asCamera(c))
+      {
+        editor->drawCamera(*proxy->camera());
+        preview(*proxy->camera());
+      }
   }
 }
 

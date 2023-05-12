@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022 Paulo Pagliosa.                              |
+//| Copyright (C) 2022, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for cg demo main window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/03/2022
+// Last revision: 12/05/2023
 
 #include "graphics/Application.h"
 #include "reader/SceneReader.h"
@@ -176,7 +176,8 @@ MainWindow::showOptions()
 {
   ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.6f);
   ImGui::showStyleSelector("Color Theme##Selector");
-  ImGui::colorEdit3("Selected Wireframe", _selectedWireframeColor);
+  ImGui::colorEdit3("Selected Wireframe", _selectedWireframeColor[0]);
+  ImGui::colorEdit3("Selected Children Wireframe", _selectedWireframeColor[1]);
   ImGui::PopItemWidth();
 }
 
