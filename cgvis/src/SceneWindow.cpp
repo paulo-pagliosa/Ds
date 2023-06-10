@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for generic vis scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 16/03/2022
+// Last revision: 09/06/2023
 
 #include "SceneWindow.h"
 
@@ -58,7 +58,7 @@ SceneWindow::render()
 
   if (auto actor = _currentNode.as<Actor>())
   {
-    editor->setLineColor(_selectedWireframeColor);
+    editor->setLineColor(_selectedWireframeColor[0]);
     editor->drawBounds(actor->mapper()->bounds());
   }
   else if (auto light = _currentNode.as<Light>())

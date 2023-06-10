@@ -51,7 +51,7 @@ readMeshSize(FILE* file, TriangleMesh::Data& data)
     {
       case 'v':
         if (line[1] == '\0')
-            nv++;
+          nv++;
         fgets(line, lineSize, file);
         break;
 

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for OpenGL mesh renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/02/2022
+// Last revision: 09/06/2023
 
 #include "graphics/GLMeshRenderer.h"
 
@@ -461,7 +461,7 @@ GLMeshRenderer::updateView()
 void
 GLMeshRenderer::setCamera(Camera* camera)
 {
-  if (camera != _camera)
+  if (camera != _camera.get())
     (_camera = nullptr != camera ? camera : new Camera{})->update();
 }
 

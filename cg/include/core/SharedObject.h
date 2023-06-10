@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for shared object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2022
+// Last revision: 17/05/2023
 
 #ifndef __SharedObject_h
 #define __SharedObject_h
@@ -104,7 +104,7 @@ template <typename T>
 class Reference
 {
 public:
-  using reference = Reference<T>;
+  using value_type = T;
 
   Reference():
     _ptr{nullptr}
@@ -112,36 +112,48 @@ public:
     // do nothing
   }
 
-  Reference(const reference& other):
-    _ptr{SharedObject::makeUse(other._ptr)}
+  Reference(const Reference& other):
+    _ptr{T::makeUse(other._ptr)}
   {
     // do nothing
   }
 
+  Reference(Reference&& other):
+    _ptr{other._ptr}
+  {
+    other._ptr = nullptr;
+  }
+
   Reference(const T* ptr):
-    _ptr{SharedObject::makeUse(ptr)}
+    _ptr{T::makeUse(ptr)}
   {
     // do nothing
   }
 
   ~Reference()
   {
-    SharedObject::release(_ptr);
+    T::release(_ptr);
   }
 
-  reference& operator =(const reference& other)
+  auto& operator =(const Reference& other)
   {
     return operator =(other._ptr);
   }
 
-  reference& operator =(const T* ptr)
+  auto& operator =(Reference&& other)
   {
-    SharedObject::release(_ptr);
-    _ptr = SharedObject::makeUse(ptr);
+    std::swap(_ptr, other._ptr);
     return *this;
   }
 
-  bool operator ==(const reference& other) const
+  auto& operator =(const T* ptr)
+  {
+    T::release(_ptr);
+    _ptr = T::makeUse(ptr);
+    return *this;
+  }
+
+  bool operator ==(const Reference& other) const
   {
     return operator ==(other._ptr);
   }
@@ -151,7 +163,7 @@ public:
     return _ptr == ptr;
   }
 
-  bool operator !=(const reference& other) const
+  bool operator !=(const Reference& other) const
   {
     return !operator ==(other);
   }
