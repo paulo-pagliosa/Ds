@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 //  Class definition for 2D/3D ray.
 //
 // Author: Paulo Pagliosa
-// Last revision: 07/02/2022
+// Last revision: 22/06/2023
 
 #ifndef __Ray_h
 #define __Ray_h
@@ -42,7 +42,7 @@ namespace cg
 
 /////////////////////////////////////////////////////////////////////
 //
-// Ray: 2D/3D ray class
+// Ray: ray class
 // ===
 template <typename real, int D>
 class Ray
@@ -55,8 +55,8 @@ public:
 
   vec_type origin;
   vec_type direction;
-  real tMin;
-  real tMax;
+  mutable real tMin;
+  mutable real tMax;
 
   /// Constructs an empty Ray object.
   HOST DEVICE

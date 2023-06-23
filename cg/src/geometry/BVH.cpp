@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for BVH.
 //
 // Author: Paulo Pagliosa
-// Last revision: 21/01/2022
+// Last revision: 22/06/2023
 
 #include "geometry/BVH.h"
 #include <algorithm>
@@ -44,7 +44,7 @@ namespace cg
 // =======
 struct BVHBase::NodeRay: public Ray3f
 {
-  NodeRay(const Ray3f& r):
+  explicit NodeRay(const Ray3f& r):
     Ray3f{r}
   {
     invDir = r.direction.inverse();
@@ -80,7 +80,7 @@ struct BVHBase::Node
   }
 
   Node(Node* c0, Node* c1):
-    count{0}
+    count{}
   {
     bounds.inflate(c0->bounds);
     bounds.inflate(c1->bounds);
@@ -112,13 +112,9 @@ struct BVHBase::Node
       return false;
     if (aMin > tMin)
       tMin = aMin;
-    if (tMin > r.tMin)
-      return tMin < r.tMax;
     if (aMax < tMax)
       tMax = aMax;
-    if (tMax > r.tMin)
-      return tMax < r.tMax;
-    return false;
+    return tMin < r.tMax && tMax > r.tMin;
   }
 
   static void iterate(const Node*, BVHNodeFunction);
@@ -216,7 +212,7 @@ BVHBase::intersect(const Ray3f& ray) const
     auto node = stack.top();
 
     stack.pop();
-    if (node->intersect(ray))
+    if (node->intersect(r))
       if (!node->isLeaf())
       {
         stack.push(node->children[0]);
@@ -243,7 +239,7 @@ BVHBase::intersect(const Ray3f& ray, Intersection& hit) const
     auto node = stack.top();
 
     stack.pop();
-    if (node->intersect(ray))
+    if (node->intersect(r))
       if (node->isLeaf())
         intersectLeaf(node->first, node->count, ray, hit);
       else

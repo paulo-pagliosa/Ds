@@ -11,7 +11,7 @@ scene
   object "Main Camera"
   {
     define pos <-5, 5, 15>
-	  define vpn pos - <4, 0, 5>
+    define vpn pos - <4, 0, 5>
 
     transform
     {
