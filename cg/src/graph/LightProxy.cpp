@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022 Paulo Pagliosa.                              |
+//| Copyright (C) 2022, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,16 +28,13 @@
 // Source file for light proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/02/2022
+// Last revision: 13/06/2023
 
 #include "graph/LightProxy.h"
 #include "graph/Scene.h"
 
-namespace cg
-{ // begin namespace cg
-
-namespace graph
-{ // begin namespace graph
+namespace cg::graph
+{ // begin namespace cg::graph
 
 
 /////////////////////////////////////////////////////////////////////
@@ -74,6 +71,4 @@ LightProxy::setVisible(bool value)
   _object->turnOn(value);
 }
 
-} // end namepace graph
-
-} // end namespace cg
+} // end namepace cg::graph

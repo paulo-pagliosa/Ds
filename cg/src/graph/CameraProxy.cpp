@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022 Paulo Pagliosa.                              |
+//| Copyright (C) 2022, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -33,11 +33,8 @@
 #include "graph/CameraProxy.h"
 #include "graph/Transform.h"
 
-namespace cg
-{ // begin namespace cg
-
-namespace graph
-{ // begin namespace graph
+namespace cg::graph
+{ // begin namespace cg::graph
 
 
 /////////////////////////////////////////////////////////////////////
@@ -72,6 +69,4 @@ CameraProxy::setCurrent(Camera* camera)
     _current = camera;
 }
 
-} // end namespace graph
-
-} // end namespace cg
+} // end namespace cg::graph

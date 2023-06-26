@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022 Paulo Pagliosa.                              |
+//| Copyright (C) 2022, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for primitive proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/01/2022
+// Last revision: 13/06/2023
 
 #ifndef __PrimitiveProxy_h
 #define __PrimitiveProxy_h
@@ -37,11 +37,8 @@
 #include "graphics/Actor.h"
 #include "graphics/TriangleMeshMapper.h"
 
-namespace cg
-{ // begin namespace cg
-
-namespace graph
-{ // begin namespace graph
+namespace cg::graph
+{ // begin namespace cg::graph
 
 
 /////////////////////////////////////////////////////////////////////
@@ -124,8 +121,6 @@ private:
 
 }; // TriangleMeshProxy
 
-} // end namepace graph
-
-} // end namespace cg
+} // end namepace cg::graph
 
 #endif // __PrimitiveProxy_h

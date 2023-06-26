@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for scene object component.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/02/2022
+// Last revision: 13/06/2023
 
 #ifndef __SceneObjectComponent_h
 #define __SceneObjectComponent_h
@@ -36,11 +36,8 @@
 #include "core/SharedObject.h"
 #include <string>
 
-namespace cg
-{ // begin namespace cg
-
-namespace graph
-{ // begin namespace graph
+namespace cg::graph
+{ // begin namespace cg::graph
 
 class SceneObject;
 class Transform;
@@ -98,8 +95,6 @@ private:
 
 }; // Component
 
-} // end namepace graph
-
-} // end namespace cg
+} // end namepace cg::graph
 
 #endif // __SceneObjectComponent_h

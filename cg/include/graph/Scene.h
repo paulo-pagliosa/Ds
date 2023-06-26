@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for graph scene.
 //
 // Author: Paulo Pagliosa
-// Last revision: 26/02/2022
+// Last revision: 13/06/2023
 
 #ifndef __GraphScene_h
 #define __GraphScene_h
@@ -37,11 +37,8 @@
 #include "graphics/SceneBase.h"
 #include <cassert>
 
-namespace cg
-{ // begin namespace cg
-
-namespace graph
-{ // begin namespace graph
+namespace cg::graph
+{ // begin namespace cg::graph
 
 class SceneObject;
 
@@ -80,8 +77,6 @@ private:
 
 }; // Scene
 
-} // end namespace graph
-
-} // end namespace cg
+} // end namespace cg::graph
 
 #endif // __Scene_h

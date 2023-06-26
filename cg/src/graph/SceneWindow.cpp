@@ -28,17 +28,14 @@
 // Source file for generic graph scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 12/05/2023
+// Last revision: 13/06/2023
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
 #include <cassert>
 
-namespace cg
-{ // begin namespace cg
-
-namespace graph
-{ // begin namespace graph
+namespace cg::graph
+{ // begin namespace cg::graph
 
 
 /////////////////////////////////////////////////////////////////////
@@ -388,9 +385,14 @@ SceneWindow::inspectPrimitive(SceneWindow&, TriangleMeshProxy& proxy)
     ImGui::EndPopup();
   }
   ImGui::Separator();
+  inspectMaterial(*proxy.mapper()->primitive());
+  proxy.actor()->visible = proxy.sceneObject()->visible();
+}
 
-  auto primitive = proxy.mapper()->primitive();
-  auto material = primitive->material();
+void
+SceneWindow::inspectMaterial(Primitive& primitive)
+{
+  auto material = primitive.material();
 
   ImGui::inputText("Material", material->name());
   if (ImGui::BeginDragDropTarget())
@@ -400,12 +402,11 @@ SceneWindow::inspectPrimitive(SceneWindow&, TriangleMeshProxy& proxy)
       auto mit = *(MaterialMapIterator*)payload->Data;
 
       assert(mit->second != nullptr);
-      primitive->setMaterial(material = mit->second);
+      primitive.setMaterial(material = mit->second);
     }
     ImGui::EndDragDropTarget();
   }
-  inspectMaterial(*material);
-  proxy.actor()->visible = proxy.sceneObject()->visible();
+  SceneWindowBase::inspectMaterial(*material);
 }
 
 Component*
@@ -614,6 +615,4 @@ SceneWindow::onPressKey(int key)
   return true;
 }
 
-} // end namespace graph
-
-} // end namespace cg
+} // end namespace cg::graph

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for scene object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 25/02/2022
+// Last revision: 13/06/2023
 
 #ifndef __SceneObject_h
 #define __SceneObject_h
@@ -40,11 +40,8 @@
 #include "graph/Transform.h"
 #include <cassert>
 
-namespace cg
-{ // begin namespace cg
-
-namespace graph
-{ // begin namespace graph
+namespace cg::graph
+{ // begin namespace cg::graph
 
 class Scene;
 class SceneObject;
@@ -230,8 +227,6 @@ Transform::parent() const // declared in Transform.h
   return nullptr;
 }
 
-} // end namespace graph
-
-} // end namespace cg
+} // end namespace cg::graph
 
 #endif // __SceneObject_h

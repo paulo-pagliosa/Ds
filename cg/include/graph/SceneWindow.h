@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2020, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2020, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for generic graph scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 26/02/2022
+// Last revision: 26/06/2023
 
 #ifndef __GraphSceneWindow_h
 #define __GraphSceneWindow_h
@@ -108,6 +108,7 @@ protected:
   static void inspectCamera(SceneWindow&, CameraProxy&);
   static void inspectLight(SceneWindow&, LightProxy&);
   static void inspectPrimitive(SceneWindow&, TriangleMeshProxy&);
+  static void inspectMaterial(Primitive&);
 
 private:
   using InspectMap = std::unordered_map<size_t, InspectFunction<>>;

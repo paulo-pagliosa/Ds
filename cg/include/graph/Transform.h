@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for scene object transform.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/02/2022
+// Last revision: 13/06/2023
 
 #ifndef __Transform_h
 #define __Transform_h
@@ -36,11 +36,8 @@
 #include "graph/Component.h"
 #include "math/Matrix4x4.h"
 
-namespace cg
-{ // begin namespace cg
-
-namespace graph
-{ // begin namespace graph
+namespace cg::graph
+{ // begin namespace cg::graph
 
 
 /////////////////////////////////////////////////////////////////////
@@ -265,8 +262,6 @@ asTransform(Component* component)
   return dynamic_cast<Transform*>(component);
 }
 
-} // end namespace graph
-
-} // end namespace cg
+} // end namespace cg::graph
 
 #endif // __Transform_h

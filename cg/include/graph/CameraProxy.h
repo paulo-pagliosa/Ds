@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022 Paulo Pagliosa.                              |
+//| Copyright (C) 2022, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for camera proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/01/2022
+// Last revision: 13/06/2023
 
 #ifndef __CameraProxy_h
 #define __CameraProxy_h
@@ -36,11 +36,8 @@
 #include "graph/ComponentProxy.h"
 #include "graphics/Camera.h"
 
-namespace cg
-{ // begin namespace cg
-
-namespace graph
-{ // begin namespace graph
+namespace cg::graph
+{ // begin namespace cg::graph
 
 
 /////////////////////////////////////////////////////////////////////
@@ -102,8 +99,6 @@ asCamera(Component* component)
   return dynamic_cast<CameraProxy*>(component);
 }
 
-} // end namespace graph
-
-} // end namespace cg
+} // end namespace cg::graph
 
 #endif // __CameraProxy_h

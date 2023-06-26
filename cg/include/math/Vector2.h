@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,25 +28,19 @@
 // Class definition for 2D vector.
 //
 // Author: Paulo Pagliosa
-// Last revision: 15/12/2022
+// Last revision: 18/06/2023
 
 #ifndef __Vector2_h
 #define __Vector2_h
 
 #include "math/Real.h"
+#include <concepts>
 #include <cstdio>
-#include <type_traits>
 
 namespace cg
 { // begin namespace cg
 
-template <typename T>
-inline constexpr bool isFloatingPoint()
-{
-  return std::is_floating_point_v<T>;
-}
-
-#define ASSERT_REAL(T, msg) static_assert(isFloatingPoint<T>(), msg)
+#define ASSERT_REAL(T, msg) static_assert(std::floating_point<T>, msg)
 
 template <typename real, int N> class Vector;
 
