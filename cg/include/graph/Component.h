@@ -28,7 +28,7 @@
 // Class definition for scene object component.
 //
 // Author: Paulo Pagliosa
-// Last revision: 13/06/2023
+// Last revision: 28/06/2023
 
 #ifndef __SceneObjectComponent_h
 #define __SceneObjectComponent_h
@@ -68,28 +68,34 @@ public:
   /// Returns true if this component is erasable.
   auto erasable() const
   {
-    return _erasable;
+    return _flags.erasable;
   }
 
 protected:
   Component(const char* const typeName, bool erasable = true):
     _typeName{typeName},
-    _erasable{erasable}
+    _flags{erasable}
   {
     // do nothing
   }
 
-  virtual bool canBeSiblingOf(Component* component) const;
+  virtual bool canAdd(Component* other) const;
 
   virtual void afterAdded();
   virtual void beforeRemoved();
-  virtual void update();
+  virtual void transformChanged();
   virtual void setVisible(bool value);
+  virtual bool tryConnectingTo(Component* other);
+  virtual bool tryDisconnectingFrom(Component* other);
 
 private:
   const std::string _typeName;
   SceneObject* _sceneObject{};
-  bool _erasable;
+  struct
+  {
+    bool erasable : 1;
+
+  } _flags;
 
   friend class SceneObject;
 

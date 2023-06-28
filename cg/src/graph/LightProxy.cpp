@@ -28,7 +28,7 @@
 // Source file for light proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 13/06/2023
+// Last revision: 28/06/2023
 
 #include "graph/LightProxy.h"
 #include "graph/Scene.h"
@@ -56,13 +56,13 @@ LightProxy::beforeRemoved()
 }
 
 void
-LightProxy::update()
+LightProxy::transformChanged()
 {
-  if (auto t = transform(); t->changed)
-  {
-    _object->setPosition(t->position());
-    _object->setRotation(t->rotation());
-  }
+  auto t = transform();
+
+  assert(t->changed());
+  _object->setPosition(t->position());
+  _object->setRotation(t->rotation());
 }
 
 void

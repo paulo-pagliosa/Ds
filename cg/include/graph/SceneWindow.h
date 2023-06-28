@@ -28,7 +28,7 @@
 // Class definition for generic graph scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 26/06/2023
+// Last revision: 28/06/2023
 
 #ifndef __GraphSceneWindow_h
 #define __GraphSceneWindow_h
@@ -87,8 +87,8 @@ protected:
   void setScene(Scene&);
 
   void render() override;
-  bool onPickObject(int, int) override;
-  bool onPressKey(int) override;
+  bool onMouseLeftPress(int, int) override;
+  bool onKeyPress(int) override;
 
   virtual void renderScene();
   virtual void createObjectMenu();

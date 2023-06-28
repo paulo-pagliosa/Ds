@@ -28,7 +28,7 @@
 // Source file for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/04/2023
+// Last revision: 28/06/2023
 
 #include "graphics/Renderer.h"
 #include "graphics/SceneWindowBase.h"
@@ -164,7 +164,7 @@ SceneWindowBase::onResize(int width, int height)
 }
 
 bool
-SceneWindowBase::onPickObject(int x, int y)
+SceneWindowBase::onMouseLeftPress(int x, int y)
 {
   (void)x;
   (void)y;
@@ -172,7 +172,7 @@ SceneWindowBase::onPickObject(int x, int y)
 }
 
 bool
-SceneWindowBase::onPressKey(int key)
+SceneWindowBase::onKeyPress(int key)
 {
   (void)key;
   return false;
@@ -327,7 +327,7 @@ SceneWindowBase::mouseButtonInputEvent(int button, int actions, int mods)
 
   cursorPosition(_mouse.px, _mouse.py);
   if (button == GLFW_MOUSE_BUTTON_LEFT && !active)
-    return onPickObject(_mouse.px, _mouse.py);
+    return onMouseLeftPress(_mouse.px, _mouse.py);
   if (button == GLFW_MOUSE_BUTTON_RIGHT)
     _dragFlags.enable(DragBits::Rotate, active);
   else if (button == GLFW_MOUSE_BUTTON_MIDDLE)
@@ -397,7 +397,7 @@ SceneWindowBase::keyInputEvent(int key, int action, int mods)
       d.y -= delta;
       break;
     default:
-      return onPressKey(key);
+      return onKeyPress(key);
   }
   _editor->pan(d);
   return true;

@@ -28,7 +28,7 @@
 // Source file for scene object component.
 //
 // Author: Paulo Pagliosa
-// Last revision: 13/06/2023
+// Last revision: 28/06/2023
 
 #include "graph/Component.h"
 
@@ -41,9 +41,9 @@ namespace cg::graph
 // Component implementation
 // =========
 bool
-Component::canBeSiblingOf(Component* component) const
+Component::canAdd(Component* other) const
 {
-  return component != this && component->_typeName != _typeName;
+  return other != this && other->_typeName != _typeName;
 }
 
 void
@@ -59,7 +59,7 @@ Component::beforeRemoved()
 }
 
 void
-Component::update()
+Component::transformChanged()
 {
   // do nothing
 }
@@ -68,6 +68,18 @@ void
 Component::setVisible(bool)
 {
   // do nothing
+}
+
+bool
+Component::tryConnectingTo(Component*)
+{
+  return false;
+}
+
+bool
+Component::tryDisconnectingFrom(Component*)
+{
+  return false;
 }
 
 } // end namespace cg::graph

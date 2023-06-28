@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2020, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2020, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for OpenGL 3D render window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 23/09/2022
+// Last revision: 28/06/2023
 
 #include "graphics/GLRenderWindow3.h"
 
@@ -147,7 +147,7 @@ GLRenderWindow3::mouseButtonInputEvent(int button, int actions, int)
     _dragFlags.enable(DragBits::Pan, active);
   else if (button == GLFW_MOUSE_BUTTON_LEFT)
     if (active)
-      return onMouseDown(_pivotX, _pivotY);
+      return onMouseLeftPress(_pivotX, _pivotY);
   return true;
 }
 
@@ -181,7 +181,7 @@ GLRenderWindow3::mouseMoveEvent(double xPos, double yPos)
 }
 
 bool
-GLRenderWindow3::onMouseDown(int, int)
+GLRenderWindow3::onMouseLeftPress(int, int)
 {
   return false;
 }

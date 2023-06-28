@@ -28,7 +28,7 @@
 // Source file for OpenGL 2D render window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 26/01/2023
+// Last revision: 28/06/2023
 
 #include "graphics/GLRenderWindow2.h"
 
@@ -134,7 +134,7 @@ GLRenderWindow2::mouseButtonInputEvent(int button, int actions, int)
       break;
     case GLFW_MOUSE_BUTTON_LEFT:
       if (active)
-        return onMouseDown(_pivotX, _pivotY);
+        return onMouseLeftPress(_pivotX, _pivotY);
   }
   return true;
 }
@@ -168,7 +168,7 @@ GLRenderWindow2::mouseMoveEvent(double xPos, double yPos)
 }
 
 bool
-GLRenderWindow2::onMouseDown(int, int)
+GLRenderWindow2::onMouseLeftPress(int, int)
 {
   return false;
 }

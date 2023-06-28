@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for generic vis scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 16/03/2022
+// Last revision: 28/06/2023
 
 #ifndef __VisSceneWindow_h
 #define __VisSceneWindow_h
@@ -80,7 +80,7 @@ protected:
   }
 
   void render() override;
-  bool onPressKey(int) override;
+  bool onKeyPress(int) override;
 
   void hierarchyWindow(const char* = "Hierarchy");
   void inspectorWindow(const char* = "Inspector");

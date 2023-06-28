@@ -28,7 +28,7 @@
 // Source file for scene object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 13/06/2023
+// Last revision: 28/06/2023
 
 #include "graph/Scene.h"
 
@@ -117,42 +117,67 @@ SceneObject::removeChild(SceneObject* child)
 }
 
 inline bool
-SceneObject::canAddComponent(Component* newComponent) const
+SceneObject::canAddComponent(Component* component) const
 {
-  for (auto& component : _components)
-    if (!component->canBeSiblingOf(newComponent))
+  // Iterate the object components skipping its transform
+  for (auto end = _components.end(), cit = ++_components.begin(); cit != end;)
+    if (!static_cast<Component*>(*cit++)->canAdd(component))
       return false;
   return true;
 }
 
-Component*
-SceneObject::insertComponent(Component* newComponent)
+inline void
+SceneObject::makeComponentAttachments(Component* component) const
 {
-  if (newComponent == nullptr)
+  // Iterate the object components skipping its transform
+  for (auto end = _components.end(), cit = ++_components.begin(); cit != end;)
+    if (auto c = *cit++; c.get() != component)
+      // REMARK: connections between two components are not
+      // bidirectional to avoid circular references
+      if (!c->tryConnectingTo(component))
+        component->tryConnectingTo(c);
+}
+
+Component*
+SceneObject::insertComponent(Component* component)
+{
+  if (component == nullptr)
     return nullptr;
 
   // If the component cannot be added, then it must be deleted,
   // but only in case its reference count is zero
-  Reference<Component> dummy{newComponent};
+  Reference<Component> dummy{component};
 
-  if (!canAddComponent(newComponent))
+  if (!canAddComponent(component))
     return nullptr;
-  _components.add(newComponent);
-  newComponent->_sceneObject = this;
-  newComponent->afterAdded();
+  _components.add(component);
+  component->_sceneObject = this;
+  component->afterAdded();
+  makeComponentAttachments(component);
   // Set the transform changed flag to force component updating
-  _transform.changed = true;
-  newComponent->update();
-  _transform.changed = false;
-  return newComponent;
+  _transform.setChanged(true);
+  component->transformChanged();
+  _transform.setChanged(false);
+  return component;
+}
+
+inline void
+SceneObject::releaseComponentAttachments(Component* component)
+{
+  // Iterate the object components skipping its transform
+  for (auto end = _components.end(), cit = ++_components.begin(); cit != end;)
+    if (auto c = *cit++; c.get() != component)
+       if (!c->tryDisconnectingFrom(component))
+         component->tryDisconnectingFrom(c);
 }
 
 bool
 SceneObject::removeComponent(const char* typeName)
 {
   for (auto& component : _components)
-    if (component->_erasable && component->_typeName == typeName)
+    if (component->erasable() && component->_typeName == typeName)
     {
+      releaseComponentAttachments(component);
       component->beforeRemoved();
       component->_sceneObject = nullptr;
       _components.remove(component);
@@ -164,9 +189,9 @@ SceneObject::removeComponent(const char* typeName)
 Component*
 SceneObject::findComponent(const char* typeName) const
 {
-  for (const auto& component : _components)
-    if (component->_typeName == typeName)
-      return component;
+  for (const auto& c : _components)
+    if (c->_typeName == typeName)
+      return c;
   return nullptr;
 }
 
@@ -175,8 +200,8 @@ SceneObject::transformChanged()
 {
   // Iterate the object components skipping its transform
   for (auto end = _components.end(), cit = ++_components.begin(); cit != end;)
-    static_cast<Component*>(*cit++)->update();
-  _transform.changed = false;
+    static_cast<Component*>(*cit++)->transformChanged();
+  _transform.setChanged(false);
   for (auto& child : children())
     child._transform.update();
 }

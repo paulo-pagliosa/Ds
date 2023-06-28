@@ -28,7 +28,7 @@
 // Class definition for light proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 13/06/2023
+// Last revision: 28/06/2023
 
 #ifndef __LightProxy_h
 #define __LightProxy_h
@@ -78,7 +78,7 @@ private:
 
   void afterAdded() override;
   void beforeRemoved() override;
-  void update() override;
+  void transformChanged() override;
   void setVisible(bool value) override;
 
 }; // LightProxy

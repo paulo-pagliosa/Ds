@@ -28,7 +28,7 @@
 // Class definition for camera proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 13/06/2023
+// Last revision: 28/06/2023
 
 #ifndef __CameraProxy_h
 #define __CameraProxy_h
@@ -89,7 +89,7 @@ private:
     // do nothing
   }
 
-  void update() override;
+  void transformChanged() override;
 
 }; // CameraProxy
 

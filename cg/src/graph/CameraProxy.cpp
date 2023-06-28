@@ -32,6 +32,7 @@
 
 #include "graph/CameraProxy.h"
 #include "graph/Transform.h"
+#include <cassert>
 
 namespace cg::graph
 { // begin namespace cg::graph
@@ -50,10 +51,12 @@ CameraProxy::~CameraProxy()
 }
 
 void
-CameraProxy::update()
+CameraProxy::transformChanged()
 {
-  if (auto t = transform(); t->changed)
-    _object->setTransform(t->position(), t->rotation());
+  auto t = transform();
+
+  assert(t->changed());
+  _object->setTransform(t->position(), t->rotation());
 }
 
 void

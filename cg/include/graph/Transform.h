@@ -28,7 +28,7 @@
 // Class definition for scene object transform.
 //
 // Author: Paulo Pagliosa
-// Last revision: 13/06/2023
+// Last revision: 28/06/2023
 
 #ifndef __Transform_h
 #define __Transform_h
@@ -52,8 +52,6 @@ public:
     Local,
     World
   };
-
-  bool changed{false};
 
   /// Constructs an identity transform.
   Transform();
@@ -232,6 +230,12 @@ public:
   /// Sets this transform as an identity transform.
   void reset();
 
+  /// Returns true if this transform has been changed.
+  auto changed() const
+  {
+    return _flags.changed;
+  }
+
   void print(FILE* out = stdout) const;
 
 private:
@@ -243,6 +247,11 @@ private:
   vec3f _localPosition;
   vec3f _localEulerAngles;
   vec3f _localScale;
+  mutable struct
+  {
+    bool changed : 1;
+
+  } _flags{false};
 
   mat4f localMatrix() const;
   mat4f inverseLocalMatrix() const;
@@ -250,7 +259,12 @@ private:
   void rotate(const quatf&, Space = Space::Local);
   void parentChanged();
 
-  void update() override;
+  void setChanged(bool value)
+  {
+    _flags.changed = value;
+  }
+
+  void update();
 
   friend class SceneObject;
 

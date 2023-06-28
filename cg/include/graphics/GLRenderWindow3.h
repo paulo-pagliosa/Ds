@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2020, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2020, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for OpenGL 3D render window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/05/2022
+// Last revision: 28/06/2023
 
 #ifndef __GLRenderWindow3_h
 #define __GLRenderWindow3_h
@@ -76,7 +76,7 @@ protected:
   bool mouseButtonInputEvent(int, int, int) override;
   bool mouseMoveEvent(double, double) override;
 
-  virtual bool onMouseDown(int, int);
+  virtual bool onMouseLeftPress(int, int);
 
 private:
   enum class MoveBits

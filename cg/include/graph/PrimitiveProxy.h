@@ -28,7 +28,7 @@
 // Class definition for primitive proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 13/06/2023
+// Last revision: 28/06/2023
 
 #ifndef __PrimitiveProxy_h
 #define __PrimitiveProxy_h
@@ -74,7 +74,7 @@ protected:
 
   void afterAdded() override;
   void beforeRemoved() override;
-  void update() override;
+  void transformChanged() override;
   void setVisible(bool value) override;
 
 }; // PrimitiveProxy

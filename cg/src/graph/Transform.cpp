@@ -28,7 +28,7 @@
 // Source file for scene object transform.
 //
 // Author: Paulo Pagliosa
-// Last revision: 13/06/2023
+// Last revision: 28/06/2023
 
 #include "graph/SceneObject.h"
 
@@ -171,7 +171,7 @@ Transform::update()
   _position = translation(_localToWorld);
   _rotation = p->_rotation * _localRotation;
   _worldToLocal = inverseLocalMatrix() * p->_worldToLocal;
-  changed = true;
+  setChanged(true);
   sceneObject()->transformChanged();
 }
 
@@ -187,7 +187,7 @@ Transform::parentChanged()
   _localScale = scale(_localRotation, m);
   _localToWorld = p->_localToWorld * localMatrix();
   _worldToLocal = inverseLocalMatrix() * p->_worldToLocal;
-  changed = true;
+  setChanged(true);
   sceneObject()->transformChanged();
 }
 

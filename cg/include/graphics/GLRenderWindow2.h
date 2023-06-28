@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for OpenGL 2D render window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 23/09/2022
+// Last revision: 28/06/2023
 
 #ifndef __GLRenderWindow2_h
 #define __GLRenderWindow2_h
@@ -70,7 +70,7 @@ protected:
   bool mouseButtonInputEvent(int, int, int) override;
   bool mouseMoveEvent(double, double) override;
 
-  virtual bool onMouseDown(int, int);
+  virtual bool onMouseLeftPress(int, int);
 
 private:
   enum class MoveBits

@@ -28,7 +28,7 @@
 // Source file for generic graph scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 13/06/2023
+// Last revision: 28/06/2023
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
@@ -584,7 +584,7 @@ SceneWindow::pickObject(int x, int y) const
 }
 
 bool
-SceneWindow::onPickObject(int x, int y)
+SceneWindow::onMouseLeftPress(int x, int y)
 {
   if (auto o = pickObject(x, y))
     if (o->selectable())
@@ -598,7 +598,7 @@ SceneWindow::onPickObject(int x, int y)
 }
 
 bool
-SceneWindow::onPressKey(int key)
+SceneWindow::onKeyPress(int key)
 {
   if (_viewMode != ViewMode::Editor || key != GLFW_KEY_F)
     return false;
