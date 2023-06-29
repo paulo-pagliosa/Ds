@@ -28,7 +28,7 @@
 // Source file for generic graph scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/06/2023
+// Last revision: 29/06/2023
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
@@ -553,18 +553,12 @@ SceneWindow::pickObject(SceneObject* object, const Ray3f& ray, float& t) const
     if (auto proxy = dynamic_cast<PrimitiveProxy*>(&*component))
     {
       auto p = proxy->mapper()->primitive();
+      Intersection hit;
 
-      if (p->bounds().size().min() == 0)
-        puts("Unable to pick scene object");
-      else
+      if (p->intersect(ray, hit) && hit.distance < t)
       {
-        Intersection hit;
-
-        if (p->intersect(ray, hit) && hit.distance < t)
-        {
-          t = hit.distance;
-          nearest = object;
-        }
+        t = hit.distance;
+        nearest = object;
       }
       break;
     }

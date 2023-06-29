@@ -28,7 +28,7 @@
 // Source file for cg demo main window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 12/05/2023
+// Last revision: 29/06/2023
 
 #include "graphics/Application.h"
 #include "reader/SceneReader.h"
@@ -48,7 +48,7 @@ MainWindow::buildDefaultMeshes()
   _defaultMeshes["Sphere"] = GLGraphics3::sphere();
   _defaultMeshes["Cylinder"] = GLGraphics3::cylinder();
   _defaultMeshes["Cone"] = GLGraphics3::cone();
-  //_defaultMeshes["Plane"] = GLGraphics3::quad();
+  _defaultMeshes["Plane"] = GLGraphics3::quad();
 }
 
 void
@@ -89,8 +89,8 @@ MainWindow::createObjectMenu()
       createDefaultPrimitiveObject("Cylinder");
     if (ImGui::MenuItem("Cone"))
       createDefaultPrimitiveObject("Cone");
-    //if (ImGui::MenuItem("Plane"))
-      //createDefaultPrimitiveObject("Plane");
+    if (ImGui::MenuItem("Plane"))
+      createDefaultPrimitiveObject("Plane");
     ImGui::EndMenu();
   }
 }
@@ -110,8 +110,8 @@ MainWindow::addComponentMenu()
       component = makeDefaultPrimitive("Cylinder");
     if (ImGui::MenuItem("Cone"))
       component = makeDefaultPrimitive("Cone");
-    //if (ImGui::MenuItem("Plane"))
-      //component = makeDefaultPrimitive("Plane");
+    if (ImGui::MenuItem("Plane"))
+      component = makeDefaultPrimitive("Plane");
     ImGui::EndMenu();
   }
   return component;
