@@ -23,12 +23,12 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: SceneWindowBase.cpp
+// OVERVIEW: SceneWindow.cpp
 // ========
 // Source file for generic graph scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/06/2023
+// Last revision: 30/06/2023
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
@@ -410,7 +410,7 @@ SceneWindow::inspectMaterial(Primitive& primitive)
 }
 
 Component*
-SceneWindow::addComponentMenu()
+SceneWindow::addComponentMenu(const SceneObject&)
 {
   return nullptr;
 }
@@ -424,7 +424,7 @@ SceneWindow::addComponentButton(SceneObject& object)
     ImGui::OpenPopup("AddComponentPopup");
   if (ImGui::BeginPopup("AddComponentPopup"))
   {
-    auto component = addComponentMenu();
+    auto component = addComponentMenu(object);
 
     if (ImGui::MenuItem("Light"))
       component = LightProxy::New();
@@ -496,30 +496,8 @@ SceneWindow::inspectorWindow(const char* title)
 }
 
 void
-SceneWindow::assetsWindow()
+SceneWindow::materialPanel()
 {
-  if (!_showAssets)
-    return;
-  ImGui::Begin("Assets");
-  if (ImGui::CollapsingHeader("Meshes"))
-  {
-    auto& meshes = Assets::meshes();
-
-    for (auto mit = meshes.begin(); mit != meshes.end(); ++mit)
-    {
-      auto name = mit->first.c_str();
-      auto selected = false;
-
-      ImGui::Selectable(name, &selected);
-      if (ImGui::BeginDragDropSource())
-      {
-        ImGui::Text(name);
-        ImGui::SetDragDropPayload("TriangleMesh", &mit, sizeof(mit));
-        ImGui::EndDragDropSource();
-      }
-    }
-  }
-  ImGui::Separator();
   if (ImGui::CollapsingHeader("Materials"))
   {
     auto& materials = Assets::materials();
@@ -538,7 +516,37 @@ SceneWindow::assetsWindow()
       }
     }
   }
-  ImGui::End();
+}
+
+void
+SceneWindow::meshPanel()
+{
+  if (ImGui::CollapsingHeader("Meshes"))
+  {
+    auto& meshes = Assets::meshes();
+
+    for (auto mit = meshes.begin(); mit != meshes.end(); ++mit)
+    {
+      auto name = mit->first.c_str();
+      auto selected = false;
+
+      ImGui::Selectable(name, &selected);
+      if (ImGui::BeginDragDropSource())
+      {
+        ImGui::Text(name);
+        ImGui::SetDragDropPayload("TriangleMesh", &mit, sizeof(mit));
+        ImGui::EndDragDropSource();
+      }
+    }
+  }
+}
+
+void
+SceneWindow::assetPanels()
+{
+  materialPanel();
+  ImGui::Separator();
+  meshPanel();
 }
 
 SceneObject*

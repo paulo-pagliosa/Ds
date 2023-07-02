@@ -28,7 +28,7 @@
 // Source file for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/06/2023
+// Last revision: 02/07/2023
 
 #include "graphics/Renderer.h"
 #include "graphics/SceneWindowBase.h"
@@ -79,6 +79,20 @@ showStyleSelector(const char* label)
       break;
   }
   return true;
+}
+
+void
+tooltip(const char* msg)
+{
+  TextDisabled("(?)");
+  if (IsItemHovered())
+  {
+    BeginTooltip();
+    PushTextWrapPos(GetFontSize() * 35.0f);
+    TextUnformatted(msg);
+    PopTextWrapPos();
+    EndTooltip();
+  }
 }
 
 } // end namespace ImGui

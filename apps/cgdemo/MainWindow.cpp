@@ -28,7 +28,7 @@
 // Source file for cg demo main window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/06/2023
+// Last revision: 02/07/2023
 
 #include "graphics/Application.h"
 #include "reader/SceneReader.h"
@@ -96,7 +96,7 @@ MainWindow::createObjectMenu()
 }
 
 Component*
-MainWindow::addComponentMenu()
+MainWindow::addComponentMenu(const SceneObject&)
 {
   Component* component = nullptr;
 
@@ -275,7 +275,7 @@ MainWindow::gui()
   // Assets Window
   ImGui::SetNextWindowPos({rgt, awy});
   ImGui::SetNextWindowSize({iww, awh});
-  assetsWindow();
+  assetWindow();
 }
 
 void

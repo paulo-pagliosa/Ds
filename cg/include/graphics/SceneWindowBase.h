@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/06/2023
+// Last revision: 02/07/2023
 
 #ifndef __SceneWindowBase_h
 #define __SceneWindowBase_h
@@ -138,7 +138,6 @@ namespace ImGui
 using namespace cg;
 
 void objectNameInput(NameableObject& object);
-
 void inputText(const char* label, const char* text);
 
 inline bool
@@ -173,6 +172,13 @@ colorEdit3(const char* label, Color& color)
 }
 
 bool showStyleSelector(const char* label);
+void tooltip(const char* msg);
+
+inline void
+nodeLabel(const char* label)
+{
+  TextColored({1, 153.0f / 255, 51.0f / 255, 1}, label);
+}
 
 } // end namespace ImGui
 

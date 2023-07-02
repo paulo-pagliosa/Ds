@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022 Paulo Pagliosa.                              |
+//| Copyright (C) 2022, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for cg demo main window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/07/2022
+// Last revision: 02/07/2023
 
 #ifndef __MainWindow_h
 #define __MainWindow_h
@@ -85,10 +85,10 @@ private:
   void beginInitialize() override;
   void initializeScene() override;
   void renderScene() override;
-  Component* addComponentMenu() override;
-  void createObjectMenu() override;
-  bool onResize(int width, int height) override;
   void gui() override;
+  bool onResize(int width, int height) override;
+  Component* addComponentMenu(const SceneObject&) override;
+  void createObjectMenu() override;
 
   void mainMenu();
   void fileMenu();

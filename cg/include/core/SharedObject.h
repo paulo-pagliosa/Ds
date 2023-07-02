@@ -28,12 +28,12 @@
 // Class definition for shared object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/05/2023
+// Last revision: 01/07/2023
 
 #ifndef __SharedObject_h
 #define __SharedObject_h
 
-#include <type_traits>
+#include <concepts>
 
 namespace cg
 { // begin namespace cg
@@ -47,10 +47,13 @@ template <typename T>
 inline constexpr bool
 isSharedObject()
 {
-  return std::is_assignable_v<SharedObject, T>;
+  return std::is_assignable_v<T, SharedObject>;
 }
 
-#define ASSERT_SHARED(T, msg) static_assert(isSharedObject<T>(), msg)
+template <typename T>
+concept SharedObjectType = std::derived_from<T, SharedObject>;
+
+#define ASSERT_SHARED(T, msg) static_assert(SharedObjectType<T>, msg)
 
 
 /////////////////////////////////////////////////////////////////////

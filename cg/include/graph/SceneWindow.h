@@ -28,7 +28,7 @@
 // Class definition for generic graph scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/06/2023
+// Last revision: 01/07/2023
 
 #ifndef __GraphSceneWindow_h
 #define __GraphSceneWindow_h
@@ -49,11 +49,11 @@ namespace cg::graph
 class SceneWindow: public SceneWindowBase, public SceneObjectBuilder
 {
 public:
-  template <typename C = SharedObject>
-  using InspectFunction = void (*)(SceneWindow&, C&);
+  template <typename W = SceneWindow, typename C = SharedObject>
+  using InspectFunction = void (*)(W&, C&);
 
-  template <typename C>
-  void registerInspectFunction(InspectFunction<C> function)
+  template <typename W, typename C>
+  void registerInspectFunction(InspectFunction<W, C> function)
   {
     assert(function != nullptr);
     _inspectFunctions[typeid(C).hash_code()] = (InspectFunction<>)function;
@@ -79,9 +79,9 @@ protected:
   SceneWindow(const char* title, int width, int height):
     SceneWindowBase{title, width, height}
   {
-    registerInspectFunction<CameraProxy>(inspectCamera);
-    registerInspectFunction<LightProxy>(inspectLight);
-    registerInspectFunction<TriangleMeshProxy>(inspectPrimitive);
+    registerInspectFunction(inspectCamera);
+    registerInspectFunction(inspectLight);
+    registerInspectFunction(inspectPrimitive);
   }
 
   void setScene(Scene&);
@@ -92,7 +92,7 @@ protected:
 
   virtual void renderScene();
   virtual void createObjectMenu();
-  virtual Component* addComponentMenu();
+  virtual Component* addComponentMenu(const SceneObject&);
 
   void drawSelectedObject(const SceneObject&);
   void drawComponents(const SceneObject&);
@@ -102,7 +102,20 @@ protected:
 
   void hierarchyWindow(const char* = "Hierarchy");
   void inspectorWindow(const char* = "Inspector");
-  void assetsWindow();
+
+  void assetWindow()
+  {
+    if (_showAssets)
+    {
+      ImGui::Begin("Assets");
+      assetPanels();
+      ImGui::End();
+    }
+  }
+
+  virtual void assetPanels();
+  virtual void materialPanel();
+  virtual void meshPanel();
 
   static void inspectTransform(Transform&);
   static void inspectCamera(SceneWindow&, CameraProxy&);
