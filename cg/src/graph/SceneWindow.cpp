@@ -42,10 +42,16 @@ namespace cg::graph
 //
 // SceneWindow implementation
 // ===========
+Scene*
+SceneWindow::makeNewScene() const
+{
+  return Scene::New();
+}
+
 SceneBase*
 SceneWindow::makeScene()
 {
-  auto scene = Scene::New();
+  auto scene = makeNewScene();
 
   SceneObjectBuilder::setScene(*scene);
   _currentNode = scene;

@@ -28,14 +28,13 @@
 // Class definition for graph scene.
 //
 // Author: Paulo Pagliosa
-// Last revision: 13/06/2023
+// Last revision: 03/07/2023
 
 #ifndef __GraphScene_h
 #define __GraphScene_h
 
 #include "graph/SceneObject.h"
 #include "graphics/SceneBase.h"
-#include <cassert>
 
 namespace cg::graph
 { // begin namespace cg::graph
@@ -51,9 +50,8 @@ class Scene: public SceneBase
 {
 public:
   /// Constructs an empty scene.
-  static auto New(const char* name = "")
+  static auto New(const char* const name = nullptr)
   {
-    assert(name != nullptr);
     return new Scene{name};
   }
 
@@ -68,10 +66,11 @@ public:
     return &_root;
   }
 
+protected:
+  Scene(const char* name); // implemented in SceneObject.cpp
+
 private:
   SceneObject _root;
-
-  Scene(const char* name); // implemented in SceneObject.cpp
 
   friend SceneObject;
 

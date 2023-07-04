@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 02/07/2023
+// Last revision: 03/07/2023
 
 #ifndef __SceneWindowBase_h
 #define __SceneWindowBase_h

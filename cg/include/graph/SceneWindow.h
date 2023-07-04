@@ -28,7 +28,7 @@
 // Class definition for generic graph scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/07/2023
+// Last revision: 03/07/2023
 
 #ifndef __GraphSceneWindow_h
 #define __GraphSceneWindow_h
@@ -84,6 +84,8 @@ protected:
     registerInspectFunction(inspectPrimitive);
   }
 
+  virtual Scene* makeNewScene() const;
+
   void setScene(Scene&);
 
   void render() override;
@@ -129,7 +131,7 @@ private:
   SceneNode _currentNode{};
   InspectMap _inspectFunctions;
 
-  SceneBase* makeScene() override;
+  SceneBase* makeScene() final;
 
   void createObjectButton();
   bool treeNode(SceneNode, ImGuiTreeNodeFlags);

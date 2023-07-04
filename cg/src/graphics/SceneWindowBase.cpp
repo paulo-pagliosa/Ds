@@ -28,7 +28,7 @@
 // Source file for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 02/07/2023
+// Last revision: 03/07/2023
 
 #include "graphics/Renderer.h"
 #include "graphics/SceneWindowBase.h"

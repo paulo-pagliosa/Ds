@@ -28,7 +28,7 @@
 // Source file for scene object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/06/2023
+// Last revision: 03/07/2023
 
 #include "graph/Scene.h"
 
@@ -232,12 +232,18 @@ newSceneName()
   return sceneName;
 }
 
+inline bool
+empty(const char* const s)
+{
+  return !s || !*s;
+}
+
 } // end namespace
 
-Scene::Scene(const char* name): // declared in Scene.h
-  NameableObject{!*name ? newSceneName() : name},
+Scene::Scene(const char* const name): // declared in Scene.h
   _root{*this}
 {
+  setName(empty(name) ? newSceneName() : name);
   SceneObject::makeUse(&_root);
   _root.setName("root");
 }
