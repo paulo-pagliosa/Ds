@@ -28,7 +28,7 @@
 // Source file for OpenGL window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/04/2023
+// Last revision: 04/07/2023
 
 #include "core/Exception.h"
 #include "graphics/Application.h"
@@ -231,6 +231,7 @@ GLWindow::show(int argc, char** argv)
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  glfwWindowHint(GLFW_SAMPLES, 8);
   _window = createGlfwWindow(_title.c_str(), _width, _height);
   if (_window == nullptr)
     runtimeError("Unable to create GLFW window");

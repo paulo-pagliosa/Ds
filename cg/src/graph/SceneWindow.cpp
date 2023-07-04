@@ -28,7 +28,7 @@
 // Source file for generic graph scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 30/06/2023
+// Last revision: 04/07/2023
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
@@ -606,7 +606,7 @@ SceneWindow::onMouseLeftPress(int x, int y)
 }
 
 bool
-SceneWindow::onKeyPress(int key)
+SceneWindow::onKeyPress(int key, int)
 {
   if (_viewMode != ViewMode::Editor || key != GLFW_KEY_F)
     return false;

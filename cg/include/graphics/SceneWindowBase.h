@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2023, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2022, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 03/07/2023
+// Last revision: 04/07/2023
 
 #ifndef __SceneWindowBase_h
 #define __SceneWindowBase_h
@@ -79,7 +79,7 @@ protected:
   virtual void drawAttachments();
   virtual bool onResize(int, int);
   virtual bool onMouseLeftPress(int, int);
-  virtual bool onKeyPress(int);
+  virtual bool onKeyPress(int, int);
 
   void editorView();
   void preview(Camera&);
@@ -175,7 +175,7 @@ bool showStyleSelector(const char* label);
 void tooltip(const char* msg);
 
 inline void
-nodeLabel(const char* label)
+sectionLabel(const char* label)
 {
   TextColored({1, 153.0f / 255, 51.0f / 255, 1}, label);
 }

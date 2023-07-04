@@ -28,7 +28,7 @@
 // Source file for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 03/07/2023
+// Last revision: 04/07/2023
 
 #include "graphics/Renderer.h"
 #include "graphics/SceneWindowBase.h"
@@ -123,6 +123,7 @@ SceneWindowBase::initialize()
   glEnable(GL_POLYGON_OFFSET_FILL);
   glPolygonOffset(1.0f, 1.0f);
   glEnable(GL_LINE_SMOOTH);
+  glEnable(GL_MULTISAMPLE);
   endInitialize();
   initializeScene();
 }
@@ -186,9 +187,10 @@ SceneWindowBase::onMouseLeftPress(int x, int y)
 }
 
 bool
-SceneWindowBase::onKeyPress(int key)
+SceneWindowBase::onKeyPress(int key, int mods)
 {
   (void)key;
+  (void)mods;
   return false;
 }
 
@@ -411,7 +413,7 @@ SceneWindowBase::keyInputEvent(int key, int action, int mods)
       d.y -= delta;
       break;
     default:
-      return onKeyPress(key);
+      return onKeyPress(key, mods);
   }
   _editor->pan(d);
   return true;
