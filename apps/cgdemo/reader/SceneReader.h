@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2007, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2007, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for scene reader.
 //
 // Author: Paulo Pagliosa
-// Last revision: 07/02/2022
+// Last revision: 06/07/2023
 
 #ifndef __SceneReader_h
 #define __SceneReader_h
@@ -37,15 +37,15 @@
 #include "graphics/Assets.h"
 #include "ReaderBase.h"
 
-namespace cg::parser
-{ // begin namespace cg::parser
+namespace cg::util
+{ // begin namespace cg::util
 
 
 /////////////////////////////////////////////////////////////////////
 //
 // SceneReader: scene reader class
 // ===========
-class SceneReader: public Reader
+class SceneReader: public parser::Reader
 {
 public:
   class Parser;
@@ -57,8 +57,10 @@ public:
     return _scene;
   }
 
-  Material* findMaterial(const String& name) const
+  Material* findMaterial(const parser::String& name) const
   {
+    if (auto asset = Assets::findMaterial(name))
+      return asset;
     if (auto mit = materials.find(name); mit != materials.end())
       return mit->second;
     return nullptr;
@@ -66,10 +68,13 @@ public:
 
   void execute() override;
 
+protected:
+  virtual graph::Scene* makeScene(const char* name) const;
+
 private:
   Reference<graph::Scene> _scene;
 
-  Reader::Parser* makeParser() override;
+  parser::Reader::Parser* makeParser() override;
 
   friend Parser;
 
@@ -80,7 +85,7 @@ private:
 //
 // SceneReader::Parser: scene reader parser class
 // ===================
-class SceneReader::Parser: public Reader::Parser,
+class SceneReader::Parser: public parser::Reader::Parser,
   public graph::SceneObjectBuilder
 {
 public:
@@ -96,20 +101,25 @@ public:
     return *_reader;
   }
 
-private:
+protected:
+  using Base = parser::Reader::Parser;
+  using ComponentRef = Reference<graph::Component>;
+
+  // Component type
   enum
   {
     _CAMERA,
     _LIGHT,
     _BOX,
     _SPHERE,
-    _MESH
+    _MESH,
+    lastComponentType
   };
 
-  // Scene tokens
+  // Tokens
   enum
   {
-    _AMBIENT = Reader::Parser::lastToken,
+    _AMBIENT = Base::lastToken,
     _ANGLE,
     _ASPECT,
     _BACKGROUND,
@@ -135,22 +145,28 @@ private:
     _SHINE,
     _SPECULAR,
     _SPOT,
-    _TRANSFORM
+    _TRANSFORM,
+    lastToken
   };
 
-  // Errors
+  // Error codes
   enum
   {
-    MATERIAL_ALREADY_DEFINED = Reader::Parser::lastErrorCode,
+    MATERIAL_ALREADY_DEFINED = Base::lastErrorCode,
     COLOR_EXPECTED,
     MULTIPLE_SCENE_DEFINITION,
     COMPONENT_ALREADY_DEFINED,
     INVALID_VALUE_FOR,
     COULD_NOT_FIND_MESH,
     COULD_NOT_FIND_MATERIAL,
+    COULD_NOT_PARSE_COMPONENT,
     lastErrorCode
   };
 
+  virtual ComponentRef parseComponent(int, graph::SceneObject&);
+  void parsePrimitiveMaterial(Primitive&);
+
+private:
   struct Finish
   {
     float ambient{0.2f};
@@ -192,6 +208,6 @@ private:
 
 }; // SceneReader::Parser
 
-} // end namespace cg::parser
+} // end namespace cg::util
 
 #endif // __SceneReader_h

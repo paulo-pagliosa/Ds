@@ -28,9 +28,10 @@
 // Source file for cg demo main window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 02/07/2023
+// Last revision: 06/07/2023
 
 #include "graphics/Application.h"
+#include "graphics/AssetFolder.h"
 #include "reader/SceneReader.h"
 #include "MainWindow.h"
 
@@ -66,14 +67,14 @@ MainWindow::initializeScene()
 void
 MainWindow::beginInitialize()
 {
-  Assets::initialize();
-  buildDefaultMeshes();
-  Assets::meshes().insert(_defaultMeshes.begin(), _defaultMeshes.end());
-
   constexpr auto ffn = "fonts/Roboto-Regular.ttf";
   auto fonts = ImGui::GetIO().Fonts;
 
   fonts->AddFontFromFileTTF(Application::assetFilePath(ffn).c_str(), 16);
+  buildDefaultMeshes();
+  Assets::initialize();
+  Assets::meshes().insert(_defaultMeshes.begin(), _defaultMeshes.end());
+  _sceneFolder = AssetFolder::New("scenes/", ".scn");
 }
 
 void
@@ -118,21 +119,36 @@ MainWindow::addComponentMenu(const SceneObject&)
 }
 
 void
-MainWindow::readScene(const std::string& filename)
+MainWindow::openSceneCommand()
 {
-  try
+  if (ImGui::BeginListBox("##SceneList",
+    ImVec2{180, 8 * ImGui::GetTextLineHeightWithSpacing()}))
   {
-    parser::SceneReader reader;
+    for (auto& file : _sceneFolder->files())
+      if (ImGui::Selectable(file->filename().c_str()))
+      {
+        auto filename = (_sceneFolder->path() / file->name()).string();
 
-    reader.setInput(filename);
-    reader.execute();
-    if (reader.scene() != nullptr)
-      SceneWindow::setScene(*reader.scene());
+        readScene(filename);
+        ImGui::CloseCurrentPopup();
+      }
+    ImGui::EndListBox();
   }
-  catch (const std::exception& e)
-  {
-    puts(e.what());
-  }
+}
+
+void
+MainWindow::readScene(const std::string& filename) try
+{
+  util::SceneReader reader;
+
+  reader.setInput(filename);
+  reader.execute();
+  if (reader.scene() != nullptr)
+    SceneWindow::setScene(*reader.scene());
+}
+catch (const std::exception& e)
+{
+  puts(e.what());
 }
 
 inline void
@@ -144,9 +160,7 @@ MainWindow::fileMenu()
       newScene();
     if (ImGui::BeginMenu("Open"))
     {
-      // TODO
-      if (ImGui::MenuItem("test.scn"))
-        readScene(Application::assetFilePath("scenes/test.scn"));
+      openSceneCommand();
       ImGui::EndMenu();
     }
     ImGui::Separator();

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2007, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2007, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for generic LL(n) parser.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/02/2022
+// Last revision: 06/07/2023
 
 #ifndef __AbstractParser_h
 #define __AbstractParser_h
@@ -96,14 +96,16 @@ private:
 //
 // Macros to declare a keyword table
 //
+#define KEYWORD_TABLE cg::parser::KeywordTableEntry
+
 #define DECLARE_KEYWORD_TABLE(cls) \
 private: \
-  static KeywordTableEntry _keywords[]; \
+  static KEYWORD_TABLE _keywords[]; \
 protected: \
-  KeywordTableEntry* findKeyword(const String&) const override
+  KEYWORD_TABLE* findKeyword(const cg::parser::String&) const override
 
 #define DEFINE_KEYWORD_TABLE_ENTRIES(cls) \
-cg::parser::KeywordTableEntry cls::_keywords[]{
+KEYWORD_TABLE cls::_keywords[]{
 
 #define KEYWORD(name, token, value) \
 {name, token, (void*)value},
@@ -112,7 +114,7 @@ cg::parser::KeywordTableEntry cls::_keywords[]{
 {nullptr, -1, nullptr}}
 
 #define DEFINE_KEYWORD_TABLE(cls, base) \
-cg::parser::KeywordTableEntry* \
+KEYWORD_TABLE* \
 cls::findKeyword(const cg::parser::String& name) const\
 { \
   auto kw = searchKeyword(_keywords, name); \

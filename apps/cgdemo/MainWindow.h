@@ -28,13 +28,13 @@
 // Class definition for cg demo main window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 02/07/2023
+// Last revision: 06/07/2023
 
 #ifndef __MainWindow_h
 #define __MainWindow_h
 
 #include "graph/SceneWindow.h"
-#include "graphics/Assets.h"
+#include "graphics/AssetFolder.h"
 #include "graphics/GLImage.h"
 #include "RayTracer.h"
 
@@ -65,6 +65,7 @@ public:
   }
 
 private:
+  AssetFolderRef _sceneFolder;
   Reference<RayTracer> _rayTracer;
   Reference<GLImage> _image;
   int _maxRecursionLevel{6};
@@ -96,6 +97,7 @@ private:
   void showOptions();
 
   void readScene(const std::string& filename);
+  void openSceneCommand();
 
   static void buildDefaultMeshes();
 

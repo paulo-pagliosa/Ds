@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2007, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2007, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for file buffer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 07/02/2022
+// Last revision: 06/07/2023
 
 #ifndef __FileBuffer_h
 #define __FileBuffer_h
@@ -83,6 +83,8 @@ private:
   }
 
 }; // FileBuffer
+
+using FileBufferRef = Reference<FileBuffer>;
 
 } // end namespace parser
 

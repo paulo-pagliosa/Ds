@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2007, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2007, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for generic error handler.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/02/2022
+// Last revision: 06/07/2023
 
 #ifndef __ErrorHandler_h
 #define __ErrorHandler_h
@@ -63,9 +63,11 @@ const char* searchErrorMessage(ErrorMessageTableEntry*, int);
 //
 // Macros to declare/define an error message table
 //
+#define ERROR_MESSAGE_TABLE cg::parser::ErrorMessageTableEntry
+
 #define DECLARE_ERROR_MESSAGE_TABLE(cls) \
 private: \
-  static ErrorMessageTableEntry _errmsg[]; \
+  static ERROR_MESSAGE_TABLE _errors[]; \
 protected: \
   const char* findErrorMessage(int) const override
 
@@ -73,7 +75,7 @@ protected: \
 const char* \
 cls::findErrorMessage(int code) const \
 { \
-  auto msg = searchErrorMessage(_errmsg, code); \
+  auto msg = cg::parser::searchErrorMessage(_errors, code); \
   if (msg == nullptr) \
     msg = base::findErrorMessage(code); \
   return msg; \
@@ -81,7 +83,7 @@ cls::findErrorMessage(int code) const \
 DEFINE_ERROR_MESSAGE_TABLE_ENTRIES(cls)
 
 #define DEFINE_ERROR_MESSAGE_TABLE_ENTRIES(cls) \
-cg::parser::ErrorMessageTableEntry cls::_errmsg[]{
+ERROR_MESSAGE_TABLE cls::_errors[]{
 
 #define ERROR_MESSAGE(code, msg) \
 {code, msg},

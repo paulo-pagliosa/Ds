@@ -141,6 +141,7 @@
     <ClInclude Include="..\..\include\geometry\TriangleMeshBVH.h" />
     <ClInclude Include="..\..\include\graphics\Actor.h" />
     <ClInclude Include="..\..\include\graphics\Application.h" />
+    <ClInclude Include="..\..\include\graphics\AssetFolder.h" />
     <ClInclude Include="..\..\include\graphics\Assets.h" />
     <ClInclude Include="..\..\include\graphics\Camera.h" />
     <ClInclude Include="..\..\include\graphics\Color.h" />
@@ -213,6 +214,7 @@
     <ClCompile Include="..\..\src\geometry\TriangleMesh.cpp" />
     <ClCompile Include="..\..\src\geometry\TriangleMeshBVH.cpp" />
     <ClCompile Include="..\..\src\graphics\Application.cpp" />
+    <ClCompile Include="..\..\src\graphics\AssetFolder.cpp" />
     <ClCompile Include="..\..\src\graphics\Assets.cpp" />
     <ClCompile Include="..\..\src\graphics\Camera.cpp" />
     <ClCompile Include="..\..\src\graphics\Color.cpp" />
