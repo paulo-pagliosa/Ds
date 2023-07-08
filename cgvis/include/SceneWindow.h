@@ -28,7 +28,7 @@
 // Class definition for generic vis scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/06/2023
+// Last revision: 08/07/2023
 
 #ifndef __VisSceneWindow_h
 #define __VisSceneWindow_h
@@ -80,7 +80,7 @@ protected:
   }
 
   void render() override;
-  bool onKeyPress(int) override;
+  bool onKeyPress(int, int) override;
 
   void hierarchyWindow(const char* = "Hierarchy");
   void inspectorWindow(const char* = "Inspector");

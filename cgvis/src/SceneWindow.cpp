@@ -28,7 +28,7 @@
 // Source file for generic vis scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/06/2023
+// Last revision: 08/07/2023
 
 #include "SceneWindow.h"
 
@@ -69,7 +69,7 @@ SceneWindow::render()
 }
 
 bool
-SceneWindow::onKeyPress(int key)
+SceneWindow::onKeyPress(int key, int)
 {
   if (key != GLFW_KEY_F || _currentNode.as<Scene>())
     return false;
