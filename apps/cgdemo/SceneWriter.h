@@ -137,8 +137,8 @@ private:
   void writeComponent(Component*);
   void writeTransform(const Transform&);
 
-}; // Writer
+}; // SceneWriter
 
 } // end namespace cg::util
 
-#endif // __Writer_h
+#endif // __SceneWriter_h

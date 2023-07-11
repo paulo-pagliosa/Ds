@@ -34,6 +34,7 @@
 #define __AssetFolder_h
 
 #include "graphics/Assets.h"
+#include <cassert>
 #include <filesystem>
 #include <set>
 

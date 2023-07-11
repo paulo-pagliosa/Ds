@@ -154,7 +154,6 @@ MainWindow::readScene(const std::string& filename) try
       materials[name] = m;
   }
 }
-
 catch (const std::exception& e)
 {
   puts(e.what());
