@@ -28,7 +28,7 @@
 // Class definition for scene reader.
 //
 // Author: Paulo Pagliosa
-// Last revision: 06/07/2023
+// Last revision: 11/07/2023
 
 #ifndef __SceneReader_h
 #define __SceneReader_h
@@ -59,11 +59,9 @@ public:
 
   Material* findMaterial(const parser::String& name) const
   {
-    if (auto asset = Assets::findMaterial(name))
-      return asset;
     if (auto mit = materials.find(name); mit != materials.end())
       return mit->second;
-    return nullptr;
+    return Assets::findMaterial(name);
   }
 
   void execute() override;
@@ -110,8 +108,6 @@ protected:
   {
     _CAMERA,
     _LIGHT,
-    _BOX,
-    _SPHERE,
     _MESH,
     lastComponentType
   };
@@ -130,8 +126,8 @@ protected:
     _DIRECTIONAL,
     _ENVIRONMENT,
     _FALLOFF,
-    _FINISH,
     _HEIGHT,
+    _IOR,
     _MATERIAL,
     _OBJECT,
     _PARALLEL,
@@ -146,6 +142,7 @@ protected:
     _SPECULAR,
     _SPOT,
     _TRANSFORM,
+    _TRANSPARENCY,
     lastToken
   };
 
@@ -153,10 +150,10 @@ protected:
   enum
   {
     MATERIAL_ALREADY_DEFINED = Base::lastErrorCode,
-    COLOR_EXPECTED,
     MULTIPLE_SCENE_DEFINITION,
     COMPONENT_ALREADY_DEFINED,
     INVALID_VALUE_FOR,
+    EMPTY_MESH_NAME,
     COULD_NOT_FIND_MESH,
     COULD_NOT_FIND_MATERIAL,
     COULD_NOT_PARSE_COMPONENT,
@@ -167,16 +164,6 @@ protected:
   void parsePrimitiveMaterial(Primitive&);
 
 private:
-  struct Finish
-  {
-    float ambient{0.2f};
-    float diffuse{0.8f};
-    float spot{1};
-    float shine{100};
-    float specular{1};
-
-  }; // Finish
-
   SceneReader* _reader;
 
   void start() override;
@@ -192,7 +179,7 @@ private:
   void parseScene();
   void parseSceneEnvironment();
   void parseMaterial();
-  void parseSurface(Material&, const Color&);
+  void parseMaterialProperties(Material&);
   void parseObject(graph::SceneObject&);
   void parseObjectBlock(graph::SceneObject&);
   void parseChildObjectBlock(graph::SceneObject&);

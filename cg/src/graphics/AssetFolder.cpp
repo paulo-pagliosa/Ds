@@ -28,7 +28,7 @@
 // Source file for asset folder.
 //
 // Author: Paulo Pagliosa
-// Last revision: 06/07/2023
+// Last revision: 11/07/2023
 
 #include "core/Exception.h"
 #include "graphics/Application.h"
@@ -121,6 +121,9 @@ AssetFolder::initialize(const fs::path& path, const char* ext)
 bool
 AssetFolder::addFile(const char* filename)
 {
+  if (findFile(filename))
+    return false;
+
   auto p = _path / filename;
 
   if (!fs::is_regular_file(p))

@@ -28,11 +28,12 @@
 // Source file for cg demo main window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 06/07/2023
+// Last revision: 11/07/2023
 
 #include "graphics/Application.h"
 #include "graphics/AssetFolder.h"
 #include "reader/SceneReader.h"
+#include "SceneWriter.h"
 #include "MainWindow.h"
 
 
@@ -144,11 +145,32 @@ MainWindow::readScene(const std::string& filename) try
   reader.setInput(filename);
   reader.execute();
   if (reader.scene() != nullptr)
+  {
     SceneWindow::setScene(*reader.scene());
+
+    auto& materials = Assets::materials();
+
+    for (const auto& [name, m] : reader.materials)
+      materials[name] = m;
+  }
 }
+
 catch (const std::exception& e)
 {
   puts(e.what());
+}
+
+void
+MainWindow::saveScene()
+{
+  if (auto name = scene()->name(); *name)
+  {
+    auto filename = std::string{name} + ".scn";
+    auto path = (_sceneFolder->path() / filename).string();
+
+    util::SceneWriter{path.c_str()}.write(*scene());
+    _sceneFolder->addFile(filename.c_str());
+  }
 }
 
 inline void
@@ -163,6 +185,9 @@ MainWindow::fileMenu()
       openSceneCommand();
       ImGui::EndMenu();
     }
+    ImGui::Separator();
+    if (ImGui::MenuItem("Save"))
+      saveScene();
     ImGui::Separator();
     if (ImGui::MenuItem("Exit", "Alt+F4"))
     {

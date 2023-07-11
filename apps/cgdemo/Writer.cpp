@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2010, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,19 +23,48 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: Main.cpp
+// OVERVIEW: Writer.cpp
 // ========
-// Main function for cg demo.
+// Source file for generic writer.
 //
 // Author: Paulo Pagliosa
 // Last revision: 10/07/2023
 
-#include "graphics/Application.h"
-#include "MainWindow.h"
+#include "Writer.h"
+#include <cstdarg>
 
-int
-main(int argc, char** argv)
+namespace cg::util
+{ // begin namespace cg::util
+
+
+/////////////////////////////////////////////////////////////////////
+//
+// Writer implementation
+// ======
+void
+Writer::writeTabs()
+//[]----------------------------------------------------[]
+//|  Write tabs                                          |
+//[]----------------------------------------------------[]
 {
-  puts("Ds Demo Version 1.2 by Paulo Pagliosa (ppagliosa@gmail.com)\n");
-  return cg::Application{new MainWindow{1280, 720}}.run(argc, argv);
+  if (_level == 0)
+    return;
+  for (int i{}; i < _level; i++)
+    _out << "  ";
 }
+
+void
+Writer::write(const char* format, ...)
+//[]----------------------------------------------------[]
+//|  Write                                               |
+//[]----------------------------------------------------[]
+{
+  constexpr auto maxLen = 1024;
+  char buffer[maxLen];
+  va_list args;
+
+  va_start(args, format);
+  _out.write(buffer, vsnprintf(buffer, maxLen, format, args));
+}
+
+} // end namespace cg::util

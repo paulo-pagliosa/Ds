@@ -50,6 +50,12 @@
     <ClCompile Include="..\..\reader\Scope.cpp">
       <Filter>Source Files\reader</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Writer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SceneWriter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\MainWindow.h">
@@ -84,6 +90,12 @@
     </ClInclude>
     <ClInclude Include="..\..\reader\Scope.h">
       <Filter>Header Files\reader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SceneWriter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Writer.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

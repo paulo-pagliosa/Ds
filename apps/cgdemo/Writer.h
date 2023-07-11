@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2010, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,19 +23,99 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: Main.cpp
+// OVERVIEW: Writer.h
 // ========
-// Main function for cg demo.
+// Class definition for generic writer.
 //
 // Author: Paulo Pagliosa
 // Last revision: 10/07/2023
 
-#include "graphics/Application.h"
-#include "MainWindow.h"
+#ifndef __Writer_h
+#define __Writer_h
 
-int
-main(int argc, char** argv)
+#include "core/SharedObject.h"
+#include <iostream>
+#include <fstream>
+
+namespace cg::util
+{ // begin namespace cg::util
+
+
+/////////////////////////////////////////////////////////////////////
+//
+// Writer: generic writer class
+// ======
+class Writer: public SharedObject
 {
-  puts("Ds Demo Version 1.2 by Paulo Pagliosa (ppagliosa@gmail.com)\n");
-  return cg::Application{new MainWindow{1280, 720}}.run(argc, argv);
-}
+public:
+  Writer():
+    _out{std::cout}
+  {
+    // do nothing
+  }
+
+  Writer(const char* filename):
+    _file{filename},
+    _out{_file}
+  {
+    // do nothing
+  }
+
+  ~Writer() override
+  {
+    _file.close();
+  }
+
+  void write(int c)
+  {
+    _out << (char)c;
+  }
+
+  void write(const char* format, ...);
+
+  void beginBlock()
+  {
+    writeTabs();
+    _out << "{\n";
+    _level++;
+  }
+
+  void endBlock()
+  {
+    _level--;
+    writeTabs();
+    _out << "}\n";
+  }
+
+  void backspace()
+  {
+    _level--;
+  }
+
+  void tab()
+  {
+    _level++;
+  }
+
+  void beginLine()
+  {
+    writeTabs();
+  }
+
+  void endLine()
+  {
+    _out << '\n';
+  }
+
+private:
+  void writeTabs();
+
+  std::ofstream _file;
+  std::ostream& _out;
+  int _level{};
+
+}; // Writer
+
+} // end namespace cg::util
+
+#endif // __Writer_h

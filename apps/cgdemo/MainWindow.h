@@ -28,7 +28,7 @@
 // Class definition for cg demo main window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 06/07/2023
+// Last revision: 10/07/2023
 
 #ifndef __MainWindow_h
 #define __MainWindow_h
@@ -46,7 +46,6 @@ class SweepMeshProxy;
 
 } // end namespace cg::graph
 
-
 using namespace cg;
 using namespace cg::graph;
 
@@ -59,7 +58,7 @@ class MainWindow final: public SceneWindow
 {
 public:
   MainWindow(int width, int height):
-    SceneWindow{"Ds Demo Version 1.1", width, height}
+    SceneWindow{"Ds Demo Version 1.2", width, height}
   {
     // do nothing
   }
@@ -98,6 +97,7 @@ private:
 
   void readScene(const std::string& filename);
   void openSceneCommand();
+  void saveScene();
 
   static void buildDefaultMeshes();
 

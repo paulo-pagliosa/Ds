@@ -28,7 +28,7 @@
 // Class definition for asset folder.
 //
 // Author: Paulo Pagliosa
-// Last revision: 06/07/2023
+// Last revision: 11/07/2023
 
 #ifndef __AssetFolder_h
 #define __AssetFolder_h
@@ -90,11 +90,11 @@ private:
   AssetFolder* _parent;
   std::string _filename;
 
-  AssetFile(const std::string& filename, AssetFolder* parent = nullptr):
+  AssetFile(const char* filename, AssetFolder* parent = nullptr):
     _filename{filename},
     _parent{parent}
   {
-    // do nothing
+    assert(filename && *filename);
   }
 
   static AssetFile* make(const char*, AssetFolder*);
@@ -133,7 +133,7 @@ public:
     return _folders;
   }
 
-  auto findFolder(const std::string& name) const
+  auto findFolder(const char* name) const
   {
     return find(_folders, name);
   }
@@ -148,7 +148,7 @@ public:
     return _files;
   }
 
-  auto findFile(const std::string& filename) const
+  auto findFile(const char* filename) const
   {
     return find(_files, filename);
   }
@@ -166,7 +166,7 @@ private:
   static AssetFolder* make(const char*, AssetFolder* = nullptr);
 
   template <typename T>
-  static T* find(const RefSet<T>& set, const std::string& name)
+  static T* find(const RefSet<T>& set, const char* name)
   {
     const T temp{name};
     auto found = set.find(T::makeUse(&temp));

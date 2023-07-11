@@ -21,22 +21,20 @@ Initializer:
 Material:
   MATERIAL STRING
   "{"
-      COLOR Color
-      Finish?
+      MaterialItem*
   "}"
+
+MaterialItem:
+  AMBIENT Color
+| DIFFUSE Color
+| SPOT Color
+| SHINE Float
+| SPECULAR Color
+| IOR Float
+| TRANSPARENCY Color
 
 Color:
   Expression
-
-Finish:
-  FINISH "{" FinishItem* "}"
-
-FinishItem:
-  AMBIENT Float
-| DIFFUSE Float
-| SPOT Float
-| SHINE Float
-| SPECULAR Float
 
 Float:
   Expression
@@ -121,9 +119,7 @@ Primitive:
   Mesh (MATERIAL STRING)?
 
 Mesh:
-  SPHERE
-| BOX
-| MESH Filename
+| MESH STRING
 
 Expression:
   Term ("+" Term | "-" Term)*
