@@ -28,7 +28,7 @@
 // Class definition for cg demo main window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/07/2023
+// Last revision: 13/07/2023
 
 #ifndef __MainWindow_h
 #define __MainWindow_h
@@ -92,6 +92,7 @@ private:
 
   void mainMenu();
   void fileMenu();
+  void viewMenu();
   void createMenu();
   void showOptions();
 

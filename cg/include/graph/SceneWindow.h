@@ -28,7 +28,7 @@
 // Class definition for generic graph scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/07/2023
+// Last revision: 13/07/2023
 
 #ifndef __GraphSceneWindow_h
 #define __GraphSceneWindow_h
@@ -75,6 +75,12 @@ protected:
   bool _showHierarchy{true};
   bool _showInspector{true};
   bool _showAssets{true};
+  struct
+  {
+    bool hierarchy : 1;
+    bool sceneObjects : 1;
+
+  } _editFlags{};
 
   SceneWindow(const char* title, int width, int height):
     SceneWindowBase{title, width, height}
@@ -82,6 +88,16 @@ protected:
     registerInspectFunction(inspectCamera);
     registerInspectFunction(inspectLight);
     registerInspectFunction(inspectPrimitive);
+  }
+
+  auto editHierarchy() const
+  {
+    return _editFlags.hierarchy;
+  }
+
+  auto editSceneObjects() const
+  {
+    return _editFlags.sceneObjects;
   }
 
   virtual Scene* makeNewScene() const;
@@ -119,11 +135,12 @@ protected:
   virtual void materialPanel();
   virtual void meshPanel();
 
+  void inspectMaterial(Primitive&) const;
+
   static void inspectTransform(Transform&);
   static void inspectCamera(SceneWindow&, CameraProxy&);
   static void inspectLight(SceneWindow&, LightProxy&);
   static void inspectPrimitive(SceneWindow&, TriangleMeshProxy&);
-  static void inspectMaterial(Primitive&);
 
 private:
   using InspectMap = std::unordered_map<size_t, InspectFunction<>>;
@@ -136,6 +153,7 @@ private:
   void createObjectButton();
   bool treeNode(SceneNode, ImGuiTreeNodeFlags);
   bool deleteObjectPopup(SceneObject&);
+  bool dropSceneObject(SceneObject&);
   bool objectHierarchy(SceneObject&);
   void addComponentButton(SceneObject&);
 

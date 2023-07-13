@@ -28,7 +28,7 @@
 // Source file for generic graph scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/07/2023
+// Last revision: 13/07/2023
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
@@ -55,6 +55,7 @@ SceneWindow::makeScene()
 
   SceneObjectBuilder::setScene(*scene);
   _currentNode = scene;
+  _editFlags = {true, true};
   return scene;
 }
 
@@ -65,6 +66,7 @@ SceneWindow::setScene(Scene& scene)
   _currentNode = &scene;
   editor()->setScene(scene);
   _viewMode = ViewMode::Editor;
+  _editFlags = {true, true};
 }
 
 void
@@ -187,7 +189,7 @@ SceneWindow::deleteObjectPopup(SceneObject& object)
 {
   auto deleted = false;
 
-  if (ImGui::BeginPopupContextItem())
+  if (editHierarchy() && ImGui::BeginPopupContextItem())
   {
     if (ImGui::MenuItem("Delete###DeleteObject"))
     {
@@ -205,15 +207,12 @@ SceneWindow::deleteObjectPopup(SceneObject& object)
   return deleted;
 }
 
-namespace
-{ // begin namespace
-
 bool
-dropSceneObject(SceneObject& target)
+SceneWindow::dropSceneObject(SceneObject& target)
 {
-  if (ImGui::BeginDragDropTarget() && target.movable())
+  if (editHierarchy() && ImGui::BeginDragDropTarget() && target.movable())
   {
-    if (auto* payload = ImGui::AcceptDragDropPayload("SceneObject"))
+    if (auto payload = ImGui::AcceptDragDropPayload("SceneObject"))
     {
       auto object = *(SceneObject**)payload->Data;
 
@@ -227,8 +226,6 @@ dropSceneObject(SceneObject& target)
   }
   return false;
 }
-
-} // end namespace
 
 bool
 SceneWindow::objectHierarchy(SceneObject& object)
@@ -275,7 +272,9 @@ SceneWindow::hierarchyWindow(const char* title)
     return;
   assert(title != nullptr);
   ImGui::Begin(title);
+  ImGui::BeginDisabled(!editHierarchy());
   createObjectButton();
+  ImGui::EndDisabled();
   ImGui::Separator();
   if (treeNode(_scene.get(), ImGuiTreeNodeFlags_OpenOnArrow))
   {
@@ -309,7 +308,7 @@ SceneWindow::inspectComponent(Component& component)
 {
   auto typeName = component.typeName();
   auto notDelete{true};
-  auto open = component.erasable() ?
+  auto open = editSceneObjects() && component.erasable() ?
     ImGui::CollapsingHeader(typeName, &notDelete) :
     ImGui::CollapsingHeader(typeName);
 
@@ -317,10 +316,12 @@ SceneWindow::inspectComponent(Component& component)
     component.sceneObject()->removeComponent(typeName);
   else if (open)
   {
+    ImGui::BeginDisabled(!editSceneObjects());
     if (auto transform = graph::asTransform(&component))
       inspectTransform(*transform);
     else if (auto function = inspectFunction(component))
       function(*this, component);
+    ImGui::EndDisabled();
   }
 }
 
@@ -365,12 +366,12 @@ SceneWindow::inspectLight(SceneWindow&, LightProxy& proxy)
 }
 
 void
-SceneWindow::inspectPrimitive(SceneWindow&, TriangleMeshProxy& proxy)
+SceneWindow::inspectPrimitive(SceneWindow& window, TriangleMeshProxy& proxy)
 {
   ImGui::inputText("Mesh", proxy.meshName());
-  if (ImGui::BeginDragDropTarget())
+  if (window.editSceneObjects() && ImGui::BeginDragDropTarget())
   {
-    if (auto* payload = ImGui::AcceptDragDropPayload("TriangleMesh"))
+    if (auto payload = ImGui::AcceptDragDropPayload("TriangleMesh"))
     {
       auto mit = *(MeshMapIterator*)payload->Data;
       proxy.setMesh(*Assets::loadMesh(mit), mit->first);
@@ -391,19 +392,19 @@ SceneWindow::inspectPrimitive(SceneWindow&, TriangleMeshProxy& proxy)
     ImGui::EndPopup();
   }
   ImGui::Separator();
-  inspectMaterial(*proxy.mapper()->primitive());
+  window.inspectMaterial(*(proxy.mapper()->primitive()));
   proxy.actor()->visible = proxy.sceneObject()->visible();
 }
 
 void
-SceneWindow::inspectMaterial(Primitive& primitive)
+SceneWindow::inspectMaterial(Primitive& primitive) const
 {
   auto material = primitive.material();
 
   ImGui::inputText("Material", material->name());
-  if (ImGui::BeginDragDropTarget())
+  if (editSceneObjects() && ImGui::BeginDragDropTarget())
   {
-    if (auto* payload = ImGui::AcceptDragDropPayload("Material"))
+    if (auto payload = ImGui::AcceptDragDropPayload("Material"))
     {
       auto mit = *(MaterialMapIterator*)payload->Data;
 
@@ -447,6 +448,7 @@ SceneWindow::addComponentButton(SceneObject& object)
 inline void
 SceneWindow::inspectSceneObject(SceneObject& object)
 {
+  ImGui::BeginDisabled(!editSceneObjects());
   addComponentButton(object);
   ImGui::Separator();
   ImGui::objectNameInput(object);
@@ -457,6 +459,7 @@ SceneWindow::inspectSceneObject(SceneObject& object)
   ImGui::Checkbox("###visible", &state);
   object.setVisible(state);
   ImGui::Separator();
+  ImGui::EndDisabled();
 
   auto& components = object.components();
 

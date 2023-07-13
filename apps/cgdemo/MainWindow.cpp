@@ -28,7 +28,7 @@
 // Source file for cg demo main window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/07/2023
+// Last revision: 13/07/2023
 
 #include "graphics/Application.h"
 #include "graphics/AssetFolder.h"
@@ -197,8 +197,36 @@ MainWindow::fileMenu()
 }
 
 inline void
+MainWindow::viewMenu()
+{
+  if (ImGui::BeginMenu("View"))
+  {
+    static const char* viewLabels[]{"Editor", "Ray Tracer"};
+
+    if (ImGui::BeginCombo("View", viewLabels[(int)_viewMode]))
+    {
+      for (auto i = 0; i < IM_ARRAYSIZE(viewLabels); ++i)
+        if (ImGui::Selectable(viewLabels[i], _viewMode == (ViewMode)i))
+          _viewMode = (ViewMode)i;
+      ImGui::EndCombo();
+      // TODO: change mode only if scene has changed
+      if (_viewMode == ViewMode::Editor)
+        _image = nullptr;
+    }
+    ImGui::Separator();
+    ImGui::MenuItem("Hierarchy Window", nullptr, &_showHierarchy);
+    ImGui::MenuItem("Inspector Window", nullptr, &_showInspector);
+    ImGui::MenuItem("Camera Preview", nullptr, &_showPreview);
+    ImGui::MenuItem("Assets Window", nullptr, &_showAssets);
+    ImGui::MenuItem("Editor View Settings", nullptr, &_showEditorView);
+    ImGui::EndMenu();
+  }
+}
+
+inline void
 MainWindow::createMenu()
 {
+  ImGui::BeginDisabled(!editHierarchy());
   if (ImGui::BeginMenu("Create"))
   {
     if (ImGui::MenuItem("Material"))
@@ -207,6 +235,7 @@ MainWindow::createMenu()
     createObjectMenu();
     ImGui::EndMenu();
   }
+  ImGui::EndDisabled();
 }
 
 inline void
@@ -226,30 +255,7 @@ MainWindow::mainMenu()
   {
     fileMenu();
     createMenu();
-    if (ImGui::BeginMenu("View"))
-    {
-      static const char* viewLabels[]{"Editor", "Ray Tracer"};
-
-      if (ImGui::BeginCombo("View", viewLabels[(int)_viewMode]))
-      {
-        for (auto i = 0; i < IM_ARRAYSIZE(viewLabels); ++i)
-        {
-          if (ImGui::Selectable(viewLabels[i], _viewMode == (ViewMode)i))
-            _viewMode = (ViewMode)i;
-        }
-        ImGui::EndCombo();
-        // TODO: change mode only if scene has changed
-        if (_viewMode == ViewMode::Editor)
-          _image = nullptr;
-      }
-      ImGui::Separator();
-      ImGui::MenuItem("Hierarchy Window", nullptr, &_showHierarchy);
-      ImGui::MenuItem("Inspector Window", nullptr, &_showInspector);
-      ImGui::MenuItem("Camera Preview", nullptr, &_showPreview);
-      ImGui::MenuItem("Assets Window", nullptr, &_showAssets);
-      ImGui::MenuItem("Editor View Settings", nullptr, &_showEditorView);
-      ImGui::EndMenu();
-    }
+    viewMenu();
     if (ImGui::BeginMenu("Ray Tracing"))
     {
       ImGui::DragInt("Max Recursion Level",
