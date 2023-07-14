@@ -28,7 +28,7 @@
 // Class definition for shared object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/07/2023
+// Last revision: 14/07/2023
 
 #ifndef __SharedObject_h
 #define __SharedObject_h
@@ -121,7 +121,7 @@ public:
     // do nothing
   }
 
-  Reference(Reference&& other):
+  Reference(Reference&& other) noexcept:
     _ptr{other._ptr}
   {
     other._ptr = nullptr;
@@ -143,7 +143,7 @@ public:
     return operator =(other._ptr);
   }
 
-  auto& operator =(Reference&& other)
+  auto& operator =(Reference&& other) noexcept
   {
     std::swap(_ptr, other._ptr);
     return *this;

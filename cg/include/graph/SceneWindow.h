@@ -28,7 +28,7 @@
 // Class definition for generic graph scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 13/07/2023
+// Last revision: 14/07/2023
 
 #ifndef __GraphSceneWindow_h
 #define __GraphSceneWindow_h
@@ -88,6 +88,11 @@ protected:
     registerInspectFunction(inspectCamera);
     registerInspectFunction(inspectLight);
     registerInspectFunction(inspectPrimitive);
+  }
+
+  void setEditFlags(bool value)
+  {
+    _editFlags.hierarchy = _editFlags.sceneObjects = value;
   }
 
   auto editHierarchy() const

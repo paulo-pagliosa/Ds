@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2021, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2021, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class for generic array.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/02/2022
+// Last revision: 14/07/2023
 
 #ifndef __Array_h
 #define __Array_h
@@ -153,7 +153,7 @@ public:
     // do nothing
   }
 
-  ArrayBase(base_type&& other):
+  ArrayBase(base_type&& other) noexcept:
     _data{other._data},
     _size{other._size}
   {
