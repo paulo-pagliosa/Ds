@@ -251,7 +251,10 @@
     <ClCompile Include="..\..\src\graph\SceneObjectBuilder.cpp" />
     <ClCompile Include="..\..\src\graph\SceneWindow.cpp" />
     <ClCompile Include="..\..\src\graph\Transform.cpp" />
-    <ClCompile Include="..\..\src\utils\MeshReader.cpp" />
+    <ClCompile Include="..\..\src\utils\MeshReader.cpp">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/D_CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/D_CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
