@@ -39,41 +39,29 @@
 #include <type_traits>
 #endif // _DEBUG
 
-namespace cg
-{ // begin namespace cg
+namespace cg { // begin namespace cg
 
 #ifdef _DEBUG
 template <typename T, typename Allocator>
-inline constexpr bool
-isStandardAllocator()
-{
+inline constexpr bool isStandardAllocator() {
   return std::is_assignable_v<StandardAllocator<T>, Allocator>;
 }
 #endif // _DEBUG
-
 
 /////////////////////////////////////////////////////////////////////
 //
 // AllocableObject: allocable object class
 // ===============
 template <typename T, typename Allocator = StandardAllocator<T>>
-class AllocableObject
-{
+class AllocableObject {
 public:
   using allocator = Allocator;
 
-  static T* allocate()
-  {
-    return allocator::allocate();
-  }
+  static T *allocate() { return allocator::allocate(); }
 
-  static void free(T* ptr)
-  {
-    allocator::free(ptr);
-  }
+  static void free(T *ptr) { allocator::free(ptr); }
 
-  void* operator new(size_t size)
-  {
+  void *operator new(std::size_t size) {
 #ifdef _DEBUG
     if (size != sizeof(T))
       throw std::logic_error("Object bad size");
@@ -82,10 +70,7 @@ public:
     return allocator::allocate();
   }
 
-  void operator delete(void* ptr)
-  {
-    allocator::free((T*)ptr);
-  }
+  void operator delete(void *ptr) { allocator::free((T *)ptr); }
 
 }; // AllocableObject
 

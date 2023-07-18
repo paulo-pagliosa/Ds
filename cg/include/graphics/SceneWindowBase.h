@@ -33,41 +33,31 @@
 #ifndef __SceneWindowBase_h
 #define __SceneWindowBase_h
 
+#include "graphics/GLTextureFramebuffer.h"
 #include "graphics/GLWindow.h"
-#include "graphics/GLTextureFrameBuffer.h"
 #include "graphics/SceneEditor.h"
 
-namespace cg
-{ // begin namespace
-
+namespace cg { // begin namespace
 
 /////////////////////////////////////////////////////////////////////
 //
 // SceneWindowBase: scene window base class
 // ===============
-class SceneWindowBase: public GLWindow
-{
+class SceneWindowBase : public GLWindow {
 public:
-  GLRenderer* renderer() const
-  {
-    return _editor;
-  }
+  GLRenderer *renderer() const { return _editor; }
 
 protected:
-  Color _selectedWireframeColor[2]
-  {
-    Color{255, 102, 0}, // parent
-    Color{98, 119, 155, 64} // children
+  Color _selectedWireframeColor[2]{
+      Color{255, 102, 0},     // parent
+      Color{98, 119, 155, 64} // children
   };
   bool _showEditorView{true};
   bool _showPreview{true};
 
   using GLWindow::GLWindow;
 
-  SceneEditor* editor() const
-  {
-    return _editor;
-  }
+  SceneEditor *editor() const { return _editor; }
 
   void initialize() override;
   void render() override;
@@ -82,18 +72,17 @@ protected:
   virtual bool onKeyPress(int, int);
 
   void editorView();
-  void preview(Camera&);
-  bool showErrorMessage(const char*) const;
+  void preview(Camera &);
+  bool showErrorMessage(const char *) const;
 
   Ray3f makeRay(int, int) const;
 
-  static void inspectCamera(Camera&);
-  static void inspectLight(Light&);
-  static void inspectMaterial(Material&);
+  static void inspectCamera(Camera &);
+  static void inspectLight(Light &);
+  static void inspectMaterial(Material &);
 
 private:
-  enum class MoveBits
-  {
+  enum class MoveBits {
     Left = 1,
     Right = 2,
     Forward = 4,
@@ -102,19 +91,14 @@ private:
     Down = 32
   };
 
-  enum class DragBits
-  {
-    Rotate = 1,
-    Pan = 2
-  };
+  enum class DragBits { Rotate = 1, Pan = 2 };
 
   Reference<SceneEditor> _editor;
   Reference<GLTextureFramebuffer> _fbo;
   Flags<MoveBits> _moveFlags{};
   Flags<DragBits> _dragFlags{};
 
-  struct
-  {
+  struct {
     int px, py;
     int cx, cy;
 
@@ -126,57 +110,46 @@ private:
   bool mouseMoveEvent(double, double) override;
   bool keyInputEvent(int, int, int) override;
 
-  virtual SceneBase* makeScene() = 0;
+  virtual SceneBase *makeScene() = 0;
 
 }; // SceneWindowBase
 
 } // end namespace cg
 
-namespace ImGui
-{ // begin namespace ImGui
+namespace ImGui { // begin namespace ImGui
 
 using namespace cg;
 
-void objectNameInput(NameableObject& object);
-void inputText(const char* label, const char* text);
+void objectNameInput(NameableObject &object);
+void inputText(const char *label, const char *text);
 
-inline bool
-dragVec2(const char* label, vec2f& v, float min = 0, float max = 0)
-{
+inline bool dragVec2(const char *label, vec2f &v, float min = 0,
+                     float max = 0) {
   return ImGui::DragFloat2(label, &v.x, 0.01f, min, max, "%.2g");
 }
 
-inline bool
-dragVec2(const char* label, vec2f& v, vec2f r)
-{
+inline bool dragVec2(const char *label, vec2f &v, vec2f r) {
   return ImGui::SliderFloat2(label, &v.x, r.x, r.y, "%.2g");
 }
 
-inline bool
-dragVec3(const char* label, vec3f& v, float min = 0, float max = 0)
-{
+inline bool dragVec3(const char *label, vec3f &v, float min = 0,
+                     float max = 0) {
   // TODO: replace 0.1f
   return ImGui::DragFloat3(label, &v.x, 0.1f, min, max, "%.2g");
 }
 
-inline bool
-dragVec3(const char* label, vec3f& v, vec2f r)
-{
+inline bool dragVec3(const char *label, vec3f &v, vec2f r) {
   return ImGui::SliderFloat3(label, &v.x, r.x, r.y, "%.2g");
 }
 
-inline bool
-colorEdit3(const char* label, Color& color)
-{
+inline bool colorEdit3(const char *label, Color &color) {
   return ImGui::ColorEdit3(label, &color.r);
 }
 
-bool showStyleSelector(const char* label);
-void tooltip(const char* msg);
+bool showStyleSelector(const char *label);
+void tooltip(const char *msg);
 
-inline void
-sectionLabel(const char* label)
-{
+inline void sectionLabel(const char *label) {
   TextColored({1, 153.0f / 255, 51.0f / 255, 1}, label);
 }
 

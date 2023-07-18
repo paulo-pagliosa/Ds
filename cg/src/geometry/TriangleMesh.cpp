@@ -31,11 +31,10 @@
 // Last revision: 16/08/2022
 
 #include "geometry/MeshSweeper.h"
+#include <cstring>
 #include <memory>
 
-namespace cg
-{ // begin namespace cg
-
+namespace cg { // begin namespace cg
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -43,33 +42,25 @@ namespace cg
 // ============
 static uint32_t nextMeshId;
 
-TriangleMesh::TriangleMesh(Data&& data):
-  id{++nextMeshId},
-  _data{data}
-{
+TriangleMesh::TriangleMesh(Data &&data) : id{++nextMeshId}, _data{data} {
   memset(&data, 0, sizeof(Data));
 }
 
-TriangleMesh::~TriangleMesh()
-{
-  delete []_data.vertices;
-  delete []_data.vertexNormals;
-  delete []_data.uv;
-  delete []_data.triangles;
+TriangleMesh::~TriangleMesh() {
+  delete[] _data.vertices;
+  delete[] _data.vertexNormals;
+  delete[] _data.uv;
+  delete[] _data.triangles;
 }
 
-const Bounds3f&
-TriangleMesh::bounds() const
-{
+const Bounds3f &TriangleMesh::bounds() const {
   if (_bounds.empty())
     for (int i = 0; i < _data.vertexCount; i++)
       _bounds.inflate(_data.vertices[i]);
   return _bounds;
 }
 
-void
-TriangleMesh::computeNormals()
-{
+void TriangleMesh::computeNormals() {
   auto nv = _data.vertexCount;
 
   if (_data.vertexNormals == nullptr)
@@ -78,8 +69,7 @@ TriangleMesh::computeNormals()
   auto t = _data.triangles;
 
   memset(_data.vertexNormals, 0, nv * sizeof(vec3f));
-  for (int i = 0; i < _data.triangleCount; ++i, ++t)
-  {
+  for (int i = 0; i < _data.triangleCount; ++i, ++t) {
     auto v0 = t->v[0];
     auto v1 = t->v[1];
     auto v2 = t->v[2];
@@ -93,9 +83,7 @@ TriangleMesh::computeNormals()
     _data.vertexNormals[i].normalize();
 }
 
-void
-TriangleMesh::TRS(const mat4f& trs)
-{
+void TriangleMesh::TRS(const mat4f &trs) {
   auto nv = _data.vertexCount;
 
   for (int i = 0; i < nv; ++i)
@@ -110,9 +98,7 @@ TriangleMesh::TRS(const mat4f& trs)
     _data.vertexNormals[i] = (r * _data.vertexNormals[i]).versor();
 }
 
-void
-TriangleMesh::normalize()
-{
+void TriangleMesh::normalize() {
   auto b = bounds();
   auto c = b.center();
   auto s = b.size();
@@ -125,34 +111,25 @@ TriangleMesh::normalize()
   _bounds.set(-s, s);
 }
 
-static inline void
-printv(const vec3f& p, FILE* f)
-{
+static inline void printv(const vec3f &p, FILE *f) {
   fprintf(f, "%g,%g,%g", p.x, p.y, p.z);
 }
 
-static inline void
-printv(const vec2f& p, FILE* f)
-{
+static inline void printv(const vec2f &p, FILE *f) {
   fprintf(f, "%g,%g", p.x, p.y);
 }
 
-void
-TriangleMesh::print(const char* s, FILE* f) const
-{
+void TriangleMesh::print(const char *s, FILE *f) const {
   fprintf(f, "%s mesh\n{\n", s);
-  fprintf(f, "  vertices %d\n  {\n",  _data.vertexCount);
-  for (int i = 0; i < _data.vertexCount; ++i)
-  {
+  fprintf(f, "  vertices %d\n  {\n", _data.vertexCount);
+  for (int i = 0; i < _data.vertexCount; ++i) {
     fprintf(f, "    %d ", i);
     printv(_data.vertices[i], f);
-    if (_data.vertexNormals != nullptr)
-    {
+    if (_data.vertexNormals != nullptr) {
       fputc('/', f);
       printv(_data.vertexNormals[i], f);
     }
-    if (_data.uv != nullptr)
-    {
+    if (_data.uv != nullptr) {
       fputc('/', f);
       printv(_data.uv[i], f);
     }
