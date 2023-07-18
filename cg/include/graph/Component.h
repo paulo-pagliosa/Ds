@@ -28,7 +28,7 @@
 // Class definition for scene object component.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/06/2023
+// Last revision: 18/07/2023
 
 #ifndef __SceneObjectComponent_h
 #define __SceneObjectComponent_h
@@ -71,10 +71,16 @@ public:
     return _flags.erasable;
   }
 
+  /// Returns true if this component is transformable.
+  auto transformable() const
+  {
+    return _flags.transformable;
+  }
+
 protected:
   Component(const char* const typeName, bool erasable = true):
     _typeName{typeName},
-    _flags{erasable}
+    _flags{erasable, true}
   {
     // do nothing
   }
@@ -88,12 +94,18 @@ protected:
   virtual bool tryConnectingTo(Component* other);
   virtual bool tryDisconnectingFrom(Component* other);
 
+  void setTransformable(bool value)
+  {
+    _flags.transformable = value;
+  }
+
 private:
   const std::string _typeName;
   SceneObject* _sceneObject{};
   struct
   {
     bool erasable : 1;
+    bool transformable : 1;
 
   } _flags;
 

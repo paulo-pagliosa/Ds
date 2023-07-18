@@ -28,7 +28,7 @@
 // Source file for scene object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 03/07/2023
+// Last revision: 18/07/2023
 
 #include "graph/Scene.h"
 
@@ -155,9 +155,13 @@ SceneObject::insertComponent(Component* component)
   component->afterAdded();
   makeComponentAttachments(component);
   // Set the transform changed flag to force component updating
-  _transform.setChanged(true);
-  component->transformChanged();
-  _transform.setChanged(false);
+  // in case the component is transformable
+  if (component->transformable())
+  {
+    _transform.setChanged(true);
+    component->transformChanged();
+    _transform.setChanged(false);
+  }
   return component;
 }
 
@@ -200,7 +204,8 @@ SceneObject::transformChanged()
 {
   // Iterate the object components skipping its transform
   for (auto end = _components.end(), cit = ++_components.begin(); cit != end;)
-    static_cast<Component*>(*cit++)->transformChanged();
+    if (auto c = *cit++; c->transformable())
+      c->transformChanged();
   _transform.setChanged(false);
   for (auto& child : children())
     child._transform.update();
