@@ -28,7 +28,7 @@
 // Class definition for light proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/06/2023
+// Last revision: 19/07/2023
 
 #ifndef __LightProxy_h
 #define __LightProxy_h
@@ -84,9 +84,9 @@ private:
 }; // LightProxy
 
 inline auto
-asLight(Component* component)
+asLight(const Component* component)
 {
-  return dynamic_cast<LightProxy*>(component);
+  return dynamic_cast<const LightProxy*>(component);
 }
 
 } // end namepace cg::graph

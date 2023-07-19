@@ -28,7 +28,7 @@
 // Class definition for primitive proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/06/2023
+// Last revision: 19/07/2023
 
 #ifndef __PrimitiveProxy_h
 #define __PrimitiveProxy_h
@@ -80,9 +80,9 @@ protected:
 }; // PrimitiveProxy
 
 inline auto
-asPrimitive(Component* component)
+asPrimitive(const Component* component)
 {
-  return dynamic_cast<PrimitiveProxy*>(component);
+  return dynamic_cast<const PrimitiveProxy*>(component);
 }
 
 

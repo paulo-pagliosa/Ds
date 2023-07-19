@@ -28,7 +28,7 @@
 // Source file for scene writer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/07/2023
+// Last revision: 19/07/2023
 
 #include "graph/CameraProxy.h"
 #include "graph/LightProxy.h"
@@ -155,7 +155,7 @@ SceneWriter::writeTransform(const Transform& t)
 }
 
 inline void
-SceneWriter::writeComponent(Component* c)
+SceneWriter::writeComponent(const Component* c)
 {
   if (auto t = asTransform(c))
     writeTransform(*t);
@@ -169,7 +169,7 @@ SceneWriter::writeSceneObject(const SceneObject* object)
   beginBlock("object", object->name());
   for (auto& child : object->children())
     writeSceneObject(&child);
-  for (auto& component : object->components())
+  for (auto component : object->components())
     writeComponent(component);
   endBlock();
 }

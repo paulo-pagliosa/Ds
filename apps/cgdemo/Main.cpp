@@ -28,7 +28,7 @@
 // Main function for cg demo.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/07/2023
+// Last revision: 19/07/2023
 
 #include "graphics/Application.h"
 #include "MainWindow.h"
@@ -36,6 +36,6 @@
 int
 main(int argc, char** argv)
 {
-  puts("Ds Demo Version 1.2 by Paulo Pagliosa (ppagliosa@gmail.com)\n");
+  puts("Ds Demo Version 1.3 by Paulo Pagliosa (ppagliosa@gmail.com)\n");
   return cg::Application{new MainWindow{1280, 720}}.run(argc, argv);
 }

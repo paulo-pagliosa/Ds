@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for OpenGL renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/03/2022
+// Last revision: 19/07/2023
 
 #include "graphics/GLRenderer.h"
 
@@ -462,7 +462,7 @@ GLRenderer::renderLights()
   const auto& vm = _camera->worldToCameraMatrix();
   int nl{0};
 
-  for (auto& light : _scene->lights())
+  for (auto light : _scene->lights())
   {
     if (!light->isTurnedOn())
       continue;
@@ -488,7 +488,7 @@ GLRenderer::renderLights()
 void
 GLRenderer::renderActors()
 {
-  for (auto& actor : _scene->actors())
+  for (auto actor : _scene->actors())
   {
     if (!actor->isVisible())
       continue;

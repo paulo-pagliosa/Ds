@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for simple ray tracer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 27/10/2022
+// Last revision: 19/07/2023
 
 #include "graphics/Camera.h"
 #include "utils/Stopwatch.h"
@@ -73,7 +73,7 @@ RayTracer::update()
   auto np = uint32_t(0);
 
   primitives.reserve(_scene->actorCount());
-  for (auto& actor : _scene->actors())
+  for (auto actor : _scene->actors())
     if (actor->visible)
     {
       auto p = actor->mapper()->primitive();
@@ -290,7 +290,7 @@ RayTracer::shade(const Ray3f& ray,
   auto P = ray(hit.distance);
 
   // Compute direct lighting
-  for (auto& light : _scene->lights())
+  for (auto light : _scene->lights())
   {
     // If the light is turned off, then continue
     if (!light->isTurnedOn())

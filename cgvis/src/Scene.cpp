@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for vis scene.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/03/2022
+// Last revision: 19/07/2023
 
 #include "Mapper.h"
 #include "Scene.h"
@@ -79,7 +79,7 @@ Scene::computeBounds() const
 {
   Bounds3f bounds;
 
-  for (auto& actor : actors())
+  for (auto actor : actors())
     if (auto mapper = asAbstractMapper(actor->mapper()))
       bounds.inflate(mapper->bounds());
   return bounds;

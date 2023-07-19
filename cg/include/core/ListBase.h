@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2020 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for generic list base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/09/2020
+// Last revision: 19/07/2023
 
 #ifndef __ListBase_h
 #define __ListBase_h
@@ -75,7 +75,7 @@ public:
   {
 #ifdef _DEBUG
     if (_list == nullptr || _node == nullptr || _node == _list->head())
-      throw std::logic_error("List iterator not dereferencable");
+      throw std::logic_error{"List iterator not dereferencable"};
 #endif // _DEBUG
     return **_node;
   }
@@ -84,7 +84,7 @@ public:
   {
 #ifdef _DEBUG
     if (_list == nullptr || _node == nullptr || _node == _list->head())
-      throw std::logic_error("List iterator not incrementable");
+      throw std::logic_error{"List iterator not incrementable"};
 #endif // _DEBUG
     _node = List::nextNode(_node);
     return *this;
@@ -102,7 +102,7 @@ public:
   {
 #ifdef _DEBUG
     if (_list == nullptr || _node == nullptr || _node == _list->head())
-      throw std::logic_error("List iterator not decrementable");
+      throw std::logic_error{"List iterator not decrementable"};
 #endif // _DEBUG
     _node = List::prevNode(_node);
     return *this;
@@ -125,7 +125,7 @@ public:
   {
 #ifdef _DEBUG
     if (_list != other._list)
-      throw std::logic_error("List iterators incompatible");
+      throw std::logic_error{"List iterators incompatible"};
 #endif // _DEBUG
     return _node == other._node;
   }
@@ -261,12 +261,12 @@ public:
 
   const_iterator begin() const
   {
-    return const_iterator(_head->_next, this);
+    return const_iterator{_head->_next, this};
   }
 
   iterator begin()
   {
-    return iterator(_head->_next, this);
+    return iterator{_head->_next, this};
   }
 
   const_iterator cbegin() const
@@ -276,12 +276,12 @@ public:
 
   const_iterator end() const
   {
-    return const_iterator(head(), this);
+    return const_iterator{head(), this};
   }
 
   iterator end()
   {
-    return iterator(head(), this);
+    return iterator{head(), this};
   }
 
   const_iterator cend() const

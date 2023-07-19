@@ -28,7 +28,7 @@
 // Source file for generic graph scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 13/07/2023
+// Last revision: 19/07/2023
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
@@ -84,7 +84,7 @@ SceneWindow::drawComponents(const SceneObject& object)
   // Iterate the object components skipping its transform
   for (auto end = components.end(), cit = ++components.begin(); cit != end;)
   {
-    Component* c{*cit++};
+    const Component* c{*cit++};
     auto isCurrent = c->sceneObject() == _currentNode;
 
     if (auto proxy = graph::asPrimitive(c))
@@ -317,8 +317,8 @@ SceneWindow::inspectComponent(Component& component)
   else if (open)
   {
     ImGui::BeginDisabled(!editSceneObjects());
-    if (auto transform = graph::asTransform(&component))
-      inspectTransform(*transform);
+    if (auto t = graph::asTransform(&component))
+      inspectTransform(const_cast<Transform&>(*t));
     else if (auto function = inspectFunction(component))
       function(*this, component);
     ImGui::EndDisabled();
@@ -467,7 +467,7 @@ SceneWindow::inspectSceneObject(SceneObject& object)
   // is necessary to avoid an exception in case the component is removed
   // by the user during the object inspection)
   for (auto end = components.end(), cit = components.begin(); cit != end;)
-    inspectComponent(*((cit++)->get()));
+    inspectComponent(**cit++);
 }
 
 inline void
@@ -566,7 +566,7 @@ SceneWindow::pickObject(SceneObject* object, const Ray3f& ray, float& t) const
 
   SceneObject* nearest{};
 
-  for (auto& component : object->components())
+  for (auto component : object->components())
     if (auto proxy = dynamic_cast<PrimitiveProxy*>(&*component))
     {
       auto p = proxy->mapper()->primitive();

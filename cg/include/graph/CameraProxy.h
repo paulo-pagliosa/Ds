@@ -28,7 +28,7 @@
 // Class definition for camera proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/06/2023
+// Last revision: 19/07/2023
 
 #ifndef __CameraProxy_h
 #define __CameraProxy_h
@@ -94,9 +94,9 @@ private:
 }; // CameraProxy
 
 inline auto
-asCamera(Component* component)
+asCamera(const Component* component)
 {
-  return dynamic_cast<CameraProxy*>(component);
+  return dynamic_cast<const CameraProxy*>(component);
 }
 
 } // end namespace cg::graph

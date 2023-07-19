@@ -28,7 +28,7 @@
 // Class definition for scene object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/06/2023
+// Last revision: 19/07/2023
 
 #ifndef __SceneObject_h
 #define __SceneObject_h
@@ -139,7 +139,7 @@ public:
     return _components;
   }
 
-  Component* findComponent(const char* typeName) const;
+  Component* findComponent(const char* typeName);
 
   /// Returns true if this scene object is movable.
   auto movable() const
@@ -203,10 +203,10 @@ private:
 
   void changeParent(SceneObject*);
   Component* insertComponent(Component*);
+  void makeComponentAttachments(Component*);
   void releaseComponentAttachments(Component*);
 
   bool canAddComponent(Component*) const;
-  void makeComponentAttachments(Component*) const;
 
   friend class Scene;
   friend class SceneEditor;
