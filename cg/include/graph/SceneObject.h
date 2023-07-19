@@ -139,7 +139,7 @@ public:
     return _components;
   }
 
-  Component* findComponent(const char* typeName);
+  Component* findComponent(const char* typeName) const;
 
   /// Returns true if this scene object is movable.
   auto movable() const

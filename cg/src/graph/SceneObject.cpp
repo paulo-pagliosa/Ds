@@ -191,11 +191,11 @@ SceneObject::removeComponent(const char* typeName)
 }
 
 Component*
-SceneObject::findComponent(const char* typeName)
+SceneObject::findComponent(const char* typeName) const
 {
   for (auto component : _components)
     if (component->_typeName == typeName)
-      return component;
+      return const_cast<Component*>(component);
   return nullptr;
 }
 
