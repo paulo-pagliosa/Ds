@@ -28,7 +28,7 @@
 // Source file for scene object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/07/2023
+// Last revision: 20/07/2023
 
 #include "graph/Scene.h"
 
@@ -121,7 +121,7 @@ SceneObject::canAddComponent(Component* component) const
 {
   // Iterate the object components skipping its transform
   for (auto end = _components.cend(), cit = ++_components.cbegin(); cit != end;)
-    if ((*cit++)->canAdd(component))
+    if (!(*cit++)->canAdd(component))
       return false;
   return true;
 }

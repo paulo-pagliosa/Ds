@@ -1,4 +1,4 @@
-// dear imgui, v1.89.6 WIP
+// dear imgui, v1.89.8 WIP
 // (widgets code)
 
 /*
@@ -41,11 +41,7 @@ Index of this file:
 #include "imgui_internal.h"
 
 // System includes
-#if defined(_MSC_VER) && _MSC_VER <= 1500 // MSVC 2008 or earlier
-#include <stddef.h>     // intptr_t
-#else
 #include <stdint.h>     // intptr_t
-#endif
 
 //-------------------------------------------------------------------------
 // Warnings
@@ -492,6 +488,14 @@ bool ImGui::ButtonBehavior(const ImRect& bb, ImGuiID id, bool* out_hovered, bool
   if ((flags & ImGuiButtonFlags_PressedOnMask_) == 0)
     flags |= ImGuiButtonFlags_PressedOnDefault_;
 
+  // Default behavior inherited from item flags
+  // Note that _both_ ButtonFlags and ItemFlags are valid sources, so copy one into the item_flags and only check that.
+  ImGuiItemFlags item_flags = (g.LastItemData.ID == id ? g.LastItemData.InFlags : g.CurrentItemFlags);
+  if (flags & ImGuiButtonFlags_AllowOverlap)
+    item_flags |= ImGuiItemflags_AllowOverlap;
+  if (flags & ImGuiButtonFlags_Repeat)
+    item_flags |= ImGuiItemFlags_ButtonRepeat;
+
   ImGuiWindow* backup_hovered_window = g.HoveredWindow;
   const bool flatten_hovered_children = (flags & ImGuiButtonFlags_FlattenChildren) && g.HoveredWindow && g.HoveredWindow->RootWindow == window;
   if (flatten_hovered_children)
@@ -504,11 +508,7 @@ bool ImGui::ButtonBehavior(const ImRect& bb, ImGuiID id, bool* out_hovered, bool
 #endif
 
   bool pressed = false;
-  bool hovered = ItemHoverable(bb, id);
-
-  // Drag source doesn't report as hovered
-  if (hovered && g.DragDropActive && g.DragDropPayload.SourceId == id && !(g.DragDropSourceFlags & ImGuiDragDropFlags_SourceNoDisableHover))
-    hovered = false;
+  bool hovered = ItemHoverable(bb, id, item_flags);
 
   // Special mode for Drag and Drop where holding button pressed for a long time while dragging another item triggers the button
   if (g.DragDropActive && (flags & ImGuiButtonFlags_PressedOnDragDropHold) && !(g.DragDropSourceFlags & ImGuiDragDropFlags_SourceNoHoldToOpenOthers))
@@ -526,10 +526,6 @@ bool ImGui::ButtonBehavior(const ImRect& bb, ImGuiID id, bool* out_hovered, bool
 
   if (flatten_hovered_children)
     g.HoveredWindow = backup_hovered_window;
-
-  // AllowOverlap mode (rarely used) requires previous frame HoveredId to be null or to match. This allows using patterns where a later submitted widget overlaps a previous one.
-  if (hovered && (flags & ImGuiButtonFlags_AllowItemOverlap) && (g.HoveredIdPreviousFrame != id && g.HoveredIdPreviousFrame != 0))
-    hovered = false;
 
   // Mouse handling
   const ImGuiID test_owner_id = (flags & ImGuiButtonFlags_NoTestKeyOwner) ? ImGuiKeyOwner_Any : id;
@@ -585,7 +581,7 @@ bool ImGui::ButtonBehavior(const ImRect& bb, ImGuiID id, bool* out_hovered, bool
       {
         if (mouse_button_released != -1)
         {
-          const bool has_repeated_at_least_once = (flags & ImGuiButtonFlags_Repeat) && g.IO.MouseDownDurationPrev[mouse_button_released] >= g.IO.KeyRepeatDelay; // Repeat mode trumps on release behavior
+          const bool has_repeated_at_least_once = (item_flags & ImGuiItemFlags_ButtonRepeat) && g.IO.MouseDownDurationPrev[mouse_button_released] >= g.IO.KeyRepeatDelay; // Repeat mode trumps on release behavior
           if (!has_repeated_at_least_once)
             pressed = true;
           if (!(flags & ImGuiButtonFlags_NoNavFocus))
@@ -596,7 +592,7 @@ bool ImGui::ButtonBehavior(const ImRect& bb, ImGuiID id, bool* out_hovered, bool
 
       // 'Repeat' mode acts when held regardless of _PressedOn flags (see table above).
       // Relies on repeat logic of IsMouseClicked() but we may as well do it ourselves if we end up exposing finer RepeatDelay/RepeatRate settings.
-      if (g.ActiveId == id && (flags & ImGuiButtonFlags_Repeat))
+      if (g.ActiveId == id && (item_flags & ImGuiItemFlags_ButtonRepeat))
         if (g.IO.MouseDownDuration[g.ActiveIdMouseButton] > 0.0f && IsMouseClicked(g.ActiveIdMouseButton, test_owner_id, ImGuiInputFlags_Repeat))
           pressed = true;
     }
@@ -614,7 +610,7 @@ bool ImGui::ButtonBehavior(const ImRect& bb, ImGuiID id, bool* out_hovered, bool
   {
     bool nav_activated_by_code = (g.NavActivateId == id);
     bool nav_activated_by_inputs = (g.NavActivatePressedId == id);
-    if (!nav_activated_by_inputs && (flags & ImGuiButtonFlags_Repeat))
+    if (!nav_activated_by_inputs && (item_flags & ImGuiItemFlags_ButtonRepeat))
     {
       // Avoid pressing multiple keys from triggering excessive amount of repeat events
       const ImGuiKeyData* key1 = GetKeyData(ImGuiKey_Space);
@@ -661,7 +657,7 @@ bool ImGui::ButtonBehavior(const ImRect& bb, ImGuiID id, bool* out_hovered, bool
         {
           // Report as pressed when releasing the mouse (this is the most common path)
           bool is_double_click_release = (flags & ImGuiButtonFlags_PressedOnDoubleClick) && g.IO.MouseReleased[mouse_button] && g.IO.MouseClickedLastCount[mouse_button] == 2;
-          bool is_repeating_already = (flags & ImGuiButtonFlags_Repeat) && g.IO.MouseDownDurationPrev[mouse_button] >= g.IO.KeyRepeatDelay; // Repeat mode trumps <on release>
+          bool is_repeating_already = (item_flags & ImGuiItemFlags_ButtonRepeat) && g.IO.MouseDownDurationPrev[mouse_button] >= g.IO.KeyRepeatDelay; // Repeat mode trumps <on release>
           bool is_button_avail_or_owned = TestKeyOwner(MouseButtonToKey(mouse_button), test_owner_id);
           if (!is_double_click_release && !is_repeating_already && is_button_avail_or_owned)
             pressed = true;
@@ -707,9 +703,6 @@ bool ImGui::ButtonEx(const char* label, const ImVec2& size_arg, ImGuiButtonFlags
   ItemSize(size, style.FramePadding.y);
   if (!ItemAdd(bb, id))
     return false;
-
-  if (g.LastItemData.InFlags & ImGuiItemFlags_ButtonRepeat)
-    flags |= ImGuiButtonFlags_Repeat;
 
   bool hovered, held;
   bool pressed = ButtonBehavior(bb, id, &hovered, &held, flags);
@@ -786,9 +779,6 @@ bool ImGui::ArrowButtonEx(const char* str_id, ImGuiDir dir, ImVec2 size, ImGuiBu
   ItemSize(size, (size.y >= default_size) ? g.Style.FramePadding.y : -1.0f);
   if (!ItemAdd(bb, id))
     return false;
-
-  if (g.LastItemData.InFlags & ImGuiItemFlags_ButtonRepeat)
-    flags |= ImGuiButtonFlags_Repeat;
 
   bool hovered, held;
   bool pressed = ButtonBehavior(bb, id, &hovered, &held, flags);
@@ -887,9 +877,9 @@ ImRect ImGui::GetWindowScrollbarRect(ImGuiWindow* window, ImGuiAxis axis)
   const float scrollbar_size = window->ScrollbarSizes[axis ^ 1]; // (ScrollbarSizes.x = width of Y scrollbar; ScrollbarSizes.y = height of X scrollbar)
   IM_ASSERT(scrollbar_size > 0.0f);
   if (axis == ImGuiAxis_X)
-    return ImRect(inner_rect.Min.x, ImMax(outer_rect.Min.y, outer_rect.Max.y - border_size - scrollbar_size), inner_rect.Max.x, outer_rect.Max.y);
+    return ImRect(inner_rect.Min.x, ImMax(outer_rect.Min.y, outer_rect.Max.y - border_size - scrollbar_size), inner_rect.Max.x - border_size, outer_rect.Max.y - border_size);
   else
-    return ImRect(ImMax(outer_rect.Min.x, outer_rect.Max.x - border_size - scrollbar_size), inner_rect.Min.y, outer_rect.Max.x, inner_rect.Max.y);
+    return ImRect(ImMax(outer_rect.Min.x, outer_rect.Max.x - border_size - scrollbar_size), inner_rect.Min.y, outer_rect.Max.x - border_size, inner_rect.Max.y - border_size);
 }
 
 void ImGui::Scrollbar(ImGuiAxis axis)
@@ -1174,10 +1164,8 @@ bool ImGui::CheckboxFlagsT(const char* label, T* flags, T flags_value)
   if (!all_on && any_on)
   {
     ImGuiContext& g = *GImGui;
-    ImGuiItemFlags backup_item_flags = g.CurrentItemFlags;
-    g.CurrentItemFlags |= ImGuiItemFlags_MixedValue;
+    g.NextItemData.ItemFlags |= ImGuiItemFlags_MixedValue;
     pressed = Checkbox(label, &all_on);
-    g.CurrentItemFlags = backup_item_flags;
   }
   else
   {
@@ -1398,8 +1386,9 @@ void ImGui::AlignTextToFramePadding()
 }
 
 // Horizontal/vertical separating line
-// FIXME: Surprisingly, this seemingly simple widget is adjacent to MANY different legacy/tricky layout issues.
-void ImGui::SeparatorEx(ImGuiSeparatorFlags flags)
+// FIXME: Surprisingly, this seemingly trivial widget is a victim of many different legacy/tricky layout issues.
+// Note how thickness == 1.0f is handled specifically as not moving CursorPos by 'thickness', but other values are.
+void ImGui::SeparatorEx(ImGuiSeparatorFlags flags, float thickness)
 {
   ImGuiWindow* window = GetCurrentWindow();
   if (window->SkipItems)
@@ -1407,8 +1396,8 @@ void ImGui::SeparatorEx(ImGuiSeparatorFlags flags)
 
   ImGuiContext& g = *GImGui;
   IM_ASSERT(ImIsPowerOfTwo(flags & (ImGuiSeparatorFlags_Horizontal | ImGuiSeparatorFlags_Vertical)));   // Check that only 1 option is selected
+  IM_ASSERT(thickness > 0.0f);
 
-  const float thickness = 1.0f; // Cannot use g.Style.SeparatorTextSize yet for various reasons.
   if (flags & ImGuiSeparatorFlags_Vertical)
   {
     // Vertical separator, for menu bars (use current line height).
@@ -1442,6 +1431,8 @@ void ImGui::SeparatorEx(ImGuiSeparatorFlags flags)
       x2 = table->Columns[table->CurrentColumn].MaxX;
     }
 
+    // Before Tables API happened, we relied on Separator() to span all columns of a Columns() set.
+    // We currently don't need to provide the same feature for tables because tables naturally have border features.
     ImGuiOldColumns* columns = (flags & ImGuiSeparatorFlags_SpanAllColumns) ? window->DC.CurrentColumns : NULL;
     if (columns)
       PushColumnsBackground();
@@ -1451,8 +1442,8 @@ void ImGui::SeparatorEx(ImGuiSeparatorFlags flags)
     const float thickness_for_layout = (thickness == 1.0f) ? 0.0f : thickness; // FIXME: See 1.70/1.71 Separator() change: makes legacy 1-px separator not affect layout yet. Should change.
     const ImRect bb(ImVec2(x1, window->DC.CursorPos.y), ImVec2(x2, window->DC.CursorPos.y + thickness));
     ItemSize(ImVec2(0.0f, thickness_for_layout));
-    const bool item_visible = ItemAdd(bb, 0);
-    if (item_visible)
+
+    if (ItemAdd(bb, 0))
     {
       // Draw
       window->DrawList->AddRectFilled(bb.Min, bb.Max, GetColorU32(ImGuiCol_Separator));
@@ -1475,10 +1466,11 @@ void ImGui::Separator()
   if (window->SkipItems)
     return;
 
-  // Those flags should eventually be overridable by the user
+  // Those flags should eventually be configurable by the user
+  // FIXME: We cannot g.Style.SeparatorTextBorderSize for thickness as it relates to SeparatorText() which is a decorated separator, not defaulting to 1.0f.
   ImGuiSeparatorFlags flags = (window->DC.LayoutType == ImGuiLayoutType_Horizontal) ? ImGuiSeparatorFlags_Vertical : ImGuiSeparatorFlags_Horizontal;
   flags |= ImGuiSeparatorFlags_SpanAllColumns; // NB: this only applies to legacy Columns() api as they relied on Separator() a lot.
-  SeparatorEx(flags);
+  SeparatorEx(flags, 1.0f);
 }
 
 void ImGui::SeparatorTextEx(ImGuiID id, const char* label, const char* label_end, float extra_w)
@@ -1538,8 +1530,8 @@ void ImGui::SeparatorText(const char* label)
     return;
 
   // The SeparatorText() vs SeparatorTextEx() distinction is designed to be considerate that we may want:
-  // - allow headers to be draggable items (would require a stable ID + a noticeable highlight)
-  // - this high-level entry point to allow formatting? (may require ID separate from formatted string)
+  // - allow separator-text to be draggable items (would require a stable ID + a noticeable highlight)
+  // - this high-level entry point to allow formatting? (which in turns may require ID separate from formatted string)
   // - because of this we probably can't turn 'const char* label' into 'const char* fmt, ...'
   // Otherwise, we can decide that users wanting to drag this would layout a dedicated drag-item,
   // and then we can turn this into a format function.
@@ -1555,14 +1547,20 @@ bool ImGui::SplitterBehavior(const ImRect& bb, ImGuiID id, ImGuiAxis axis, float
   if (!ItemAdd(bb, id, NULL, ImGuiItemFlags_NoNav))
     return false;
 
+  // FIXME: AFAIK the only leftover reason for passing ImGuiButtonFlags_AllowOverlap here is
+  // to allow caller of SplitterBehavior() to call SetItemAllowOverlap() after the item.
+  // Nowadays we would instead want to use SetNextItemAllowOverlap() before the item.
+  ImGuiButtonFlags button_flags = ImGuiButtonFlags_FlattenChildren;
+#ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
+  button_flags |= ImGuiButtonFlags_AllowOverlap;
+#endif
+
   bool hovered, held;
   ImRect bb_interact = bb;
   bb_interact.Expand(axis == ImGuiAxis_Y ? ImVec2(0.0f, hover_extend) : ImVec2(hover_extend, 0.0f));
-  ButtonBehavior(bb_interact, id, &hovered, &held, ImGuiButtonFlags_FlattenChildren | ImGuiButtonFlags_AllowItemOverlap);
+  ButtonBehavior(bb_interact, id, &hovered, &held, button_flags);
   if (hovered)
     g.LastItemData.StatusFlags |= ImGuiItemStatusFlags_HoveredRect; // for IsItemHovered(), because bb_interact is larger than bb
-  if (g.ActiveId != id)
-    SetItemAllowOverlap();
 
   if (held || (hovered && g.HoveredIdPreviousFrame == id && g.HoveredIdTimer >= hover_visibility_delay))
     SetMouseCursor(axis == ImGuiAxis_Y ? ImGuiMouseCursor_ResizeNS : ImGuiMouseCursor_ResizeEW);
@@ -1831,7 +1829,7 @@ bool ImGui::BeginComboPreview()
   if (window->SkipItems || !(g.LastItemData.StatusFlags & ImGuiItemStatusFlags_Visible))
     return false;
   IM_ASSERT(g.LastItemData.Rect.Min.x == preview_data->PreviewRect.Min.x && g.LastItemData.Rect.Min.y == preview_data->PreviewRect.Min.y); // Didn't call after BeginCombo/EndCombo block or forgot to pass ImGuiComboFlags_CustomPreview flag?
-  if (!window->ClipRect.Contains(preview_data->PreviewRect)) // Narrower test (optional)
+  if (!window->ClipRect.Overlaps(preview_data->PreviewRect)) // Narrower test (optional)
     return false;
 
   // FIXME: This could be contained in a PushWorkRect() api
@@ -1930,7 +1928,7 @@ bool ImGui::Combo(const char* label, int* current_item, bool (*items_getter)(voi
     const char* item_text;
     if (!items_getter(data, i, &item_text))
       item_text = "*Unknown item*";
-    if (Selectable(item_text, item_selected))
+    if (Selectable(item_text, item_selected) && *current_item != i)
     {
       value_changed = true;
       *current_item = i;
@@ -2036,107 +2034,107 @@ void ImGui::DataTypeApplyOp(ImGuiDataType data_type, int op, void* output, const
   IM_ASSERT(op == '+' || op == '-');
   switch (data_type)
   {
-  case ImGuiDataType_S8:
-    if (op == '+')
-    {
-      *(ImS8*)output = ImAddClampOverflow(*(const ImS8*)arg1, *(const ImS8*)arg2, IM_S8_MIN, IM_S8_MAX);
-    }
-    if (op == '-')
-    {
-      *(ImS8*)output = ImSubClampOverflow(*(const ImS8*)arg1, *(const ImS8*)arg2, IM_S8_MIN, IM_S8_MAX);
-    }
-    return;
-  case ImGuiDataType_U8:
-    if (op == '+')
-    {
-      *(ImU8*)output = ImAddClampOverflow(*(const ImU8*)arg1, *(const ImU8*)arg2, IM_U8_MIN, IM_U8_MAX);
-    }
-    if (op == '-')
-    {
-      *(ImU8*)output = ImSubClampOverflow(*(const ImU8*)arg1, *(const ImU8*)arg2, IM_U8_MIN, IM_U8_MAX);
-    }
-    return;
-  case ImGuiDataType_S16:
-    if (op == '+')
-    {
-      *(ImS16*)output = ImAddClampOverflow(*(const ImS16*)arg1, *(const ImS16*)arg2, IM_S16_MIN, IM_S16_MAX);
-    }
-    if (op == '-')
-    {
-      *(ImS16*)output = ImSubClampOverflow(*(const ImS16*)arg1, *(const ImS16*)arg2, IM_S16_MIN, IM_S16_MAX);
-    }
-    return;
-  case ImGuiDataType_U16:
-    if (op == '+')
-    {
-      *(ImU16*)output = ImAddClampOverflow(*(const ImU16*)arg1, *(const ImU16*)arg2, IM_U16_MIN, IM_U16_MAX);
-    }
-    if (op == '-')
-    {
-      *(ImU16*)output = ImSubClampOverflow(*(const ImU16*)arg1, *(const ImU16*)arg2, IM_U16_MIN, IM_U16_MAX);
-    }
-    return;
-  case ImGuiDataType_S32:
-    if (op == '+')
-    {
-      *(ImS32*)output = ImAddClampOverflow(*(const ImS32*)arg1, *(const ImS32*)arg2, IM_S32_MIN, IM_S32_MAX);
-    }
-    if (op == '-')
-    {
-      *(ImS32*)output = ImSubClampOverflow(*(const ImS32*)arg1, *(const ImS32*)arg2, IM_S32_MIN, IM_S32_MAX);
-    }
-    return;
-  case ImGuiDataType_U32:
-    if (op == '+')
-    {
-      *(ImU32*)output = ImAddClampOverflow(*(const ImU32*)arg1, *(const ImU32*)arg2, IM_U32_MIN, IM_U32_MAX);
-    }
-    if (op == '-')
-    {
-      *(ImU32*)output = ImSubClampOverflow(*(const ImU32*)arg1, *(const ImU32*)arg2, IM_U32_MIN, IM_U32_MAX);
-    }
-    return;
-  case ImGuiDataType_S64:
-    if (op == '+')
-    {
-      *(ImS64*)output = ImAddClampOverflow(*(const ImS64*)arg1, *(const ImS64*)arg2, IM_S64_MIN, IM_S64_MAX);
-    }
-    if (op == '-')
-    {
-      *(ImS64*)output = ImSubClampOverflow(*(const ImS64*)arg1, *(const ImS64*)arg2, IM_S64_MIN, IM_S64_MAX);
-    }
-    return;
-  case ImGuiDataType_U64:
-    if (op == '+')
-    {
-      *(ImU64*)output = ImAddClampOverflow(*(const ImU64*)arg1, *(const ImU64*)arg2, IM_U64_MIN, IM_U64_MAX);
-    }
-    if (op == '-')
-    {
-      *(ImU64*)output = ImSubClampOverflow(*(const ImU64*)arg1, *(const ImU64*)arg2, IM_U64_MIN, IM_U64_MAX);
-    }
-    return;
-  case ImGuiDataType_Float:
-    if (op == '+')
-    {
-      *(float*)output = *(const float*)arg1 + *(const float*)arg2;
-    }
-    if (op == '-')
-    {
-      *(float*)output = *(const float*)arg1 - *(const float*)arg2;
-    }
-    return;
-  case ImGuiDataType_Double:
-    if (op == '+')
-    {
-      *(double*)output = *(const double*)arg1 + *(const double*)arg2;
-    }
-    if (op == '-')
-    {
-      *(double*)output = *(const double*)arg1 - *(const double*)arg2;
-    }
-    return;
-  case ImGuiDataType_COUNT: break;
+    case ImGuiDataType_S8:
+      if (op == '+')
+      {
+        *(ImS8*)output = ImAddClampOverflow(*(const ImS8*)arg1, *(const ImS8*)arg2, IM_S8_MIN, IM_S8_MAX);
+      }
+      if (op == '-')
+      {
+        *(ImS8*)output = ImSubClampOverflow(*(const ImS8*)arg1, *(const ImS8*)arg2, IM_S8_MIN, IM_S8_MAX);
+      }
+      return;
+    case ImGuiDataType_U8:
+      if (op == '+')
+      {
+        *(ImU8*)output = ImAddClampOverflow(*(const ImU8*)arg1, *(const ImU8*)arg2, IM_U8_MIN, IM_U8_MAX);
+      }
+      if (op == '-')
+      {
+        *(ImU8*)output = ImSubClampOverflow(*(const ImU8*)arg1, *(const ImU8*)arg2, IM_U8_MIN, IM_U8_MAX);
+      }
+      return;
+    case ImGuiDataType_S16:
+      if (op == '+')
+      {
+        *(ImS16*)output = ImAddClampOverflow(*(const ImS16*)arg1, *(const ImS16*)arg2, IM_S16_MIN, IM_S16_MAX);
+      }
+      if (op == '-')
+      {
+        *(ImS16*)output = ImSubClampOverflow(*(const ImS16*)arg1, *(const ImS16*)arg2, IM_S16_MIN, IM_S16_MAX);
+      }
+      return;
+    case ImGuiDataType_U16:
+      if (op == '+')
+      {
+        *(ImU16*)output = ImAddClampOverflow(*(const ImU16*)arg1, *(const ImU16*)arg2, IM_U16_MIN, IM_U16_MAX);
+      }
+      if (op == '-')
+      {
+        *(ImU16*)output = ImSubClampOverflow(*(const ImU16*)arg1, *(const ImU16*)arg2, IM_U16_MIN, IM_U16_MAX);
+      }
+      return;
+    case ImGuiDataType_S32:
+      if (op == '+')
+      {
+        *(ImS32*)output = ImAddClampOverflow(*(const ImS32*)arg1, *(const ImS32*)arg2, IM_S32_MIN, IM_S32_MAX);
+      }
+      if (op == '-')
+      {
+        *(ImS32*)output = ImSubClampOverflow(*(const ImS32*)arg1, *(const ImS32*)arg2, IM_S32_MIN, IM_S32_MAX);
+      }
+      return;
+    case ImGuiDataType_U32:
+      if (op == '+')
+      {
+        *(ImU32*)output = ImAddClampOverflow(*(const ImU32*)arg1, *(const ImU32*)arg2, IM_U32_MIN, IM_U32_MAX);
+      }
+      if (op == '-')
+      {
+        *(ImU32*)output = ImSubClampOverflow(*(const ImU32*)arg1, *(const ImU32*)arg2, IM_U32_MIN, IM_U32_MAX);
+      }
+      return;
+    case ImGuiDataType_S64:
+      if (op == '+')
+      {
+        *(ImS64*)output = ImAddClampOverflow(*(const ImS64*)arg1, *(const ImS64*)arg2, IM_S64_MIN, IM_S64_MAX);
+      }
+      if (op == '-')
+      {
+        *(ImS64*)output = ImSubClampOverflow(*(const ImS64*)arg1, *(const ImS64*)arg2, IM_S64_MIN, IM_S64_MAX);
+      }
+      return;
+    case ImGuiDataType_U64:
+      if (op == '+')
+      {
+        *(ImU64*)output = ImAddClampOverflow(*(const ImU64*)arg1, *(const ImU64*)arg2, IM_U64_MIN, IM_U64_MAX);
+      }
+      if (op == '-')
+      {
+        *(ImU64*)output = ImSubClampOverflow(*(const ImU64*)arg1, *(const ImU64*)arg2, IM_U64_MIN, IM_U64_MAX);
+      }
+      return;
+    case ImGuiDataType_Float:
+      if (op == '+')
+      {
+        *(float*)output = *(const float*)arg1 + *(const float*)arg2;
+      }
+      if (op == '-')
+      {
+        *(float*)output = *(const float*)arg1 - *(const float*)arg2;
+      }
+      return;
+    case ImGuiDataType_Double:
+      if (op == '+')
+      {
+        *(double*)output = *(const double*)arg1 + *(const double*)arg2;
+      }
+      if (op == '-')
+      {
+        *(double*)output = *(const double*)arg1 - *(const double*)arg2;
+      }
+      return;
+    case ImGuiDataType_COUNT: break;
   }
   IM_ASSERT(0);
 }
@@ -2156,7 +2154,8 @@ bool ImGui::DataTypeApplyFromText(const char* buf, ImGuiDataType data_type, void
   memcpy(&data_backup, p_data, type_info->Size);
 
   // Sanitize format
-  // For float/double we have to ignore format with precision (e.g. "%.2f") because sscanf doesn't take them in, so force them into %f and %lf
+  // - For float/double we have to ignore format with precision (e.g. "%.2f") because sscanf doesn't take them in, so force them into %f and %lf
+  // - In theory could treat empty format as using default, but this would only cover rare/bizarre case of using InputScalar() + integer + format string without %.
   char format_sanitized[32];
   if (data_type == ImGuiDataType_Float || data_type == ImGuiDataType_Double)
     format = type_info->ScanFmt;
@@ -2196,17 +2195,17 @@ int ImGui::DataTypeCompare(ImGuiDataType data_type, const void* arg_1, const voi
 {
   switch (data_type)
   {
-  case ImGuiDataType_S8:     return DataTypeCompareT<ImS8  >((const ImS8*)arg_1, (const ImS8*)arg_2);
-  case ImGuiDataType_U8:     return DataTypeCompareT<ImU8  >((const ImU8*)arg_1, (const ImU8*)arg_2);
-  case ImGuiDataType_S16:    return DataTypeCompareT<ImS16 >((const ImS16*)arg_1, (const ImS16*)arg_2);
-  case ImGuiDataType_U16:    return DataTypeCompareT<ImU16 >((const ImU16*)arg_1, (const ImU16*)arg_2);
-  case ImGuiDataType_S32:    return DataTypeCompareT<ImS32 >((const ImS32*)arg_1, (const ImS32*)arg_2);
-  case ImGuiDataType_U32:    return DataTypeCompareT<ImU32 >((const ImU32*)arg_1, (const ImU32*)arg_2);
-  case ImGuiDataType_S64:    return DataTypeCompareT<ImS64 >((const ImS64*)arg_1, (const ImS64*)arg_2);
-  case ImGuiDataType_U64:    return DataTypeCompareT<ImU64 >((const ImU64*)arg_1, (const ImU64*)arg_2);
-  case ImGuiDataType_Float:  return DataTypeCompareT<float >((const float*)arg_1, (const float*)arg_2);
-  case ImGuiDataType_Double: return DataTypeCompareT<double>((const double*)arg_1, (const double*)arg_2);
-  case ImGuiDataType_COUNT:  break;
+    case ImGuiDataType_S8:     return DataTypeCompareT<ImS8  >((const ImS8*)arg_1, (const ImS8*)arg_2);
+    case ImGuiDataType_U8:     return DataTypeCompareT<ImU8  >((const ImU8*)arg_1, (const ImU8*)arg_2);
+    case ImGuiDataType_S16:    return DataTypeCompareT<ImS16 >((const ImS16*)arg_1, (const ImS16*)arg_2);
+    case ImGuiDataType_U16:    return DataTypeCompareT<ImU16 >((const ImU16*)arg_1, (const ImU16*)arg_2);
+    case ImGuiDataType_S32:    return DataTypeCompareT<ImS32 >((const ImS32*)arg_1, (const ImS32*)arg_2);
+    case ImGuiDataType_U32:    return DataTypeCompareT<ImU32 >((const ImU32*)arg_1, (const ImU32*)arg_2);
+    case ImGuiDataType_S64:    return DataTypeCompareT<ImS64 >((const ImS64*)arg_1, (const ImS64*)arg_2);
+    case ImGuiDataType_U64:    return DataTypeCompareT<ImU64 >((const ImU64*)arg_1, (const ImU64*)arg_2);
+    case ImGuiDataType_Float:  return DataTypeCompareT<float >((const float*)arg_1, (const float*)arg_2);
+    case ImGuiDataType_Double: return DataTypeCompareT<double>((const double*)arg_1, (const double*)arg_2);
+    case ImGuiDataType_COUNT:  break;
   }
   IM_ASSERT(0);
   return 0;
@@ -2231,17 +2230,17 @@ bool ImGui::DataTypeClamp(ImGuiDataType data_type, void* p_data, const void* p_m
 {
   switch (data_type)
   {
-  case ImGuiDataType_S8:     return DataTypeClampT<ImS8  >((ImS8*)p_data, (const ImS8*)p_min, (const ImS8*)p_max);
-  case ImGuiDataType_U8:     return DataTypeClampT<ImU8  >((ImU8*)p_data, (const ImU8*)p_min, (const ImU8*)p_max);
-  case ImGuiDataType_S16:    return DataTypeClampT<ImS16 >((ImS16*)p_data, (const ImS16*)p_min, (const ImS16*)p_max);
-  case ImGuiDataType_U16:    return DataTypeClampT<ImU16 >((ImU16*)p_data, (const ImU16*)p_min, (const ImU16*)p_max);
-  case ImGuiDataType_S32:    return DataTypeClampT<ImS32 >((ImS32*)p_data, (const ImS32*)p_min, (const ImS32*)p_max);
-  case ImGuiDataType_U32:    return DataTypeClampT<ImU32 >((ImU32*)p_data, (const ImU32*)p_min, (const ImU32*)p_max);
-  case ImGuiDataType_S64:    return DataTypeClampT<ImS64 >((ImS64*)p_data, (const ImS64*)p_min, (const ImS64*)p_max);
-  case ImGuiDataType_U64:    return DataTypeClampT<ImU64 >((ImU64*)p_data, (const ImU64*)p_min, (const ImU64*)p_max);
-  case ImGuiDataType_Float:  return DataTypeClampT<float >((float*)p_data, (const float*)p_min, (const float*)p_max);
-  case ImGuiDataType_Double: return DataTypeClampT<double>((double*)p_data, (const double*)p_min, (const double*)p_max);
-  case ImGuiDataType_COUNT:  break;
+    case ImGuiDataType_S8:     return DataTypeClampT<ImS8  >((ImS8*)p_data, (const ImS8*)p_min, (const ImS8*)p_max);
+    case ImGuiDataType_U8:     return DataTypeClampT<ImU8  >((ImU8*)p_data, (const ImU8*)p_min, (const ImU8*)p_max);
+    case ImGuiDataType_S16:    return DataTypeClampT<ImS16 >((ImS16*)p_data, (const ImS16*)p_min, (const ImS16*)p_max);
+    case ImGuiDataType_U16:    return DataTypeClampT<ImU16 >((ImU16*)p_data, (const ImU16*)p_min, (const ImU16*)p_max);
+    case ImGuiDataType_S32:    return DataTypeClampT<ImS32 >((ImS32*)p_data, (const ImS32*)p_min, (const ImS32*)p_max);
+    case ImGuiDataType_U32:    return DataTypeClampT<ImU32 >((ImU32*)p_data, (const ImU32*)p_min, (const ImU32*)p_max);
+    case ImGuiDataType_S64:    return DataTypeClampT<ImS64 >((ImS64*)p_data, (const ImS64*)p_min, (const ImS64*)p_max);
+    case ImGuiDataType_U64:    return DataTypeClampT<ImU64 >((ImU64*)p_data, (const ImU64*)p_min, (const ImU64*)p_max);
+    case ImGuiDataType_Float:  return DataTypeClampT<float >((float*)p_data, (const float*)p_min, (const float*)p_max);
+    case ImGuiDataType_Double: return DataTypeClampT<double>((double*)p_data, (const double*)p_min, (const double*)p_max);
+    case ImGuiDataType_COUNT:  break;
   }
   IM_ASSERT(0);
   return false;
@@ -2440,29 +2439,29 @@ bool ImGui::DragBehavior(ImGuiID id, ImGuiDataType data_type, void* p_v, float v
 
   switch (data_type)
   {
-  case ImGuiDataType_S8:
-    {
-      ImS32 v32 = (ImS32) * (ImS8*)p_v;  bool r = DragBehaviorT<ImS32, ImS32, float>(ImGuiDataType_S32, &v32, v_speed, p_min ? *(const ImS8*)p_min : IM_S8_MIN, p_max ? *(const ImS8*)p_max : IM_S8_MAX, format, flags); if (r) *(ImS8*)p_v = (ImS8)v32; return r;
-    }
-  case ImGuiDataType_U8:
-    {
-      ImU32 v32 = (ImU32) * (ImU8*)p_v;  bool r = DragBehaviorT<ImU32, ImS32, float>(ImGuiDataType_U32, &v32, v_speed, p_min ? *(const ImU8*)p_min : IM_U8_MIN, p_max ? *(const ImU8*)p_max : IM_U8_MAX, format, flags); if (r) *(ImU8*)p_v = (ImU8)v32; return r;
-    }
-  case ImGuiDataType_S16:
-    {
-      ImS32 v32 = (ImS32) * (ImS16*)p_v; bool r = DragBehaviorT<ImS32, ImS32, float>(ImGuiDataType_S32, &v32, v_speed, p_min ? *(const ImS16*)p_min : IM_S16_MIN, p_max ? *(const ImS16*)p_max : IM_S16_MAX, format, flags); if (r) *(ImS16*)p_v = (ImS16)v32; return r;
-    }
-  case ImGuiDataType_U16:
-    {
-      ImU32 v32 = (ImU32) * (ImU16*)p_v; bool r = DragBehaviorT<ImU32, ImS32, float>(ImGuiDataType_U32, &v32, v_speed, p_min ? *(const ImU16*)p_min : IM_U16_MIN, p_max ? *(const ImU16*)p_max : IM_U16_MAX, format, flags); if (r) *(ImU16*)p_v = (ImU16)v32; return r;
-    }
-  case ImGuiDataType_S32:    return DragBehaviorT<ImS32, ImS32, float >(data_type, (ImS32*)p_v, v_speed, p_min ? *(const ImS32*)p_min : IM_S32_MIN, p_max ? *(const ImS32*)p_max : IM_S32_MAX, format, flags);
-  case ImGuiDataType_U32:    return DragBehaviorT<ImU32, ImS32, float >(data_type, (ImU32*)p_v, v_speed, p_min ? *(const ImU32*)p_min : IM_U32_MIN, p_max ? *(const ImU32*)p_max : IM_U32_MAX, format, flags);
-  case ImGuiDataType_S64:    return DragBehaviorT<ImS64, ImS64, double>(data_type, (ImS64*)p_v, v_speed, p_min ? *(const ImS64*)p_min : IM_S64_MIN, p_max ? *(const ImS64*)p_max : IM_S64_MAX, format, flags);
-  case ImGuiDataType_U64:    return DragBehaviorT<ImU64, ImS64, double>(data_type, (ImU64*)p_v, v_speed, p_min ? *(const ImU64*)p_min : IM_U64_MIN, p_max ? *(const ImU64*)p_max : IM_U64_MAX, format, flags);
-  case ImGuiDataType_Float:  return DragBehaviorT<float, float, float >(data_type, (float*)p_v, v_speed, p_min ? *(const float*)p_min : -FLT_MAX, p_max ? *(const float*)p_max : FLT_MAX, format, flags);
-  case ImGuiDataType_Double: return DragBehaviorT<double, double, double>(data_type, (double*)p_v, v_speed, p_min ? *(const double*)p_min : -DBL_MAX, p_max ? *(const double*)p_max : DBL_MAX, format, flags);
-  case ImGuiDataType_COUNT:  break;
+    case ImGuiDataType_S8:
+      {
+        ImS32 v32 = (ImS32) * (ImS8*)p_v;  bool r = DragBehaviorT<ImS32, ImS32, float>(ImGuiDataType_S32, &v32, v_speed, p_min ? *(const ImS8*)p_min : IM_S8_MIN, p_max ? *(const ImS8*)p_max : IM_S8_MAX, format, flags); if (r) *(ImS8*)p_v = (ImS8)v32; return r;
+      }
+    case ImGuiDataType_U8:
+      {
+        ImU32 v32 = (ImU32) * (ImU8*)p_v;  bool r = DragBehaviorT<ImU32, ImS32, float>(ImGuiDataType_U32, &v32, v_speed, p_min ? *(const ImU8*)p_min : IM_U8_MIN, p_max ? *(const ImU8*)p_max : IM_U8_MAX, format, flags); if (r) *(ImU8*)p_v = (ImU8)v32; return r;
+      }
+    case ImGuiDataType_S16:
+      {
+        ImS32 v32 = (ImS32) * (ImS16*)p_v; bool r = DragBehaviorT<ImS32, ImS32, float>(ImGuiDataType_S32, &v32, v_speed, p_min ? *(const ImS16*)p_min : IM_S16_MIN, p_max ? *(const ImS16*)p_max : IM_S16_MAX, format, flags); if (r) *(ImS16*)p_v = (ImS16)v32; return r;
+      }
+    case ImGuiDataType_U16:
+      {
+        ImU32 v32 = (ImU32) * (ImU16*)p_v; bool r = DragBehaviorT<ImU32, ImS32, float>(ImGuiDataType_U32, &v32, v_speed, p_min ? *(const ImU16*)p_min : IM_U16_MIN, p_max ? *(const ImU16*)p_max : IM_U16_MAX, format, flags); if (r) *(ImU16*)p_v = (ImU16)v32; return r;
+      }
+    case ImGuiDataType_S32:    return DragBehaviorT<ImS32, ImS32, float >(data_type, (ImS32*)p_v, v_speed, p_min ? *(const ImS32*)p_min : IM_S32_MIN, p_max ? *(const ImS32*)p_max : IM_S32_MAX, format, flags);
+    case ImGuiDataType_U32:    return DragBehaviorT<ImU32, ImS32, float >(data_type, (ImU32*)p_v, v_speed, p_min ? *(const ImU32*)p_min : IM_U32_MIN, p_max ? *(const ImU32*)p_max : IM_U32_MAX, format, flags);
+    case ImGuiDataType_S64:    return DragBehaviorT<ImS64, ImS64, double>(data_type, (ImS64*)p_v, v_speed, p_min ? *(const ImS64*)p_min : IM_S64_MIN, p_max ? *(const ImS64*)p_max : IM_S64_MAX, format, flags);
+    case ImGuiDataType_U64:    return DragBehaviorT<ImU64, ImS64, double>(data_type, (ImU64*)p_v, v_speed, p_min ? *(const ImU64*)p_min : IM_U64_MIN, p_max ? *(const ImU64*)p_max : IM_U64_MAX, format, flags);
+    case ImGuiDataType_Float:  return DragBehaviorT<float, float, float >(data_type, (float*)p_v, v_speed, p_min ? *(const float*)p_min : -FLT_MAX, p_max ? *(const float*)p_max : FLT_MAX, format, flags);
+    case ImGuiDataType_Double: return DragBehaviorT<double, double, double>(data_type, (double*)p_v, v_speed, p_min ? *(const double*)p_min : -DBL_MAX, p_max ? *(const double*)p_max : DBL_MAX, format, flags);
+    case ImGuiDataType_COUNT:  break;
   }
   IM_ASSERT(0);
   return false;
@@ -2494,7 +2493,7 @@ bool ImGui::DragScalar(const char* label, ImGuiDataType data_type, void* p_data,
   if (format == NULL)
     format = DataTypeGetInfo(data_type)->PrintFmt;
 
-  const bool hovered = ItemHoverable(frame_bb, id);
+  const bool hovered = ItemHoverable(frame_bb, id, g.LastItemData.InFlags);
   bool temp_input_is_active = temp_input_allowed && TempInputIsActive(id);
   if (!temp_input_is_active)
   {
@@ -3033,41 +3032,41 @@ bool ImGui::SliderBehavior(const ImRect& bb, ImGuiID id, ImGuiDataType data_type
 
   switch (data_type)
   {
-  case ImGuiDataType_S8:
-    {
-      ImS32 v32 = (ImS32) * (ImS8*)p_v;  bool r = SliderBehaviorT<ImS32, ImS32, float>(bb, id, ImGuiDataType_S32, &v32, *(const ImS8*)p_min, *(const ImS8*)p_max, format, flags, out_grab_bb); if (r) *(ImS8*)p_v = (ImS8)v32;  return r;
-    }
-  case ImGuiDataType_U8:
-    {
-      ImU32 v32 = (ImU32) * (ImU8*)p_v;  bool r = SliderBehaviorT<ImU32, ImS32, float>(bb, id, ImGuiDataType_U32, &v32, *(const ImU8*)p_min, *(const ImU8*)p_max, format, flags, out_grab_bb); if (r) *(ImU8*)p_v = (ImU8)v32;  return r;
-    }
-  case ImGuiDataType_S16:
-    {
-      ImS32 v32 = (ImS32) * (ImS16*)p_v; bool r = SliderBehaviorT<ImS32, ImS32, float>(bb, id, ImGuiDataType_S32, &v32, *(const ImS16*)p_min, *(const ImS16*)p_max, format, flags, out_grab_bb); if (r) *(ImS16*)p_v = (ImS16)v32; return r;
-    }
-  case ImGuiDataType_U16:
-    {
-      ImU32 v32 = (ImU32) * (ImU16*)p_v; bool r = SliderBehaviorT<ImU32, ImS32, float>(bb, id, ImGuiDataType_U32, &v32, *(const ImU16*)p_min, *(const ImU16*)p_max, format, flags, out_grab_bb); if (r) *(ImU16*)p_v = (ImU16)v32; return r;
-    }
-  case ImGuiDataType_S32:
-    IM_ASSERT(*(const ImS32*)p_min >= IM_S32_MIN / 2 && *(const ImS32*)p_max <= IM_S32_MAX / 2);
-    return SliderBehaviorT<ImS32, ImS32, float >(bb, id, data_type, (ImS32*)p_v, *(const ImS32*)p_min, *(const ImS32*)p_max, format, flags, out_grab_bb);
-  case ImGuiDataType_U32:
-    IM_ASSERT(*(const ImU32*)p_max <= IM_U32_MAX / 2);
-    return SliderBehaviorT<ImU32, ImS32, float >(bb, id, data_type, (ImU32*)p_v, *(const ImU32*)p_min, *(const ImU32*)p_max, format, flags, out_grab_bb);
-  case ImGuiDataType_S64:
-    IM_ASSERT(*(const ImS64*)p_min >= IM_S64_MIN / 2 && *(const ImS64*)p_max <= IM_S64_MAX / 2);
-    return SliderBehaviorT<ImS64, ImS64, double>(bb, id, data_type, (ImS64*)p_v, *(const ImS64*)p_min, *(const ImS64*)p_max, format, flags, out_grab_bb);
-  case ImGuiDataType_U64:
-    IM_ASSERT(*(const ImU64*)p_max <= IM_U64_MAX / 2);
-    return SliderBehaviorT<ImU64, ImS64, double>(bb, id, data_type, (ImU64*)p_v, *(const ImU64*)p_min, *(const ImU64*)p_max, format, flags, out_grab_bb);
-  case ImGuiDataType_Float:
-    IM_ASSERT(*(const float*)p_min >= -FLT_MAX / 2.0f && *(const float*)p_max <= FLT_MAX / 2.0f);
-    return SliderBehaviorT<float, float, float >(bb, id, data_type, (float*)p_v, *(const float*)p_min, *(const float*)p_max, format, flags, out_grab_bb);
-  case ImGuiDataType_Double:
-    IM_ASSERT(*(const double*)p_min >= -DBL_MAX / 2.0f && *(const double*)p_max <= DBL_MAX / 2.0f);
-    return SliderBehaviorT<double, double, double>(bb, id, data_type, (double*)p_v, *(const double*)p_min, *(const double*)p_max, format, flags, out_grab_bb);
-  case ImGuiDataType_COUNT: break;
+    case ImGuiDataType_S8:
+      {
+        ImS32 v32 = (ImS32) * (ImS8*)p_v;  bool r = SliderBehaviorT<ImS32, ImS32, float>(bb, id, ImGuiDataType_S32, &v32, *(const ImS8*)p_min, *(const ImS8*)p_max, format, flags, out_grab_bb); if (r) *(ImS8*)p_v = (ImS8)v32;  return r;
+      }
+    case ImGuiDataType_U8:
+      {
+        ImU32 v32 = (ImU32) * (ImU8*)p_v;  bool r = SliderBehaviorT<ImU32, ImS32, float>(bb, id, ImGuiDataType_U32, &v32, *(const ImU8*)p_min, *(const ImU8*)p_max, format, flags, out_grab_bb); if (r) *(ImU8*)p_v = (ImU8)v32;  return r;
+      }
+    case ImGuiDataType_S16:
+      {
+        ImS32 v32 = (ImS32) * (ImS16*)p_v; bool r = SliderBehaviorT<ImS32, ImS32, float>(bb, id, ImGuiDataType_S32, &v32, *(const ImS16*)p_min, *(const ImS16*)p_max, format, flags, out_grab_bb); if (r) *(ImS16*)p_v = (ImS16)v32; return r;
+      }
+    case ImGuiDataType_U16:
+      {
+        ImU32 v32 = (ImU32) * (ImU16*)p_v; bool r = SliderBehaviorT<ImU32, ImS32, float>(bb, id, ImGuiDataType_U32, &v32, *(const ImU16*)p_min, *(const ImU16*)p_max, format, flags, out_grab_bb); if (r) *(ImU16*)p_v = (ImU16)v32; return r;
+      }
+    case ImGuiDataType_S32:
+      IM_ASSERT(*(const ImS32*)p_min >= IM_S32_MIN / 2 && *(const ImS32*)p_max <= IM_S32_MAX / 2);
+      return SliderBehaviorT<ImS32, ImS32, float >(bb, id, data_type, (ImS32*)p_v, *(const ImS32*)p_min, *(const ImS32*)p_max, format, flags, out_grab_bb);
+    case ImGuiDataType_U32:
+      IM_ASSERT(*(const ImU32*)p_max <= IM_U32_MAX / 2);
+      return SliderBehaviorT<ImU32, ImS32, float >(bb, id, data_type, (ImU32*)p_v, *(const ImU32*)p_min, *(const ImU32*)p_max, format, flags, out_grab_bb);
+    case ImGuiDataType_S64:
+      IM_ASSERT(*(const ImS64*)p_min >= IM_S64_MIN / 2 && *(const ImS64*)p_max <= IM_S64_MAX / 2);
+      return SliderBehaviorT<ImS64, ImS64, double>(bb, id, data_type, (ImS64*)p_v, *(const ImS64*)p_min, *(const ImS64*)p_max, format, flags, out_grab_bb);
+    case ImGuiDataType_U64:
+      IM_ASSERT(*(const ImU64*)p_max <= IM_U64_MAX / 2);
+      return SliderBehaviorT<ImU64, ImS64, double>(bb, id, data_type, (ImU64*)p_v, *(const ImU64*)p_min, *(const ImU64*)p_max, format, flags, out_grab_bb);
+    case ImGuiDataType_Float:
+      IM_ASSERT(*(const float*)p_min >= -FLT_MAX / 2.0f && *(const float*)p_max <= FLT_MAX / 2.0f);
+      return SliderBehaviorT<float, float, float >(bb, id, data_type, (float*)p_v, *(const float*)p_min, *(const float*)p_max, format, flags, out_grab_bb);
+    case ImGuiDataType_Double:
+      IM_ASSERT(*(const double*)p_min >= -DBL_MAX / 2.0f && *(const double*)p_max <= DBL_MAX / 2.0f);
+      return SliderBehaviorT<double, double, double>(bb, id, data_type, (double*)p_v, *(const double*)p_min, *(const double*)p_max, format, flags, out_grab_bb);
+    case ImGuiDataType_COUNT: break;
   }
   IM_ASSERT(0);
   return false;
@@ -3099,7 +3098,7 @@ bool ImGui::SliderScalar(const char* label, ImGuiDataType data_type, void* p_dat
   if (format == NULL)
     format = DataTypeGetInfo(data_type)->PrintFmt;
 
-  const bool hovered = ItemHoverable(frame_bb, id);
+  const bool hovered = ItemHoverable(frame_bb, id, g.LastItemData.InFlags);
   bool temp_input_is_active = temp_input_allowed && TempInputIsActive(id);
   if (!temp_input_is_active)
   {
@@ -3266,7 +3265,7 @@ bool ImGui::VSliderScalar(const char* label, const ImVec2& size, ImGuiDataType d
   if (format == NULL)
     format = DataTypeGetInfo(data_type)->PrintFmt;
 
-  const bool hovered = ItemHoverable(frame_bb, id);
+  const bool hovered = ItemHoverable(frame_bb, id, g.LastItemData.InFlags);
   const bool clicked = hovered && IsMouseClicked(0, id);
   if (clicked || g.NavActivateId == id)
   {
@@ -3369,7 +3368,7 @@ const char* ImParseFormatFindEnd(const char* fmt)
 }
 
 // Extract the format out of a format string with leading or trailing decorations
-//  fmt = "blah blah"  -> return fmt
+//  fmt = "blah blah"  -> return ""
 //  fmt = "%.3f"       -> return fmt
 //  fmt = "hello %.3f" -> return fmt + 6
 //  fmt = "%.3f hello" -> return buf written with "%.3f"
@@ -3377,7 +3376,7 @@ const char* ImParseFormatTrimDecorations(const char* fmt, char* buf, size_t buf_
 {
   const char* fmt_start = ImParseFormatFindStart(fmt);
   if (fmt_start[0] != '%')
-    return fmt;
+    return "";
   const char* fmt_end = ImParseFormatFindEnd(fmt_start);
   if (fmt_end[0] == 0) // If we only have leading decoration, we don't need to copy the data.
     return fmt_start;
@@ -3501,9 +3500,14 @@ static inline ImGuiInputTextFlags InputScalar_DefaultCharsFilter(ImGuiDataType d
 // However this may not be ideal for all uses, as some user code may break on out of bound values.
 bool ImGui::TempInputScalar(const ImRect& bb, ImGuiID id, const char* label, ImGuiDataType data_type, void* p_data, const char* format, const void* p_clamp_min, const void* p_clamp_max)
 {
+  // FIXME: May need to clarify display behavior if format doesn't contain %.
+  // "%d" -> "%d" / "There are %d items" -> "%d" / "items" -> "%d" (fallback). Also see #6405
+  const ImGuiDataTypeInfo* type_info = DataTypeGetInfo(data_type);
   char fmt_buf[32];
   char data_buf[32];
   format = ImParseFormatTrimDecorations(format, fmt_buf, IM_ARRAYSIZE(fmt_buf));
+  if (format[0] == 0)
+    format = type_info->PrintFmt;
   DataTypeFormatString(data_buf, IM_ARRAYSIZE(data_buf), data_type, p_data, format);
   ImStrTrimBlanks(data_buf);
 
@@ -3514,7 +3518,7 @@ bool ImGui::TempInputScalar(const ImRect& bb, ImGuiID id, const char* label, ImG
   if (TempInputText(bb, id, label, data_buf, IM_ARRAYSIZE(data_buf), flags))
   {
     // Backup old value
-    size_t data_type_size = DataTypeGetInfo(data_type)->Size;
+    size_t data_type_size = type_info->Size;
     ImGuiDataTypeTempStorage data_backup;
     memcpy(&data_backup, p_data, data_type_size);
 
@@ -3991,6 +3995,10 @@ void ImGuiInputTextCallbackData::DeleteChars(int pos, int bytes_count)
 
 void ImGuiInputTextCallbackData::InsertChars(int pos, const char* new_text, const char* new_text_end)
 {
+  // Accept null ranges
+  if (new_text == new_text_end)
+    return;
+
   const bool is_resizable = (Flags & ImGuiInputTextFlags_CallbackResize) != 0;
   const int new_text_len = new_text_end ? (int)(new_text_end - new_text) : (int)strlen(new_text);
   if (new_text_len + BufTextLen >= BufSize)
@@ -4166,8 +4174,16 @@ void ImGui::InputTextDeactivateHook(ImGuiID id)
   if (id == 0 || state->ID != id)
     return;
   g.InputTextDeactivatedState.ID = state->ID;
-  g.InputTextDeactivatedState.TextA.resize(state->CurLenA + 1);
-  memcpy(g.InputTextDeactivatedState.TextA.Data, state->TextA.Data ? state->TextA.Data : "", state->CurLenA + 1);
+  if (state->Flags & ImGuiInputTextFlags_ReadOnly)
+  {
+    g.InputTextDeactivatedState.TextA.resize(0); // In theory this data won't be used, but clear to be neat.
+  }
+  else
+  {
+    IM_ASSERT(state->TextA.Data != 0);
+    g.InputTextDeactivatedState.TextA.resize(state->CurLenA + 1);
+    memcpy(g.InputTextDeactivatedState.TextA.Data, state->TextA.Data, state->CurLenA + 1);
+  }
 }
 
 // Edit a string of text
@@ -4257,7 +4273,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         return false;
     item_status_flags = g.LastItemData.StatusFlags;
   }
-  const bool hovered = ItemHoverable(frame_bb, id);
+  const bool hovered = ItemHoverable(frame_bb, id, g.LastItemData.InFlags);
   if (hovered)
     g.MouseCursor = ImGuiMouseCursor_TextInput;
 
@@ -4623,7 +4639,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
     {
       if (flags & ImGuiInputTextFlags_EscapeClearsAll)
       {
-        if (state->CurLenA > 0)
+        if (buf[0] != 0)
         {
           revert_edit = true;
         }
@@ -4711,8 +4727,10 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
       if (flags & ImGuiInputTextFlags_EscapeClearsAll)
       {
         // Clear input
+        IM_ASSERT(buf[0] != 0);
         apply_new_text = "";
         apply_new_text_length = 0;
+        value_changed = true;
         STB_TEXTEDIT_CHARTYPE empty_string;
         stb_textedit_replace(state, &state->Stb, &empty_string, 0);
       }
@@ -4741,9 +4759,12 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
       ImTextStrToUtf8(state->TextA.Data, state->TextA.Size, state->TextW.Data, NULL);
     }
 
-    // When using 'ImGuiInputTextFlags_EnterReturnsTrue' as a special case we reapply the live buffer back to the input buffer before clearing ActiveId, even though strictly speaking it wasn't modified on this frame.
+    // When using 'ImGuiInputTextFlags_EnterReturnsTrue' as a special case we reapply the live buffer back to the input buffer
+    // before clearing ActiveId, even though strictly speaking it wasn't modified on this frame.
     // If we didn't do that, code like InputInt() with ImGuiInputTextFlags_EnterReturnsTrue would fail.
-    // This also allows the user to use InputText() with ImGuiInputTextFlags_EnterReturnsTrue without maintaining any user-side storage (please note that if you use this property along ImGuiInputTextFlags_CallbackResize you can end up with your temporary string object unnecessarily allocating once a frame, either store your string data, either if you don't then don't use ImGuiInputTextFlags_CallbackResize).
+    // This also allows the user to use InputText() with ImGuiInputTextFlags_EnterReturnsTrue without maintaining any user-side storage
+    // (please note that if you use this property along ImGuiInputTextFlags_CallbackResize you can end up with your temporary string object
+    // unnecessarily allocating once a frame, either store your string data, either if you don't then don't use ImGuiInputTextFlags_CallbackResize).
     const bool apply_edit_back_to_user_buffer = !revert_edit || (validated && (flags & ImGuiInputTextFlags_EnterReturnsTrue) != 0);
     if (apply_edit_back_to_user_buffer)
     {
@@ -4853,11 +4874,11 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
   // Handle reapplying final data on deactivation (see InputTextDeactivateHook() for details)
   if (g.InputTextDeactivatedState.ID == id)
   {
-    if (g.ActiveId != id && IsItemDeactivatedAfterEdit() && !is_readonly)
+    if (g.ActiveId != id && IsItemDeactivatedAfterEdit() && !is_readonly && strcmp(g.InputTextDeactivatedState.TextA.Data, buf) != 0)
     {
       apply_new_text = g.InputTextDeactivatedState.TextA.Data;
       apply_new_text_length = g.InputTextDeactivatedState.TextA.Size - 1;
-      value_changed |= (strcmp(g.InputTextDeactivatedState.TextA.Data, buf) != 0);
+      value_changed = true;
       //IMGUI_DEBUG_LOG("InputText(): apply Deactivated data for 0x%08X: \"%.*s\".\n", id, apply_new_text_length, apply_new_text);
     }
     g.InputTextDeactivatedState.ID = 0;
@@ -5118,11 +5139,9 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
   {
     // For focus requests to work on our multiline we need to ensure our child ItemAdd() call specifies the ImGuiItemFlags_Inputable (ref issue #4761)...
     Dummy(ImVec2(text_size.x, text_size.y + style.FramePadding.y));
-    ImGuiItemFlags backup_item_flags = g.CurrentItemFlags;
-    g.CurrentItemFlags |= ImGuiItemFlags_Inputable | ImGuiItemFlags_NoTabStop;
+    g.NextItemData.ItemFlags |= ImGuiItemFlags_Inputable | ImGuiItemFlags_NoTabStop;
     EndChild();
     item_data_backup.StatusFlags |= (g.LastItemData.StatusFlags & ImGuiItemStatusFlags_HoveredWindow);
-    g.CurrentItemFlags = backup_item_flags;
 
     // ...and then we need to undo the group overriding last item data, which gets a bit messy as EndGroup() tries to forward scrollbar being active...
     // FIXME: This quite messy/tricky, should attempt to get rid of the child window.
@@ -5956,7 +5975,7 @@ bool ImGui::ColorButton(const char* desc_id, const ImVec4& col, ImGuiColorEditFl
   }
 
   // Tooltip
-  if (!(flags & ImGuiColorEditFlags_NoTooltip) && hovered)
+  if (!(flags & ImGuiColorEditFlags_NoTooltip) && hovered && IsItemHovered(ImGuiHoveredFlags_ForTooltip))
     ColorTooltip(desc_id, &col.x, flags & (ImGuiColorEditFlags_InputMask_ | ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_AlphaPreview | ImGuiColorEditFlags_AlphaPreviewHalf));
 
   return pressed;
@@ -5986,7 +6005,7 @@ void ImGui::ColorTooltip(const char* text, const float* col, ImGuiColorEditFlags
 {
   ImGuiContext& g = *GImGui;
 
-  if (!BeginTooltipEx(ImGuiTooltipFlags_OverridePreviousTooltip, ImGuiWindowFlags_None))
+  if (!BeginTooltipEx(ImGuiTooltipFlags_OverridePrevious, ImGuiWindowFlags_None))
     return;
   const char* text_end = text ? FindRenderedTextEnd(text, NULL) : text;
   if (text_end > text)
@@ -6321,8 +6340,8 @@ bool ImGui::TreeNodeBehavior(ImGuiID id, ImGuiTreeNodeFlags flags, const char* l
   }
 
   ImGuiButtonFlags button_flags = ImGuiTreeNodeFlags_None;
-  if (flags & ImGuiTreeNodeFlags_AllowItemOverlap)
-    button_flags |= ImGuiButtonFlags_AllowItemOverlap;
+  if ((flags & ImGuiTreeNodeFlags_AllowOverlap) || (g.LastItemData.InFlags & ImGuiItemflags_AllowOverlap))
+    button_flags |= ImGuiButtonFlags_AllowOverlap;
   if (!is_leaf)
     button_flags |= ImGuiButtonFlags_PressedOnDragDropHold;
 
@@ -6378,11 +6397,13 @@ bool ImGui::TreeNodeBehavior(ImGuiID id, ImGuiTreeNodeFlags flags, const char* l
     if (g.NavId == id && g.NavMoveDir == ImGuiDir_Left && is_open)
     {
       toggled = true;
+      NavClearPreferredPosForAxis(ImGuiAxis_X);
       NavMoveRequestCancel();
     }
     if (g.NavId == id && g.NavMoveDir == ImGuiDir_Right && !is_open) // If there's something upcoming on the line we may want to give it the priority?
     {
       toggled = true;
+      NavClearPreferredPosForAxis(ImGuiAxis_X);
       NavMoveRequestCancel();
     }
 
@@ -6393,8 +6414,6 @@ bool ImGui::TreeNodeBehavior(ImGuiID id, ImGuiTreeNodeFlags flags, const char* l
       g.LastItemData.StatusFlags |= ImGuiItemStatusFlags_ToggledOpen;
     }
   }
-  if (flags & ImGuiTreeNodeFlags_AllowItemOverlap)
-    SetItemAllowOverlap();
 
   // In this branch, TreeNodeBehavior() cannot toggle the selection so this will never trigger.
   if (selected != was_selected) //-V547
@@ -6412,9 +6431,9 @@ bool ImGui::TreeNodeBehavior(ImGuiID id, ImGuiTreeNodeFlags flags, const char* l
     if (flags & ImGuiTreeNodeFlags_Bullet)
       RenderBullet(window->DrawList, ImVec2(text_pos.x - text_offset_x * 0.60f, text_pos.y + g.FontSize * 0.5f), text_col);
     else if (!is_leaf)
-      RenderArrow(window->DrawList, ImVec2(text_pos.x - text_offset_x + padding.x, text_pos.y), text_col, is_open ? ImGuiDir_Down : ImGuiDir_Right, 1.0f);
+      RenderArrow(window->DrawList, ImVec2(text_pos.x - text_offset_x + padding.x, text_pos.y), text_col, is_open ? ((flags & ImGuiTreeNodeFlags_UpsideDownArrow) ? ImGuiDir_Up : ImGuiDir_Down) : ImGuiDir_Right, 1.0f);
     else // Leaf without bullet, left-adjusted text
-      text_pos.x -= text_offset_x;
+      text_pos.x -= text_offset_x - padding.x;
     if (flags & ImGuiTreeNodeFlags_ClipLabelForTrailingButton)
       frame_bb.Max.x -= g.FontSize + style.FramePadding.x;
 
@@ -6434,7 +6453,7 @@ bool ImGui::TreeNodeBehavior(ImGuiID id, ImGuiTreeNodeFlags flags, const char* l
     if (flags & ImGuiTreeNodeFlags_Bullet)
       RenderBullet(window->DrawList, ImVec2(text_pos.x - text_offset_x * 0.5f, text_pos.y + g.FontSize * 0.5f), text_col);
     else if (!is_leaf)
-      RenderArrow(window->DrawList, ImVec2(text_pos.x - text_offset_x + padding.x, text_pos.y + g.FontSize * 0.15f), text_col, is_open ? ImGuiDir_Down : ImGuiDir_Right, 0.70f);
+      RenderArrow(window->DrawList, ImVec2(text_pos.x - text_offset_x + padding.x, text_pos.y + g.FontSize * 0.15f), text_col, is_open ? ((flags & ImGuiTreeNodeFlags_UpsideDownArrow) ? ImGuiDir_Up : ImGuiDir_Down) : ImGuiDir_Right, 0.70f);
     if (g.LogEnabled)
       LogSetNextTextDecoration(">", NULL);
     RenderText(text_pos, label, label_end, false);
@@ -6538,7 +6557,7 @@ bool ImGui::CollapsingHeader(const char* label, bool* p_visible, ImGuiTreeNodeFl
   ImGuiID id = window->GetID(label);
   flags |= ImGuiTreeNodeFlags_CollapsingHeader;
   if (p_visible)
-    flags |= ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_ClipLabelForTrailingButton;
+    flags |= ImGuiTreeNodeFlags_AllowOverlap | ImGuiTreeNodeFlags_ClipLabelForTrailingButton;
   bool is_open = TreeNodeBehavior(id, flags, label);
   if (p_visible != NULL)
   {
@@ -6567,7 +6586,7 @@ bool ImGui::CollapsingHeader(const char* label, bool* p_visible, ImGuiTreeNodeFl
 
 // Tip: pass a non-visible label (e.g. "##hello") then you can use the space to draw other text or image.
 // But you need to make sure the ID is unique, e.g. enclose calls in PushID/PopID or use ##unique_id.
-// With this scheme, ImGuiSelectableFlags_SpanAllColumns and ImGuiSelectableFlags_AllowItemOverlap are also frequently used flags.
+// With this scheme, ImGuiSelectableFlags_SpanAllColumns and ImGuiSelectableFlags_AllowOverlap are also frequently used flags.
 // FIXME: Selectable() with (size.x == 0.0f) and (SelectableTextAlign.x > 0.0f) followed by SameLine() is currently not supported.
 bool ImGui::Selectable(const char* label, bool selected, ImGuiSelectableFlags flags, const ImVec2& size_arg)
 {
@@ -6666,9 +6685,9 @@ bool ImGui::Selectable(const char* label, bool selected, ImGuiSelectableFlags fl
   {
     button_flags |= ImGuiButtonFlags_PressedOnClickRelease | ImGuiButtonFlags_PressedOnDoubleClick;
   }
-  if (flags & ImGuiSelectableFlags_AllowItemOverlap)
+  if ((flags & ImGuiSelectableFlags_AllowOverlap) || (g.LastItemData.InFlags & ImGuiItemflags_AllowOverlap))
   {
-    button_flags |= ImGuiButtonFlags_AllowItemOverlap;
+    button_flags |= ImGuiButtonFlags_AllowOverlap;
   }
 
   const bool was_selected = selected;
@@ -6697,9 +6716,6 @@ bool ImGui::Selectable(const char* label, bool selected, ImGuiSelectableFlags fl
   }
   if (pressed)
     MarkItemEdited(id);
-
-  if (flags & ImGuiSelectableFlags_AllowItemOverlap)
-    SetItemAllowOverlap();
 
   // In this branch, Selectable() cannot toggle the selection so this will never trigger.
   if (selected != was_selected) //-V547
@@ -6789,20 +6805,6 @@ bool ImGui::BeginListBox(const char* label, const ImVec2& size_arg)
   BeginChildFrame(id, frame_bb.GetSize());
   return true;
 }
-
-#ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
-// OBSOLETED in 1.81 (from February 2021)
-bool ImGui::ListBoxHeader(const char* label, int items_count, int height_in_items)
-{
-  // If height_in_items == -1, default height is maximum 7.
-  ImGuiContext& g = *GImGui;
-  float height_in_items_f = (height_in_items < 0 ? ImMin(items_count, 7) : height_in_items) + 0.25f;
-  ImVec2 size;
-  size.x = 0.0f;
-  size.y = GetTextLineHeightWithSpacing() * height_in_items_f + g.Style.FramePadding.y * 2.0f;
-  return BeginListBox(label, size);
-}
-#endif
 
 void ImGui::EndListBox()
 {
@@ -6899,7 +6901,7 @@ int ImGui::PlotEx(ImGuiPlotType plot_type, const char* label, float (*values_get
   ItemSize(total_bb, style.FramePadding.y);
   if (!ItemAdd(total_bb, 0, &frame_bb))
     return -1;
-  const bool hovered = ItemHoverable(frame_bb, id);
+  const bool hovered = ItemHoverable(frame_bb, id, g.LastItemData.InFlags);
 
   // Determine scale from values if not specified
   if (scale_min == FLT_MAX || scale_max == FLT_MAX)
@@ -8616,17 +8618,14 @@ bool    ImGui::TabItemEx(ImGuiTabBar* tab_bar, const char* label, bool* p_open, 
   }
 
   // Click to Select a tab
-  ImGuiButtonFlags button_flags = ((is_tab_button ? ImGuiButtonFlags_PressedOnClickRelease : ImGuiButtonFlags_PressedOnClick) | ImGuiButtonFlags_AllowItemOverlap);
+  // Allow the close button to overlap
+  ImGuiButtonFlags button_flags = ((is_tab_button ? ImGuiButtonFlags_PressedOnClickRelease : ImGuiButtonFlags_PressedOnClick) | ImGuiButtonFlags_AllowOverlap);
   if (g.DragDropActive)
     button_flags |= ImGuiButtonFlags_PressedOnDragDropHold;
   bool hovered, held;
   bool pressed = ButtonBehavior(bb, id, &hovered, &held, button_flags);
   if (pressed && !is_tab_button)
     TabBarQueueFocus(tab_bar, tab);
-
-  // Allow the close button to overlap unless we are dragging (in which case we don't want any overlapping tabs to be hovered)
-  if (g.ActiveId != id)
-    SetItemAllowOverlap();
 
   // Drag and drop: re-order tabs
   if (held && !tab_appearing && IsMouseDragging(0))
@@ -8692,8 +8691,7 @@ bool    ImGui::TabItemEx(ImGuiTabBar* tab_bar, const char* label, bool* p_open, 
   // FIXME: We may want disabled tab to still display the tooltip?
   if (text_clipped && g.HoveredId == id && !held)
     if (!(tab_bar->Flags & ImGuiTabBarFlags_NoTooltip) && !(tab->Flags & ImGuiTabItemFlags_NoTooltip))
-      if (IsItemHovered(ImGuiHoveredFlags_DelayNormal))
-        SetTooltip("%.*s", (int)(FindRenderedTextEnd(label) - label), label);
+      SetItemTooltip("%.*s", (int)(FindRenderedTextEnd(label) - label), label);
 
   IM_ASSERT(!is_tab_button || !(tab_bar->SelectedTabId == tab->ID && is_tab_button)); // TabItemButton should not be selected
   if (is_tab_button)
@@ -8849,6 +8847,5 @@ void ImGui::TabItemLabelAndCloseButton(ImDrawList* draw_list, const ImRect& bb, 
   if (out_just_closed)
     *out_just_closed = close_button_pressed;
 }
-
 
 #endif // #ifndef IMGUI_DISABLE
