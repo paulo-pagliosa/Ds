@@ -28,7 +28,7 @@
 // Class definition for scene object transform.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/06/2023
+// Last revision: 19/07/2023
 
 #ifndef __Transform_h
 #define __Transform_h
@@ -271,9 +271,9 @@ private:
 }; // Transform
 
 inline auto
-asTransform(Component* component)
+asTransform(const Component* component)
 {
-  return dynamic_cast<Transform*>(component);
+  return dynamic_cast<const Transform*>(component);
 }
 
 } // end namespace cg::graph

@@ -28,7 +28,7 @@
 // Source file for generic vis scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/07/2023
+// Last revision: 19/07/2023
 
 #include "SceneWindow.h"
 
@@ -238,14 +238,14 @@ SceneWindow::hierarchyWindow(const char* title)
     flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
     if (ImGui::TreeNode("Actors"))
     {
-      for (auto& actor : scene->actors())
-        treeNode(actor.get(), flags);
+      for (auto actor : scene->actors())
+        treeNode(actor, flags);
       ImGui::TreePop();
     }
     if (ImGui::TreeNode("Lights"))
     {
-      for (auto& light : scene->lights())
-        treeNode(light.get(), flags);
+      for (auto light : scene->lights())
+        treeNode(light, flags);
       ImGui::TreePop();
     }
     ImGui::TreePop();

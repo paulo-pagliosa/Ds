@@ -28,7 +28,7 @@
 // Source file for scene object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 03/07/2023
+// Last revision: 20/07/2023
 
 #include "graph/Scene.h"
 
@@ -52,7 +52,7 @@ SceneObject::SceneObject(Scene& scene, const char* name, bool movable):
 
 SceneObject::~SceneObject()
 {
-  for (auto& component : _components)
+  for (auto component : _components)
     component->beforeRemoved();
 }
 
@@ -120,18 +120,18 @@ inline bool
 SceneObject::canAddComponent(Component* component) const
 {
   // Iterate the object components skipping its transform
-  for (auto end = _components.end(), cit = ++_components.begin(); cit != end;)
-    if (!static_cast<Component*>(*cit++)->canAdd(component))
+  for (auto end = _components.cend(), cit = ++_components.cbegin(); cit != end;)
+    if (!(*cit++)->canAdd(component))
       return false;
   return true;
 }
 
 inline void
-SceneObject::makeComponentAttachments(Component* component) const
+SceneObject::makeComponentAttachments(Component* component)
 {
   // Iterate the object components skipping its transform
   for (auto end = _components.end(), cit = ++_components.begin(); cit != end;)
-    if (auto c = *cit++; c.get() != component)
+    if (auto c = *cit++; c != component)
       // REMARK: connections between two components are not
       // bidirectional to avoid circular references
       if (!c->tryConnectingTo(component))
@@ -155,9 +155,13 @@ SceneObject::insertComponent(Component* component)
   component->afterAdded();
   makeComponentAttachments(component);
   // Set the transform changed flag to force component updating
-  _transform.setChanged(true);
-  component->transformChanged();
-  _transform.setChanged(false);
+  // in case the component is transformable
+  if (component->transformable())
+  {
+    _transform.setChanged(true);
+    component->transformChanged();
+    _transform.setChanged(false);
+  }
   return component;
 }
 
@@ -166,7 +170,7 @@ SceneObject::releaseComponentAttachments(Component* component)
 {
   // Iterate the object components skipping its transform
   for (auto end = _components.end(), cit = ++_components.begin(); cit != end;)
-    if (auto c = *cit++; c.get() != component)
+    if (auto c = *cit++; c != component)
        if (!c->tryDisconnectingFrom(component))
          component->tryDisconnectingFrom(c);
 }
@@ -174,7 +178,7 @@ SceneObject::releaseComponentAttachments(Component* component)
 bool
 SceneObject::removeComponent(const char* typeName)
 {
-  for (auto& component : _components)
+  for (auto component : _components)
     if (component->erasable() && component->_typeName == typeName)
     {
       releaseComponentAttachments(component);
@@ -189,9 +193,9 @@ SceneObject::removeComponent(const char* typeName)
 Component*
 SceneObject::findComponent(const char* typeName) const
 {
-  for (const auto& c : _components)
-    if (c->_typeName == typeName)
-      return c;
+  for (auto component : _components)
+    if (component->_typeName == typeName)
+      return const_cast<Component*>(component);
   return nullptr;
 }
 
@@ -200,7 +204,8 @@ SceneObject::transformChanged()
 {
   // Iterate the object components skipping its transform
   for (auto end = _components.end(), cit = ++_components.begin(); cit != end;)
-    static_cast<Component*>(*cit++)->transformChanged();
+    if (auto c = *cit++; c->transformable())
+      c->transformChanged();
   _transform.setChanged(false);
   for (auto& child : children())
     child._transform.update();
@@ -213,7 +218,7 @@ SceneObject::setVisible(bool value)
     return;
   _flags.visible = value;
   for (auto end = _components.end(), cit = ++_components.begin(); cit != end;)
-    static_cast<Component*>(*cit++)->setVisible(value);
+    (*cit++)->setVisible(value);
   for (auto& child : children())
     child.setVisible(value);
 }

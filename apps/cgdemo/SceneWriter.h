@@ -28,7 +28,7 @@
 // Class definition for scene writer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/07/2023
+// Last revision: 19/07/2023
 
 #ifndef __SceneWriter_h
 #define __SceneWriter_h
@@ -134,7 +134,7 @@ private:
   void writeMaterial(const Material&);
   void writeEnvironment(const Scene&);
   void writeSceneObject(const SceneObject*);
-  void writeComponent(Component*);
+  void writeComponent(const Component*);
   void writeTransform(const Transform&);
 
 }; // SceneWriter

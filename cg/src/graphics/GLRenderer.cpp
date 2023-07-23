@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for OpenGL renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/03/2022
+// Last revision: 22/07/2023
 
 #include "graphics/GLRenderer.h"
 
@@ -55,9 +55,9 @@ static const char* vertexShader = STRINGIFY(
 
   void main()
   {
+    gl_Position = mvpMatrix * position;
     vPosition = vec3(mvMatrix * position);
     vNormal = normalize(normalMatrix * normal);
-    gl_Position = mvpMatrix * position;
     vColor = color;
   }
 );
@@ -83,32 +83,28 @@ static const char* geometryShader = STRINGIFY(
       (gl_in[1].gl_Position / gl_in[1].gl_Position.w));
     vec2 p2 = vec2(viewportMatrix *
       (gl_in[2].gl_Position / gl_in[2].gl_Position.w));
-    float a = length(p1 - p2);
-    float b = length(p2 - p0);
-    float c = length(p1 - p0);
-    float alpha = acos((b * b + c * c - a * a) / (2 * b * c));
-    float delta = acos((a * a + c * c - b * b) / (2 * a * c));
-    float ha = abs(c * sin(delta));
-    float hb = abs(c * sin(alpha));
-    float hc = abs(b * sin(alpha));
+    vec2 v0 = p2 - p1;
+    vec2 v1 = p2 - p0;
+    vec2 v2 = p1 - p0;
+    float a = v2.x * v1.y - v1.x * v2.y;
 
-    gEdgeDistance = vec3(ha, 0, 0);
+    gl_Position = gl_in[0].gl_Position;
+    gEdgeDistance = vec3(abs(a / length(v0)), 0, 0);
     gPosition = vPosition[0];
     gNormal = vNormal[0];
     gColor = vColor[0];
-    gl_Position = gl_in[0].gl_Position;
     EmitVertex();
-    gEdgeDistance = vec3(0, hb, 0);
+    gl_Position = gl_in[1].gl_Position;
+    gEdgeDistance = vec3(0, abs(a / length(v1)), 0);
     gPosition = vPosition[1];
     gNormal = vNormal[1];
     gColor = vColor[1];
-    gl_Position = gl_in[1].gl_Position;
     EmitVertex();
-    gEdgeDistance = vec3(0, 0, hc);
+    gl_Position = gl_in[2].gl_Position;
+    gEdgeDistance = vec3(0, 0, abs(a / length(v2)));
     gPosition = vPosition[2];
     gNormal = vNormal[2];
     gColor = vColor[2];
-    gl_Position = gl_in[2].gl_Position;
     EmitVertex();
     EndPrimitive();
   }
@@ -462,7 +458,7 @@ GLRenderer::renderLights()
   const auto& vm = _camera->worldToCameraMatrix();
   int nl{0};
 
-  for (auto& light : _scene->lights())
+  for (auto light : _scene->lights())
   {
     if (!light->isTurnedOn())
       continue;
@@ -488,7 +484,7 @@ GLRenderer::renderLights()
 void
 GLRenderer::renderActors()
 {
-  for (auto& actor : _scene->actors())
+  for (auto actor : _scene->actors())
   {
     if (!actor->isVisible())
       continue;

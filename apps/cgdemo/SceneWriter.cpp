@@ -28,7 +28,7 @@
 // Source file for scene writer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/07/2023
+// Last revision: 21/07/2023
 
 #include "graph/CameraProxy.h"
 #include "graph/LightProxy.h"
@@ -67,19 +67,19 @@ namespace
 { // begin namespace
 
 template <typename V>
-inline void
+inline bool
 writeIfNotNull(SceneWriter& w, const char* label, const V& v)
 {
-  if (v.x != 0 || v.y != 0 || v.z != 0)
-    w.writeVec3(label, v);
+  return v.x != 0 || v.y != 0 || v.z != 0 ?
+    w.writeVec3(label, v), true : false;
 }
 
 template <typename V>
-inline void
+inline bool
 writeScale(SceneWriter& w, const V& s)
 {
-  if (s.x != 1 || s.y != 1 || s.z != 1)
-    w.writeVec3("scale", s);
+  return s.x != 1 || s.y != 1 || s.z != 1 ?
+    w.writeVec3("scale", s), true : false;
 }
 
 void
@@ -147,15 +147,19 @@ writePrimitive(SceneWriter& w, const TriangleMeshProxy& proxy)
 inline void
 SceneWriter::writeTransform(const Transform& t)
 {
+  auto w = false;
+
   beginBlock("transform");
-  writeIfNotNull(*this, "position", t.position());
-  writeIfNotNull(*this, "rotation", t.eulerAngles());
-  writeScale(*this, t.localScale());
+  w |= writeIfNotNull(*this, "position", t.position());
+  w |= writeIfNotNull(*this, "rotation", t.eulerAngles());
+  w |= writeScale(*this, t.localScale());
+  if (!w)
+    writeLine("// identity");
   endBlock();
 }
 
 inline void
-SceneWriter::writeComponent(Component* c)
+SceneWriter::writeComponent(const Component* c)
 {
   if (auto t = asTransform(c))
     writeTransform(*t);
@@ -169,7 +173,7 @@ SceneWriter::writeSceneObject(const SceneObject* object)
   beginBlock("object", object->name());
   for (auto& child : object->children())
     writeSceneObject(&child);
-  for (auto& component : object->components())
+  for (auto component : object->components())
     writeComponent(component);
   endBlock();
 }
