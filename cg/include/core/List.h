@@ -28,7 +28,7 @@
 // Class definition for generic list.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/07/2023
+// Last revision: 24/07/2023
 
 #ifndef __List_h
 #define __List_h
@@ -67,6 +67,9 @@ private:
   T _value;
 
 }; // ListNode
+
+namespace internal::list
+{ // begin namespace internal::list
 
 template <typename T, unsigned size = DflBlockSize>
 class List: public ListBase<ListNode<T, size>>
@@ -118,18 +121,18 @@ private:
 
 }; // List
 
-template <typename T, unsigned blockSize>
+template <typename T, unsigned size>
 template <typename L>
 void
-List<T, blockSize>::addList(const L& list)
+List<T, size>::addList(const L& list)
 {
   for (const auto& value : list)
     add(value);
 }
 
-template <typename T, unsigned blockSize>
+template <typename T, unsigned size>
 bool
-List<T, blockSize>::remove(const iterator& i)
+List<T, size>::remove(const iterator& i)
 {
   if (i == this->end())
     return false;
@@ -141,9 +144,9 @@ List<T, blockSize>::remove(const iterator& i)
   return true;
 }
 
-template <typename T, unsigned blockSize>
+template <typename T, unsigned size>
 void
-List<T, blockSize>::clear()
+List<T, size>::clear()
 {
   auto node = Base::nextNode(this->head());
 
@@ -157,9 +160,9 @@ List<T, blockSize>::clear()
   Base::setEmpty();
 }
 
-template <typename T, unsigned blockSize>
-typename List<T, blockSize>::iterator
-List<T, blockSize>::find(const T& value) const
+template <typename T, unsigned size>
+typename List<T, size>::iterator
+List<T, size>::find(const T& value) const
 {
   for (auto node = Base::nextNode(this->head());
     node != this->head();
@@ -169,10 +172,19 @@ List<T, blockSize>::find(const T& value) const
   return const_cast<List*>(this)->end();
 }
 
+} // end namespace internal::list
+
+template <typename T, unsigned size = DflBlockSize>
+class List: public internal::list::List<T, size>
+{
+  // empty
+
+}; // List
+
 //
 // Specializations for shared objects list
 //
-using RefListBase = List<Reference<SharedObject>>;
+using RefListBase = internal::list::List<Reference<SharedObject>>;
 using RefListConstIteratorBase = RefListBase::const_iterator;
 using RefListIteratorBase = RefListBase::iterator;
 
