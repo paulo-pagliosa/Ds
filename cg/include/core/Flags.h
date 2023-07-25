@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for flags.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/02/2022
+// Last revision: 25/07/2023
 
 #ifndef __Flags_h
 #define __Flags_h
@@ -55,14 +55,6 @@ template <typename Bits>
 class Flags
 {
 public:
-  /// Contructs a Flags object with no bits set.
-  HOST DEVICE
-  Flags():
-    _bits{0}
-  {
-    // do nothing
-  }
-  
   /// Constructs a Flags object initialized with mask.
   HOST DEVICE
   Flags(Bits mask):
@@ -71,35 +63,43 @@ public:
     // do nothing
   }
 
+  /// Contructs a Flags object with default mask.
+  HOST DEVICE
+  Flags():
+    Flags{Bits{}}
+  {
+    // do nothing
+  }
+
   /// \brief Assigns mask to the bits of this object.
   HOST DEVICE
-  Flags<Bits>& operator =(Bits mask)
+  auto& operator =(Bits mask)
   {
     _bits = (uint32_t)mask;
     return *this;
   }
 
   HOST DEVICE
-  Flags<Bits> operator |(Bits mask) const
+  Flags operator |(Bits mask) const
   {
-    return Flags<Bits>{_bits | (uint32_t)mask};
+    return {_bits | (uint32_t)mask};
   }
 
   HOST DEVICE
-  Flags<Bits> operator |(Flags<Bits> flags) const
+  Flags operator |(Flags flags) const
   {
-    return Flags<Bits>{_bits | flags._bits};
+    return {_bits | flags._bits};
   }
 
   HOST DEVICE
-  Flags<Bits>& operator |=(Bits mask)
+  auto& operator |=(Bits mask)
   {
     _bits |= (uint32_t)mask;
     return *this;
   }
 
   HOST DEVICE
-  Flags<Bits>& operator |=(Flags<Bits> flags)
+  auto& operator |=(Flags flags)
   {
     _bits |= flags.bits;
     return *this;
@@ -138,6 +138,13 @@ public:
   operator uint32_t() const
   {
     return _bits;
+  }
+
+  /// Converts this object to Bits.
+  HOST DEVICE
+  explicit operator Bits() const
+  {
+    return static_cast<Bits>(_bits);
   }
 
   /// Returns true if all bits of this object, given by mask, are set.
