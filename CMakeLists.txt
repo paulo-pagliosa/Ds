@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 3.25)
 project(Ds LANGUAGES CXX CUDA C)
 
+# Fetches and builds ImGui
 include(cmake/externals.cmake)
-add_subdirectory(apps/cgdemo/reader)
+
+# Adds the ds-cg-util library  
+add_subdirectory(apps/cgdemo)
 
 set(cg_header_files
     # core directory
