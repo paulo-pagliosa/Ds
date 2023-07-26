@@ -1,0 +1,2 @@
+/usr/bin/ar qc libds-cg-util.a "CMakeFiles/ds-cg-util.dir/AbstractParser.cpp.o" "CMakeFiles/ds-cg-util.dir/Expression.cpp.o" "CMakeFiles/ds-cg-util.dir/Scope.cpp.o" "CMakeFiles/ds-cg-util.dir/ErrorHandler.cpp.o" "CMakeFiles/ds-cg-util.dir/SceneReader.cpp.o" "CMakeFiles/ds-cg-util.dir/Buffer.cpp.o" "CMakeFiles/ds-cg-util.dir/FileBuffer.cpp.o" "CMakeFiles/ds-cg-util.dir/ReaderBase.cpp.o"
+/usr/bin/ranlib libds-cg-util.a

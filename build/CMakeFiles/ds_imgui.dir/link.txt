@@ -1,0 +1,2 @@
+/usr/bin/ar qc libds_imgui.a "CMakeFiles/ds_imgui.dir/_deps/imgui-src/imgui.cpp.o" "CMakeFiles/ds_imgui.dir/_deps/imgui-src/imgui_demo.cpp.o" "CMakeFiles/ds_imgui.dir/_deps/imgui-src/imgui_draw.cpp.o" "CMakeFiles/ds_imgui.dir/_deps/imgui-src/imgui_widgets.cpp.o" "CMakeFiles/ds_imgui.dir/_deps/imgui-src/imgui_tables.cpp.o" "CMakeFiles/ds_imgui.dir/_deps/imgui-src/backends/imgui_impl_opengl3.cpp.o" "CMakeFiles/ds_imgui.dir/_deps/imgui-src/backends/imgui_impl_glfw.cpp.o"
+/usr/bin/ranlib libds_imgui.a

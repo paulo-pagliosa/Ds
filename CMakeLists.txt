@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.25)
 project(Ds LANGUAGES CXX CUDA C)
 
 include(cmake/externals.cmake)
+add_subdirectory(apps/cgdemo/reader)
 
 set(cg_header_files
     # core directory

@@ -1,0 +1,14 @@
+# Target labels
+ glfw-populate
+# Source files and their labels
+/home/rafael/Code/Ds/build/_deps/glfw-subbuild/CMakeFiles/glfw-populate
+/home/rafael/Code/Ds/build/_deps/glfw-subbuild/CMakeFiles/glfw-populate.rule
+/home/rafael/Code/Ds/build/_deps/glfw-subbuild/CMakeFiles/glfw-populate-complete.rule
+/home/rafael/Code/Ds/build/_deps/glfw-subbuild/glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-build.rule
+/home/rafael/Code/Ds/build/_deps/glfw-subbuild/glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-configure.rule
+/home/rafael/Code/Ds/build/_deps/glfw-subbuild/glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-download.rule
+/home/rafael/Code/Ds/build/_deps/glfw-subbuild/glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-install.rule
+/home/rafael/Code/Ds/build/_deps/glfw-subbuild/glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-mkdir.rule
+/home/rafael/Code/Ds/build/_deps/glfw-subbuild/glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-patch.rule
+/home/rafael/Code/Ds/build/_deps/glfw-subbuild/glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-test.rule
+/home/rafael/Code/Ds/build/_deps/glfw-subbuild/glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-update.rule

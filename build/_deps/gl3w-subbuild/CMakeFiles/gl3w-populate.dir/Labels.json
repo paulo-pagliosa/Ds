@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/rafael/Code/Ds/build/_deps/gl3w-subbuild/CMakeFiles/gl3w-populate"
+		},
+		{
+			"file" : "/home/rafael/Code/Ds/build/_deps/gl3w-subbuild/CMakeFiles/gl3w-populate.rule"
+		},
+		{
+			"file" : "/home/rafael/Code/Ds/build/_deps/gl3w-subbuild/CMakeFiles/gl3w-populate-complete.rule"
+		},
+		{
+			"file" : "/home/rafael/Code/Ds/build/_deps/gl3w-subbuild/gl3w-populate-prefix/src/gl3w-populate-stamp/gl3w-populate-build.rule"
+		},
+		{
+			"file" : "/home/rafael/Code/Ds/build/_deps/gl3w-subbuild/gl3w-populate-prefix/src/gl3w-populate-stamp/gl3w-populate-configure.rule"
+		},
+		{
+			"file" : "/home/rafael/Code/Ds/build/_deps/gl3w-subbuild/gl3w-populate-prefix/src/gl3w-populate-stamp/gl3w-populate-download.rule"
+		},
+		{
+			"file" : "/home/rafael/Code/Ds/build/_deps/gl3w-subbuild/gl3w-populate-prefix/src/gl3w-populate-stamp/gl3w-populate-install.rule"
+		},
+		{
+			"file" : "/home/rafael/Code/Ds/build/_deps/gl3w-subbuild/gl3w-populate-prefix/src/gl3w-populate-stamp/gl3w-populate-mkdir.rule"
+		},
+		{
+			"file" : "/home/rafael/Code/Ds/build/_deps/gl3w-subbuild/gl3w-populate-prefix/src/gl3w-populate-stamp/gl3w-populate-patch.rule"
+		},
+		{
+			"file" : "/home/rafael/Code/Ds/build/_deps/gl3w-subbuild/gl3w-populate-prefix/src/gl3w-populate-stamp/gl3w-populate-test.rule"
+		},
+		{
+			"file" : "/home/rafael/Code/Ds/build/_deps/gl3w-subbuild/gl3w-populate-prefix/src/gl3w-populate-stamp/gl3w-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"gl3w-populate"
+		],
+		"name" : "gl3w-populate"
+	}
+}

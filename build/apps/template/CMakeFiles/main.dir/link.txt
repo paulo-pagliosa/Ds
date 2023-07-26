@@ -1,0 +1,1 @@
+/usr/bin/g++-12.2 CMakeFiles/main.dir/Main.cpp.o CMakeFiles/main.dir/MainWindow.cpp.o "CMakeFiles/main.dir/__/__/_deps/gl3w-build/src/gl3w.c.o" -o main  ../../libds_cg_lib.a ../../libds_imgui.a ../../_deps/glfw-build/src/libglfw3.a /usr/lib64/librt.a -lm /usr/lib64/libX11.so -ldl /usr/lib64/libGLU.so /usr/lib64/libGL.so 

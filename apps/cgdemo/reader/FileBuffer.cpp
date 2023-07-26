@@ -32,13 +32,12 @@
 
 #include "FileBuffer.h"
 #include <cassert>
+#include <cstring>
 #include <memory>
 
-namespace cg::parser
-{ // begin namespace cg::parser
+namespace cg::parser { // begin namespace cg::parser
 
-namespace
-{ // begin namespace
+namespace { // begin namespace
 
 constexpr size_t maxFileSize{0x4000};
 constexpr size_t maxLexemeSize{1024};
@@ -47,15 +46,11 @@ constexpr size_t dflBufferSize{maxLexemeSize * 3 + maxLook * 2};
 
 } // end namespace
 
-
 /////////////////////////////////////////////////////////////////////
 //
 // FileBuffer implementation
 // ==========
-FileBuffer::FileBuffer(const fs::path& path):
-  _path{path},
-  _size{}
-{
+FileBuffer::FileBuffer(const fs::path &path) : _path{path}, _size{} {
   assert(fs::is_regular_file(path));
   _file.open(path, std::ios::in | std::ios::binary);
   if (!_file.is_open())
@@ -68,29 +63,19 @@ FileBuffer::FileBuffer(const fs::path& path):
   fill(_begin, _size);
 }
 
-String
-FileBuffer::name() const
-{
-  return _path.string();
-}
+String FileBuffer::name() const { return _path.string(); }
 
-char
-FileBuffer::advance()
-{
-  if (_eofRead)
-  {
+char FileBuffer::advance() {
+  if (_eofRead) {
     if (_current >= _end)
       return 0;
-  }
-  else if ((_end - maxLook) < _current)
+  } else if ((_end - maxLook) < _current)
     flush();
   return *++_current;
 }
 
-void
-FileBuffer::flush()
-{
-  auto lftEdge = nullptr != _lexemeBegin  ? _lexemeBegin : _current;
+void FileBuffer::flush() {
+  auto lftEdge = nullptr != _lexemeBegin ? _lexemeBegin : _current;
   auto shlSize = (size_t)(lftEdge - _begin);
 
   if (shlSize < maxLexemeSize)
@@ -106,21 +91,16 @@ FileBuffer::flush()
     _lexemeBegin -= shlSize;
 }
 
-void
-FileBuffer::fill(char* from, size_t size)
-{
+void FileBuffer::fill(char *from, size_t size) {
   if (size == 0)
     size = ((endBuffer() - from) / maxLexemeSize) * maxLexemeSize;
-  if (size > 0)
-  {
+  if (size > 0) {
     _file.read(from, size);
     if (auto count = (size_t)_file.gcount(); count <= 0)
       throw std::runtime_error("Input file read error");
-    else
-    {
+    else {
       _end = from + count;
-      if (_file.eof())
-      {
+      if (_file.eof()) {
         _eofRead = true;
         *_end = 0;
       }
