@@ -354,7 +354,7 @@ SceneWindowBase::mouseButtonInputEvent(int button, int actions, int mods)
 bool
 SceneWindowBase::mouseMoveEvent(double xPos, double yPos)
 {
-  if (!_dragFlags)
+  if (!uint32_t(_dragFlags))
     return false;
   _mouse.cx = (int)xPos;
   _mouse.cy = (int)yPos;

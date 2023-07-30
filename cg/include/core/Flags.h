@@ -28,7 +28,7 @@
 // Class definition for flags.
 //
 // Author: Paulo Pagliosa
-// Last revision: 25/07/2023
+// Last revision: 30/07/2023
 
 #ifndef __Flags_h
 #define __Flags_h
@@ -135,14 +135,14 @@ public:
 
   /// Converts this object to int.
   HOST DEVICE
-  operator uint32_t() const
+  explicit operator uint32_t() const
   {
     return _bits;
   }
 
   /// Converts this object to Bits.
   HOST DEVICE
-  explicit operator Bits() const
+  operator Bits() const
   {
     return static_cast<Bits>(_bits);
   }

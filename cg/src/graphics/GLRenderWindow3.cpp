@@ -28,7 +28,7 @@
 // Source file for OpenGL 3D render window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/06/2023
+// Last revision: 30/07/2023
 
 #include "graphics/GLRenderWindow3.h"
 
@@ -154,7 +154,7 @@ GLRenderWindow3::mouseButtonInputEvent(int button, int actions, int)
 bool
 GLRenderWindow3::mouseMoveEvent(double xPos, double yPos)
 {
-  if (!_dragFlags)
+  if (!uint32_t(_dragFlags))
     return false;
   _mouseX = (int)xPos;
   _mouseY = (int)yPos;
