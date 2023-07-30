@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for lookup table.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/03/2022
+// Last revision: 30/07/2023
 
 #include "LookupTable.h"
 #include <cassert>
@@ -196,9 +196,9 @@ LookupTable::build()
         rgb[2] = ly;
         break;
     }
-    _colors[i].r = (1 + cos((1 - rgb[0]) * math::pi<float>())) * 0.5f;
-    _colors[i].g = (1 + cos((1 - rgb[1]) * math::pi<float>())) * 0.5f;
-    _colors[i].b = (1 + cos((1 - rgb[2]) * math::pi<float>())) * 0.5f;
+    _colors[i].r = (1 + cos((1 - rgb[0]) * math::pi<float>)) * 0.5f;
+    _colors[i].g = (1 + cos((1 - rgb[1]) * math::pi<float>)) * 0.5f;
+    _colors[i].b = (1 + cos((1 - rgb[2]) * math::pi<float>)) * 0.5f;
   }
   _buildTime.modified();
 }

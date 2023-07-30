@@ -28,7 +28,7 @@
 // Source file for generic vis scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/07/2023
+// Last revision: 30/07/2023
 
 #include "SceneWindow.h"
 
@@ -215,7 +215,7 @@ SceneWindow::treeNode(graph::SceneNode node, ImGuiTreeNodeFlags flags)
   if (node == _currentNode)
     flags |= ImGuiTreeNodeFlags_Selected;
 
-  auto open = ImGui::TreeNodeEx(node, flags, node->name());
+  auto open = ImGui::TreeNodeEx(node, flags, "%s", node->name());
 
   if (ImGui::IsItemClicked())
     _currentNode = node;

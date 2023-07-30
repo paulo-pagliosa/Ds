@@ -490,9 +490,6 @@
     <ClCompile Include="..\..\src\graph\CameraProxy.cpp">
       <Filter>Source Files\graph</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\graphics\TriangleMeshMapper.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\graph\Component.cpp">
       <Filter>Source Files\graph</Filter>
     </ClCompile>
@@ -533,6 +530,9 @@
       <Filter>Source Files\graphics</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\graphics\AssetFolder.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\TriangleMeshMapper.cpp">
       <Filter>Source Files\graphics</Filter>
     </ClCompile>
   </ItemGroup>

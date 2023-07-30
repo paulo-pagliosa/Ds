@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,12 +23,12 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: MeshSweeper.h
+// OVERVIEW: MeshSweeper.cpp
 // ========
 // Source file for mesh sweeper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/03/2022
+// Last revision: 30/07/2023
 
 #include "geometry/MeshSweeper.h"
 #include <vector>
@@ -126,7 +126,7 @@ MeshSweeper::makeCone(int ns)
   data.triangleCount = nt;
   data.triangles = new TriangleMesh::Triangle[nt];
 
-  const auto a = 2 * math::pi<float>() / ns;
+  const auto a = 2 * math::pi<float> / ns;
   const auto c = cos(a);
   const auto s = sin(a);
   const auto t = ns + 1;
@@ -182,9 +182,9 @@ MeshSweeper::makeCylinder(int ns)
   data.triangleCount = nt;
   data.triangles = new TriangleMesh::Triangle[nt];
 
-  const auto a = 2 * math::pi<float>() / ns;
-  const auto c = cos(a);
-  const auto s = sin(a);
+  const auto a = 2 * math::pi<float> / ns;
+  const auto c = cosf(a);
+  const auto s = sinf(a);
   const auto t = ns + 1;
   auto x = 1.0f;
   auto z = 0.0f;
@@ -254,7 +254,7 @@ MeshSweeper::makeSphere(int ns)
   data.triangles = new TriangleMesh::Triangle[nt];
 
   {
-    constexpr auto pi = math::pi<float>();
+    constexpr auto pi = math::pi<float>;
     const auto mStep = pi / ns * 2;
     const auto pStep = pi / nl;
     auto pAngle = pi / 2;
@@ -264,14 +264,14 @@ MeshSweeper::makeSphere(int ns)
 
     for (int p = 0; p <= nl; ++p, pAngle -= pStep)
     {
-      auto t = cos(pAngle);
-      auto y = sin(pAngle);
+      auto t = cosf(pAngle);
+      auto y = sinf(pAngle);
       auto v = 1 - (float)p / nl;
       auto mAngle = 0.0f;
 
       for (int m = 0; m <= ns; ++m, mAngle += mStep)
       {
-        *vertex++ = *normal++ = {t * cos(mAngle), y, t * sin(mAngle)};
+        *vertex++ = *normal++ = {t * cosf(mAngle), y, t * sinf(mAngle)};
         *uv++ = {1 - (float)m / ns, v};
       }
     }

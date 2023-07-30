@@ -28,7 +28,7 @@
 // Source file for generic graph scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/07/2023
+// Last revision: 30/07/2023
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
@@ -177,7 +177,7 @@ SceneWindow::treeNode(SceneNode node, ImGuiTreeNodeFlags flags)
   if (node == _currentNode)
     flags |= ImGuiTreeNodeFlags_Selected;
 
-  auto open = ImGui::TreeNodeEx(node, flags, node->name());
+  auto open = ImGui::TreeNodeEx(node, flags, "%s", node->name());
 
   if (ImGui::IsItemClicked())
     _currentNode = node;
@@ -245,7 +245,7 @@ SceneWindow::objectHierarchy(SceneObject& object)
     {
       auto* data = &child;
 
-      ImGui::Text(child.name());
+      ImGui::Text("%s", child.name());
       ImGui::SetDragDropPayload("SceneObject", &data, sizeof(SceneObject*));
       ImGui::EndDragDropSource();
     }
@@ -519,7 +519,7 @@ SceneWindow::materialPanel()
       ImGui::Selectable(name, &selected);
       if (ImGui::BeginDragDropSource())
       {
-        ImGui::Text(name);
+        ImGui::Text("%s", name);
         ImGui::SetDragDropPayload("Material", &mit, sizeof(mit));
         ImGui::EndDragDropSource();
       }
@@ -542,7 +542,7 @@ SceneWindow::meshPanel()
       ImGui::Selectable(name, &selected);
       if (ImGui::BeginDragDropSource())
       {
-        ImGui::Text(name);
+        ImGui::Text("%s", name);
         ImGui::SetDragDropPayload("TriangleMesh", &mit, sizeof(mit));
         ImGui::EndDragDropSource();
       }

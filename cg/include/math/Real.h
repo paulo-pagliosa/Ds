@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,25 +28,14 @@
 // Math macros/static functions.
 //
 // Author: Paulo Pagliosa
-// Last revision: 15/12/2022
+// Last revision: 30/07/2023
 
 #ifndef __Real_h
 #define __Real_h
 
 #include "math/RealLimits.h"
 #include <cmath>
-
-//
-// Math macros
-//
-#ifndef M_SQRT2
-#define M_SQRT2 1.4142135623730950488016887242097
-#endif
-#define M_SQRT3 1.7320508075688772935274463415059
-#ifndef M_PI
-#define M_PI    3.1415926535897932384626433832795
-#define M_PI_2  (M_PI * 0.5)
-#endif
+#include <numbers>
 
 namespace cg::math
 { // begin namespace cg::math
@@ -147,12 +136,16 @@ inverse(real x)
   return static_cast<real>(1 / x);
 }
 
+/// Returns pi.
+template <typename real>
+inline constexpr real pi = std::numbers::pi_v<real>;
+
 /// Returns x in radians.
 template <typename real>
 HOST DEVICE inline constexpr real
 toRadians(real x)
 {
-  return static_cast<real>(x * M_PI / 180);
+  return static_cast<real>(x * pi<real> / 180);
 }
 
 /// Returns x in degrees.
@@ -160,7 +153,7 @@ template <typename real>
 HOST DEVICE inline constexpr real
 toDegrees(real x)
 {
-  return static_cast<real>(x * 180 / M_PI);
+  return static_cast<real>(x * 180 / pi<real>);
 }
 
 /// Returns x ^ 2.
@@ -196,14 +189,6 @@ HOST DEVICE inline constexpr real
 clamp(real x, real a, real b)
 {
   return x < a ? a : (x > b ? b : x);
-}
-
-/// Returns pi.
-template <typename real>
-HOST DEVICE inline constexpr real
-pi()
-{
-  return (real)M_PI;
 }
 
 } // end namespace math::cg

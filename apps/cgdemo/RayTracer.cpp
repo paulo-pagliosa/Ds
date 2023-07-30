@@ -28,11 +28,12 @@
 // Source file for simple ray tracer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/07/2023
+// Last revision: 30/07/2023
 
 #include "graphics/Camera.h"
 #include "utils/Stopwatch.h"
 #include "RayTracer.h"
+#include <iostream>
 
 using namespace std;
 
@@ -143,8 +144,8 @@ RayTracer::renderImage(Image& image)
 
   auto et = timer.time();
 
-  printf("\nNumber of rays: %llu", _numberOfRays);
-  printf("\nNumber of hits: %llu", _numberOfHits);
+  std::cout << "\nNumber of rays: " << _numberOfRays;
+  std::cout << "\nNumber of hits: " << _numberOfHits;
   printElapsedTime("\nDONE! ", et);
 }
 

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for OpenGL FBO.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/08/2022
+// Last revision: 30/07/2023
 
 #ifndef __GLFramebuffer_h
 #define __GLFramebuffer_h
@@ -137,6 +137,7 @@ private:
   {
     uint8_t read : 1;
     uint8_t draw : 1;
+
   } _flags{};
 
   GLFramebuffer(const fbo::Description&);
@@ -159,7 +160,7 @@ protected:
   ReadBufferBase(const GLFramebuffer& fbo, uint32_t size):
     _fbo{&fbo}
   {
-    _data = size > 16 ? (buffer = new uint8_t[size]) : &bytes;
+    _data = size > 16 ? (buffer = new uint8_t[size]) : bytes;
     _size = size;
   }
 
@@ -175,9 +176,9 @@ private:
   union
   {
     uint8_t bytes[16];
-    void* buffer;
+    uint8_t* buffer;
   };
-  void* _data;
+  uint8_t* _data;
   const GLFramebuffer* _fbo;
   uint32_t _size;
 

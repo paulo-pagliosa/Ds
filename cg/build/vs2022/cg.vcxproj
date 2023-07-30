@@ -204,7 +204,6 @@
     <ClCompile Include="..\..\externals\src\imgui_impl_opengl3.cpp" />
     <ClCompile Include="..\..\externals\src\imgui_tables.cpp" />
     <ClCompile Include="..\..\externals\src\imgui_widgets.cpp" />
-    <ClCompile Include="..\..\include\graphics\TriangleMeshMapper.cpp" />
     <ClCompile Include="..\..\src\core\BlockAllocator.cpp" />
     <ClCompile Include="..\..\src\core\NameableObject.cpp" />
     <ClCompile Include="..\..\src\core\Exception.cpp" />
@@ -242,6 +241,7 @@
     <ClCompile Include="..\..\src\graphics\SceneWindowBase.cpp" />
     <ClCompile Include="..\..\src\graphics\Shape.cpp" />
     <ClCompile Include="..\..\src\graphics\TransformableObject.cpp" />
+    <ClCompile Include="..\..\src\graphics\TriangleMeshMapper.cpp" />
     <ClCompile Include="..\..\src\graphics\TriangleMeshShape.cpp" />
     <ClCompile Include="..\..\src\graph\CameraProxy.cpp" />
     <ClCompile Include="..\..\src\graph\Component.cpp" />

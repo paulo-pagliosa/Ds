@@ -88,7 +88,7 @@ makeCircle(const int np = 40)
   data.vertexNormals[0].set(0, 0, 1);
   if (true)
   {
-    constexpr auto pi = math::pi<float>();
+    constexpr auto pi = math::pi<float>;
     const auto a = 2 * pi / np;
     const auto c = cos(a);
     const auto s = sin(a);

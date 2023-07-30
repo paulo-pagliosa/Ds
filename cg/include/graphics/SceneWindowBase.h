@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/07/2023
+// Last revision: 30/07/2023
 
 #ifndef __SceneWindowBase_h
 #define __SceneWindowBase_h
@@ -177,7 +177,7 @@ void tooltip(const char* msg);
 inline void
 sectionLabel(const char* label)
 {
-  TextColored({1, 153.0f / 255, 51.0f / 255, 1}, label);
+  TextColored({1, 153.0f / 255, 51.0f / 255, 1}, "%s", label);
 }
 
 } // end namespace ImGui

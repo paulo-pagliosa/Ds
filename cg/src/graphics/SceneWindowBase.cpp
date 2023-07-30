@@ -28,7 +28,7 @@
 // Source file for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/07/2023
+// Last revision: 30/07/2023
 
 #include "graphics/Renderer.h"
 #include "graphics/SceneWindowBase.h"
@@ -298,7 +298,7 @@ SceneWindowBase::showErrorMessage(const char* message) const
     ImGuiWindowFlags_AlwaysAutoResize))
   {
     open = true;
-    ImGui::Text(message);
+    ImGui::Text("%s", message);
     ImGui::Separator();
     if (ImGui::Button("Close"))
     {

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,12 +28,13 @@
 // Class definition for RGB color.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/12/2022
+// Last revision: 30/07/2023
 
 #ifndef __Color_h
 #define __Color_h
 
 #include "math/Vector4.h"
+#include <cstdint>
 
 namespace cg
 { // begin namespace cg
@@ -152,30 +153,30 @@ public:
 
   /// Returns this object + c.
   HOST DEVICE
-  Color operator +(const Color& c) const
+  auto operator +(const Color& c) const
   {
-    return Color(r + c.r, g + c.g, b + c.b);
+    return Color{r + c.r, g + c.g, b + c.b};
   }
 
   /// Returns this object - c.
   HOST DEVICE
-  Color operator -(const Color& c) const
+  auto operator -(const Color& c) const
   {
-    return Color(r - c.r, g - c.g, b - c.b);
+    return Color{r - c.r, g - c.g, b - c.b};
   }
 
   /// Returns this object * c.
   HOST DEVICE
-  Color operator *(const Color& c) const
+  auto operator *(const Color& c) const
   {
-    return Color(r * c.r, g * c.g, b * c.b);
+    return Color{r * c.r, g * c.g, b * c.b};
   }
 
   /// Returns this object * s.
   HOST DEVICE
-  Color operator *(float s) const
+  auto operator *(float s) const
   {
-    return Color(r * s, g * s, b * s);
+    return Color{r * s, g * s, b * s};
   }
 
   /// Returns the i-th component of this object.

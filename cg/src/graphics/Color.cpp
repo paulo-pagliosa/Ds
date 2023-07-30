@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for RGB color.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/07/2022
+// Last revision: 30/07/2023
 
 #include "graphics/Color.h"
 
@@ -40,16 +40,16 @@ namespace cg
 //
 // Color implementation
 // =====
-Color Color::black(0, 0, 0);
-Color Color::red(255, 0, 0);
-Color Color::green(0, 255, 0);
-Color Color::blue(0, 0, 255);
-Color Color::cyan(0, 255, 255);
-Color Color::magenta(255, 0, 255);
-Color Color::yellow(255, 255, 0);
-Color Color::white(255, 255, 255);
-Color Color::darkGray(136, 136, 136);
-Color Color::gray(194, 194, 194);
+Color Color::black{0, 0, 0};
+Color Color::red{255, 0, 0};
+Color Color::green{0, 255, 0};
+Color Color::blue{0, 0, 255};
+Color Color::cyan{0, 255, 255};
+Color Color::magenta{255, 0, 255};
+Color Color::yellow{255, 255, 0};
+Color Color::white{255, 255, 255};
+Color Color::darkGray{136, 136, 136};
+Color Color::gray{194, 194, 194};
 
 Color
 Color::HSV2RGB(float hue, float saturation, float value, float alpha)

@@ -28,12 +28,13 @@
 // Class definition for allocable object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/07/2023
+// Last revision: 30/07/2023
 
 #ifndef __AllocableObject_h
 #define __AllocableObject_h
 
 #include "StandardAllocator.h"
+#include <cstddef>
 #ifdef _DEBUG
 #include <stdexcept>
 #include <type_traits>
