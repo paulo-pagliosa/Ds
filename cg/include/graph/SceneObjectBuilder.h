@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022 Paulo Pagliosa.                              |
+//| Copyright (C) 2022, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for scene object builder.
 //
 // Author: Paulo Pagliosa
-// Last revision: 02/02/2022
+// Last revision: 01/08/2023
 
 #ifndef __SceneObjectBuilder_h
 #define __SceneObjectBuilder_h
@@ -71,14 +71,11 @@ public:
     return object;
   }
 
-  Material* createMaterial();
-
 protected:
   Reference<Scene> _scene;
   uint32_t _objectId;
   uint32_t _cameraId;
   uint32_t _lightId;
-  uint32_t _materialId;
   uint32_t _primitiveId;
 
   auto makePrimitive(const TriangleMesh& mesh, const std::string& meshName)

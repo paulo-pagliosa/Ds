@@ -28,8 +28,9 @@
 // Source file for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 30/07/2023
+// Last revision: 01/08/2023
 
+#include "graphics/Assets.h"
 #include "graphics/Renderer.h"
 #include "graphics/SceneWindowBase.h"
 
@@ -436,6 +437,17 @@ viewportToNDC(int x, int y)
 }
 
 } // end namespace
+
+Material*
+SceneWindowBase::createMaterial()
+{
+  auto& map = Assets::materials();
+  auto material = new Material{Color::white};
+
+  material->setName("Material %d", int(map.size()));
+  map.emplace(material->name(), material);
+  return material;
+}
 
 Ray3f
 SceneWindowBase::makeRay(int x, int y) const

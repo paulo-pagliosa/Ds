@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022 Paulo Pagliosa.                              |
+//| Copyright (C) 2022, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for scene object builder.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/02/2022
+// Last revision: 01/08/2023
 
 #include "graph/SceneObjectBuilder.h"
 #include "graphics/Assets.h"
@@ -51,7 +51,7 @@ void
 SceneObjectBuilder::setScene(Scene& scene)
 {
   _scene = &scene;
-  _objectId = _cameraId = _lightId = _materialId = _primitiveId = 0;
+  _objectId = _cameraId = _lightId = _primitiveId = 0;
 }
 
 SceneObject*
@@ -106,16 +106,6 @@ SceneObjectBuilder::createPrimitiveObject(const TriangleMesh& mesh,
   object->setName("%s %d", meshName.c_str(), ++_primitiveId);
   object->addComponent(makePrimitive(mesh, meshName));
   return object;
-}
-
-Material*
-SceneObjectBuilder::createMaterial()
-{
-  auto material = new Material{Color::white};
-
-  material->setName("Material %d", ++_materialId);
-  Assets::materials().emplace(material->name(), material);
-  return material;
 }
 
 } // end namespace cg::graph

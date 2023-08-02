@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022 Paulo Pagliosa.                              |
+//| Copyright (C) 2022, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,12 +23,12 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: TransformableObject.h
+// OVERVIEW: TransformableObject.cpp
 // ========
 // Source file for generic transformable object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/03/2022
+// Last revision: 01/08/2023
 
 #include "graphics/TransformableObject.h"
 
