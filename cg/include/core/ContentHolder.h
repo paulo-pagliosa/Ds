@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2020 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for content holder.
 //
 // Author: Paulo Pagliosa
-// Last revision: 30/05/2020
+// Last revision: 08/08/2023
 
 #ifndef __ContentHolder_h
 #define __ContentHolder_h
@@ -66,6 +66,12 @@ public:
     // do nothing
   }
 
+  ContentHolder(T&& data):
+    _data{std::move(data)}
+  {
+    // do nothing
+  }
+
   const auto& data() const
   {
     return _data;
@@ -79,6 +85,11 @@ public:
   void setData(const data_type& data)
   {
     _data = data;
+  }
+
+  void setData(data_type&& data)
+  {
+    _data = std::move(data);
   }
 
 private:
