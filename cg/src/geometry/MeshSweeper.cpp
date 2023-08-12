@@ -28,7 +28,7 @@
 // Source file for mesh sweeper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 30/07/2023
+// Last revision: 11/08/2023
 
 #include "geometry/MeshSweeper.h"
 #include <vector>
@@ -148,8 +148,8 @@ MeshSweeper::makeCone(int ns)
     const auto tx = x;
     const auto tz = z;
 
-    x = c * tx - s * tz;
-    z = s * tx + c * tz;
+    x = c * tx + s * tz;
+    z = c * tz - s * tx;
 
     auto i1 = (i + 1) % ns;
 
@@ -208,8 +208,8 @@ MeshSweeper::makeCylinder(int ns)
     const auto tx = x;
     const auto tz = z;
 
-    x = c * tx - s * tz;
-    z = s * tx + c * tz;
+    x = c * tx + s * tz;
+    z = c * tz - s * tx;
 
     auto i1 = (i + 1) % ns;
     auto j1 = i1 + t;
