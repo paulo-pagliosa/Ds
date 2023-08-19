@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for OpenGL Renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 20/07/2022
+// Last revision: 19/08/2023
 
 #ifndef __GLRenderer_h
 #define __GLRenderer_h
@@ -51,7 +51,9 @@ public:
   constexpr static auto maxLights = 8;
 
   using RenderFunction = std::function<void(GLRenderer&)>;
+
   using GLGraphics3::drawMesh;
+  using enum RenderMode;
 
   /// Constructs a GL renderer object.
   GLRenderer(SceneBase& scene, Camera& camera);

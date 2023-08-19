@@ -28,7 +28,7 @@
 // Source file for OpenGL renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/07/2023
+// Last revision: 19/08/2023
 
 #include "graphics/GLRenderer.h"
 
@@ -585,7 +585,7 @@ GLRenderer::drawMesh(const Primitive& primitive)
 
   GLuint subIds[2];
 
-  subIds[0] = renderMode == RenderMode::HiddenLines ?
+  subIds[0] = renderMode == HiddenLines ?
     _gl->lineColorMixIdx :
     _gl->noMixIdx;
   subIds[1] = flags.isSet(UseVertexColors) ?
