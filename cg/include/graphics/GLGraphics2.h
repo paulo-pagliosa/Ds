@@ -28,7 +28,7 @@
 // Class definition for OpenGL 2D graphics.
 //
 // Author: Paulo Pagliosa
-// Last revision: 23/01/2023
+// Last revision: 26/08/2023
 
 #ifndef __GLGraphics2_h
 #define __GLGraphics2_h
@@ -140,7 +140,7 @@ public:
     drawBounds({vec2f{bounds.min()}, vec2f{bounds.max()}});
   }
 
-  /// Transform screen coordinates \c p to world coordinates.
+  /// Transforms screen coordinates \c p to world coordinates.
   vec2f screenToWorld(const vec2f& p) const;
 
 private:

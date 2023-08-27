@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for OpenGL 3D graphics.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/07/2022
+// Last revision: 26/08/2023
 
 #ifndef __GLGraphics3_h
 #define __GLGraphics3_h
@@ -81,40 +81,63 @@ public:
   static TriangleMesh* sphere();
   static TriangleMesh* cylinder();
 
-  // Default constructor.
+  /// Default constructor.
   GLGraphics3();
 
+  /// Returns the color for mesh drawings.
   const auto& meshColor() const
   {
     return _meshColor;
   }
 
+  /// Sets the color for mesh drawings.
   void setMeshColor(const Color& color)
   {
     _meshColor = color;
   }
 
+  /// Returns the color for grid drawing.
   const auto& gridColor() const
   {
     return _gridColor;
   }
 
+  /// Sets the color for grid drawing.
   void setGridColor(const Color& color)
   {
     _gridColor = color;
   }
 
+  /// Returns the color for vector drawings.
   void setVectorColor(const Color& color)
   {
     setLineColor(_meshColor = color);
   }
 
-  void drawMesh(const TriangleMesh&, const mat4f&, const mat3f&);
-  void drawMesh(const TriangleMesh&, const vec3f&, const mat3f&, const vec3f&);
+  /// Draws a mesh.
+  void drawMesh(const TriangleMesh&, // mesh
+    const mat4f&, // TRS
+    const mat3f&); // normal matrix
+  void drawMesh(const TriangleMesh&, // mesh
+    const vec3f&, // position
+    const mat3f&, // rotation
+    const vec3f&); // scale
 
   void drawMesh(const TriangleMesh& mesh)
   {
     drawMesh(mesh, mat4f::identity(), mat3f::identity());
+  }
+
+  /// Draws a sub-mesh of a given mesh.
+  bool drawSubMesh(const TriangleMesh&, // mesh
+    int, // triangle count
+    int, // triangle index offset
+    const mat4f&, // TRS
+    const mat3f&); // normal matrix
+
+  void drawSubMesh(const TriangleMesh& mesh, int count, int offset)
+  {
+    drawSubMesh(mesh, count, offset, mat4f::identity(), mat3f::identity());
   }
 
   void drawPoint(const vec3f&);
@@ -130,23 +153,27 @@ public:
   void drawBounds(const Bounds3f&);
   void drawXZPlane(float, float);
 
+  /// Sets the built-in light position of this object.
   void setCameraLightOffset(const vec3f& offset)
   {
     _lightOffset = offset;
   }
 
+  /// Sets the view-projection matrix of this object.
   void setView(const vec3f& position, const mat4f& vpMatrix)
   {
     _lightPosition = position + _lightOffset;
     _vpMatrix = vpMatrix;
   }
 
+  /// Updates the view-projection matrix of this object.
   void updateView(Camera& camera)
   {
     camera.update();
     setView(camera.position(), vpMatrix(&camera));
   }
 
+  /// Toggles flat mode for mesh drawings.
   void setFlatMode(bool value)
   {
     _flatMode = value;

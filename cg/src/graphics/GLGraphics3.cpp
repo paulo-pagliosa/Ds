@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for OpenGL 3D graphics.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/03/2022
+// Last revision: 26/08/2023
 
 #include "geometry/MeshSweeper.h"
 #include "graphics/GLGraphics3.h"
@@ -254,6 +254,45 @@ GLGraphics3::drawMesh(const TriangleMesh& mesh,
   const vec3f& s)
 {
   drawMesh(mesh, TRS(p, r, s), normalMatrix(r, s));
+}
+
+bool
+GLGraphics3::drawSubMesh(const TriangleMesh& mesh,
+  int count,
+  int offset,
+  const mat4f& t,
+  const mat3f& n)
+{
+  {
+    if (count <= 0 || offset < 0)
+      return false;
+
+    const auto nt = mesh.data().triangleCount;
+
+    if (offset >= nt)
+      return false;
+    if (auto end = offset + count; end > nt)
+      count = end - nt;
+  }
+  auto cp = GLSL::Program::current();
+
+  _meshDrawer.use();
+  _meshDrawer.setUniformMat4(_transformLoc, t);
+  _meshDrawer.setUniformMat3(_normalMatrixLoc, n);
+  _meshDrawer.setUniformMat4(_vpMatrixLoc, _vpMatrix);
+  _meshDrawer.setUniformVec3(_lightPositionLoc, _lightPosition);
+  _meshDrawer.setUniformVec4(_colorLoc, _meshColor);
+  _meshDrawer.setUniform(_flatModeLoc, _flatMode);
+
+  auto m = glMesh(&mesh);
+
+  m->bind();
+  glDrawElements(GL_TRIANGLES,
+    count * 3,
+    GL_UNSIGNED_INT,
+    (void*)(sizeof(uint32_t) * offset));
+  GLSL::Program::setCurrent(cp);
+  return true;
 }
 
 void
@@ -525,7 +564,7 @@ GLGraphics3::drawAxis(const vec3f& p,
   r[2] = r[0].cross(r[1]);
   q = p + d * scale;
   drawLine(p, q);
-  drawMesh(glyph, q, r, vec3f{0.05f, 0.20f, 0.05f} * scale);
+  drawMesh(glyph, q, r, vec3f{0.05f, 0.20f, 0.05f} *scale);
 }
 
 } // end namespace cg

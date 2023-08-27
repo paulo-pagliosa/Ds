@@ -28,7 +28,7 @@
 // Class definition for generic list.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/07/2023
+// Last revision: 26/08/2023
 
 #ifndef __List_h
 #define __List_h
@@ -182,7 +182,7 @@ class List: public internal::list::List<T, size>
 }; // List
 
 //
-// Specializations for shared objects list
+// Specializations for shared object list
 //
 using RefListBase = internal::list::List<Reference<SharedObject>>;
 using RefListConstIteratorBase = RefListBase::const_iterator;
