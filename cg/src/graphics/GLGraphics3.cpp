@@ -28,7 +28,7 @@
 // Source file for OpenGL 3D graphics.
 //
 // Author: Paulo Pagliosa
-// Last revision: 26/08/2023
+// Last revision: 27/08/2023
 
 #include "geometry/MeshSweeper.h"
 #include "graphics/GLGraphics3.h"
@@ -274,6 +274,7 @@ GLGraphics3::drawSubMesh(const TriangleMesh& mesh,
     if (auto end = offset + count; end > nt)
       count = end - nt;
   }
+
   auto cp = GLSL::Program::current();
 
   _meshDrawer.use();
@@ -290,7 +291,7 @@ GLGraphics3::drawSubMesh(const TriangleMesh& mesh,
   glDrawElements(GL_TRIANGLES,
     count * 3,
     GL_UNSIGNED_INT,
-    (void*)(sizeof(uint32_t) * offset));
+    (void*)(sizeof(TriangleMesh::Triangle) * offset));
   GLSL::Program::setCurrent(cp);
   return true;
 }
