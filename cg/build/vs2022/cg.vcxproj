@@ -199,6 +199,7 @@
     <ClInclude Include="..\..\include\math\Vector3.h" />
     <ClInclude Include="..\..\include\math\Vector4.h" />
     <ClInclude Include="..\..\include\utils\MeshReader.h" />
+    <ClInclude Include="..\..\include\utils\MeshWriter.h" />
     <ClInclude Include="..\..\include\utils\Stopwatch.h" />
   </ItemGroup>
   <ItemGroup>
@@ -264,6 +265,7 @@
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/D_CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/D_CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
+    <ClCompile Include="..\..\src\utils\MeshWriter.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
