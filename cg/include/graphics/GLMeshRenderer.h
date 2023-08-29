@@ -28,11 +28,12 @@
 // Class definition for OpenGL mesh renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/08/2023
+// Last revision: 29/08/2023
 
 #ifndef __GLMeshRenderer_h
 #define __GLMeshRenderer_h
 
+#include "graphics/CameraHolder.h"
 #include "graphics/GLGraphics3.h"
 #include "graphics/Light.h"
 #include "graphics/Material.h"
@@ -45,7 +46,7 @@ namespace cg
 //
 // GLMeshRenderer: OpenGL mesh renderer class
 // ==============
-class GLMeshRenderer: public SharedObject
+class GLMeshRenderer: public CameraHolder
 {
 public:
   constexpr static auto maxLights = 8;
@@ -71,19 +72,16 @@ public:
   RenderMode renderMode{Smooth};
   RenderFlags flags{UseLights};
 
-  GLMeshRenderer(Camera* camera = nullptr);
-
-  Camera* camera() const
+  GLMeshRenderer(Camera* camera = nullptr):
+    CameraHolder{camera}
   {
-    return _camera;
+    // do nothing
   }
 
   auto useVertexColors() const
   {
     return flags.isSet(UseVertexColors);
   }
-
-  void setCamera(Camera* camera);
 
   void begin();
 
@@ -179,7 +177,6 @@ private:
 
   GLProgram _program;
   GLState _lastState;
-  Reference<Camera> _camera;
   mat4f _viewportMatrix;
   int _lightCount{};
   GLuint _texture{};

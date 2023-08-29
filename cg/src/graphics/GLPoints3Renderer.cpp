@@ -23,14 +23,14 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: GLLines3Renderer.cpp
+// OVERVIEW: GLPoints3Renderer.cpp
 // ========
-// Source file for OpenGL 3D lines renderer.
+// Source file for OpenGL 3D points renderer.
 //
 // Author: Paulo Pagliosa
 // Last revision: 29/08/2023
 
-#include "graphics/GLLines3Renderer.h"
+#include "graphics/GLPoints3Renderer.h"
 
 namespace cg
 { // begin namespace cg
@@ -42,14 +42,14 @@ static const char* vertexShader = STRINGIFY(
   layout(location = 1) in vec4 color;
   uniform mat4 mvpMatrix;
   uniform int usePointColors;
-  uniform vec4 lineColor;
+  uniform vec4 pointColor;
   out vec4 vertexColor;
 
-  void main()
-  {
-    gl_Position = mvpMatrix * position;
-    vertexColor = usePointColors != 0 ? color : lineColor;
-  }
+void main()
+{
+  gl_Position = mvpMatrix * position;
+  vertexColor = usePointColors != 0 ? color : pointColor;
+}
 );
 
 static const char* fragmentShader = STRINGIFY(
@@ -65,60 +65,60 @@ static const char* fragmentShader = STRINGIFY(
 
 /////////////////////////////////////////////////////////////////////
 //
-// GLLines3Renderer implementation
+// GLPoints3Renderer implementation
 // ================
 inline void
-GLLines3Renderer::GLProgram::initUniformLocations()
+GLPoints3Renderer::GLProgram::initUniformLocations()
 {
   mvpMatrixLoc = uniformLocation("mvpMatrix");
   usePointColorsLoc = uniformLocation("usePointColors");
-  lineColorLoc = uniformLocation("lineColor");
+  pointColorLoc = uniformLocation("pointColor");
 }
 
 inline void
-GLLines3Renderer::GLProgram::initProgram()
+GLPoints3Renderer::GLProgram::initProgram()
 {
   setShaders(vertexShader, fragmentShader).use();
   initUniformLocations();
 }
 
-GLLines3Renderer::GLProgram::GLProgram():
-  GLSL::Program{"Line Renderer"}
+GLPoints3Renderer::GLProgram::GLProgram():
+  GLSL::Program{"Point Renderer"}
 {
   auto cp = GLSL::Program::current();
 
   initProgram();
-  setUniformVec4(lineColorLoc, Color::black);
+  setUniformVec4(pointColorLoc, Color::black);
   GLSL::Program::setCurrent(cp);
 }
 
 inline void
-GLLines3Renderer::updateView()
+GLPoints3Renderer::updateView()
 {
   camera()->update();
 }
 
 void
-GLLines3Renderer::begin()
+GLPoints3Renderer::begin()
 {
   if (auto cp = GLSL::Program::current(); &_program != cp)
   {
     _lastState.program = cp;
-    glGetFloatv(GL_LINE_WIDTH, &_lastState.lineWidth);
+    glGetFloatv(GL_POINT_SIZE, &_lastState.pointSize);
     glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &_lastState.vao);
-    glLineWidth(_lineWidth);
+    glPointSize(_pointSize);
     _program.use();
     updateView();
   }
 }
 
 void
-GLLines3Renderer::end()
+GLPoints3Renderer::end()
 {
   if (auto cp = GLSL::Program::current(); &_program == cp)
   {
     GLSL::Program::setCurrent(_lastState.program);
-    glLineWidth(_lastState.lineWidth);
+    glPointSize(_lastState.pointSize);
     glBindVertexArray(_lastState.vao);
   }
 }
@@ -135,25 +135,21 @@ mvpMatrix(const mat4f& t, const Camera& c)
 } // end namespace
 
 void
-GLLines3Renderer::render(GLLines3& lines, const mat4f& t)
+GLPoints3Renderer::render(GLPoints3& points, const mat4f& t)
 {
   _program.setUniformMat4(_program.mvpMatrixLoc, mvpMatrix(t, *camera()));
   _program.setUniform(_program.usePointColorsLoc, int(usePointColors));
-  lines.bind();
-  for (uint32_t n = lines.lineCount(), i = 0; i < n; ++i)
-  {
-    auto indices = lines.lineIndices(i);
-    glDrawArrays(GL_LINE_STRIP, indices.x, indices.y - indices.x);
-  }
+  points.bind();
+  glDrawArrays(GL_POINTS, 0, points.size());
 }
 
 void
-GLLines3Renderer::render(GLLines3& lines,
+GLPoints3Renderer::render(GLPoints3& points,
   const vec3f& p,
   const mat3f& r,
   const vec3f& s)
 {
-  render(lines, TRS(p, r, s));
+  render(points, TRS(p, r, s));
 }
 
 } // end namespace cg

@@ -28,11 +28,12 @@
 // Class definition for OpenGL 3D lines renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/08/2023
+// Last revision: 29/08/2023
 
 #ifndef __GLLines3Renderer_h
 #define __GLLines3Renderer_h
 
+#include "graphics/CameraHolder.h"
 #include "graphics/GLGraphics3.h"
 #include "graphics/GLLines3.h"
 
@@ -44,19 +45,16 @@ namespace cg
 //
 // GLLines3Renderer: OpenGL 3D lines renderer class
 // ================
-class GLLines3Renderer: public SharedObject
+class GLLines3Renderer: public CameraHolder
 {
 public:
-  bool useVertexColors{};
+  bool usePointColors{};
 
-  GLLines3Renderer(Camera* camera = nullptr);
-
-  Camera* camera() const
+  GLLines3Renderer(Camera* camera = nullptr):
+    CameraHolder{camera}
   {
-    return _camera;
+    // do nothing
   }
-
-  void setCamera(Camera* camera);
 
   void begin();
 
@@ -91,7 +89,7 @@ private:
   struct GLProgram: public GLSL::Program
   {
     GLint mvpMatrixLoc;
-    GLint useVertexColorsLoc;
+    GLint usePointColorsLoc;
     GLint lineColorLoc;
 
     GLProgram();
@@ -104,7 +102,6 @@ private:
 
   GLProgram _program;
   GLState _lastState;
-  Reference<Camera> _camera;
   float _lineWidth{1};
 
   void updateView();

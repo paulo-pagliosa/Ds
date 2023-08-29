@@ -25,38 +25,31 @@
 //
 // OVERVIEW: GLLines3.h
 // ========
-// Class definition for OpenGL 3D lines array object.
+// Class definition for OpenGL 3D line buffer object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/08/2023
+// Last revision: 29/08/2023
 
 #ifndef __GLLines3_h
 #define __GLLines3_h
 
 #include "geometry/Index2.h"
-#include "graphics/Color.h"
-#include "graphics/GLBuffer.h"
-#include "math/Vector3.h"
+#include "graphics/GLPoints3.h"
 #include <cassert>
-#include <vector>
 
 namespace cg
 { // begin namespace cg
 
 class GLLines3Renderer;
-class GLRenderer;
-
-using GLColorBuffer = GLBuffer<Color>;
 
 
 /////////////////////////////////////////////////////////////////////
 //
-// GLLines3: OpenGL 3D lines array object class
+// GLLines3: OpenGL 3D line buffer object class
 // ========
-class GLLines3: public SharedObject
+class GLLines3: public GLPoints3
 {
 public:
-  using PointArray = std::vector<vec3f>;
   using IndexArray = std::vector<uint32_t>;
 
   GLLines3(const PointArray& points, IndexArray&& lineSizes);
@@ -67,32 +60,12 @@ public:
     // do nothing
   }
 
-  ~GLLines3()
-  {
-    glDeleteBuffers(1, &_buffer);
-    glDeleteVertexArrays(1, &_vao);
-  }
-
-  auto totalPointCount() const
-  {
-    return _lineEnds.back();
-  }
-
   auto lineCount() const
   {
     return uint32_t(_lineEnds.size());
   }
 
-  void bind()
-  {
-    glBindVertexArray(_vao);
-  }
-
-  void setColors(GLColorBuffer* colors, int location = 1);
-
 private:
-  GLuint _vao;
-  GLuint _buffer;
   IndexArray _lineEnds;
 
   /// Returns the point indices (start,end+1) of the ith line.

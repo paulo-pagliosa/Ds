@@ -28,7 +28,7 @@
 // Source file for OpenGL mesh renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/08/2023
+// Last revision: 29/08/2023
 
 #include "graphics/GLMeshRenderer.h"
 
@@ -423,23 +423,17 @@ GLMeshRenderer::GLProgram::renderLight(int i,
   setUniform(lightLocs[i].angle, light.spotAngle());
 }
 
-GLMeshRenderer::GLMeshRenderer(Camera* camera):
-  _camera{!camera ? new Camera{} : camera}
-{
-  // do nothing
-}
-
 bool
 GLMeshRenderer::setLight(int i, const Light& light)
 {
   return light.isTurnedOn() ?
-    void(_program.renderLight(i, light, *_camera)), true : false;
+    void(_program.renderLight(i, light, *camera())), true : false;
 }
 
 inline void
 GLMeshRenderer::updateView()
 {
-  _camera->update();
+  camera()->update();
 
   GLint v[4];
   
@@ -452,13 +446,6 @@ GLMeshRenderer::updateView()
   _viewportMatrix[1].set(0, h2, 0, 0);
   _viewportMatrix[2].set(0, 0, 1, 0);
   _viewportMatrix[3].set(v[0] + w2, v[1] + h2, 0, 0);
-}
-
-void
-GLMeshRenderer::setCamera(Camera* camera)
-{
-  if (camera != _camera.get())
-    (_camera = camera ? camera : new Camera{})->update();
 }
 
 void
@@ -527,12 +514,12 @@ GLMeshRenderer::render(TriangleMesh& mesh, const mat4f& t, const mat3f& n)
   if (_lightCount == 0)
     _program.renderDefaultLights();
 
-  auto mv = mvMatrix(t, *_camera);
+  auto camera = this->camera();
+  auto mv = mvMatrix(t, *camera);
 
   _program.setUniformMat4(_program.mvMatrixLoc, mv);
-  _program.setUniformMat4(_program.mvpMatrixLoc, mvpMatrix(mv, *_camera));
-  _program.setUniformMat3(_program.normalMatrixLoc,
-    normalMatrix(n, *_camera));
+  _program.setUniformMat4(_program.mvpMatrixLoc, mvpMatrix(mv, *camera));
+  _program.setUniformMat3(_program.normalMatrixLoc, normalMatrix(n, *camera));
 
   GLuint subIds[2];
 

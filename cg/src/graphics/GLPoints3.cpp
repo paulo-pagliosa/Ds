@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2023 Paulo Pagliosa.                              |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,20 +23,21 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: GLMesh.cpp
+// OVERVIEW: GLPoints3.cpp
 // ========
-// Source file for OpenGL mesh array object.
+// Source file for OpenGL 3D point buffer object.
 //
 // Author: Paulo Pagliosa
 // Last revision: 29/08/2023
 
-#include "graphics/GLMesh.h"
+#include "graphics/GLPoints3.h"
+#include <cassert>
 
 namespace cg
 { // begin namespace cg
 
 template <typename T>
-inline auto bufferSize(int n)
+inline auto bufferSize(size_t n)
 {
   return sizeof(T) * n;
 }
@@ -44,48 +45,30 @@ inline auto bufferSize(int n)
 
 /////////////////////////////////////////////////////////////////////
 //
-// GLMesh implementation
-// ======
-GLMesh::GLMesh(const TriangleMesh& mesh)
+// GLPoints3 implementation
+// =========
+GLPoints3::GLPoints3(const PointArray& points):
+  _size{uint32_t(points.size())}
 {
   glGenVertexArrays(1, &_vao);
   glBindVertexArray(_vao);
-  glGenBuffers(4, _buffers);
-
-  const auto& m = mesh.data();
-
-  if (auto s = bufferSize<vec3f>(m.vertexCount))
+  glGenBuffers(1, &_buffer);
+  if (auto s = bufferSize<vec3f>(_size))
   {
-    glBindBuffer(GL_ARRAY_BUFFER, _buffers[0]);
-    glBufferData(GL_ARRAY_BUFFER, s, m.vertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, _buffer);
+    glBufferData(GL_ARRAY_BUFFER, s, points.data(), GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, _buffers[1]);
-    glBufferData(GL_ARRAY_BUFFER, s, m.vertexNormals, GL_STATIC_DRAW);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(1);
   }
-  if (auto s = mesh.hasUV() * bufferSize<vec2f>(m.vertexCount))
-  {
-    glBindBuffer(GL_ARRAY_BUFFER, _buffers[2]);
-    glBufferData(GL_ARRAY_BUFFER, s, m.uv, GL_STATIC_DRAW);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(2);
-  }
-  if (auto s = bufferSize<TriangleMesh::Triangle>(m.triangleCount))
-  {
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _buffers[3]);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, s, m.triangles, GL_STATIC_DRAW);
-  }
-  _vertexCount = m.triangleCount * 3;
 }
 
 void
-GLMesh::setColors(GLColorBuffer* colors, int location)
+GLPoints3::setColors(GLColorBuffer* colors, int location)
 {
   bind();
   if (colors != nullptr)
   {
+    assert(colors->size() == _size);
     colors->bind();
     glVertexAttribPointer(location, 4, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(location);

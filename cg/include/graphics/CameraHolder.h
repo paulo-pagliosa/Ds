@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2023 Paulo Pagliosa.                              |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,74 +23,52 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: GLMesh.cpp
+// OVERVIEW: CameraHolder.h
 // ========
-// Source file for OpenGL mesh array object.
+// Class definition for camera holder.
 //
 // Author: Paulo Pagliosa
 // Last revision: 29/08/2023
 
-#include "graphics/GLMesh.h"
+#ifndef __CameraHolder_h
+#define __CameraHolder_h
+
+#include "graphics/Camera.h"
 
 namespace cg
 { // begin namespace cg
 
-template <typename T>
-inline auto bufferSize(int n)
-{
-  return sizeof(T) * n;
-}
-
 
 /////////////////////////////////////////////////////////////////////
 //
-// GLMesh implementation
-// ======
-GLMesh::GLMesh(const TriangleMesh& mesh)
+// CameraHolder: camera holder class
+// ============
+class CameraHolder: public SharedObject
 {
-  glGenVertexArrays(1, &_vao);
-  glBindVertexArray(_vao);
-  glGenBuffers(4, _buffers);
+public:
+  Camera* camera() const
+  {
+    return _camera;
+  }
 
-  const auto& m = mesh.data();
+  void setCamera(Camera* camera)
+  {
+    if (camera != _camera.get())
+      (_camera = camera ? camera : new Camera{})->update();
+  }
 
-  if (auto s = bufferSize<vec3f>(m.vertexCount))
+protected:
+  CameraHolder(Camera* camera = nullptr):
+    _camera{!camera ? new Camera{} : camera}
   {
-    glBindBuffer(GL_ARRAY_BUFFER, _buffers[0]);
-    glBufferData(GL_ARRAY_BUFFER, s, m.vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, _buffers[1]);
-    glBufferData(GL_ARRAY_BUFFER, s, m.vertexNormals, GL_STATIC_DRAW);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(1);
+    // do nothing
   }
-  if (auto s = mesh.hasUV() * bufferSize<vec2f>(m.vertexCount))
-  {
-    glBindBuffer(GL_ARRAY_BUFFER, _buffers[2]);
-    glBufferData(GL_ARRAY_BUFFER, s, m.uv, GL_STATIC_DRAW);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(2);
-  }
-  if (auto s = bufferSize<TriangleMesh::Triangle>(m.triangleCount))
-  {
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _buffers[3]);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, s, m.triangles, GL_STATIC_DRAW);
-  }
-  _vertexCount = m.triangleCount * 3;
-}
 
-void
-GLMesh::setColors(GLColorBuffer* colors, int location)
-{
-  bind();
-  if (colors != nullptr)
-  {
-    colors->bind();
-    glVertexAttribPointer(location, 4, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(location);
-  }
-  glVertexAttrib4f(location, 0, 0, 0, 0);
-}
+private:
+  Reference<Camera> _camera;
+
+}; // CameraHolder
 
 } // end namespace cg
+
+#endif // __CameraHolder_h

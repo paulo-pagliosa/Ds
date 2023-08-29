@@ -144,6 +144,7 @@
     <ClInclude Include="..\..\include\graphics\AssetFolder.h" />
     <ClInclude Include="..\..\include\graphics\Assets.h" />
     <ClInclude Include="..\..\include\graphics\Camera.h" />
+    <ClInclude Include="..\..\include\graphics\CameraHolder.h" />
     <ClInclude Include="..\..\include\graphics\Color.h" />
     <ClInclude Include="..\..\include\graphics\GLBuffer.h" />
     <ClInclude Include="..\..\include\graphics\GLFramebuffer.h" />
@@ -155,6 +156,8 @@
     <ClInclude Include="..\..\include\graphics\GLLines3Renderer.h" />
     <ClInclude Include="..\..\include\graphics\GLMesh.h" />
     <ClInclude Include="..\..\include\graphics\GLMeshRenderer.h" />
+    <ClInclude Include="..\..\include\graphics\GLPoints3.h" />
+    <ClInclude Include="..\..\include\graphics\GLPoints3Renderer.h" />
     <ClInclude Include="..\..\include\graphics\GLProgram.h" />
     <ClInclude Include="..\..\include\graphics\GLRenderer.h" />
     <ClInclude Include="..\..\include\graphics\GLRendererBase.h" />
@@ -227,6 +230,8 @@
     <ClCompile Include="..\..\src\graphics\GLLines3Renderer.cpp" />
     <ClCompile Include="..\..\src\graphics\GLMesh.cpp" />
     <ClCompile Include="..\..\src\graphics\GLMeshRenderer.cpp" />
+    <ClCompile Include="..\..\src\graphics\GLPoints3.cpp" />
+    <ClCompile Include="..\..\src\graphics\GLPoints3Renderer.cpp" />
     <ClCompile Include="..\..\src\graphics\GLProgram.cpp" />
     <ClCompile Include="..\..\src\graphics\GLRenderer.cpp" />
     <ClCompile Include="..\..\src\graphics\GLRendererBase.cpp" />
