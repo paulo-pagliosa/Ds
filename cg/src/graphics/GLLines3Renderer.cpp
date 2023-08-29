@@ -32,7 +32,6 @@
 
 #include "graphics/GLLines3Renderer.h"
 
-
 namespace cg
 { // begin namespace cg
 
