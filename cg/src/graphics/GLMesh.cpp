@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2020 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,12 +28,18 @@
 // Source file for OpenGL mesh array object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 15/06/2020
+// Last revision: 28/08/2023
 
 #include "graphics/GLMesh.h"
 
 namespace cg
 { // begin namespace cg
+
+template <typename T>
+inline auto size(int n)
+{
+  return sizeof(T) * n;
+}
 
 
 /////////////////////////////////////////////////////////////////////

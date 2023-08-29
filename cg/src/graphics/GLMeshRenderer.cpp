@@ -28,7 +28,7 @@
 // Source file for OpenGL mesh renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 09/06/2023
+// Last revision: 28/08/2023
 
 #include "graphics/GLMeshRenderer.h"
 
@@ -57,9 +57,9 @@ static const char* vertexShader = STRINGIFY(
 
   void main()
   {
+    gl_Position = mvpMatrix * position;
     v_position = vec3(mvMatrix * position);
     v_normal = normalize(normalMatrix * normal);
-    gl_Position = mvpMatrix * position;
     v_color = color;
     v_uv = uv;
   }
@@ -88,35 +88,31 @@ static const char* geometryShader = STRINGIFY(
       (gl_in[1].gl_Position / gl_in[1].gl_Position.w));
     vec2 p2 = vec2(viewportMatrix *
       (gl_in[2].gl_Position / gl_in[2].gl_Position.w));
-    float a = length(p1 - p2);
-    float b = length(p2 - p0);
-    float c = length(p1 - p0);
-    float alpha = acos((b * b + c * c - a * a) / (2 * b * c));
-    float delta = acos((a * a + c * c - b * b) / (2 * a * c));
-    float ha = abs(c * sin(delta));
-    float hb = abs(c * sin(alpha));
-    float hc = abs(b * sin(alpha));
+    vec2 v0 = p2 - p1;
+    vec2 v1 = p2 - p0;
+    vec2 v2 = p1 - p0;
+    float a = v2.x * v1.y - v1.x * v2.y;
 
-    g_edgeDistance = vec3(ha, 0, 0);
+    gl_Position = gl_in[0].gl_Position;
+    g_edgeDistance = vec3(abs(a / length(v0)), 0, 0);
     g_position = v_position[0];
     g_normal = v_normal[0];
     g_color = v_color[0];
     g_uv = v_uv[0];
-    gl_Position = gl_in[0].gl_Position;
     EmitVertex();
-    g_edgeDistance = vec3(0, hb, 0);
+    gl_Position = gl_in[1].gl_Position;
+    g_edgeDistance = vec3(0, abs(a / length(v1)), 0);
     g_position = v_position[1];
     g_normal = v_normal[1];
     g_color = v_color[1];
     g_uv = v_uv[1];
-    gl_Position = gl_in[1].gl_Position;
     EmitVertex();
-    g_edgeDistance = vec3(0, 0, hc);
+    gl_Position = gl_in[2].gl_Position;
+    g_edgeDistance = vec3(0, 0, abs(a / length(v2)));
     g_position = v_position[2];
     g_normal = v_normal[2];
     g_color = v_color[2];
     g_uv = v_uv[2];
-    gl_Position = gl_in[2].gl_Position;
     EmitVertex();
     EndPrimitive();
   }
@@ -428,7 +424,7 @@ GLMeshRenderer::GLProgram::renderLight(int i,
 }
 
 GLMeshRenderer::GLMeshRenderer(Camera* camera):
-  _camera{camera == nullptr ? new Camera{} : camera}
+  _camera{!camera ? new Camera{} : camera}
 {
   // do nothing
 }
@@ -462,39 +458,37 @@ void
 GLMeshRenderer::setCamera(Camera* camera)
 {
   if (camera != _camera.get())
-    (_camera = nullptr != camera ? camera : new Camera{})->update();
+    (_camera = camera ? camera : new Camera{})->update();
 }
 
 void
 GLMeshRenderer::begin()
 {
-  auto cp = GLSL::Program::current();
-
-  if (&_program == cp)
-    return;
-  _lastState.program = cp;
-  _lastState.depthTest = glIsEnabled(GL_DEPTH_TEST);
-  glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &_lastState.vao);
-  glGetIntegerv(GL_TEXTURE_BINDING_2D, &_lastState.texture);
-  updateView();
-  _program.use();
-  _program.setUniformMat4(_program.viewportMatrixLoc, _viewportMatrix);
-  glPolygonMode(GL_FRONT_AND_BACK, (renderMode != Wireframe) + GL_LINE);
-  glEnable(GL_DEPTH_TEST);
+  if (auto cp = GLSL::Program::current(); &_program != cp)
+  {
+    _lastState.program = cp;
+    _lastState.depthTest = glIsEnabled(GL_DEPTH_TEST);
+    glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &_lastState.vao);
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &_lastState.texture);
+    updateView();
+    _program.use();
+    _program.setUniformMat4(_program.viewportMatrixLoc, _viewportMatrix);
+    glPolygonMode(GL_FRONT_AND_BACK, (renderMode != Wireframe) + GL_LINE);
+    glEnable(GL_DEPTH_TEST);
+  }
 }
 
 void
 GLMeshRenderer::end()
 {
-  auto cp = GLSL::Program::current();
-
-  if (&_program != cp)
-    return;
-  GLSL::Program::setCurrent(_lastState.program);
-  if (!_lastState.depthTest)
-    glDisable(GL_DEPTH_TEST);
-  glBindVertexArray(_lastState.vao);
-  glBindTexture(GL_TEXTURE_2D, _lastState.texture);
+  if (auto cp = GLSL::Program::current(); &_program == cp)
+  {
+    GLSL::Program::setCurrent(_lastState.program);
+    if (!_lastState.depthTest)
+      glDisable(GL_DEPTH_TEST);
+    glBindVertexArray(_lastState.vao);
+    glBindTexture(GL_TEXTURE_2D, _lastState.texture);
+  }
 }
 
 void
@@ -503,6 +497,9 @@ GLMeshRenderer::setMaterial(const Material& material, void* texture)
   _program.renderMaterial(material);
   _texture = texture != nullptr ? (GLuint)(intptr_t)texture : 0;
 }
+
+namespace
+{ // begin namespace
 
 inline mat4f
 mvMatrix(const mat4f& t, const Camera& c)
@@ -519,8 +516,10 @@ mvpMatrix(const mat4f& mvm, const Camera& c)
 inline auto
 normalMatrix(const mat3f& n, const Camera& c)
 {
-  return mat3f{c.worldToCameraMatrix()} * n;
+  return mat3f{c.worldToCameraMatrix()} *n;
 }
+
+} // end namespace
 
 void
 GLMeshRenderer::render(TriangleMesh& mesh, const mat4f& t, const mat3f& n)

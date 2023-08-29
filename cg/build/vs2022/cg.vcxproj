@@ -151,6 +151,8 @@
     <ClInclude Include="..\..\include\graphics\GLGraphics3.h" />
     <ClInclude Include="..\..\include\graphics\GLGraphicsBase.h" />
     <ClInclude Include="..\..\include\graphics\GLImage.h" />
+    <ClInclude Include="..\..\include\graphics\GLLines3.h" />
+    <ClInclude Include="..\..\include\graphics\GLLines3Renderer.h" />
     <ClInclude Include="..\..\include\graphics\GLMesh.h" />
     <ClInclude Include="..\..\include\graphics\GLMeshRenderer.h" />
     <ClInclude Include="..\..\include\graphics\GLProgram.h" />
@@ -222,6 +224,7 @@
     <ClCompile Include="..\..\src\graphics\GLGraphics3.cpp" />
     <ClCompile Include="..\..\src\graphics\GLGraphicsBase.cpp" />
     <ClCompile Include="..\..\src\graphics\GLImage.cpp" />
+    <ClCompile Include="..\..\src\graphics\GLLines3Renderer.cpp" />
     <ClCompile Include="..\..\src\graphics\GLMesh.cpp" />
     <ClCompile Include="..\..\src\graphics\GLMeshRenderer.cpp" />
     <ClCompile Include="..\..\src\graphics\GLProgram.cpp" />
@@ -240,6 +243,7 @@
     <ClCompile Include="..\..\src\graphics\SceneEditor.cpp" />
     <ClCompile Include="..\..\src\graphics\SceneWindowBase.cpp" />
     <ClCompile Include="..\..\src\graphics\Shape.cpp" />
+    <ClCompile Include="..\..\src\graphics\GLLines3.cpp" />
     <ClCompile Include="..\..\src\graphics\TransformableObject.cpp" />
     <ClCompile Include="..\..\src\graphics\TriangleMeshMapper.cpp" />
     <ClCompile Include="..\..\src\graphics\TriangleMeshShape.cpp" />

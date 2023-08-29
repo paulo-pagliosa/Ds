@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2023 Paulo Pagliosa.                              |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,40 +23,64 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: GLMesh.h
+// OVERVIEW: GLLines3.h
 // ========
-// Class definition for OpenGL mesh array object.
+// Class definition for OpenGL 3D lines array object.
 //
 // Author: Paulo Pagliosa
 // Last revision: 28/08/2023
 
-#ifndef __GLMesh_h
-#define __GLMesh_h
+#ifndef __GLLines3_h
+#define __GLLines3_h
 
-#include "geometry/TriangleMesh.h"
+#include "geometry/Index2.h"
+#include "graphics/Color.h"
 #include "graphics/GLBuffer.h"
+#include "math/Vector3.h"
+#include <cassert>
+#include <vector>
 
 namespace cg
 { // begin namespace cg
+
+class GLLines3Renderer;
+class GLRenderer;
 
 using GLColorBuffer = GLBuffer<Color>;
 
 
 /////////////////////////////////////////////////////////////////////
 //
-// GLMesh: OpenGL mesh array object class
-// ======
-class GLMesh: public SharedObject
+// GLLines3: OpenGL 3D lines array object class
+// ========
+class GLLines3: public SharedObject
 {
 public:
-  /// Constructs a GLMesh object.
-  GLMesh(const TriangleMesh& mesh);
+  using PointArray = std::vector<vec3f>;
+  using IndexArray = std::vector<uint32_t>;
 
-  /// Destructor.
-  ~GLMesh()
+  GLLines3(const PointArray& points, IndexArray&& lineSizes);
+
+  GLLines3(const PointArray& points, uint32_t lineCount, uint32_t lineSize):
+    GLLines3{points, IndexArray(lineCount, lineSize)}
   {
-    glDeleteBuffers(4, _buffers);
+    // do nothing
+  }
+
+  ~GLLines3()
+  {
+    glDeleteBuffers(1, &_buffer);
     glDeleteVertexArrays(1, &_vao);
+  }
+
+  auto totalPointCount() const
+  {
+    return _lineEnds.back();
+  }
+
+  auto lineCount() const
+  {
+    return uint32_t(_lineEnds.size());
   }
 
   void bind()
@@ -64,42 +88,25 @@ public:
     glBindVertexArray(_vao);
   }
 
-  auto vertexCount() const
-  {
-    return _vertexCount;
-  }
-
-  void setColors(GLColorBuffer* colors, int location = 3);
+  void setColors(GLColorBuffer* colors, int location = 1);
 
 private:
   GLuint _vao;
-  GLuint _buffers[4];
-  int _vertexCount;
+  GLuint _buffer;
+  IndexArray _lineEnds;
 
-}; // GLMesh
-
-inline GLMesh*
-asGLMesh(SharedObject* object)
-{
-  return dynamic_cast<GLMesh*>(object);
-}
-
-inline GLMesh*
-glMesh(const TriangleMesh* mesh)
-{
-  if (nullptr == mesh)
-    return nullptr;
-
-  auto ma = asGLMesh(mesh->userData);
-
-  if (nullptr == ma)
+  /// Returns the point indices (start,end+1) of the ith line.
+  auto lineIndices(uint32_t i) const
   {
-    ma = new GLMesh{*mesh};
-    mesh->userData = ma;
+    assert(i < _lineEnds.size());
+    return Index2<uint32_t>{i ? _lineEnds[i - 1] : 0, _lineEnds[i]};
   }
-  return ma;
-}
+
+  friend GLLines3Renderer;
+  friend GLRenderer;
+
+}; // GLLines3
 
 } // end namespace cg
 
-#endif // __GLMesh_h
+#endif // __GLLines3_h
