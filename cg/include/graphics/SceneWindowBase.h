@@ -28,13 +28,13 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/08/2023
+// Last revision: 30/08/2023
 
 #ifndef __SceneWindowBase_h
 #define __SceneWindowBase_h
 
 #include "graphics/GLWindow.h"
-#include "graphics/GLTextureFrameBuffer.h"
+#include "graphics/GLTextureFramebuffer.h"
 #include "graphics/SceneEditor.h"
 
 namespace cg
