@@ -28,7 +28,7 @@
 // Source file for OpenGL mesh renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2023
+// Last revision: 02/09/2023
 
 #include "graphics/GLMeshRenderer.h"
 
@@ -489,21 +489,21 @@ namespace
 { // begin namespace
 
 inline mat4f
-mvMatrix(const mat4f& t, const Camera& c)
+mvMatrix(const mat4f& t, const Camera* c)
 {
-  return c.worldToCameraMatrix() * t;
+  return c->worldToCameraMatrix() * t;
 }
 
 inline mat4f
-mvpMatrix(const mat4f& mvm, const Camera& c)
+mvpMatrix(const mat4f& mvm, const Camera* c)
 {
-  return c.projectionMatrix() * mvm;
+  return c->projectionMatrix() * mvm;
 }
 
 inline auto
-normalMatrix(const mat3f& n, const Camera& c)
+normalMatrix(const mat3f& n, const Camera* c)
 {
-  return mat3f{c.worldToCameraMatrix()} *n;
+  return mat3f{c->worldToCameraMatrix()} * n;
 }
 
 } // end namespace
@@ -515,11 +515,11 @@ GLMeshRenderer::render(TriangleMesh& mesh, const mat4f& t, const mat3f& n)
     _program.renderDefaultLights();
 
   auto camera = this->camera();
-  auto mv = mvMatrix(t, *camera);
+  auto mv = mvMatrix(t, camera);
 
   _program.setUniformMat4(_program.mvMatrixLoc, mv);
-  _program.setUniformMat4(_program.mvpMatrixLoc, mvpMatrix(mv, *camera));
-  _program.setUniformMat3(_program.normalMatrixLoc, normalMatrix(n, *camera));
+  _program.setUniformMat4(_program.mvpMatrixLoc, mvpMatrix(mv, camera));
+  _program.setUniformMat3(_program.normalMatrixLoc, normalMatrix(n, camera));
 
   GLuint subIds[2];
 

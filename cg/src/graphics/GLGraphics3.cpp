@@ -28,7 +28,7 @@
 // Source file for OpenGL 3D graphics.
 //
 // Author: Paulo Pagliosa
-// Last revision: 27/08/2023
+// Last revision: 02/09/2023
 
 #include "geometry/MeshSweeper.h"
 #include "graphics/GLGraphics3.h"
@@ -228,7 +228,11 @@ GLGraphics3::GLGraphics3():
 }
 
 void
-GLGraphics3::drawMesh(const TriangleMesh& mesh, const mat4f& t, const mat3f& n)
+GLGraphics3::drawMesh(const TriangleMesh& mesh,
+  const mat4f& t,
+  const mat3f& n,
+  int count,
+  int offset)
 {
   auto cp = GLSL::Program::current();
 
@@ -243,7 +247,10 @@ GLGraphics3::drawMesh(const TriangleMesh& mesh, const mat4f& t, const mat3f& n)
   auto m = glMesh(&mesh);
 
   m->bind();
-  glDrawElements(GL_TRIANGLES, m->vertexCount(), GL_UNSIGNED_INT, 0);
+  glDrawElements(GL_TRIANGLES,
+    count * 3,
+    GL_UNSIGNED_INT,
+    (void*)(sizeof(TriangleMesh::Triangle) * offset));
   GLSL::Program::setCurrent(cp);
 }
 
@@ -274,25 +281,7 @@ GLGraphics3::drawSubMesh(const TriangleMesh& mesh,
     if (auto end = offset + count; end > nt)
       count = end - nt;
   }
-
-  auto cp = GLSL::Program::current();
-
-  _meshDrawer.use();
-  _meshDrawer.setUniformMat4(_transformLoc, t);
-  _meshDrawer.setUniformMat3(_normalMatrixLoc, n);
-  _meshDrawer.setUniformMat4(_vpMatrixLoc, _vpMatrix);
-  _meshDrawer.setUniformVec3(_lightPositionLoc, _lightPosition);
-  _meshDrawer.setUniformVec4(_colorLoc, _meshColor);
-  _meshDrawer.setUniform(_flatModeLoc, _flatMode);
-
-  auto m = glMesh(&mesh);
-
-  m->bind();
-  glDrawElements(GL_TRIANGLES,
-    count * 3,
-    GL_UNSIGNED_INT,
-    (void*)(sizeof(TriangleMesh::Triangle) * offset));
-  GLSL::Program::setCurrent(cp);
+  drawMesh(mesh, t, n, count, offset);
   return true;
 }
 
@@ -551,7 +540,7 @@ void
 GLGraphics3::drawAxis(const vec3f& p,
   const vec3f& d,
   float scale,
-  TriangleMesh& glyph)
+  const TriangleMesh& glyph)
 {
   mat3f r;
   vec3f q;

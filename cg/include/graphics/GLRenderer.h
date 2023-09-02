@@ -28,7 +28,7 @@
 // Class definition for OpenGL Renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/08/2023
+// Last revision: 02/09/2023
 
 #ifndef __GLRenderer_h
 #define __GLRenderer_h
@@ -51,9 +51,11 @@ public:
   constexpr static auto maxLights = 8;
 
   using RenderFunction = std::function<void(GLRenderer&)>;
-
-  using GLGraphics3::drawMesh;
   using enum RenderMode;
+
+  using GLGraphics3::drawAxes;
+  using GLGraphics3::drawMesh;
+  using GLGraphics3::drawSubMesh;
 
   /// Constructs a GL renderer object.
   GLRenderer(SceneBase& scene, Camera& camera);
@@ -64,10 +66,15 @@ public:
   void update();
   void render();
 
-  using GLGraphics3::drawAxes;
-
-  bool drawMesh(const Primitive& primitive) final;
   void renderMaterial(const Material& material) final;
+  bool drawMesh(const Primitive& primitive) final;
+
+  bool drawSubMesh(const TriangleMesh& mesh,
+    int count,
+    int offset,
+    const Material& material,
+    const mat4f& t,
+    const mat3f& n);
 
   void setRenderFunction(RenderFunction f)
   {
@@ -90,6 +97,12 @@ protected:
   virtual void renderLights();
 
   void drawAxes(const mat4f&, float);
+  void drawMesh(const TriangleMesh&,
+    const Material&,
+    const mat4f&,
+    const mat3f&,
+    int,
+    int);
 
 private:
   struct GLData;

@@ -28,7 +28,7 @@
 // Class definition for OpenGL 3D graphics.
 //
 // Author: Paulo Pagliosa
-// Last revision: 26/08/2023
+// Last revision: 02/09/2023
 
 #ifndef __GLGraphics3_h
 #define __GLGraphics3_h
@@ -115,18 +115,20 @@ public:
   }
 
   /// Draws a mesh.
-  void drawMesh(const TriangleMesh&, // mesh
-    const mat4f&, // TRS
-    const mat3f&); // normal matrix
-  void drawMesh(const TriangleMesh&, // mesh
-    const vec3f&, // position
-    const mat3f&, // rotation
-    const vec3f&); // scale
+  void drawMesh(const TriangleMesh& mesh, const mat4f& t, const mat3f& n)
+  {
+    drawMesh(mesh, t, n, mesh.data().triangleCount, 0);
+  }
 
   void drawMesh(const TriangleMesh& mesh)
   {
     drawMesh(mesh, mat4f::identity(), mat3f::identity());
   }
+
+  void drawMesh(const TriangleMesh&, // mesh
+    const vec3f&, // position
+    const mat3f&, // rotation
+    const vec3f&); // scale
 
   /// Draws a sub-mesh of a given mesh.
   bool drawSubMesh(const TriangleMesh&, // mesh
@@ -179,6 +181,9 @@ public:
     _flatMode = value;
   }
 
+protected:
+  void drawMesh(const TriangleMesh&, const mat4f&, const mat3f&, int, int);
+
 private:
   using Base = GLGraphicsBase;
 
@@ -197,7 +202,7 @@ private:
   Color _gridColor;
 
   void drawPolyline(const vec3f*, int, const mat4f&, bool = false);
-  void drawAxis(const vec3f&, const vec3f&, float, TriangleMesh&);
+  void drawAxis(const vec3f&, const vec3f&, float, const TriangleMesh&);
 
 }; // GLGraphics3
 

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2019 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for OpenGL graphics base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/01/2012
+// Last revision: 02/09/2023
 
 #include "graphics/GLGraphicsBase.h"
 
@@ -92,8 +92,7 @@ GLGraphicsBase::GLGraphicsBase():
   _pointDrawer{"Point Drawer"},
   _lineDrawer{"Line Drawer"},
   _triangleDrawer{"Triangle Drawer"},
-  _quadDrawer{"Quad Drawer"},
-  _polygonMode{FILL}
+  _quadDrawer{"Quad Drawer"}
 {
   using namespace GLSL;
 
@@ -114,11 +113,12 @@ GLGraphicsBase::GLGraphicsBase():
   _quadPointsLoc = _quadDrawer.uniformLocation("p[0]");
   _quadColorsLoc = _quadDrawer.uniformLocation("vertexColors[0]");
   glGenVertexArrays(1, &_vao);
-  setPointSize(4);
   setPointColor(Color::red);
-  setLineWidth(1);
   setLineColor(Color::white);
   setQuadColor(Color::white);
+  setPointSize(4);
+  setLineWidth(1);
+  setPolygonMode(FILL);
 }
 
 GLGraphicsBase::~GLGraphicsBase()

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for triangle functions.
 //
 // Author: Paulo Pagliosa
-// Last revision: 18/01/2022
+// Last revision: 01/09/2023
 
 #ifndef __Triangle_h
 #define __Triangle_h
@@ -99,7 +99,7 @@ center(const vec3* v, const int i[3])
 
 template <typename T, typename vec3>
 HOST DEVICE inline T
-interpolate(const vec3& b, const T& t0,  const T& t1, const T& t2)
+interpolate(const vec3& b, const T& t0, const T& t1, const T& t2)
 {
   return t0 * b.x + t1 * b.y + t2 * b.z;
 }
