@@ -28,7 +28,7 @@
 // Source file for OpenGL 3D render window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 30/07/2023
+// Last revision: 05/09/2023
 
 #include "graphics/GLRenderWindow3.h"
 
@@ -133,12 +133,12 @@ GLRenderWindow3::scrollEvent(double, double yOffset)
 }
 
 bool
-GLRenderWindow3::mouseButtonInputEvent(int button, int actions, int)
+GLRenderWindow3::mouseButtonInputEvent(int button, int action, int)
 {
   if (ImGui::GetIO().WantCaptureMouse)
     return false;
 
-  auto active = actions == GLFW_PRESS;
+  auto active = action == GLFW_PRESS;
 
   cursorPosition(_pivotX, _pivotY);
   if (button == GLFW_MOUSE_BUTTON_RIGHT)

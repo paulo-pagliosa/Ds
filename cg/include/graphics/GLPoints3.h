@@ -28,7 +28,7 @@
 // Class definition for OpenGL 3D point buffer object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2023
+// Last revision: 05/09/2023
 
 #ifndef __GLPoints3_h
 #define __GLPoints3_h
@@ -69,7 +69,7 @@ public:
     return _size;
   }
 
-  void bind()
+  void bind() const
   {
     glBindVertexArray(_vao);
   }

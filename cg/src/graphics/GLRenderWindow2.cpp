@@ -28,7 +28,7 @@
 // Source file for OpenGL 2D render window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 30/07/2023
+// Last revision: 05/09/2023
 
 #include "graphics/GLRenderWindow2.h"
 
@@ -116,12 +116,12 @@ GLRenderWindow2::scrollEvent(double, double yOffset)
 }
 
 bool
-GLRenderWindow2::mouseButtonInputEvent(int button, int actions, int)
+GLRenderWindow2::mouseButtonInputEvent(int button, int action, int)
 {
   if (ImGui::GetIO().WantCaptureMouse)
     return false;
 
-  auto active = actions == GLFW_PRESS;
+  auto active = action == GLFW_PRESS;
 
   cursorPosition(_pivotX, _pivotY);
   switch (button)

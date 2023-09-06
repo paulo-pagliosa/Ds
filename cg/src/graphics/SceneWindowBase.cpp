@@ -28,7 +28,7 @@
 // Source file for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/08/2023
+// Last revision: 05/09/2023
 
 #include "graphics/Assets.h"
 #include "graphics/Renderer.h"
@@ -334,13 +334,13 @@ SceneWindowBase::scrollEvent(double dx, double dy)
 }
 
 bool
-SceneWindowBase::mouseButtonInputEvent(int button, int actions, int mods)
+SceneWindowBase::mouseButtonInputEvent(int button, int action, int mods)
 {
   (void)mods;
   if (ImGui::GetIO().WantCaptureMouse)
     return false;
 
-  auto active = actions == GLFW_PRESS;
+  auto active = action == GLFW_PRESS;
 
   cursorPosition(_mouse.px, _mouse.py);
   if (button == GLFW_MOUSE_BUTTON_LEFT && !active)

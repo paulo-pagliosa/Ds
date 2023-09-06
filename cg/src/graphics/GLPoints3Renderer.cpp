@@ -28,9 +28,10 @@
 // Source file for OpenGL 3D points renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2023
+// Last revision: 09/08/2023
 
 #include "graphics/GLPoints3Renderer.h"
+#include <cassert>
 
 namespace cg
 { // begin namespace cg
@@ -108,6 +109,7 @@ GLPoints3Renderer::begin()
     glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &_lastState.vao);
     glPointSize(_pointSize);
     _program.use();
+    _program.setUniform(_program.usePointColorsLoc, int(usePointColors));
     updateView();
   }
 }
@@ -135,21 +137,30 @@ mvpMatrix(const mat4f& t, const Camera& c)
 } // end namespace
 
 void
-GLPoints3Renderer::render(GLPoints3& points, const mat4f& t)
+GLPoints3Renderer::drawPoints(const GLPoints3& points,
+  const mat4f& t,
+  int count,
+  int offset)
 {
   _program.setUniformMat4(_program.mvpMatrixLoc, mvpMatrix(t, *camera()));
-  _program.setUniform(_program.usePointColorsLoc, int(usePointColors));
   points.bind();
-  glDrawArrays(GL_POINTS, 0, points.size());
+  glDrawArrays(GL_POINTS, offset, count);
 }
 
 void
-GLPoints3Renderer::render(GLPoints3& points,
+GLPoints3Renderer::render(const GLPoints3& points,
   const vec3f& p,
   const mat3f& r,
   const vec3f& s)
 {
   render(points, TRS(p, r, s));
+}
+
+void
+GLPoints3Renderer::render(const GLPoints3& points, int index, const mat4f& t)
+{
+  assert(index >= 0 && index < (int)points.size());
+  drawPoints(points, t, 1, index);
 }
 
 } // end namespace cg

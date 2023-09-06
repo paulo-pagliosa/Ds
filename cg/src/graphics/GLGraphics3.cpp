@@ -28,7 +28,7 @@
 // Source file for OpenGL 3D graphics.
 //
 // Author: Paulo Pagliosa
-// Last revision: 02/09/2023
+// Last revision: 04/09/2023
 
 #include "geometry/MeshSweeper.h"
 #include "graphics/GLGraphics3.h"
@@ -554,7 +554,7 @@ GLGraphics3::drawAxis(const vec3f& p,
   r[2] = r[0].cross(r[1]);
   q = p + d * scale;
   drawLine(p, q);
-  drawMesh(glyph, q, r, vec3f{0.05f, 0.20f, 0.05f} *scale);
+  drawMesh(glyph, q, r, vec3f{0.05f, 0.20f, 0.05f} * scale);
 }
 
 } // end namespace cg

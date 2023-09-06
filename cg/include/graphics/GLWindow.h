@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for OpenGL window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 23/09/2022
+// Last revision: 05/09/2023
 
 #ifndef __GLWindow_h
 #define __GLWindow_h
@@ -91,7 +91,7 @@ protected:
   // Event handlers.
   virtual bool cursorEnterWindowEvent(int entered);
   virtual bool mouseMoveEvent(double xPos, double yPos);
-  virtual bool mouseButtonInputEvent(int button, int actions, int mods);
+  virtual bool mouseButtonInputEvent(int button, int action, int mods);
   virtual bool scrollEvent(double xOffset, double yOffset);
   virtual bool windowResizeEvent(int width, int height);
   virtual bool keyInputEvent(int key, int action, int mods);

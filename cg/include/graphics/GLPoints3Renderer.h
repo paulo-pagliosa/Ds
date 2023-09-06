@@ -28,7 +28,7 @@
 // Class definition for OpenGL 3D points renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2023
+// Last revision: 05/09/2023
 
 #ifndef __GLPoints3Renderer_h
 #define __GLPoints3Renderer_h
@@ -68,13 +68,18 @@ public:
     _pointSize = size;
   }
 
-  void render(GLPoints3&, const mat4f&);
-  void render(GLPoints3&, const vec3f&, const mat3f&, const vec3f&);
+  void render(const GLPoints3& points, const mat4f& t)
+  {
+    drawPoints(points, t, (int)points.size(), 0);
+  }
 
-  void render(GLPoints3& points)
+  void render(const GLPoints3& points)
   {
     render(points, mat4f::identity());
   }
+
+  void render(const GLPoints3&, const vec3f&, const mat3f&, const vec3f&);
+  void render(const GLPoints3&, int, const mat4f&);
 
   void end();
 
@@ -105,6 +110,7 @@ private:
   float _pointSize{1};
 
   void updateView();
+  void drawPoints(const GLPoints3&, const mat4f&, int, int);
 
 }; // GLPoints3Renderer
 
