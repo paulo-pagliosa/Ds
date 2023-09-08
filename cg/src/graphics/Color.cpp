@@ -28,7 +28,7 @@
 // Source file for RGB color.
 //
 // Author: Paulo Pagliosa
-// Last revision: 30/07/2023
+// Last revision: 08/09/2023
 
 #include "graphics/Color.h"
 
@@ -50,6 +50,7 @@ Color Color::yellow{255, 255, 0};
 Color Color::white{255, 255, 255};
 Color Color::darkGray{136, 136, 136};
 Color Color::gray{194, 194, 194};
+Color Color::royalBlue{65, 105, 225};
 
 Color
 Color::HSV2RGB(float hue, float saturation, float value, float alpha)

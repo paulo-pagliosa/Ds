@@ -28,7 +28,7 @@
 // Source file for OpenGL 3D lines renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2023
+// Last revision: 08/09/2023
 
 #include "graphics/GLLines3Renderer.h"
 
@@ -135,12 +135,15 @@ mvpMatrix(const mat4f& t, const Camera& c)
 } // end namespace
 
 void
-GLLines3Renderer::render(GLLines3& lines, const mat4f& t)
+GLLines3Renderer::drawLines(const GLLines3& lines,
+  const mat4f& t,
+  int count,
+  int offset)
 {
   _program.setUniformMat4(_program.mvpMatrixLoc, mvpMatrix(t, *camera()));
   _program.setUniform(_program.usePointColorsLoc, int(usePointColors));
   lines.bind();
-  for (uint32_t n = lines.lineCount(), i = 0; i < n; ++i)
+  for (int n = offset + count, i = offset; i < n; ++i)
   {
     auto indices = lines.lineIndices(i);
     glDrawArrays(GL_LINE_STRIP, indices.x, indices.y - indices.x);
@@ -148,7 +151,7 @@ GLLines3Renderer::render(GLLines3& lines, const mat4f& t)
 }
 
 void
-GLLines3Renderer::render(GLLines3& lines,
+GLLines3Renderer::render(const GLLines3& lines,
   const vec3f& p,
   const mat3f& r,
   const vec3f& s)
@@ -156,4 +159,10 @@ GLLines3Renderer::render(GLLines3& lines,
   render(lines, TRS(p, r, s));
 }
 
+void
+GLLines3Renderer::render(const GLLines3& lines, int index, const mat4f& t)
+{
+  assert(index >= 0 && index < (int)lines.lineCount());
+  drawLines(lines, t, 1, index);
+}
 } // end namespace cg

@@ -28,7 +28,7 @@
 // Class definition for RGB color.
 //
 // Author: Paulo Pagliosa
-// Last revision: 30/07/2023
+// Last revision: 08/09/2023
 
 #ifndef __Color_h
 #define __Color_h
@@ -275,6 +275,7 @@ public:
   static Color white;
   static Color darkGray;
   static Color gray;
+  static Color royalBlue;
 
   static Color HSV2RGB(float, float, float, float = 1);
 

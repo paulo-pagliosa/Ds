@@ -28,7 +28,7 @@
 // Class definition for OpenGL 3D lines renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2023
+// Last revision: 08/09/2023
 
 #ifndef __GLLines3Renderer_h
 #define __GLLines3Renderer_h
@@ -68,13 +68,18 @@ public:
     _lineWidth = width;
   }
 
-  void render(GLLines3&, const mat4f&);
-  void render(GLLines3&, const vec3f&, const mat3f&, const vec3f&);
+  void render(const GLLines3& lines, const mat4f& t)
+  {
+    drawLines(lines, t, (int)lines.lineCount(), 0);
+  }
 
-  void render(GLLines3& lines)
+  void render(const GLLines3& lines)
   {
     render(lines, mat4f::identity());
   }
+
+  void render(const GLLines3&, const vec3f&, const mat3f&, const vec3f&);
+  void render(const GLLines3&, int, const mat4f&);
 
   void end();
 
@@ -105,6 +110,7 @@ private:
   float _lineWidth{1};
 
   void updateView();
+  void drawLines(const GLLines3&, const mat4f&, int, int);
 
 }; // GLLines3Renderer
 
