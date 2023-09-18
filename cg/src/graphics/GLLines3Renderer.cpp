@@ -80,7 +80,7 @@ static const char* geometryShader = STRINGIFY(
     vec2 p0 = gl_in[0].gl_Position.xy / gl_in[0].gl_Position.w;
     vec2 p1 = gl_in[1].gl_Position.xy / gl_in[1].gl_Position.w;
     vec2 pd = normalize((p1 - p0) * viewportSize);
-    vec2 offset = vec2(-pd.y, pd.x) * (lineWidth *4+ 1) / viewportSize;
+    vec2 offset = vec2(-pd.y, pd.x) * (lineWidth + 1) / viewportSize;
 
     handleVertex(0, offset);
     handleVertex(1, offset);
@@ -89,10 +89,9 @@ static const char* geometryShader = STRINGIFY(
 );
 
 static const char* fragmentShader = STRINGIFY(
-  //in vec4 g_color;
+  in vec4 v_color;// g_color;
   //noperspective in float smoothline;
   //uniform float lineWidth;
-  in vec4 v_color;
   out vec4 f_color;
 
   void main()
