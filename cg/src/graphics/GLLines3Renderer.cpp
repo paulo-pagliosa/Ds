@@ -28,7 +28,7 @@
 // Source file for OpenGL 3D lines renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/09/2023
+// Last revision: 18/09/2023
 
 #include "graphics/GLLines3Renderer.h"
 
@@ -43,22 +43,62 @@ static const char* vertexShader = STRINGIFY(
   uniform mat4 mvpMatrix;
   uniform int usePointColors;
   uniform vec4 lineColor;
-  out vec4 vertexColor;
+  out vec4 v_color;
 
   void main()
   {
     gl_Position = mvpMatrix * position;
-    vertexColor = usePointColors != 0 ? color : lineColor;
+    v_color = usePointColors != 0 ? color : lineColor;
+  }
+);
+
+static const char* geometryShader = STRINGIFY(
+  layout(lines) in;
+  layout(triangle_strip, max_vertices = 4) out;
+
+  in vec4 v_color[];
+  uniform vec2 viewportSize;
+  uniform float lineWidth;
+  out vec4 g_color;
+  noperspective out float smoothline;
+
+  void handleVertex(const int i, vec2 offset)
+  {
+    g_color = v_color[i];
+    smoothline = (lineWidth + 1) * 0.5f;
+    gl_Position = gl_in[i].gl_Position;
+    gl_Position.xy += offset * gl_Position.w;
+    EmitVertex();
+    smoothline *= -1;
+    gl_Position = gl_in[i].gl_Position;
+    gl_Position.xy -= offset * gl_Position.w;
+    EmitVertex();
+  }
+
+  void main()
+  {
+    vec2 p0 = gl_in[0].gl_Position.xy / gl_in[0].gl_Position.w;
+    vec2 p1 = gl_in[1].gl_Position.xy / gl_in[1].gl_Position.w;
+    vec2 pd = normalize((p1 - p0) * viewportSize);
+    vec2 offset = vec2(-pd.y, pd.x) * (lineWidth *4+ 1) / viewportSize;
+
+    handleVertex(0, offset);
+    handleVertex(1, offset);
+    EndPrimitive();
   }
 );
 
 static const char* fragmentShader = STRINGIFY(
-  in vec4 vertexColor;
-  out vec4 fragmentColor;
+  //in vec4 g_color;
+  //noperspective in float smoothline;
+  //uniform float lineWidth;
+  in vec4 v_color;
+  out vec4 f_color;
 
   void main()
   {
-    fragmentColor = vertexColor;
+    f_color = v_color;// g_color;
+    //f_color.a *= clamp((lineWidth + 1) * 0.5f - abs(smoothline), 0, 1);
   }
 );
 
@@ -73,12 +113,16 @@ GLLines3Renderer::GLProgram::initUniformLocations()
   mvpMatrixLoc = uniformLocation("mvpMatrix");
   usePointColorsLoc = uniformLocation("usePointColors");
   lineColorLoc = uniformLocation("lineColor");
+  //lineWidthLoc = uniformLocation("lineWidth");
+  //viewportSizeLoc = uniformLocation("viewportSize");
 }
 
 inline void
 GLLines3Renderer::GLProgram::initProgram()
 {
-  setShaders(vertexShader, fragmentShader).use();
+  //setShader(GL_GEOMETRY_SHADER, geometryShader);
+  setShader(GL_VERTEX_SHADER, vertexShader);
+  setShader(GL_FRAGMENT_SHADER, fragmentShader).use();
   initUniformLocations();
 }
 
@@ -96,6 +140,13 @@ inline void
 GLLines3Renderer::updateView()
 {
   camera()->update();
+  /*
+  GLint v[4];
+
+  glGetIntegerv(GL_VIEWPORT, v);
+  _program.setUniformVec2(_program.viewportSizeLoc,
+    vec2f{float(v[2]), float(v[3])});
+  */
 }
 
 void
@@ -104,9 +155,7 @@ GLLines3Renderer::begin()
   if (auto cp = GLSL::Program::current(); &_program != cp)
   {
     _lastState.program = cp;
-    glGetFloatv(GL_LINE_WIDTH, &_lastState.lineWidth);
     glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &_lastState.vao);
-    glLineWidth(_lineWidth);
     _program.use();
     updateView();
   }
@@ -118,7 +167,6 @@ GLLines3Renderer::end()
   if (auto cp = GLSL::Program::current(); &_program == cp)
   {
     GLSL::Program::setCurrent(_lastState.program);
-    glLineWidth(_lastState.lineWidth);
     glBindVertexArray(_lastState.vao);
   }
 }
@@ -142,6 +190,7 @@ GLLines3Renderer::drawLines(const GLLines3& lines,
 {
   _program.setUniformMat4(_program.mvpMatrixLoc, mvpMatrix(t, *camera()));
   _program.setUniform(_program.usePointColorsLoc, int(usePointColors));
+  //_program.setUniform(_program.lineWidthLoc, _lineWidth);
   lines.bind();
   for (int n = offset + count, i = offset; i < n; ++i)
   {

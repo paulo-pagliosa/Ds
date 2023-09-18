@@ -28,7 +28,7 @@
 // Class definition for OpenGL 3D lines renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/09/2023
+// Last revision: 18/09/2023
 
 #ifndef __GLLines3Renderer_h
 #define __GLLines3Renderer_h
@@ -87,7 +87,6 @@ private:
   struct GLState
   {
     GLSL::Program* program;
-    float lineWidth;
     int vao;
   };
 
@@ -96,6 +95,8 @@ private:
     GLint mvpMatrixLoc;
     GLint usePointColorsLoc;
     GLint lineColorLoc;
+    GLint lineWidthLoc;
+    GLint viewportSizeLoc;
 
     GLProgram();
 
