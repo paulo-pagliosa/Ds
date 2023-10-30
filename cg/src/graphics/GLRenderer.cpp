@@ -28,7 +28,7 @@
 // Source file for OpenGL renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 02/09/2023
+// Last revision: 30/10/2023
 
 #include "graphics/GLRenderer.h"
 
@@ -516,8 +516,6 @@ GLRenderer::beginRender()
   _gl->program.use();
   _gl->program.setUniform(_gl->projectionTypeLoc, _camera->projectionType());
   _gl->program.setUniformMat4(_gl->viewportMatrixLoc, _gl->viewportMatrix);
-  glPolygonMode(GL_FRONT_AND_BACK,
-    (renderMode != RenderMode::Wireframe) + GL_LINE);
 }
 
 void
@@ -610,12 +608,13 @@ GLRenderer::drawMesh(const TriangleMesh& mesh,
   _gl->program.setUniformMat4(_gl->mvMatrixLoc, mvm);
   _gl->program.setUniformMat4(_gl->mvpMatrixLoc, mvpMatrix(mvm, _camera));
   _gl->program.setUniformMat3(_gl->normalMatrixLoc, normalMatrix(n, _camera));
+  glPolygonMode(GL_FRONT_AND_BACK, (renderMode != Wireframe) + GL_LINE);
 
   GLuint subIds[2];
 
-  subIds[0] = renderMode == HiddenLines ?
-    _gl->lineColorMixIdx :
-    _gl->noMixIdx;
+  subIds[0] = renderMode != HiddenLines ?
+    _gl->noMixIdx :
+    _gl->lineColorMixIdx;
   subIds[1] = flags.isSet(UseVertexColors) ?
     _gl->colorMapMaterialIdx :
     _gl->modelMaterialIdx;
