@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for GLSL program.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/02/2022
+// Last revision: 04/12/2023
 
 #ifndef __GLProgram_h
 #define __GLProgram_h
@@ -131,7 +131,8 @@ public:
   GLint uniformLocation(const char*) const;
 
   // Sets uniform variable by location.
-  static void setUniform(GLint, GLint);
+  static void setUniform(GLint, int);
+  static void setUniform(GLint, unsigned);
   static void setUniform(GLint, float);
   static void setUniform(GLint, float, float);
   static void setUniform(GLint, float, float, float);
@@ -144,7 +145,8 @@ public:
   template<typename mat4f> static void setUniformMat4(GLint, const mat4f&);
 
   // Sets uniform variable by name.
-  void setUniform(const char*, GLint);
+  void setUniform(const char*, int);
+  void setUniform(const char*, unsigned);
   void setUniform(const char*, float);
   void setUniform(const char*, float, float);
   void setUniform(const char*, float, float, float);
@@ -204,9 +206,15 @@ private:
 }; // Program
 
 inline void
-Program::setUniform(GLint loc, GLint i0)
+Program::setUniform(GLint loc, int i0)
 {
   glUniform1i(loc, i0);
+}
+
+inline void
+Program::setUniform(GLint loc, unsigned u0)
+{
+  glUniform1ui(loc, u0);
 }
 
 inline void
@@ -276,9 +284,15 @@ Program::setUniformMat4(GLint loc, const mat4f& m)
 }
 
 inline void
-Program::setUniform(const char* name, GLint i0)
+Program::setUniform(const char* name, int i0)
 {
   setUniform(uniformLocation(name), i0);
+}
+
+inline void
+Program::setUniform(const char* name, unsigned u0)
+{
+  setUniform(uniformLocation(name), u0);
 }
 
 inline void
