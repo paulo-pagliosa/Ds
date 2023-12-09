@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022 Paulo Pagliosa.                              |
+//| Copyright (C) 2022, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for generic shape.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/02/2022
+// Last revision: 08/12/2023
 
 #include "graphics/Shape.h"
 
@@ -51,7 +51,6 @@ Shape::canIntersect() const
 {
   return true;
 }
-
 
 bool
 Shape::localIntersect(const Ray3f&) const

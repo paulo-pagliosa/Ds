@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2021, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2021, 2023 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,13 +28,15 @@
 // Classes for host and CUDA arrays.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/09/2022
+// Last revision: 08/12/2023
 
 #ifndef __CUDAArray_h
 #define __CUDAArray_h
 
 #include "core/SoA.h"
+#ifdef _USE_CUDA
 #include "CUDAHelper.h"
+#endif // _USE_CUDA
 
 namespace cg
 { // begin namespace cg
@@ -65,6 +67,8 @@ public:
 using IntArray = Array<int>;
 
 } // end namespace host
+
+#ifdef _USE_CUDA
 
 namespace cuda
 { // begin namespace cuda
@@ -151,6 +155,8 @@ Array<T>::Array(const cuda::Array<T>& other):
 
 } // end namespace host
 
+#endif // _USE_CUDA
+
 namespace host
 { // begin namespace host
 
@@ -158,6 +164,8 @@ template <typename index_t, typename... Args>
 using SoA = cg::SoA<ArrayAllocator, index_t, Args...>;
 
 } // end namespace host
+
+#ifdef _USE_CUDA
 
 namespace cuda
 { // begin namespace cuda
@@ -197,6 +205,8 @@ private:
 }; // SoA
 
 } // end namespace cuda
+
+#endif // _USE_CUDA
 
 } // end namespace cg
 
