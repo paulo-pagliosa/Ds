@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2024 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for 3D vector.
 //
 // Author: Paulo Pagliosa
-// Last revision: 15/12/2022
+// Last revision: 05/03/2024
 
 #ifndef __Vector3_h
 #define __Vector3_h
@@ -66,7 +66,7 @@ public:
 
   /// Constructs a Vector3 object from (x, y, z).
   HOST DEVICE
-  Vector(real x, real y, real z = 0)
+  constexpr Vector(real x, real y, real z = 0)
   {
     set(x, y, z);
   }
@@ -80,7 +80,7 @@ public:
 
   /// Constructs a Vector3 object from (v, z).
   HOST DEVICE
-  explicit Vector(const vec2& v, real z = 0)
+  explicit constexpr Vector(const vec2& v, real z = 0)
   {
     set(v, z);
   }
@@ -88,7 +88,7 @@ public:
   /// Constructs a Vector3 object with (v, v, v) or v.
   template <typename T>
   HOST DEVICE
-  explicit Vector(const T& v)
+  explicit constexpr Vector(const T& v)
   {
     set(v);
   }
@@ -102,7 +102,7 @@ public:
 
   /// Sets the coordinates of this object to (x, y, z).
   HOST DEVICE
-  void set(real x, real y, real z = 0)
+  constexpr void set(real x, real y, real z = 0)
   {
     this->x = x;
     this->y = y;
@@ -120,7 +120,7 @@ public:
 
   /// Sets the coordinates of this object to (v, z).
   HOST DEVICE
-  void set(const vec2& v, real z = 0)
+  constexpr void set(const vec2& v, real z = 0)
   {
     x = v.x;
     y = v.y;
@@ -130,7 +130,7 @@ public:
   /// Sets the coordinates of this object to (v, v, v) or v.
   template <typename T>
   HOST DEVICE
-  void set(const T& v)
+  constexpr void set(const T& v)
   {
     if constexpr (std::is_arithmetic_v<T>)
       x = y = z = real(v);
@@ -148,14 +148,14 @@ public:
 
   /// Returns a null vector.
   HOST DEVICE
-  static type null()
+  static constexpr type null()
   {
     return type{real(0)};
   }
 
   /// Returns the up vector.
   HOST DEVICE
-  static type up()
+  static constexpr type up()
   {
     return {real(0), real(1), real(0)};
   }
@@ -250,49 +250,49 @@ public:
 
   /// Returns this object + v.
   HOST DEVICE
-  type operator +(const type& v) const
+  constexpr type operator +(const type& v) const
   {
     return {x + v.x, y + v.y, z + v.z};
   }
 
   /// Returns this object - v.
   HOST DEVICE
-  type operator -(const type& v) const
+  constexpr type operator -(const type& v) const
   {
     return {x - v.x, y - v.y, z - v.z};
   }
 
   /// Returns a vector in the direction opposite to this object.
   HOST DEVICE
-  type operator -() const
+  constexpr type operator -() const
   {
     return {-x, -y, -z};
   }
 
   /// Returns the scalar multiplication of this object and s.
   HOST DEVICE
-  type operator *(real s) const
+  constexpr type operator *(real s) const
   {
     return {x * s, y * s, z * s};
   }
 
   /// Returns the multiplication of this object and v.
   HOST DEVICE
-  type operator *(const type& v) const
+  constexpr type operator *(const type& v) const
   {
     return {x * v.x, y * v.y, z * v.z};
   }
 
   /// Returns true if this object is null.
   HOST DEVICE
-  bool isNull(real eps = math::Limits<real>::eps()) const
+  constexpr bool isNull(real eps = math::Limits<real>::eps()) const
   {
     return math::isNull(x, y, z, eps);
   }
 
   /// Returns the squared norm of this object.
   HOST DEVICE
-  real squaredNorm() const
+  constexpr real squaredNorm() const
   {
     return math::sqr(x) + math::sqr(y) + math::sqr(z);
   }
@@ -306,21 +306,21 @@ public:
 
   /// Returns the maximum coordinate of this object.
   HOST DEVICE
-  real max() const
+  constexpr real max() const
   {
     return math::max(x, math::max(y, z));
   }
 
   /// Returns the minimum coordinate of this object.
   HOST DEVICE
-  real min() const
+  constexpr real min() const
   {
     return math::min(x, math::min(y, z));
   }
 
   /// Returns the inverse of this object.
   HOST DEVICE
-  type inverse() const
+  constexpr type inverse() const
   {
     return {1 / x, 1 / y, 1 / z};
   }
@@ -372,28 +372,28 @@ public:
 
   /// Returns the dot product of this object and v.
   HOST DEVICE
-  real dot(const type& v) const
+  constexpr real dot(const type& v) const
   {
     return x * v.x + y * v.y + z * v.z;
   }
 
   /// Returns the dot product of this object and (x, y, z).
   HOST DEVICE
-  real dot(real x, real y, real z) const
+  constexpr real dot(real x, real y, real z) const
   {
     return dot({x, y, z});
   }
 
   /// Returns the dot product of v and w.
   HOST DEVICE
-  static real dot(const type& v, const type& w)
+  static constexpr real dot(const type& v, const type& w)
   {
     return v.dot(w);
   }
 
   /// Returns the cross product of this object and v.
   HOST DEVICE
-  type cross(const type& v) const
+  constexpr type cross(const type& v) const
   {
     const auto cx = y * v.z - z * v.y;
     const auto cy = z * v.x - x * v.z;
@@ -404,14 +404,14 @@ public:
 
   /// Returns the cross product of this object and (x, y, z).
   HOST DEVICE
-  type cross(real x, real y, real z) const
+  constexpr type cross(real x, real y, real z) const
   {
     return cross({x, y, z});
   }
 
   /// Returns the cross product of v and w.
   HOST DEVICE
-  static type cross(const type& v, const type& w)
+  static constexpr type cross(const type& v, const type& w)
   {
     return v.cross(w);
   }
@@ -427,7 +427,8 @@ template <typename real> using Vector3 = Vector<real, 3>;
 
 /// Returns the scalar multiplication of s and v.
 template <typename real>
-HOST DEVICE inline auto
+HOST DEVICE
+inline constexpr auto
 operator *(real s, const Vector3<real>& v)
 {
   return v * s;
@@ -437,14 +438,16 @@ namespace math
 { // begin namespace math
 
 template <typename real>
-inline Vector3<real>
+HOST DEVICE
+inline constexpr Vector3<real>
 min(const Vector3<real>& a, const Vector3<real>& b)
 {
   return {math::min(a.x, b.x), math::min(a.y, b.y), math::min(a.z, b.z)};
 }
 
 template <typename real>
-inline Vector3<real>
+HOST DEVICE
+inline constexpr Vector3<real>
 max(const Vector3<real>& a, const Vector3<real>& b)
 {
   return {math::max(a.x, b.x), math::max(a.y, b.y), math::max(a.z, b.z)};
