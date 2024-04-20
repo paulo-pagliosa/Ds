@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2019 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2024 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for block allocable object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 16/02/2019
+// Last revision: 19/04/2024
 
 #ifndef __BlockAllocable_h
 #define __BlockAllocable_h
@@ -39,7 +39,7 @@
 namespace cg
 { // begin namespace cg
 
-constexpr unsigned DflBlockSize = 64;
+inline constexpr unsigned DflBlockSize = 64;
 
 
 /////////////////////////////////////////////////////////////////////
