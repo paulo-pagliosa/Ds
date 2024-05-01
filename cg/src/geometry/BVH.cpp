@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2024 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for BVH.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/06/2023
+// Last revision: 01/05/2024
 
 #include "geometry/BVH.h"
 #include <algorithm>
@@ -42,8 +42,9 @@ namespace cg
 //
 // BVHBase implementation
 // =======
-struct BVHBase::NodeRay: public Ray3f
+class BVHBase::NodeRay: public Ray3f
 {
+public:
   explicit NodeRay(const Ray3f& r):
     Ray3f{r}
   {
@@ -58,82 +59,44 @@ struct BVHBase::NodeRay: public Ray3f
 
 }; // BVHBase::NodeRay
 
-struct BVHBase::Node
+inline bool
+BVHBase::Node::intersect(const NodeRay& r) const
 {
-  Bounds3f bounds;
-  Node* children[2];
-  uint32_t first;
-  uint32_t count;
+  auto tMin = (_bounds[r.isNegDir[0]].x - r.origin.x) * r.invDir.x;
+  auto tMax = (_bounds[1 - r.isNegDir[0]].x - r.origin.x) * r.invDir.x;
+  auto aMin = (_bounds[r.isNegDir[1]].y - r.origin.y) * r.invDir.y;
+  auto aMax = (_bounds[1 - r.isNegDir[1]].y - r.origin.y) * r.invDir.y;
 
-  ~Node()
-  {
-    delete children[0];
-    delete children[1];
-  }
-
-  Node(const Bounds3f& bounds, uint32_t first, uint32_t count):
-    bounds{bounds},
-    first{first},
-    count{count}
-  {
-    children[0] = children[1] = nullptr;
-  }
-
-  Node(Node* c0, Node* c1):
-    count{}
-  {
-    bounds.inflate(c0->bounds);
-    bounds.inflate(c1->bounds);
-    children[0] = c0;
-    children[1] = c1;
-  }
-
-  bool isLeaf() const
-  {
-    return children[0] == nullptr;
-  }
-
-  bool intersect(const NodeRay& r) const
-  {
-    auto tMin = (bounds[    r.isNegDir[0]].x - r.origin.x) * r.invDir.x;
-    auto tMax = (bounds[1 - r.isNegDir[0]].x - r.origin.x) * r.invDir.x;
-    auto aMin = (bounds[    r.isNegDir[1]].y - r.origin.y) * r.invDir.y;
-    auto aMax = (bounds[1 - r.isNegDir[1]].y - r.origin.y) * r.invDir.y;
-
-    if (tMin > aMax || aMin > tMax)
-      return false;
-    if (aMin > tMin)
-      tMin = aMin;
-    if (aMax < tMax)
-      tMax = aMax;
-    aMin = (bounds[    r.isNegDir[2]].z - r.origin.z) * r.invDir.z;
-    aMax = (bounds[1 - r.isNegDir[2]].z - r.origin.z) * r.invDir.z;
-    if (tMin > aMax || aMin > tMax)
-      return false;
-    if (aMin > tMin)
-      tMin = aMin;
-    if (aMax < tMax)
-      tMax = aMax;
-    return tMin < r.tMax && tMax > r.tMin;
-  }
-
-  static void iterate(const Node*, BVHNodeFunction);
-
-}; // BVHBase::Node
+  if (tMin > aMax || aMin > tMax)
+    return false;
+  if (aMin > tMin)
+    tMin = aMin;
+  if (aMax < tMax)
+    tMax = aMax;
+  aMin = (_bounds[r.isNegDir[2]].z - r.origin.z) * r.invDir.z;
+  aMax = (_bounds[1 - r.isNegDir[2]].z - r.origin.z) * r.invDir.z;
+  if (tMin > aMax || aMin > tMax)
+    return false;
+  if (aMin > tMin)
+    tMin = aMin;
+  if (aMax < tMax)
+    tMax = aMax;
+  return tMin < r.tMax && tMax > r.tMin;
+}
 
 void
-BVHBase::Node::iterate(const Node* node, BVHNodeFunction f)
+BVHBase::Node::iterate(const Node* node, NodeFunction f)
 {
   if (node == nullptr)
     return;
 
   auto isLeaf = node->isLeaf();
 
-  f({node->bounds, isLeaf, node->first, node->count});
+  f(node);
   if (!node->isLeaf())
   {
-    iterate(node->children[0], f);
-    iterate(node->children[1], f);
+    iterate(node->_children[0], f);
+    iterate(node->_children[1], f);
   }
 }
 
@@ -215,10 +178,10 @@ BVHBase::intersect(const Ray3f& ray) const
     if (node->intersect(r))
       if (!node->isLeaf())
       {
-        stack.push(node->children[0]);
-        stack.push(node->children[1]);
+        stack.push(node->_children[0]);
+        stack.push(node->_children[1]);
       }
-      else if (intersectLeaf(node->first, node->count, ray))
+      else if (intersectLeaf(node->_first, node->_count, ray))
         return true;
   }
   return false;
@@ -241,11 +204,11 @@ BVHBase::intersect(const Ray3f& ray, Intersection& hit) const
     stack.pop();
     if (node->intersect(r))
       if (node->isLeaf())
-        intersectLeaf(node->first, node->count, ray, hit);
+        intersectLeaf(node->_first, node->_count, ray, hit);
       else
       {
-        stack.push(node->children[0]);
-        stack.push(node->children[1]);
+        stack.push(node->_children[0]);
+        stack.push(node->_children[1]);
       }
   }
   return hit.object != nullptr;
@@ -254,11 +217,11 @@ BVHBase::intersect(const Ray3f& ray, Intersection& hit) const
 Bounds3f
 BVHBase::bounds() const
 {
-  return _root == nullptr ? Bounds3f{} : _root->bounds;
+  return _root == nullptr ? Bounds3f{} : _root->_bounds;
 }
 
 void
-BVHBase::iterate(BVHNodeFunction f) const
+BVHBase::iterate(NodeFunction f) const
 {
   Node::iterate(_root, f);
 }

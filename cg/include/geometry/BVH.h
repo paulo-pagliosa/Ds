@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2024 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for BVH.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/02/2022
+// Last revision: 01/05/2024
 
 #ifndef __BVH_h
 #define __BVH_h
@@ -44,17 +44,6 @@
 namespace cg
 { // begin namespace cg
 
-struct BVHNodeInfo
-{
-  Bounds3f bounds;
-  bool isLeaf;
-  uint32_t first;
-  uint32_t count;
-
-}; // BVHNodeInfo
-
-using BVHNodeFunction = std::function<void(const BVHNodeInfo&)>;
-
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -63,6 +52,10 @@ using BVHNodeFunction = std::function<void(const BVHNodeInfo&)>;
 class BVHBase: public SharedObject
 {
 public:
+  class NodeView;
+
+  using NodeFunction = std::function<void(const NodeView&)>;
+
   ~BVHBase() override;
 
   auto size() const
@@ -70,13 +63,24 @@ public:
     return (size_t)_nodeCount;
   }
 
+  NodeView root() const;
   Bounds3f bounds() const;
   bool intersect(const Ray3f&) const;
   bool intersect(const Ray3f&, Intersection&) const;
-  void iterate(BVHNodeFunction) const;
+  void iterate(NodeFunction) const;
+
+  auto empty() const
+  {
+    return _nodeCount == 0;
+  }
+
+  auto primitiveId(int i) const
+  {
+    return _primitiveIds[i];
+  }
 
 protected:
-  struct PrimitiveInfo;
+  class PrimitiveInfo;
 
   using PrimitiveInfoArray = std::vector<PrimitiveInfo>;
   using IndexArray = std::vector<uint32_t>;
@@ -105,8 +109,8 @@ protected:
     Intersection&) const = 0;
 
 private:
-  struct NodeRay;
-  struct Node;
+  class NodeRay;
+  class Node;
 
   Node* _root{};
   uint32_t _nodeCount{};
@@ -115,10 +119,107 @@ private:
   Node* makeNode(PrimitiveInfoArray&, uint32_t, uint32_t, IndexArray&);
   Node* makeLeaf(PrimitiveInfoArray&, uint32_t, uint32_t, IndexArray&);
 
+  friend NodeView;
+
 }; // BVHBase
 
-struct BVHBase::PrimitiveInfo
+class BVHBase::Node
 {
+public:
+  ~Node()
+  {
+    delete _children[0];
+    delete _children[1];
+  }
+
+private:
+  Bounds3f _bounds;
+  Node* _children[2];
+  uint32_t _first;
+  uint32_t _count;
+
+  Node(const Bounds3f& bounds, uint32_t first, uint32_t count):
+    _bounds{bounds},
+    _first{first},
+    _count{count}
+  {
+    _children[0] = _children[1] = nullptr;
+  }
+
+  Node(Node* c0, Node* c1):
+    _count{}
+  {
+    _bounds.inflate(c0->_bounds);
+    _bounds.inflate(c1->_bounds);
+    _children[0] = c0;
+    _children[1] = c1;
+  }
+
+  bool isLeaf() const
+  {
+    return _children[0] == nullptr;
+  }
+
+  bool intersect(const NodeRay&) const;
+
+  static void iterate(const Node*, NodeFunction);
+
+  friend BVHBase;
+  friend NodeView;
+
+}; // BVHBase::Node
+
+class BVHBase::NodeView
+{
+public:
+  const auto& bounds() const
+  {
+    return _node->_bounds;
+  }
+
+  auto isLeaf() const
+  {
+    return _node->isLeaf();
+  }
+
+  auto child(int i) const
+  {
+    assert(!isLeaf());
+    assert(i == 0 || i == 1);
+    return NodeView{_node->_children[i]};
+  }
+
+  auto first() const
+  {
+    return _node->_first;
+  }
+
+  auto count() const
+  {
+    return _node->_count;
+  }
+
+  auto operator ==(const NodeView& other) const
+  {
+    return _node == other._node;
+  }
+
+private:
+  const Node* _node;
+
+  NodeView(const Node* node):
+    _node{node}
+  {
+    // do nothing
+  }
+
+  friend BVHBase;
+
+}; // BVHBase::NodeView
+
+class BVHBase::PrimitiveInfo
+{
+public:
   uint32_t index;
   Bounds3f bounds;
   vec3f centroid;
@@ -134,6 +235,12 @@ struct BVHBase::PrimitiveInfo
   }
 
 }; // BVHBase::PrimitiveInfo
+
+inline BVHBase::NodeView
+BVHBase::root() const
+{
+  return _root;
+}
 
 
 /////////////////////////////////////////////////////////////////////
