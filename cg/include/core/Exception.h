@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022 Paulo Pagliosa.                              |
+//| Copyright (C) 2022, 2024 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,12 +23,12 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: Shape.h
+// OVERVIEW: Exception.h
 // ========
-// Definition for common exceptions.
+// Definitions for common exceptions.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/12/2022
+// Last revision: 24/09/2024
 
 #ifndef __Exception_h
 #define __Exception_h
