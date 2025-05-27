@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2025 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for structure of arrays.
 //
 // Author: Paulo Pagliosa
-// Last revision: 12/09/2022
+// Last revision: 27/05/2025
 
 #ifndef __SoA_h
 #define __SoA_h
@@ -450,7 +450,7 @@ public:
   SoA(const type&) = delete;
   type& operator =(const type&) = delete;
 
-  SoA(type&& other)
+  SoA(type&& other) noexcept
   {
     this->_size = other._size;
     this->_arrays = other._arrays;
