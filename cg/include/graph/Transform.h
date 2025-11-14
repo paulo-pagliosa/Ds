@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2025 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for scene object transform.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/07/2023
+// Last revision: 13/11/2023
 
 #ifndef __Transform_h
 #define __Transform_h
@@ -252,6 +252,8 @@ private:
     bool changed : 1;
 
   } _flags{false};
+
+  Transform(const Transform&) = default;
 
   mat4f localMatrix() const;
   mat4f inverseLocalMatrix() const;

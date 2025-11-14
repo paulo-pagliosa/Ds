@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2025 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for scene object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/07/2023
+// Last revision: 13/11/2025
 
 #ifndef __SceneObject_h
 #define __SceneObject_h
@@ -89,6 +89,11 @@ public:
   auto transform()
   {
     return &_transform;
+  }
+
+  SceneObject* duplicate() const
+  {
+    return duplicate(_parent);
   }
 
   SceneObject* addChild(SceneObject* child);
@@ -183,6 +188,7 @@ private:
   Transform _transform;
   SceneObjects _children;
   Components _components;
+  unsigned _namesakeIndex{};
   mutable struct
   {
     bool movable : 1;
@@ -201,12 +207,15 @@ private:
     // do nothing
   }
 
+  SceneObject(const SceneObject&);
+
   void changeParent(SceneObject*);
   Component* insertComponent(Component*);
   void makeComponentAttachments(Component*);
   void releaseComponentAttachments(Component*);
 
   bool canAddComponent(Component*) const;
+  SceneObject* duplicate(SceneObject*) const;
 
   friend class Scene;
   friend class SceneEditor;

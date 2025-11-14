@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2025 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for scene object component.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/06/2023
+// Last revision: 13/11/2025
 
 #include "graph/Component.h"
 
@@ -40,6 +40,12 @@ namespace cg::graph
 //
 // Component implementation
 // =========
+Component*
+Component::duplicate() const
+{
+  return nullptr;
+}
+
 bool
 Component::canAdd(Component* other) const
 {

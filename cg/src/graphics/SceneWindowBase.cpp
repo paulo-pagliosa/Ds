@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2020, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2020, 2025 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 05/09/2023
+// Last revision: 13/11/2025
 
 #include "graphics/Assets.h"
 #include "graphics/Renderer.h"
@@ -386,38 +386,40 @@ SceneWindowBase::mouseMoveEvent(double xPos, double yPos)
 bool
 SceneWindowBase::keyInputEvent(int key, int action, int mods)
 {
-  (void)mods;
-  if (ImGui::GetIO().WantCaptureKeyboard || action == GLFW_RELEASE)
-    return false;
-
-  const auto delta = _editor->orbitDistance() * CAMERA_RES;
-  auto d = vec3f::null();
-
-  switch (key)
+  return ImGui::GetIO().WantCaptureKeyboard || action == GLFW_RELEASE ?
+    false : [&]()
   {
-    case GLFW_KEY_W:
-      d.z -= delta;
-      break;
-    case GLFW_KEY_S:
-      d.z += delta;
-      break;
-    case GLFW_KEY_A:
-      d.x -= delta;
-      break;
-    case GLFW_KEY_D:
-      d.x += delta;
-      break;
-    case GLFW_KEY_Q:
-      d.y += delta;
-      break;
-    case GLFW_KEY_Z:
-      d.y -= delta;
-      break;
-    default:
-      return onKeyPress(key, mods);
-  }
-  _editor->pan(d);
-  return true;
+    if (mods != 0)
+      return false;
+
+    const auto delta = _editor->orbitDistance() * CAMERA_RES;
+    auto d = vec3f::null();
+
+    switch (key)
+    {
+      case GLFW_KEY_W:
+        d.z -= delta;
+        break;
+      case GLFW_KEY_S:
+        d.z += delta;
+        break;
+      case GLFW_KEY_A:
+        d.x -= delta;
+        break;
+      case GLFW_KEY_D:
+        d.x += delta;
+        break;
+      case GLFW_KEY_Q:
+        d.y += delta;
+        break;
+      case GLFW_KEY_Z:
+        d.y -= delta;
+        break;
+      default:
+        return false;
+    };
+    return _editor->pan(d), true;
+  }() ? true : onKeyPress(key, mods);
 }
 
 namespace

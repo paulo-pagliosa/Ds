@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2025 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for scene object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 20/07/2023
+// Last revision: 13/11/2025
 
 #include "graph/Scene.h"
 
@@ -46,6 +46,18 @@ SceneObject::SceneObject(Scene& scene, const char* name, bool movable):
 {
   _flags.movable = movable;
   (_parent = scene.root())->_children.insert(this);
+  _components.add(makeUse(&_transform));
+  _transform._sceneObject = this;
+}
+
+SceneObject::SceneObject(const SceneObject& other):
+  NameableObject{other.name()},
+  _scene{other._scene},
+  _transform{other._transform},
+  _namesakeIndex{other._namesakeIndex},
+  _flags{other._flags},
+  _parent{}
+{
   _components.add(makeUse(&_transform));
   _transform._sceneObject = this;
 }
@@ -94,20 +106,42 @@ SceneObject::setParent(SceneObject* object)
 }
 
 SceneObject*
+SceneObject::duplicate(SceneObject* parent) const
+{
+  assert(parent != nullptr);
+
+  auto object = new SceneObject{*this};
+
+  // Iterate the object components skipping its transform
+  for (auto end = _components.end(), cit = ++_components.begin(); cit != end;)
+    if (auto component = (*cit++)->duplicate())
+    {
+      // TODO
+      object->_components.add(component);
+      component->_sceneObject = object;
+    }
+  for (auto child : _children)
+    child.duplicate(object);
+  return parent->addChild(object);
+}
+
+SceneObject*
 SceneObject::addChild(SceneObject* child)
 {
-  if (_children.insert(child) != nullptr && child->_parent != this)
+  assert(child != nullptr);
+  if (child->_parent == nullptr && _children.insert(child))
   {
-    makeUse(child);
     child->_parent = this;
+    return makeUse(child);
   }
-  return child;
+  return nullptr;
 }
 
 bool
 SceneObject::removeChild(SceneObject* child)
 {
-  if (_children.remove(child))
+  assert(child != nullptr);
+  if (child->_parent == this && _children.remove(child))
   {
     child->_parent = nullptr;
     release(child);
@@ -120,7 +154,7 @@ inline bool
 SceneObject::canAddComponent(Component* component) const
 {
   // Iterate the object components skipping its transform
-  for (auto end = _components.cend(), cit = ++_components.cbegin(); cit != end;)
+  for (auto end = _components.end(), cit = ++_components.begin(); cit != end;)
     if (!(*cit++)->canAdd(component))
       return false;
   return true;

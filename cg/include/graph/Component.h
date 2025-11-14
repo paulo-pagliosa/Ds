@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2025 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for scene object component.
 //
 // Author: Paulo Pagliosa
-// Last revision: 18/07/2023
+// Last revision: 13/11/2025
 
 #ifndef __SceneObjectComponent_h
 #define __SceneObjectComponent_h
@@ -85,6 +85,14 @@ protected:
     // do nothing
   }
 
+  Component(const Component& other):
+    _typeName{other._typeName},
+    _flags{other._flags}
+  {
+    // do nothing
+  }
+
+  virtual Component* duplicate() const;
   virtual bool canAdd(Component* other) const;
 
   virtual void afterAdded();
@@ -109,7 +117,7 @@ private:
 
   } _flags;
 
-  friend class SceneObject;
+  friend SceneObject;
 
 }; // Component
 

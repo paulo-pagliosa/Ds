@@ -28,7 +28,7 @@
 // Source file for generic graph scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 06/08/2025
+// Last revision: 13/11/2025
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
@@ -222,6 +222,9 @@ SceneWindow::deleteObjectPopup(SceneObject& object)
   {
     if (ImGui::MenuItem("Delete###DeleteObject"))
       deleted = deleteSceneObject(object);
+    ImGui::Separator();
+    if (ImGui::MenuItem("Duplicate###DuplicateObject"))
+      object.duplicate();
     ImGui::EndPopup();
   }
   return deleted;
@@ -636,7 +639,7 @@ SceneWindow::onMouseLeftPress(int x, int y)
 }
 
 bool
-SceneWindow::onKeyPress(int key, int)
+SceneWindow::onKeyPress(int key, int mods)
 {
   if (_viewMode != ViewMode::Editor)
     return false;
@@ -645,6 +648,10 @@ SceneWindow::onKeyPress(int key, int)
     {
       case GLFW_KEY_DELETE:
         deleteSceneObject(*object);
+        break;
+      case GLFW_KEY_D:
+        if (mods == GLFW_MOD_CONTROL)
+          object->duplicate();
         break;
       case GLFW_KEY_F:
       {

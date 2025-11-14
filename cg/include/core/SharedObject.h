@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2025 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for shared object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/07/2023
+// Last revision: 13/11/2025
 
 #ifndef __SharedObject_h
 #define __SharedObject_h
@@ -92,6 +92,11 @@ public:
 protected:
   /// Constructs an unreferenced object.
   SharedObject() = default;
+
+  SharedObject(const SharedObject&)
+  {
+    // do nothing
+  }
 
 private:
   mutable int _referenceCount{};
