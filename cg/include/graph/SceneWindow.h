@@ -28,7 +28,7 @@
 // Class definition for generic graph scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/08/2025
+// Last revision: 14/11/2025
 
 #ifndef __GraphSceneWindow_h
 #define __GraphSceneWindow_h
@@ -166,7 +166,7 @@ private:
 
   void createObjectButton();
   bool treeNode(SceneNode, ImGuiTreeNodeFlags);
-  bool deleteObjectPopup(SceneObject&);
+  bool editObjectPopup(SceneObject&);
   bool dropSceneObject(SceneObject&);
   bool objectHierarchy(SceneObject&);
   void addComponentButton(SceneObject&);

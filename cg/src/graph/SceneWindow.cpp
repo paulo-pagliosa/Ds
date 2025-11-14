@@ -28,7 +28,7 @@
 // Source file for generic graph scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 13/11/2025
+// Last revision: 14/11/2025
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
@@ -214,7 +214,7 @@ SceneWindow::deleteSceneObject(SceneObject& object)
 }
 
 inline bool
-SceneWindow::deleteObjectPopup(SceneObject& object)
+SceneWindow::editObjectPopup(SceneObject& object)
 {
   auto deleted = false;
 
@@ -262,7 +262,7 @@ SceneWindow::objectHierarchy(SceneObject& object)
       flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
     auto open = treeNode(&child, flags);
-    auto movable = child.movable() && !deleteObjectPopup(child);
+    auto movable = child.movable() && !editObjectPopup(child);
 
     if (movable && ImGui::BeginDragDropSource())
     {

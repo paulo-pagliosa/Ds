@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2022, 2025 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for camera proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/07/2023
+// Last revision: 14/11/2025
 
 #ifndef __CameraProxy_h
 #define __CameraProxy_h
@@ -89,6 +89,7 @@ private:
     // do nothing
   }
 
+  Component* duplicate() const override;
   void transformChanged() override;
 
 }; // CameraProxy

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2022, 2025 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for cg demo main window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/07/2023
+// Last revision: 14/11/2025
 
 #ifndef __MainWindow_h
 #define __MainWindow_h
@@ -58,7 +58,7 @@ class MainWindow final: public SceneWindow
 {
 public:
   MainWindow(int width, int height):
-    SceneWindow{"Ds Demo Version 1.3", width, height}
+    SceneWindow{"Ds Demo Version 1.4", width, height}
   {
     // do nothing
   }

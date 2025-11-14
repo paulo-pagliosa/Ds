@@ -28,7 +28,7 @@
 // Class definition for scene object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 13/11/2025
+// Last revision: 14/11/2025
 
 #ifndef __SceneObject_h
 #define __SceneObject_h
@@ -188,7 +188,6 @@ private:
   Transform _transform;
   SceneObjects _children;
   Components _components;
-  unsigned _namesakeIndex{};
   mutable struct
   {
     bool movable : 1;
@@ -209,13 +208,13 @@ private:
 
   SceneObject(const SceneObject&);
 
-  void changeParent(SceneObject*);
-  Component* insertComponent(Component*);
+  SceneObject* duplicate(SceneObject*) const;
+  bool canAddComponent(Component*) const;
+
+  Component* insertComponent(Component*, bool = false);
   void makeComponentAttachments(Component*);
   void releaseComponentAttachments(Component*);
-
-  bool canAddComponent(Component*) const;
-  SceneObject* duplicate(SceneObject*) const;
+  void changeParent(SceneObject*);
 
   friend class Scene;
   friend class SceneEditor;

@@ -28,7 +28,7 @@
 // Class definition for shared object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 13/11/2025
+// Last revision: 14/11/2025
 
 #ifndef __SharedObject_h
 #define __SharedObject_h
@@ -63,15 +63,6 @@ concept SharedObjectType = std::derived_from<T, SharedObject>;
 class SharedObject
 {
 public:
-  /// Destructor.
-  virtual ~SharedObject() = default;
-
-  /// Returns the number of references of this object.
-  auto referenceCount() const
-  {
-    return _referenceCount;
-  }
-
   template <typename T>
   static auto makeUse(const T* ptr)
   {
@@ -87,6 +78,17 @@ public:
     ASSERT_SHARED(T, "Pointer to shared object expected");
     if (ptr != nullptr && --ptr->_referenceCount <= 0)
       delete ptr;
+  }
+
+  /// Destructor.
+  virtual ~SharedObject() = default;
+
+  SharedObject& operator =(const SharedObject&) = delete;
+
+  /// Returns the number of references of this object.
+  auto referenceCount() const
+  {
+    return _referenceCount;
   }
 
 protected:

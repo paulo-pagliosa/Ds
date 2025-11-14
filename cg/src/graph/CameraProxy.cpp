@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2022, 2025 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for camera proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/01/2022
+// Last revision: 14/11/2025
 
 #include "graph/CameraProxy.h"
 #include "graph/Transform.h"
@@ -43,6 +43,12 @@ namespace cg::graph
 // CameraProxy implementation
 // ===========
 Camera* CameraProxy::_current;
+
+Component*
+CameraProxy::duplicate() const
+{
+  return New(*new Camera{*camera()});
+}
 
 CameraProxy::~CameraProxy()
 {

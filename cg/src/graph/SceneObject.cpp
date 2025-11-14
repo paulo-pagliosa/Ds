@@ -28,7 +28,7 @@
 // Source file for scene object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 13/11/2025
+// Last revision: 14/11/2025
 
 #include "graph/Scene.h"
 
@@ -50,11 +50,11 @@ SceneObject::SceneObject(Scene& scene, const char* name, bool movable):
   _transform._sceneObject = this;
 }
 
+inline
 SceneObject::SceneObject(const SceneObject& other):
   NameableObject{other.name()},
   _scene{other._scene},
   _transform{other._transform},
-  _namesakeIndex{other._namesakeIndex},
   _flags{other._flags},
   _parent{}
 {
@@ -115,11 +115,7 @@ SceneObject::duplicate(SceneObject* parent) const
   // Iterate the object components skipping its transform
   for (auto end = _components.end(), cit = ++_components.begin(); cit != end;)
     if (auto component = (*cit++)->duplicate())
-    {
-      // TODO
-      object->_components.add(component);
-      component->_sceneObject = object;
-    }
+      object->insertComponent(component, true);
   for (auto child : _children)
     child.duplicate(object);
   return parent->addChild(object);
@@ -133,6 +129,7 @@ SceneObject::addChild(SceneObject* child)
   {
     child->_parent = this;
     return makeUse(child);
+    // TODO: rename namesakes
   }
   return nullptr;
 }
@@ -173,7 +170,7 @@ SceneObject::makeComponentAttachments(Component* component)
 }
 
 Component*
-SceneObject::insertComponent(Component* component)
+SceneObject::insertComponent(Component* component, bool force)
 {
   if (component == nullptr)
     return nullptr;
@@ -182,7 +179,7 @@ SceneObject::insertComponent(Component* component)
   // but only in case its reference count is zero
   Reference<Component> dummy{component};
 
-  if (!canAddComponent(component))
+  if (!force && !canAddComponent(component))
     return nullptr;
   _components.add(component);
   component->_sceneObject = this;

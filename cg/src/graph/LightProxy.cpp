@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2022, 2025 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for light proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/06/2023
+// Last revision: 14/11/2025
 
 #include "graph/LightProxy.h"
 #include "graph/Scene.h"
@@ -41,6 +41,12 @@ namespace cg::graph
 //
 // LightProxy implementation
 // ==========
+Component*
+LightProxy::duplicate() const
+{
+  return New(*new Light{*light()});
+}
+
 void
 LightProxy::afterAdded()
 {

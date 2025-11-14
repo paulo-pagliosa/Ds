@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2025 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for camera.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/08/2022
+// Last revision: 14/11/2025
 
 #ifndef __Camera_h
 #define __Camera_h
@@ -63,9 +63,6 @@ public:
   };
 
   Camera(float aspect = 1);
-
-  Camera(const Camera&) = delete;
-  Camera& operator =(const Camera&) = delete;
 
   const vec3f& position() const;
   const vec3f& eulerAngles() const;
