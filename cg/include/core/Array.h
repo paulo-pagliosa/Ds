@@ -28,14 +28,14 @@
 // Class for generic array.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/08/2025
+// Last revision: 15/11/2025
 
 #ifndef __Array_h
 #define __Array_h
 
 #include <algorithm>
+#include <concepts>
 #include <stdexcept>
-#include <type_traits>
 
 namespace cg
 { // begin namespace cg
@@ -43,7 +43,7 @@ namespace cg
 
 /////////////////////////////////////////////////////////////////////
 //
-// ArrayIterator: host array iterator class
+// ArrayIterator: array iterator class
 // =============
 template <typename Array>
 class ArrayIterator
@@ -233,7 +233,7 @@ public:
 
 /////////////////////////////////////////////////////////////////////
 //
-// Array: host array class
+// Array: array class
 // =====
 template <typename T, typename Allocator = ArrayAllocator>
 class Array: public ArrayBase<T, Allocator>

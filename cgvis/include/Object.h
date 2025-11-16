@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2025 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for generic vis object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 15/03/2022
+// Last revision: 15/11/2025
 
 #ifndef __VisObject_h
 #define __VisObject_h
@@ -45,9 +45,13 @@ namespace cg::vis
 class Object;
 
 template <typename T>
-inline constexpr bool isObject()
+concept ObjectType = std::derived_from<T, Object>;
+
+template <typename T>
+inline constexpr bool
+isObject()
 {
-  return std::is_assignable<Object, T>::value;
+  return ObjectType<T>;
 }
 
 #define ASSERT_OBJECT(T, msg) static_assert(isObject<T>(), msg)

@@ -28,7 +28,7 @@
 // Classes for host and CUDA arrays.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/08/2025
+// Last revision: 15/11/2025
 
 #ifndef __CUDAArray_h
 #define __CUDAArray_h
@@ -196,8 +196,11 @@ private:
   {
     if constexpr (I < sizeof...(Args))
     {
-      auto src = other.template data<I>();
       auto dst = this->template data<I>();
+      auto src = other.template data<I>();
+
+      using D = std::remove_cvref_t<decltype(*dst)>;
+      static_assert(std::is_trivially_copyable_v<D>);
 
       copyToDevice(dst, src, this->size());
       this->template copyArrayToDevice<I + 1>(other);

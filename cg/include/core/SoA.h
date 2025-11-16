@@ -28,7 +28,7 @@
 // Class definition for structure of arrays.
 //
 // Author: Paulo Pagliosa
-// Last revision: 06/08/2025
+// Last revision: 15/11/2025
 
 #ifndef __SoA_h
 #define __SoA_h
@@ -36,6 +36,7 @@
 #include "core/Globals.h"
 #include <cassert>
 #include <concepts>
+#include <cstring>
 #include <tuple>
 
 namespace cg
@@ -92,33 +93,28 @@ class Arrays
 {
 public:
   template <typename Allocator>
-  HOST DEVICE
-  void allocate(size_t n)
+  void allocate(size_t)
   {
     // do nothing
   }
 
   template <typename Allocator>
-  HOST DEVICE
   void free()
   {
     // do nothing
   }
 
-  HOST DEVICE
-  void get(index_t i, std::tuple<Args...>& t) const
+  void get(index_t, std::tuple<Args...>&) const
   {
     // do nothing
   }
 
-  HOST DEVICE
-  void set(index_t i, const std::tuple<Args...>& t)
+  void set(index_t, const std::tuple<Args...>&)
   {
     // do nothing
   }
 
-  HOST DEVICE
-  void swap(index_t i, index_t j)
+  void swap(index_t, index_t)
   {
     // do nothing
   }
@@ -175,7 +171,6 @@ public:
     data[i] = std::get<0>(t);
   }
 
-  HOST DEVICE
   void swap(index_t i, index_t j)
   {
     std::swap(data[i], data[j]);
@@ -294,7 +289,6 @@ public:
     return this->_soa->template get<I>(this->_index);
   }
 
-  HOST DEVICE
   void set(const Args&... args)
   {
     return this->_soa->set(this->_index, args...);
@@ -357,14 +351,6 @@ public:
 
   template <size_t I>
   HOST DEVICE
-  const auto data() const
-  {
-    using dt = soa::Data<I, index_t, soa::Arrays<index_t, Args...>>;
-    return ((typename dt::array_type&)_arrays).data;
-  }
-
-  template <size_t I>
-  HOST DEVICE
   auto data()
   {
     using dt = soa::Data<I, index_t, soa::Arrays<index_t, Args...>>;
@@ -373,12 +359,9 @@ public:
 
   template <size_t I>
   HOST DEVICE
-  const auto& get(index_t i) const
+  const auto data() const
   {
-#ifndef __NVCC__
-    assert(i < _size);
-#endif // __NVCC__
-    return this->template data<I>()[i];
+    return const_cast<SoABase*>(this)->template data<I>();
   }
 
   template <size_t I>
@@ -389,6 +372,13 @@ public:
     assert(i < _size);
 #endif // __NVCC__
     return this->template data<I>()[i];
+  }
+
+  template <size_t I>
+  HOST DEVICE
+  const auto& get(index_t i) const
+  {
+    return const_cast<SoABase*>(this)->template get<I>(i);
   }
 
   void set(index_t i, const Args&... args)
@@ -406,18 +396,13 @@ public:
 
   void setTuple(index_t i, const tuple_type& t)
   {
-#ifndef __NVCC__
     assert(i < _size);
-#endif // __NVCC__
     _arrays.set(i, t);
   }
 
-  HOST DEVICE
   void swap(index_t i, index_t j)
   {
-#ifndef __NVCC__
     assert(i < _size && j < _size);
-#endif // __NVCC__
     _arrays.swap(i, j);
   }
 
@@ -490,6 +475,24 @@ public:
     return true;
   }
 
+  auto& copy(const SoA& other)
+  {
+    if (this != &other)
+    {
+      reallocate(other._size);
+      this->template copyArrays<0, sizeof...(Args)>(other);
+    }
+    return *this;
+  }
+
+  template <size_t I>
+    requires (I < sizeof...(Args))
+  void copyArray(const SoA& other)
+  {
+    assert(this != &other && this->_size == other._size);
+    this->template copyArrays<I>(other);
+  }
+
   auto cbegin() const
   {
     return const_iterator{this, 0};
@@ -520,6 +523,27 @@ public:
     return iterator{this, this->_size};
   }
 
+private:
+  template <size_t I, size_t N = I + 1>
+    requires (N <= sizeof...(Args))
+  void copyArrays(const SoA& other)
+  {
+    if constexpr (I < N)
+    {
+      auto dst = this->template data<I>();
+      auto src = other.template data<I>();
+
+      using D = std::remove_cvref_t<decltype(*dst)>;
+
+      if constexpr (std::is_trivially_copyable_v<D>)
+        memcpy(dst, src, this->_size * sizeof(D));
+      else
+        for (size_t i = 0; i < this->_size; ++i)
+          dst[i] = src[i];
+      this->template copyArrays<I + 1, N>(other);
+    }
+  }
+
 }; // SoA
 
 namespace soa
@@ -542,7 +566,6 @@ get(SoA& soa, typename SoA::index_type i)
 }
 
 template <typename SoA>
-HOST DEVICE
 inline auto
 tuple(const SoA& soa, typename SoA::index_type i)
 {
@@ -550,7 +573,6 @@ tuple(const SoA& soa, typename SoA::index_type i)
 }
 
 template <typename index_t, typename... Args>
-HOST DEVICE
 inline void
 set(SoABase<index_t, Args...>& soa, index_t i, const Args&... args)
 {
@@ -558,11 +580,17 @@ set(SoABase<index_t, Args...>& soa, index_t i, const Args&... args)
 }
 
 template <typename SoA>
-HOST DEVICE
 inline auto
 setTuple(SoA& soa, typename SoA::index_type i, typename SoA::tuple_type& t)
 {
   return soa.setTuple(i, t);
+}
+
+template <typename SoA>
+inline auto
+copy(SoA& dst, const SoA& src)
+{
+  return dst.copy(src);
 }
 
 } // end namespace soa

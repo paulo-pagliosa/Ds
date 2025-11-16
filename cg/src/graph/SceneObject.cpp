@@ -28,7 +28,7 @@
 // Source file for scene object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/11/2025
+// Last revision: 15/11/2025
 
 #include "graph/Scene.h"
 
@@ -110,7 +110,7 @@ SceneObject::duplicate(SceneObject* parent) const
 {
   assert(parent != nullptr);
 
-  auto object = new SceneObject{*this};
+  Reference<SceneObject> object{new SceneObject{*this}};
 
   // Iterate the object components skipping its transform
   for (auto end = _components.end(), cit = ++_components.begin(); cit != end;)
