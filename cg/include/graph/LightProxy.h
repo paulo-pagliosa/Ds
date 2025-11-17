@@ -28,7 +28,7 @@
 // Class definition for light proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/11/2025
+// Last revision: 17/11/2025
 
 #ifndef __LightProxy_h
 #define __LightProxy_h
@@ -76,7 +76,7 @@ private:
     // do nothing
   }
 
-  Component* duplicate() const override;
+  Component* duplicate(const SceneObject*) const override;
   void afterAdded() override;
   void beforeRemoved() override;
   void transformChanged() override;

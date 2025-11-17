@@ -28,7 +28,7 @@
 // Source file for camera proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/11/2025
+// Last revision: 17/11/2025
 
 #include "graph/CameraProxy.h"
 #include "graph/Transform.h"
@@ -45,7 +45,7 @@ namespace cg::graph
 Camera* CameraProxy::_current;
 
 Component*
-CameraProxy::duplicate() const
+CameraProxy::duplicate(const SceneObject*) const
 {
   return New(*new Camera{*camera()});
 }

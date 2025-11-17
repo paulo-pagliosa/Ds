@@ -28,7 +28,7 @@
 // Class definition for camera proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/11/2025
+// Last revision: 17/11/2025
 
 #ifndef __CameraProxy_h
 #define __CameraProxy_h
@@ -89,7 +89,7 @@ private:
     // do nothing
   }
 
-  Component* duplicate() const override;
+  Component* duplicate(const SceneObject*) const override;
   void transformChanged() override;
 
 }; // CameraProxy

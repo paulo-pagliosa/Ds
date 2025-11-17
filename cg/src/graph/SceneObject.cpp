@@ -28,7 +28,7 @@
 // Source file for scene object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 15/11/2025
+// Last revision: 17/11/2025
 
 #include "graph/Scene.h"
 
@@ -114,7 +114,7 @@ SceneObject::duplicate(SceneObject* parent) const
 
   // Iterate the object components skipping its transform
   for (auto end = _components.end(), cit = ++_components.begin(); cit != end;)
-    if (auto component = (*cit++)->duplicate())
+    if (auto component = (*cit++)->duplicate(object))
       object->insertComponent(component, true);
   for (auto child : _children)
     child.duplicate(object);

@@ -28,7 +28,7 @@
 // Source file for scene object component.
 //
 // Author: Paulo Pagliosa
-// Last revision: 13/11/2025
+// Last revision: 17/11/2025
 
 #include "graph/Component.h"
 
@@ -41,7 +41,7 @@ namespace cg::graph
 // Component implementation
 // =========
 Component*
-Component::duplicate() const
+Component::duplicate(const SceneObject*) const
 {
   return nullptr;
 }

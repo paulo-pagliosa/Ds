@@ -28,7 +28,7 @@
 // Class definition for scene object component.
 //
 // Author: Paulo Pagliosa
-// Last revision: 13/11/2025
+// Last revision: 17/11/2025
 
 #ifndef __SceneObjectComponent_h
 #define __SceneObjectComponent_h
@@ -92,7 +92,7 @@ protected:
     // do nothing
   }
 
-  virtual Component* duplicate() const;
+  virtual Component* duplicate(const SceneObject* object) const;
   virtual bool canAdd(Component* other) const;
 
   virtual void afterAdded();

@@ -28,7 +28,7 @@
 // Class definition for primitive proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/11/2025
+// Last revision: 17/11/2025
 
 #ifndef __PrimitiveProxy_h
 #define __PrimitiveProxy_h
@@ -119,7 +119,7 @@ private:
     // do nothing
   }
 
-  Component* duplicate() const override;
+  Component* duplicate(const SceneObject*) const override;
 
 }; // TriangleMeshProxy
 

@@ -28,7 +28,7 @@
 // Source file for primitive proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/11/2025
+// Last revision: 17/11/2025
 
 #include "graph/PrimitiveProxy.h"
 #include "graph/Scene.h"
@@ -83,9 +83,13 @@ PrimitiveProxy::setVisible(bool value)
 // TriangleMeshProxy implementation
 // =================
 Component*
-TriangleMeshProxy::duplicate() const
+TriangleMeshProxy::duplicate(const SceneObject*) const
 {
-  return New(*((TriangleMeshMapper*)mapper())->mesh(), _meshName);
+  const auto mapper = (TriangleMeshMapper*)this->mapper();
+  auto np = New(*mapper->mesh(), _meshName);
+
+  np->mapper()->primitive()->setMaterial(mapper->primitive()->material());
+  return np;
 }
 
 } // end namepace cg::graph

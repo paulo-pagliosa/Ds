@@ -28,7 +28,7 @@
 // Source file for light proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/11/2025
+// Last revision: 17/11/2025
 
 #include "graph/LightProxy.h"
 #include "graph/Scene.h"
@@ -42,7 +42,7 @@ namespace cg::graph
 // LightProxy implementation
 // ==========
 Component*
-LightProxy::duplicate() const
+LightProxy::duplicate(const SceneObject*) const
 {
   return New(*new Light{*light()});
 }
