@@ -28,7 +28,7 @@
 // Classes and functions for CUDA utilities.
 //
 // Author: Paulo Pagliosa
-// Last revision: 23/07/2025
+// Last revision: 26/11/2025
 
 #ifndef __CUDAHelper_h
 #define __CUDAHelper_h
@@ -67,9 +67,7 @@ initialize(int device = -1)
 
   cudaDeviceProp deviceProp;
 
-  checkCudaError(cudaGetDeviceProperties(&deviceProp, device));
-  if (deviceProp.computeMode == cudaComputeModeProhibited)
-    error("Device %d is running in compute mode prohibited", device);
+  cudaGetDeviceProperties(&deviceProp, device);
   if (deviceProp.major < 1)
     error("Device %d does not support CUDA", device);
   checkCudaError(cudaSetDevice(device));
