@@ -28,7 +28,7 @@
 // Source file for CUDA utilities.
 //
 // Author: Paulo Pagliosa
-// Last revision: 23/07/2025
+// Last revision: 05/12/2025
 
 #include <stdarg.h>
 #include <stdlib.h>
@@ -52,8 +52,6 @@ error(const char* fmt, ...)
   (void)getchar();
   exit(EXIT_FAILURE);
 }
-
-#undef EM_MAXLEN
 
 void
 checkError(cudaError_t code, const char* file, int line)

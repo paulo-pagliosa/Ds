@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2025 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for simple ray tracer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 30/07/2023
+// Last revision: 02/12/2025
 
 #include "graphics/Camera.h"
 #include "utils/Stopwatch.h"
@@ -59,7 +59,8 @@ printElapsedTime(const char* s, Stopwatch::ms_time time)
 RayTracer::RayTracer(SceneBase& scene, Camera& camera):
   Renderer{scene, camera},
   _maxRecursionLevel{6},
-  _minWeight{minMinWeight}
+  _minWeight{minMinWeight},
+  _adaptivityDistance{16}
 {
   // do nothing
 }
@@ -169,6 +170,86 @@ RayTracer::setPixelRay(float x, float y)
       _pixelRay.origin = _camera->position() + p;
       break;
   }
+}
+
+void
+RayTracer::adaptiveScan(Image& image)
+{
+  const auto samplesPerRow = image.width() * maxSteps + 1;
+  std::vector<PixelSample> sampleBuffer(samplesPerRow);
+  SampleWindow sampleWindow;
+
+  // TODO
+}
+
+Pixel
+RayTracer::adapt(SampleWindow& sampleWindow,
+  int i0,
+  int j0,
+  float x,
+  float y,
+  int step)
+{
+  auto sampleColor = [&](int i, int j, float x, float y)
+  {
+    constexpr auto stepSize = 1.0f / maxSteps;
+    auto& s = sampleWindow[i][j];
+
+    if (!s.cooked)
+    {
+      s.color = shoot(x + (float)i * stepSize, y + (float)j * stepSize);
+      s.cooked = true;
+    }
+    return s.color;
+  };
+  auto is = i0 + step;
+  auto js = j0 + step;
+  Pixel corners[]
+  {
+    sampleColor(i0, j0, x, y),
+    sampleColor(is, j0, x, y),
+    sampleColor(i0, js, x, y),
+    sampleColor(is, js, x, y)
+  };
+  auto average = [](const Pixel colors[4])
+  {
+    auto a = colors[0] + colors[1] + colors[2] + colors[3];
+
+    a.r >>= 2;
+    a.g >>= 2;
+    a.b >>= 2;
+    return a;
+  };
+  auto a = average(corners);
+  auto testColors = [&](const Pixel colors[4], const Pixel& a)
+  {
+    auto test = [&](uint8_t c, uint8_t a)
+    {
+      return uint8_t(abs(int(c) - int(a))) >= _adaptivityDistance;
+    };
+
+    for (int i = 0; i < 4; ++i)
+    {
+      auto& c = colors[i];
+
+      if (test(c.r, a.r) || test(c.g, a.g) || test(c.b, a.b))
+        return true;
+    }
+    return false;
+  };
+
+  if (step > 1 && testColors(corners, a))
+  {
+    step >>= 1;
+    is = i0 + step;
+    js = j0 + step;
+    corners[0] = adapt(sampleWindow, i0, j0, x, y, step);
+    corners[1] = adapt(sampleWindow, is, j0, x, y, step);
+    corners[2] = adapt(sampleWindow, i0, js, x, y, step);
+    corners[3] = adapt(sampleWindow, is, js, x, y, step);
+    a = average(corners);
+  }
+  return a;
 }
 
 void

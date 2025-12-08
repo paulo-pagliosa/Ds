@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2025 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for simple ray tracer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 07/02/2022
+// Last revision: 02/12/2025
 
 #ifndef __RayTracer_h
 #define __RayTracer_h
@@ -49,8 +49,9 @@ namespace cg
 class RayTracer: public Renderer
 {
 public:
-  static constexpr auto minMinWeight = float(0.001);
-  static constexpr auto maxMaxRecursionLevel = uint32_t(20);
+  static constexpr auto minMinWeight = 0.001f;
+  static constexpr auto maxMaxRecursionLevel = 20u;
+  static constexpr auto maxPixelSubdivisionLevel = 2u;
 
   RayTracer(SceneBase&, Camera&);
 
@@ -79,6 +80,17 @@ public:
   virtual void renderImage(Image&);
 
 private:
+  static constexpr auto maxSteps = 1 << maxPixelSubdivisionLevel;
+
+  struct PixelSample
+  {
+    Pixel color;
+    bool cooked{};
+
+  }; // PixelSample
+
+  using SampleWindow = PixelSample[maxSteps + 1][maxSteps + 1];
+
   Reference<PrimitiveBVH> _bvh;
   struct VRC
   {
@@ -87,24 +99,27 @@ private:
     vec3f n;
 
   } _vrc;
-  float _minWeight;
-  uint32_t _maxRecursionLevel;
+  Ray3f _pixelRay;
   uint64_t _numberOfRays;
   uint64_t _numberOfHits;
-  Ray3f _pixelRay;
+  uint32_t _maxRecursionLevel;
+  float _minWeight;
   float _Vh;
   float _Vw;
   float _Ih;
   float _Iw;
+  uint8_t _adaptivityDistance;
 
-  void scan(Image& image);
-  void setPixelRay(float x, float y);
-  Color shoot(float x, float y);
-  bool intersect(const Ray3f&, Intersection&);
-  Color trace(const Ray3f& ray, uint32_t level, float weight);
+  void setPixelRay(float, float);
+  void scan(Image&);
+  void adaptiveScan(Image&);
+  Pixel adapt(SampleWindow&, int, int, float, float, int);
+  Color shoot(float, float);
+  Color trace(const Ray3f&, uint32_t, float);
   Color shade(const Ray3f&, Intersection&, uint32_t, float);
-  bool shadow(const Ray3f&);
   Color background() const;
+  bool intersect(const Ray3f&, Intersection&);
+  bool shadow(const Ray3f&);
 
   vec3f imageToWindow(float x, float y) const
   {

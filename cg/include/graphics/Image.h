@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2020 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2025 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for generic image.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/06/2020
+// Last revision: 02/12/2025
 
 #ifndef __Image_h
 #define __Image_h
@@ -105,9 +105,21 @@ struct Pixel
     g = (byte)(255 * c.g);
     b = (byte)(255 * c.b);
   }
+  
+  HOST DEVICE
+  auto operator +(const Pixel& p) const
+  {
+    return Pixel{byte(r + p.r), byte(g + p.g), byte(b + p.b)};
+  }
 
   HOST DEVICE
-  Pixel& operator +=(const Pixel& p)
+  auto operator +(const Color& c) const
+  {
+    return operator +(Pixel{c});
+  }
+
+  HOST DEVICE
+  auto& operator +=(const Pixel& p)
   {
     r += p.r;
     g += p.g;
@@ -116,12 +128,9 @@ struct Pixel
   }
 
   HOST DEVICE
-  Pixel& operator +=(const Color& c)
+  auto& operator +=(const Color& c)
   {
-    r += (byte)(255 * c.r);
-    g += (byte)(255 * c.g);
-    b += (byte)(255 * c.b);
-    return *this;
+    return operator +=(Pixel{c});
   }
 
 }; // Pixel
@@ -168,7 +177,7 @@ public:
     return _data;
   }
 
-  const Pixel& operator ()(int x, int y) const
+  const auto& operator ()(int x, int y) const
   {
 #ifdef _DEBUG
     if (x < 0 || x >= _W || y < 0 || y >= _H)
@@ -177,7 +186,7 @@ public:
     return _data[y * _W + x];
   }
 
-  Pixel& operator ()(int x, int y)
+  auto& operator ()(int x, int y)
   {
 #ifdef _DEBUG
     if (x < 0 || x >= _W || y < 0 || y >= _H)
@@ -191,7 +200,7 @@ public:
     return _W * _H;
   }
 
-  const Pixel& operator [](int i) const
+  const auto& operator [](int i) const
   {
 #ifdef _DEBUG
     if (i < 0 || i >= _W * _H)
@@ -200,7 +209,7 @@ public:
     return _data[i];
   }
 
-  Pixel& operator [](int i)
+  auto& operator [](int i)
   {
 #ifdef _DEBUG
     if (i < 0 || i >= _W * _H)
@@ -245,7 +254,7 @@ public:
 
   ImageBuffer data(int x, int y, int w, int h) const;
 
-  ImageBuffer data() const
+  auto data() const
   {
     return data(0, 0, _W, _H);
   }

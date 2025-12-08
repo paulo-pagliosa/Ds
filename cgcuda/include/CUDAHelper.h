@@ -28,13 +28,14 @@
 // Classes and functions for CUDA utilities.
 //
 // Author: Paulo Pagliosa
-// Last revision: 26/11/2025
+// Last revision: 05/12/2025
 
 #ifndef __CUDAHelper_h
 #define __CUDAHelper_h
 
 #include "core/Globals.h"
 #include <iostream>
+#include <type_traits>
 
 namespace cg::cuda
 { // begin namespace cg::cuda
@@ -95,6 +96,13 @@ allocate_v(void*& ptr, size_t size)
   checkCudaError(cudaMalloc((void**)&ptr, size));
 }
 
+template <typename T>
+inline void
+allocate(T*& ptr, size_t count)
+{
+  allocate_v((void*&)ptr, count * sizeof(T));
+}
+
 inline void
 free_v(void* ptr)
 {
@@ -103,16 +111,35 @@ free_v(void* ptr)
 
 template <typename T>
 inline void
-allocate(T*& ptr, size_t count)
+free(T*& ptr)
 {
-  allocate_v((void*&)ptr, count * sizeof(T));
+  free_v((void*&)ptr);
+}
+
+inline void
+hostAllocate_v(void*& ptr, size_t size)
+{
+  checkCudaError(cudaHostAlloc((void**)&ptr, size, cudaHostAllocDefault));
 }
 
 template <typename T>
 inline void
-free(T*& ptr)
+hostAllocate(T*& ptr, size_t count)
 {
-  free_v((void*&)ptr);
+  hostAllocate_v((void*&)ptr, count * sizeof(T));
+}
+
+inline void
+freeHost_v(void* ptr)
+{
+  checkCudaError(cudaFreeHost(ptr));
+}
+
+template <typename T>
+inline void
+freeHost(T*& ptr)
+{
+  freeHost_v((void*&)ptr);
 }
 
 inline void
@@ -125,7 +152,29 @@ template <typename T>
 inline void
 copyToHost(T* dst, const T* src, size_t count)
 {
+  static_assert(std::is_trivially_copyable_v<T>);
   copyToHost_v((void*)dst, (const void*)src, count * sizeof(T));
+}
+
+inline void
+copyToHostAsync_v(void* dst,
+  const void* src,
+  size_t size,
+  cudaStream_t stream = 0)
+{
+  checkCudaError(cudaMemcpyAsync(dst,
+    src,
+    size,
+    cudaMemcpyDeviceToHost,
+    stream));
+}
+
+template <typename T>
+inline void
+copyToHostAsync(T* dst, const T* src, size_t count, cudaStream_t stream = 0)
+{
+  static_assert(std::is_trivially_copyable_v<T>);
+  copyToHostAsync_v((void*)dst, (const void*)src, count * sizeof(T), stream);
 }
 
 inline void
@@ -138,7 +187,29 @@ template <typename T>
 inline void
 copyToDevice(T* dst, const T* src, size_t count)
 {
+  static_assert(std::is_trivially_copyable_v<T>);
   copyToDevice_v((void*)dst, (const void*)src, count * sizeof(T));
+}
+
+inline void
+copyToDeviceAsync_v(void* dst,
+  const void* src,
+  size_t size,
+  cudaStream_t stream = 0)
+{
+  checkCudaError(cudaMemcpyAsync(dst,
+    src,
+    size,
+    cudaMemcpyHostToDevice,
+    stream));
+}
+
+template <typename T>
+inline void
+copyToDeviceAsync(T* dst, const T* src, size_t count, cudaStream_t stream = 0)
+{
+  static_assert(std::is_trivially_copyable_v<T>);
+  copyToDeviceAsync_v((void*)dst, (const void*)src, count * sizeof(T), stream);
 }
 
 template <typename T>
@@ -159,6 +230,7 @@ template<typename T>
 inline void
 deviceCopy(T* dst, const T* src, size_t count)
 {
+  static_assert(std::is_trivially_copyable_v<T>);
   deviceCopy_v((void*)dst, (const void*)src, count * sizeof(T));
 }
 
@@ -178,6 +250,7 @@ template <typename T>
 inline void
 copyToSymbol(const T* dst, const T* src, size_t count)
 {
+  static_assert(std::is_trivially_copyable_v<T>);
   copyToSymbol_v((const void*)dst, (const void*)src, sizeof(T) * count);
 }
 
@@ -198,6 +271,7 @@ template <typename T>
 inline void
 copyFromSymbol(T* dst, const T* src, size_t count)
 {
+  static_assert(std::is_trivially_copyable_v<T>);
   copyFromSymbol_v((void*)dst, (const void*)src, sizeof(T) * count);
 }
 
@@ -228,7 +302,7 @@ template <typename T>
 void
 dump(const char* s, const T* data, size_t count, std::ostream& os = std::cout)
 {
-  T* hData = new T[count];
+  auto hData = new T[count];
 
   copyToHost<T>(hData, data, count);
   os << s << ": ";
@@ -326,7 +400,7 @@ template <typename T>
 void
 Buffer<T>::copy(const T* hBegin, const T* hEnd, size_t offset)
 {
-  uint32_t length = static_cast<uint32_t>(hEnd - hBegin);
+  auto length = static_cast<uint32_t>(hEnd - hBegin);
 
   if (offset + length > _size)
     throw std::logic_error("cuda::Buffer copy: bad range");
@@ -340,7 +414,7 @@ Buffer<T>::fill(const T& value, size_t offset, size_t length)
   if (offset + length > _size)
     throw std::logic_error("cuda::Buffer fill: bad range");
 
-  T* hData = new T[length];
+  auto* hData = new T[length];
 
   std::fill(hData, hData + length, value);
   copyToDevice<T>(_data + offset, hData, length);
