@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2020 Paulo Pagliosa.                              |
+//| Copyright (C) 2020, s025 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for 3D point.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/05/2020
+// Last revision: 09/12/2025
 
 #ifndef __Point3_h
 #define __Point3_h
@@ -124,7 +124,7 @@ public:
 
   template <typename T>
   HOST DEVICE
-  Point3& operator =(const T& p)
+  auto& operator =(const T& p)
   {
     set(p);
     return *this;
@@ -152,7 +152,7 @@ public:
 
   /// Returns a reference to this object += p.
   HOST DEVICE
-  Point3& operator +=(const Point3& p)
+  auto& operator +=(const Point3& p)
   {
     x += p.x;
     y += p.y;
@@ -162,7 +162,7 @@ public:
 
   /// Returns a reference to this object -= v.
   HOST DEVICE
-  Point3& operator +=(const Vector3<real>& v)
+  auto& operator +=(const Vector3<real>& v)
   {
     x += v.x;
     y += v.y;
@@ -172,7 +172,7 @@ public:
 
   /// Returns a reference to this object -= v.
   HOST DEVICE
-  Point3& operator -=(const Vector3<real>& v)
+  auto& operator -=(const Vector3<real>& v)
   {
     x -= v.x;
     y -= v.y;
@@ -182,7 +182,7 @@ public:
 
   /// Returns a reference to this object *= s.
   HOST DEVICE
-  Point3& operator *=(real s)
+  auto& operator *=(real s)
   {
     x *= s;
     y *= s;
@@ -192,14 +192,14 @@ public:
 
   /// Returns a reference to the i-th coordinate of this object.
   HOST DEVICE
-  real& operator [](int i)
+  auto& operator [](int i)
   {
     return (&x)[i];
   }
 
   /// Returns the i-th coordinate of this object.
   HOST DEVICE
-  const real& operator [](int i) const
+  const auto& operator [](int i) const
   {
     return (&x)[i];
   }
@@ -213,56 +213,56 @@ public:
 
   /// Returns this object + p.
   HOST DEVICE
-  Point3 operator +(const Point3& p) const
+  auto operator +(const Point3& p) const
   {
     return Point3{x + p.x, y + p.y, z + p.z};
   }
 
   /// Returns this object + v.
   HOST DEVICE
-  Point3 operator +(const Vector3<real>& v) const
+  auto operator +(const Vector3<real>& v) const
   {
     return Point3{x + v.x, y + v.y, z + v.z};
   }
 
   /// Returns this object - p.
   HOST DEVICE
-  Vector3<real> operator -(const Point3& p) const
+  auto operator -(const Point3& p) const
   {
     return Vector3<real>{x - p.x, y - p.y, z - p.z};
   }
 
   /// Returns this object - v.
   HOST DEVICE
-  Point3 operator -(const Vector3<real>& v) const
+  auto operator -(const Vector3<real>& v) const
   {
     return Point3{x - v.x, y - v.y, z - v.z};
   }
 
   /// Returns this object * -1.
   HOST DEVICE
-  Point3 operator -() const
+  auto operator -() const
   {
     return Point3{-x, -y, -z};
   }
 
   /// Returns this object * s.
   HOST DEVICE
-  Point3 operator *(real s) const
+  auto operator *(real s) const
   {
     return Point3{x * s, y * s, z * s};
   }
 
   /// Returns the maximum coordinate of this object.
   HOST DEVICE
-  real max() const
+  auto max() const
   {
     return math::max(x, math::max(y, z));
   }
 
   /// Returns the minimum coordinate of this object.
   HOST DEVICE
-  real min() const
+  auto min() const
   {
     return math::min(x, math::min(y, z));
   }
@@ -278,7 +278,7 @@ template <typename real> using Point3 = Point<real, 3>;
 
 /// Returns s * p.
 template <typename real>
-HOST DEVICE inline Point3<real>
+HOST DEVICE inline auto
 operator *(real s, const Point3<real>& p)
 {
   return p * s;
