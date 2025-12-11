@@ -28,7 +28,7 @@
 // Class definition for block allocator.
 //
 // Author: Paulo Pagliosa
-// Last revision: 21/07/2025
+// Last revision: 11/12/2025
 
 #ifndef __BlockAllocator_h
 #define __BlockAllocator_h
@@ -45,7 +45,7 @@ namespace internal
 inline constexpr size_t
 roundupVoidPtr(size_t size)
 {
-  return (size + sizeof(void*) - 1) & -signed(sizeof(void*));
+  return (size + sizeof(void*) - 1) & ~(sizeof(void*) - 1);
 }
 
 } // end namespace internal
