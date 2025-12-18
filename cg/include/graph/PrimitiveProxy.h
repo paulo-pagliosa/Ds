@@ -28,7 +28,7 @@
 // Class definition for primitive proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/11/2025
+// Last revision: 17/12/2025
 
 #ifndef __PrimitiveProxy_h
 #define __PrimitiveProxy_h
@@ -98,7 +98,7 @@ public:
     return new TriangleMeshProxy{mesh, meshName};
   }
 
-  const char* const meshName() const
+  const char* meshName() const
   {
     return _meshName.c_str();
   }
