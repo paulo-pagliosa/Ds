@@ -28,7 +28,7 @@
 // Classes for host and CUDA arrays.
 //
 // Author: Paulo Pagliosa
-// Last revision: 16/12/2025
+// Last revision: 22/12/2025
 
 #ifndef __CUDAArray_h
 #define __CUDAArray_h
@@ -127,7 +127,7 @@ template <typename T, typename Allocator> struct CopyArrayToDevice;
 template <typename T>
 struct CopyArrayToDevice<T, cg::ArrayAllocator>
 {
-  static void copy(T* dst, const T* src, size_t count)
+  static void copy(T* dst, const T* src, size_t count, cudaStream_t)
   {
     copyToDevice<T>(dst, src, count);
   }
@@ -137,18 +137,18 @@ struct CopyArrayToDevice<T, cg::ArrayAllocator>
 template <typename T>
 struct CopyArrayToDevice<T, HostArrayAllocator>
 {
-  static void copy(T* dst, const T* src, size_t count)
+  static void copy(T* dst, const T* src, size_t count, cudaStream_t stream)
   {
-    copyToDeviceAsync<T>(dst, src, count);
+    copyToDeviceAsync<T>(dst, src, count, stream);
   }
 
 }; // CopyArrayToDevice
 
 template <typename Allocator, typename T>
 inline void
-copyArrayToDevice(T* dst, const T* src, size_t count)
+copyArrayToDevice(T* dst, const T* src, size_t count, cudaStream_t stream = 0)
 {
-  CopyArrayToDevice<T, Allocator>::copy(dst, src, count);
+  CopyArrayToDevice<T, Allocator>::copy(dst, src, count, stream);
 }
 
 template <typename Allocator, typename index_t, typename... Args>
@@ -157,23 +157,23 @@ struct CopySoAToDevice
   using CUDASoA = SoA<ArrayAllocator, index_t, Args...>;
   using HostSoA = SoA<Allocator, index_t, Args...>;
 
-  static void copy(CUDASoA& ds, const HostSoA& hs)
+  static void copy(CUDASoA& ds, const HostSoA& hs, cudaStream_t stream)
   {
     ds.reallocate(hs.size());
-    CopySoAToDevice::template copyArrays(ds, hs);
+    CopySoAToDevice::template copyArrays(ds, hs, stream);
   }
 
   template <size_t I>
     requires (I < sizeof...(Args))
-  static void copyArray(CUDASoA& ds, const HostSoA& hs)
+  static void copyArray(CUDASoA& ds, const HostSoA& hs, cudaStream_t stream)
   {
     assert(ds.size() == hs.size());
-    CopySoAToDevice::template copyArrays<I, I + 1>(ds, hs);
+    CopySoAToDevice::template copyArrays<I, I + 1>(ds, hs, stream);
   }
 
 private:
   template <size_t I = 0, size_t N = sizeof...(Args)>
-  static void copyArrays(CUDASoA& ds, const HostSoA& hs)
+  static void copyArrays(CUDASoA& ds, const HostSoA& hs, cudaStream_t stream)
   {
     if constexpr (I < N)
     {
@@ -184,8 +184,8 @@ private:
 
       auto src = hs.template data<I>();
 
-      cuda::copyArrayToDevice<Allocator>(dst, src, hs.size());
-      CopySoAToDevice::template copyArrays<I + 1, N>(ds, hs);
+      copyArrayToDevice<Allocator>(dst, src, hs.size(), stream);
+      CopySoAToDevice::template copyArrays<I + 1, N>(ds, hs, stream);
     }
   }
 
@@ -194,9 +194,10 @@ private:
 template <typename Allocator, typename index_t, typename... Args>
 inline void
 copySoAToDevice(SoA<ArrayAllocator, index_t, Args...>& ds,
-  const SoA<Allocator, index_t, Args...>& hs)
+  const SoA<Allocator, index_t, Args...>& hs,
+  cudaStream_t stream = 0)
 {
-  CopySoAToDevice<Allocator, index_t, Args...>::copy(ds, hs);
+  CopySoAToDevice<Allocator, index_t, Args...>::copy(ds, hs, stream);
 }
 
 template <typename T, typename Allocator> struct CopyArrayToHost;
@@ -204,7 +205,7 @@ template <typename T, typename Allocator> struct CopyArrayToHost;
 template <typename T>
 struct CopyArrayToHost<T, cg::ArrayAllocator>
 {
-  static void copy(T* dst, const T* src, size_t count)
+  static void copy(T* dst, const T* src, size_t count, cudaStream_t)
   {
     copyToHost<T>(dst, src, count);
   }
@@ -214,30 +215,32 @@ struct CopyArrayToHost<T, cg::ArrayAllocator>
 template <typename T>
 struct CopyArrayToHost<T, HostArrayAllocator>
 {
-  static void copy(T* dst, const T* src, size_t count)
+  static void copy(T* dst, const T* src, size_t count, cudaStream_t stream)
   {
-    copyToHostAsync<T>(dst, src, count);
+    copyToHostAsync<T>(dst, src, count, stream);
   }
 
 }; // CopyArrayToHost
 
 template <typename Allocator, typename T>
 inline void
-copyArrayToHost(T* dst, const T* src, size_t count)
+copyArrayToHost(T* dst, const T* src, size_t count, cudaStream_t stream = 0)
 {
-  CopyArrayToHost<T, Allocator>::copy(dst, src, count);
+  CopyArrayToHost<T, Allocator>::copy(dst, src, count, stream);
 }
 
 template <size_t I, typename Allocator, typename index_t, typename... Args>
   requires (I < sizeof...(Args))
 inline void
 copyArrayToHost(SoA<Allocator, index_t, Args...>& hs,
-  const SoA<ArrayAllocator, index_t, Args...>& ds)
+  const SoA<ArrayAllocator, index_t, Args...>& ds,
+  cudaStream_t stream = 0)
 {
   assert(hs.size() == ds.size());
-  cuda::copyArrayToHost<Allocator>(hs.template data<I>(),
+  copyArrayToHost<Allocator>(hs.template data<I>(),
     ds.template data<I>(),
-    ds.size());
+    ds.size(),
+    stream);
 }
 
 
