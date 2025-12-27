@@ -28,7 +28,7 @@
 // Classes and functions for CUDA utilities.
 //
 // Author: Paulo Pagliosa
-// Last revision: 05/12/2025
+// Last revision: 26/12/2025
 
 #ifndef __CUDAHelper_h
 #define __CUDAHelper_h
@@ -191,6 +191,14 @@ copyToDevice(T* dst, const T* src, size_t count)
   copyToDevice_v((void*)dst, (const void*)src, count * sizeof(T));
 }
 
+template <typename T>
+inline void
+newCopyToDevice(T*& dst, const T* src, size_t n)
+{
+  allocate<T>(dst, n);
+  copyToDevice<T>(dst, src, n);
+}
+
 inline void
 copyToDeviceAsync_v(void* dst,
   const void* src,
@@ -214,10 +222,10 @@ copyToDeviceAsync(T* dst, const T* src, size_t count, cudaStream_t stream = 0)
 
 template <typename T>
 inline void
-newCopyToDevice(T*& dst, const T* src, size_t n)
+newCopyToDeviceAsync(T*& dst, const T* src, size_t n, cudaStream_t stream = 0)
 {
   allocate<T>(dst, n);
-  copyToDevice<T>(dst, src, n);
+  copyToDeviceAsync<T>(dst, src, n, stream);
 }
 
 inline void
@@ -235,9 +243,36 @@ deviceCopy(T* dst, const T* src, size_t count)
 }
 
 inline void
+deviceCopyAsync_v(void* dst,
+  const void* src,
+  size_t size,
+  cudaStream_t stream = 0)
+{
+  checkCudaError(cudaMemcpyAsync(dst,
+    src,
+    size,
+    cudaMemcpyDeviceToDevice,
+    stream));
+}
+
+template<typename T>
+inline void
+deviceCopyAsync(T* dst, const T* src, size_t count, cudaStream_t stream = 0)
+{
+  static_assert(std::is_trivially_copyable_v<T>);
+  deviceCopyAsync_v((void*)dst, (const void*)src, count * sizeof(T), stream);
+}
+
+inline void
 deviceSet(void* ptr, int value, size_t size)
 {
   checkCudaError(cudaMemset(ptr, value, size));
+}
+
+inline void
+deviceSetAsync(void* ptr, int value, size_t size, cudaStream_t stream = 0)
+{
+  checkCudaError(cudaMemsetAsync(ptr, value, size, stream));
 }
 
 inline void
