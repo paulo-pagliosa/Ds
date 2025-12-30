@@ -28,7 +28,7 @@
 // Classes and functions for CUDA utilities.
 //
 // Author: Paulo Pagliosa
-// Last revision: 26/12/2025
+// Last revision: 29/12/2025
 
 #ifndef __CUDAHelper_h
 #define __CUDAHelper_h
@@ -276,17 +276,23 @@ deviceSetAsync(void* ptr, int value, size_t size, cudaStream_t stream = 0)
 }
 
 inline void
-copyToSymbol_v(const void* dst, const void* src, size_t size)
+copyToSymbol_v(const void* dst,
+  const void* src,
+  size_t size,
+  size_t offset = 0)
 {
-  checkCudaError(cudaMemcpyToSymbol(dst, src, size));
+  checkCudaError(cudaMemcpyToSymbol(dst, src, size, offset));
 }
 
 template <typename T>
 inline void
-copyToSymbol(const T* dst, const T* src, size_t count)
+copyToSymbol(const T* dst, const T* src, size_t count, size_t index = 0)
 {
   static_assert(std::is_trivially_copyable_v<T>);
-  copyToSymbol_v((const void*)dst, (const void*)src, sizeof(T) * count);
+  copyToSymbol_v((const void*)dst,
+    (const void*)src,
+    sizeof(T) * count,
+    sizeof(T) * index);
 }
 
 template <typename T>
@@ -297,17 +303,20 @@ copyToSymbol(const T& dst, const T& src)
 }
 
 inline void
-copyFromSymbol_v(void* dst, const void* src, size_t size)
+copyFromSymbol_v(void* dst, const void* src, size_t size, size_t offset = 0)
 {
-  checkCudaError(cudaMemcpyFromSymbol(dst, src, size));
+  checkCudaError(cudaMemcpyFromSymbol(dst, src, size, offset));
 }
 
 template <typename T>
 inline void
-copyFromSymbol(T* dst, const T* src, size_t count)
+copyFromSymbol(T* dst, const T* src, size_t count, size_t index = 0)
 {
   static_assert(std::is_trivially_copyable_v<T>);
-  copyFromSymbol_v((void*)dst, (const void*)src, sizeof(T) * count);
+  copyFromSymbol_v((void*)dst,
+    (const void*)src,
+    sizeof(T) * count,
+    sizeof(T) * index);
 }
 
 template <typename T>

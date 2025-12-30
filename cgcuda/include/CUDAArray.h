@@ -28,7 +28,7 @@
 // Classes for host and CUDA arrays.
 //
 // Author: Paulo Pagliosa
-// Last revision: 26/12/2025
+// Last revision: 29/12/2025
 
 #ifndef __CUDAArray_h
 #define __CUDAArray_h
@@ -316,6 +316,8 @@ public:
 #endif // _USE_CUDA
 
 }; // Array
+
+using IntArray = Array<int>;
 
 #ifdef _USE_CUDA
 
