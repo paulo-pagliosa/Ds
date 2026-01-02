@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Classes and functions for CUDA utilities.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/12/2025
+// Last revision: 02/01/2026
 
 #ifndef __CUDAHelper_h
 #define __CUDAHelper_h
@@ -117,16 +117,18 @@ free(T*& ptr)
 }
 
 inline void
-hostAllocate_v(void*& ptr, size_t size)
+hostAllocate_v(void*& ptr,
+  size_t size,
+  unsigned int flags = cudaHostAllocDefault)
 {
-  checkCudaError(cudaHostAlloc((void**)&ptr, size, cudaHostAllocDefault));
+  checkCudaError(cudaHostAlloc((void**)&ptr, size, flags));
 }
 
 template <typename T>
 inline void
-hostAllocate(T*& ptr, size_t count)
+hostAllocate(T*& ptr, size_t count, unsigned int flags = cudaHostAllocDefault)
 {
-  hostAllocate_v((void*&)ptr, count * sizeof(T));
+  hostAllocate_v((void*&)ptr, count * sizeof(T), flags);
 }
 
 inline void
