@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2022, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/08/2025
+// Last revision: 08/01/2026
 
 #ifndef __SceneWindowBase_h
 #define __SceneWindowBase_h
@@ -139,7 +139,7 @@ namespace ImGui
 
 using namespace cg;
 
-void objectNameInput(NameableObject& object);
+void objectNameInput(NameableObject& object, const char* label = "Name");
 void inputText(const char* label, const char* text);
 
 inline bool

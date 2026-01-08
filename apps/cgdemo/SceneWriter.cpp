@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2023, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2023, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for scene writer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/11/2025
+// Last revision: 08/01/2026
 
 #include "graph/CameraProxy.h"
 #include "graph/LightProxy.h"
@@ -171,10 +171,10 @@ void
 SceneWriter::writeSceneObject(const SceneObject* object)
 {
   beginBlock("object", object->name());
-  for (auto& child : object->children())
-    writeSceneObject(&child);
   for (auto component : object->components())
     writeComponent(component);
+  for (auto& child : object->children())
+    writeSceneObject(&child);
   endBlock();
 }
 

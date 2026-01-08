@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2020, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2020, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for generic graph scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/11/2025
+// Last revision: 08/01/2026
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
@@ -200,7 +200,7 @@ SceneWindow::canDeleteSceneObject(const SceneObject&) const
 bool
 SceneWindow::deleteSceneObject(SceneObject& object)
 {
-  if (!canDeleteSceneObject(object))
+  if (!editHierarchy() || !canDeleteSceneObject(object))
     return false;
 
   auto parent = object.parent();
@@ -297,6 +297,7 @@ SceneWindow::hierarchyWindow(const char* title)
   ImGui::Begin(title);
   ImGui::BeginDisabled(!editHierarchy());
   createObjectButton();
+  ImGui::EndDisabled();
   ImGui::Separator();
   if (treeNode(_scene.get(), ImGuiTreeNodeFlags_OpenOnArrow))
   {
@@ -306,7 +307,6 @@ SceneWindow::hierarchyWindow(const char* title)
     objectHierarchy(*root);
     ImGui::TreePop();
   }
-  ImGui::EndDisabled();
   ImGui::End();
 }
 
@@ -496,12 +496,16 @@ SceneWindow::inspectSceneObject(SceneObject& object)
 inline void
 SceneWindow::inspectScene()
 {
+  ImGui::BeginDisabled(!editHierarchy());
   ImGui::objectNameInput(*_scene);
+  ImGui::EndDisabled();
   ImGui::Separator();
   if (ImGui::CollapsingHeader("Environment"))
   {
+    ImGui::BeginDisabled(!editHierarchy());
     ImGui::colorEdit3("Background", _scene->backgroundColor);
     ImGui::colorEdit3("Ambient Light", _scene->ambientLight);
+    ImGui::EndDisabled();
   }
 }
 
@@ -650,7 +654,7 @@ SceneWindow::onKeyPress(int key, int mods)
         deleteSceneObject(*object);
         break;
       case GLFW_KEY_D:
-        if (mods == GLFW_MOD_CONTROL)
+        if (mods == GLFW_MOD_CONTROL && editHierarchy())
           object->duplicate();
         break;
       case GLFW_KEY_F:

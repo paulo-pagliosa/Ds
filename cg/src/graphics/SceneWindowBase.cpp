@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2020, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2020, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 13/11/2025
+// Last revision: 08/01/2026
 
 #include "graphics/Assets.h"
 #include "graphics/Renderer.h"
@@ -38,7 +38,7 @@ namespace ImGui
 { // begin namespace ImGui
 
 void
-objectNameInput(cg::NameableObject& object)
+objectNameInput(cg::NameableObject& object, const char* label)
 {
   constexpr auto bufferSize = 64;
   static char buffer[bufferSize];
@@ -49,7 +49,7 @@ objectNameInput(cg::NameableObject& object)
     snprintf(buffer, bufferSize, "%s", object.name());
     current = &object;
   }
-  if (InputText("Name", buffer, bufferSize))
+  if (InputText(label, buffer, bufferSize))
     object.setName(buffer);
 }
 
