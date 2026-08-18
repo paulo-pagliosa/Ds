@@ -37,6 +37,11 @@
 #endif
 #include <windows.h>
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-function-type"
+#endif
+
 static HMODULE libgl;
 typedef PROC(__stdcall* GL3WglGetProcAddr)(LPCSTR);
 static GL3WglGetProcAddr wgl_get_proc_address;
@@ -58,13 +63,18 @@ static void close_libgl(void)
 
 static GL3WglProc get_proc(const char *proc)
 {
-	GL3WglProc res;
+	GL3WglProc res = NULL;
 
-	res = (GL3WglProc)wgl_get_proc_address(proc);
+	if (wgl_get_proc_address)
+		res = (GL3WglProc)wgl_get_proc_address(proc);
 	if (!res)
 		res = (GL3WglProc)GetProcAddress(libgl, proc);
 	return res;
 }
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 #elif defined(__APPLE__)
 #include <dlfcn.h>
 
@@ -117,7 +127,11 @@ static void close_libgl(void)
 
 static int is_library_loaded(const char *name, void **lib)
 {
+#if defined(__HAIKU__)
+	*lib = NULL;
+#else
 	*lib = dlopen(name, RTLD_LAZY | RTLD_LOCAL | RTLD_NOLOAD);
+#endif
 	return *lib != NULL;
 }
 

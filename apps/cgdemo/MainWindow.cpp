@@ -28,7 +28,7 @@
 // Source file for cg demo main window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 13/07/2023
+// Last revision: 18/08/2026
 
 #include "graphics/Application.h"
 #include "graphics/AssetFolder.h"
@@ -291,7 +291,7 @@ MainWindow::gui()
     return;
 
   constexpr auto evw = (float)360;
-  constexpr auto evh = (float)308;
+  constexpr auto evh = (float)310;
   constexpr auto lft = (float)0;
   constexpr auto top = (float)23;
   auto w = (float)width();
