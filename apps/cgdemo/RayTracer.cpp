@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for simple ray tracer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 02/12/2025
+// Last revision: 19/08/2026
 
 #include "graphics/Camera.h"
 #include "utils/Stopwatch.h"
@@ -107,9 +107,9 @@ RayTracer::renderImage(Image& image)
     const auto& m = _camera->cameraToWorldMatrix();
 
     // VRC axes
-    _vrc.u = m[0];
-    _vrc.v = m[1];
-    _vrc.n = m[2];
+    _vrc.u.set(m[0]);
+    _vrc.v.set(m[1]);
+    _vrc.n.set(m[2]);
   }
 
   // init auxiliary mapping variables

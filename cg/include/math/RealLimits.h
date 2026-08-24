@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,17 +28,23 @@
 // Class definition for real number limits.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/02/2022
+// Last revision: 19/08/2026
 
 #ifndef __RealLimits_h
 #define __RealLimits_h
 
 #include "core/Globals.h"
 #include <cfloat>
+#include <concepts>
 
 namespace cg
 { // begin namespace cg
-  
+
+template <typename T>
+concept IsReal = std::floating_point<T>;
+
+#define ASSERT_REAL(T, msg) static_assert(IsReal<T>, msg)
+
 namespace math
 { // begin namespace math
 
@@ -47,18 +53,18 @@ namespace math
 //
 // Limits: real number limits class
 // ======
-template <typename real> struct Limits;
+template <IsReal R> struct Limits;
 
 template <>
 struct Limits<float>
 {
-  HOST DEVICE
+  [[nodiscard]] HOST DEVICE
   static constexpr float eps()
   {
     return FLT_EPSILON;
   }
 
-  HOST DEVICE
+  [[nodiscard]] HOST DEVICE
   static constexpr float inf()
   {
     return FLT_MAX;
@@ -69,13 +75,13 @@ struct Limits<float>
 template <>
 struct Limits<double>
 {
-  HOST DEVICE
+  [[nodiscard]] HOST DEVICE
   static constexpr double eps()
   {
     return DBL_EPSILON;
   }
 
-  HOST DEVICE
+  [[nodiscard]] HOST DEVICE
   static constexpr double inf()
   {
     return DBL_MAX;

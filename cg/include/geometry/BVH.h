@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for BVH.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/08/2025
+// Last revision: 19/08/2026
 
 #ifndef __BVH_h
 #define __BVH_h
@@ -311,13 +311,8 @@ bool
 BVH<T>::intersectLeaf(uint32_t first, uint32_t count, const Ray3f& ray) const
 {
   for (auto i = first, e = i + count; i < e; ++i)
-  {
-    const auto& p = _primitives[primitiveId(i)];
-    Intersection temp;
-
-    if (p->intersect(ray))
+    if (const auto& p = _primitives[primitiveId(i)]; p->intersect(ray))
       return true;
-  }
   return false;
 }
 

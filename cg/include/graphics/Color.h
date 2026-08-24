@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for RGB color.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/09/2023
+// Last revision: 19/08/2063
 
 #ifndef __Color_h
 #define __Color_h
@@ -68,28 +68,18 @@ public:
 
   /// Default constructor.
   HOST DEVICE
-  Color()
-  {
-    // do nothing
-  }
+  Color() = default;
 
   /// Constructs a Color object from (r, g, b, a).
   HOST DEVICE
-  explicit Color(float r, float g, float b, float a = 1)
+  explicit constexpr Color(float r, float g, float b, float a = 1)
   {
     setRGB(r, g, b, a);
   }
 
-  /// Constructs a Color object from c[4].
-  HOST DEVICE
-  explicit Color(const float* c)
-  {
-    setRGB(c);
-  }
-
   /// Constructs a Color object from (r, g, b, a).
   HOST DEVICE
-  explicit Color(int r, int g, int b, int a = 255)
+  explicit constexpr Color(int r, int g, int b, int a = 255)
   {
     setRGB(r, g, b, a);
   }
@@ -97,14 +87,22 @@ public:
   /// Constructs a Color object from v.
   template <typename V>
   HOST DEVICE
-  explicit Color(const V& v)
+  explicit constexpr Color(const V& v)
   {
     setRGB(v);
   }
 
+  /// Constructs a Color object from c[4].
+  HOST DEVICE
+  explicit Color(const float c[])
+  {
+    assert(c);
+    setRGB(c[0], c[1], c[2], c[3]);
+  }
+
   /// Sets this object to (r, g, b, a).
   HOST DEVICE
-  void setRGB(float r, float g, float b, float a = 1)
+  constexpr void setRGB(float r, float g, float b, float a = 1)
   {
     this->r = r;
     this->g = g;
@@ -112,19 +110,9 @@ public:
     this->a = a;
   }
 
-  /// Sets this object from c[4].
-  HOST DEVICE
-  void setRGB(const float* c)
-  {
-    r = c[0];
-    g = c[1];
-    b = c[2];
-    a = c[3];
-  }
-
   /// Sets this object from (r, g, b, a).
   HOST DEVICE
-  void setRGB(int r, int g, int b, int a = 255)
+  constexpr void setRGB(int r, int g, int b, int a = 255)
   {
     this->r = r * math::inverse<float>(255);
     this->g = g * math::inverse<float>(255);
@@ -135,7 +123,7 @@ public:
   /// Sets this object from v.
   template <typename V>
   HOST DEVICE
-  void setRGB(const V& v)
+  constexpr void setRGB(const V& v)
   {
     r = float(v.x);
     g = float(v.y);
@@ -143,58 +131,50 @@ public:
     a = float(v.w);
   }
 
-  template <typename V>
-  HOST DEVICE
-  auto& operator =(const V& v)
-  {
-    setRGB(v);
-    return *this;
-  }
-
   /// Returns this object + c.
-  HOST DEVICE
-  auto operator +(const Color& c) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator +(const Color& c) const
   {
     return Color{r + c.r, g + c.g, b + c.b};
   }
 
   /// Returns this object - c.
-  HOST DEVICE
-  auto operator -(const Color& c) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator -(const Color& c) const
   {
     return Color{r - c.r, g - c.g, b - c.b};
   }
 
   /// Returns this object * c.
-  HOST DEVICE
-  auto operator *(const Color& c) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator *(const Color& c) const
   {
     return Color{r * c.r, g * c.g, b * c.b};
   }
 
   /// Returns this object * s.
-  HOST DEVICE
+  [[nodiscard]] HOST DEVICE
   auto operator *(float s) const
   {
     return Color{r * s, g * s, b * s};
   }
 
   /// Returns the i-th component of this object.
-  HOST DEVICE
+  [[nodiscard]] HOST DEVICE
   const auto& operator [](int i) const
   {
     return (&r)[i];
   }
 
   /// Returns a reference to the i-th component of this object.
-  HOST DEVICE
+  [[nodiscard]] HOST DEVICE
   auto& operator [](int i)
   {
     return (&r)[i];
   }
 
   /// Returns a pointer to the elements of this object.
-  HOST DEVICE
+  [[nodiscard]] HOST DEVICE
   explicit operator const float* () const
   {
     return &r;
@@ -277,14 +257,14 @@ public:
   static Color gray;
   static Color royalBlue;
 
-  static Color HSV2RGB(float, float, float, float = 1);
+  [[nodiscard]] static Color HSV2RGB(float, float, float, float = 1);
 
 }; // Color
 
 /// Returns the color s * c.
-template <typename real>
-HOST DEVICE inline auto
-operator *(real s, const Color& c)
+template <IsReal R>
+[[nodiscard]] HOST DEVICE constexpr auto
+operator *(R s, const Color& c)
 {
   return c * float(s);
 }
@@ -294,13 +274,13 @@ operator *(real s, const Color& c)
 #define B_SHIFT 0x10u
 #define A_SHIFT 0x18u
 
-constexpr inline uint32_t
+[[nodiscard]] constexpr uint32_t
 packColor(uint32_t r, uint32_t g, uint32_t b, uint32_t a = 255)
 {
   return a << A_SHIFT | b << B_SHIFT | g << G_SHIFT | r << R_SHIFT;
 }
 
-inline uint32_t
+[[nodiscard]] constexpr auto
 packColor(const Color& c)
 {
   const auto r = uint32_t(c.r * 255);
@@ -311,7 +291,7 @@ packColor(const Color& c)
   return packColor(r, g, b, a);
 }
 
-inline Color
+[[nodiscard]] constexpr auto
 unpackColor(uint32_t c)
 {
   auto r = ((c >> R_SHIFT) & 0xFF) * math::inverse<float>(255);

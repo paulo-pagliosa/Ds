@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2020 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for 4D vector.
 //
 // Author: Paulo Pagliosa
-// Last revision: 02/06/2020
+// Last revision: 19/08/2026
 
 #ifndef __Vector4_h
 #define __Vector4_h
@@ -43,67 +43,56 @@ namespace cg
 //
 // Vector4: 4D vector class
 // =======
-template <typename real>
-class Vector<real, 4>
+template <IsReal R>
+class Vector<R, 4>
 {
 public:
-  ASSERT_REAL(real, "Vector4: floating point type expected");
+  using type = Vector<R, 4>;
+  using value_type = R;
+  using vec3 = Vector3<R>;
 
-  using vec3 = Vector3<real>;
-  using vec4 = Vector<real, 4>;
-  using value_type = real;
-
-  real x;
-  real y;
-  real z;
-  real w;
+  R x;
+  R y;
+  R z;
+  R w;
 
   /// Default constructor.
   HOST DEVICE
-  Vector()
-  {
-    // do nothing
-  }
+  constexpr Vector() = default;
 
-  /// Constructs a Vector4 object from (x, y, z, w).
+  /// Constructs a Vector4 from (x, y, z, w).
   HOST DEVICE
-  Vector(real x, real y, real z, real w = 0)
+  constexpr Vector(R x, R y, R z, R w = 0)
   {
     set(x, y, z, w);
   }
 
-  /// Constructs a Vector4 object from v[4].
+  /// Constructs a Vector4 from (v, w).
   HOST DEVICE
-  explicit Vector(const real v[])
-  {
-    set(v);
-  }
-
-  /// Constructs a Vector4 object from (v, w).
-  HOST DEVICE
-  explicit Vector(const vec3& v, real w = 0)
+  explicit constexpr Vector(const vec3& v, R w = 0)
   {
     set(v, w);
   }
 
-  /// Constructs a Vector4 object with (v, v, v, v) or v.
+  /// Constructs a Vector4 from v.
   template <typename T>
   HOST DEVICE
-  explicit Vector(const T& v)
+  explicit constexpr Vector(const T& v)
   {
     set(v);
   }
 
-  /// Sets this object to v.
+  /// Constructs a Vector4 from v[4].
   HOST DEVICE
-  void set(const vec4& v)
+  explicit Vector(const R v[])
   {
-    *this = v;
+    assert(v);
+    set(v[0], v[1], v[2], v[3]);
   }
 
   /// Sets the coordinates of this object to (x, y, z, w).
   HOST DEVICE
-  void set(real x, real y, real z, real w = 0)
+  constexpr void set(R x, R y, R z, R w = 0)
   {
     this->x = x;
     this->y = y;
@@ -111,26 +100,9 @@ public:
     this->w = w;
   }
 
-  /// Sets the coordinates of this object to v[4].
-  HOST DEVICE
-  void set(const real v[])
-  {
-    x = v[0];
-    y = v[1];
-    z = v[2];
-    w = v[3];
-  }
-
-  /// Sets the coordinates of this object to (s, s, s, s).
-  HOST DEVICE
-  void set(real s)
-  {
-    x = y = z = w = s;
-  }
-
   /// Sets the coordinates of this object to (v, w).
   HOST DEVICE
-  void set(const vec3& v, real w = 0)
+  constexpr void set(const vec3& v, R w = 0)
   {
     x = v.x;
     y = v.y;
@@ -141,59 +113,52 @@ public:
   /// Sets the coordinates of this object to (v, v, v, v) or v.
   template <typename T>
   HOST DEVICE
-  void set(const T& v)
+  constexpr void set(const T& v)
   {
     if constexpr (std::is_arithmetic_v<T>)
-      x = y = z = w = real(v);
+      x = y = z = w = R(v);
     else
-      set(real(v.x), real(v.y), real(v.z), real(v.w));
+      set(R(v.x), R(v.y), R(v.z), R(v.w));
   }
 
-  template <typename T>
-  HOST DEVICE
-  vec4& operator =(const T& v)
-  {
-    set(v);
-    return *this;
-  }
 
   /// Returns a null vector.
-  HOST DEVICE
-  static vec4 null()
+  [[nodiscard]] HOST DEVICE
+  static constexpr auto null()
   {
-    return vec4(real(0));
+    return type(R(0));
   }
 
   /// Returns ths size of this object.
-  HOST DEVICE
+  [[nodiscard]] HOST DEVICE
   constexpr int size() const
   {
     return 4;
   }
 
   /// Returns true if this object is equal to v.
-  HOST DEVICE
-  bool equals(const vec4& v, real eps = math::Limits<real>::eps()) const
+  [[nodiscard]] HOST DEVICE
+  bool equals(const type& v, R eps = math::Limits<R>::eps()) const
   {
     return math::isNull(x - v.x, y - v.y, z - v.z, w - v.w, eps);
   }
 
-  HOST DEVICE
-  bool operator ==(const vec4& v) const
+  [[nodiscard]] HOST DEVICE
+  bool operator ==(const type& v) const
   {
     return equals(v);
   }
 
   /// Returns true if this object is not equal to v.
-  HOST DEVICE
-  bool operator !=(const vec4& v) const
+  [[nodiscard]] HOST DEVICE
+  bool operator !=(const type& v) const
   {
     return !operator ==(v);
   }
 
   /// Returns a reference to this object += v.
   HOST DEVICE
-  vec4& operator +=(const vec4& v)
+  auto& operator +=(const type& v)
   {
     x += v.x;
     y += v.y;
@@ -204,7 +169,7 @@ public:
 
   /// Returns a reference to this object -= v.
   HOST DEVICE
-  vec4& operator -=(const vec4& v)
+  auto& operator -=(const type& v)
   {
     x -= v.x;
     y -= v.y;
@@ -215,7 +180,7 @@ public:
 
   /// Returns a reference to this object *= s.
   HOST DEVICE
-  vec4& operator *=(real s)
+  auto& operator *=(R s)
   {
     x *= s;
     y *= s;
@@ -226,7 +191,7 @@ public:
 
   /// Returns a reference to this object *= v.
   HOST DEVICE
-  vec4& operator *=(const vec4& v)
+  auto& operator *=(const type& v)
   {
     x *= v.x;
     y *= v.y;
@@ -236,106 +201,106 @@ public:
   }
 
   /// Returns a reference to the i-th coordinate of this object.
-  HOST DEVICE
-  real& operator [](int i)
+  [[nodiscard]] HOST DEVICE
+  auto& operator [](int i)
   {
     return (&x)[i];
   }
 
   /// Returns the i-th coordinate of this object.
-  HOST DEVICE
-  const real& operator [](int i) const
+  [[nodiscard]] HOST DEVICE
+  const auto& operator [](int i) const
   {
     return (&x)[i];
   }
 
   /// Returns a pointer to the elements of this object.
-  HOST DEVICE
-  explicit operator const real*() const
+  [[nodiscard]] HOST DEVICE
+  explicit operator const R*() const
   {
     return &x;
   }
 
   /// Returns this object + v.
-  HOST DEVICE
-  vec4 operator +(const vec4& v) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator +(const type& v) const
   {
-    return vec4{x + v.x, y + v.y, z + v.z, w + v.w};
+    return type{x + v.x, y + v.y, z + v.z, w + v.w};
   }
 
   /// Returns this object - v.
-  HOST DEVICE
-  vec4 operator -(const vec4& v) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator -(const type& v) const
   {
-    return vec4{x - v.x, y - v.y, z - v.z, w - v.w};
+    return type{x - v.x, y - v.y, z - v.z, w - v.w};
   }
 
   /// Returns a vector in the direction opposite to this object.
-  HOST DEVICE
-  vec4 operator -() const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator -() const
   {
-    return vec4{-x, -y, -z, -w};
+    return type{-x, -y, -z, -w};
   }
 
   /// Returns the scalar multiplication of this object and s.
-  HOST DEVICE
-  vec4 operator *(real s) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator *(R s) const
   {
-    return vec4{x * s, y * s, z * s, w * s};
+    return type{x * s, y * s, z * s, w * s};
   }
 
   /// Returns the multiplication of this object and v.
-  HOST DEVICE
-  vec4 operator *(const vec4& v) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator *(const type& v) const
   {
-    return vec4{x * v.x, y * v.y, z * v.z, w * v.w};
+    return type{x * v.x, y * v.y, z * v.z, w * v.w};
   }
 
   /// Returns true if this object is null.
-  HOST DEVICE
-  bool isNull(real eps = math::Limits<real>::eps()) const
+  [[nodiscard]] HOST DEVICE
+  bool isNull(R eps = math::Limits<R>::eps()) const
   {
     return math::isNull(x, y, z, w, eps);
   }
 
   /// Returns the squared norm of this object.
-  HOST DEVICE
-  real squaredNorm() const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto squaredNorm() const
   {
     return math::sqr(x) + math::sqr(y) + math::sqr(z) + math::sqr(w);
   }
 
   /// Returns the length of this object.
-  HOST DEVICE
-  real length() const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto length() const
   {
     return sqrt(squaredNorm());
   }
 
   /// Returns the maximum coordinate of this object.
-  HOST DEVICE
-  real max() const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto max() const
   {
     return math::max(x, math::max(y, math::max(z, w)));
   }
 
   /// Returns the minimum coordinate of this object.
-  HOST DEVICE
-  real min() const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto min() const
   {
     return math::min(x, math::min(y, math::min(z, w)));
   }
 
   /// Returns the inverse of this object.
-  HOST DEVICE
-  vec4 inverse() const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto inverse() const
   {
-    return vec4{1 / x, 1 / y, 1 / z, 1 / w};
+    return type{1 / x, 1 / y, 1 / z, 1 / w};
   }
 
   /// Inverts and returns a reference to this object.
   HOST DEVICE
-  vec3& invert()
+  auto& invert()
   {
     x = 1 / x;
     y = 1 / y;
@@ -346,7 +311,7 @@ public:
 
   /// Negates and returns a reference to this object.
   HOST DEVICE
-  vec4& negate()
+  auto& negate()
   {
     x = -x;
     y = -y;
@@ -357,46 +322,39 @@ public:
 
   /// Normalizes and returns a reference to this object.
   HOST DEVICE
-  vec4& normalize(real eps = math::Limits<real>::eps())
+  auto& normalize(R eps = math::Limits<R>::eps())
   {
-    const auto len = length();
+    const auto s = length();
 
-    if (!math::isZero(len, eps))
-      operator *=(math::inverse(len));
+    if (!math::isZero(s, eps))
+      operator *=(math::inverse(s));
     return *this;
   }
 
   /// Returns the unit vector of this this object.
-  HOST DEVICE
-  vec4 versor(real eps = math::Limits<real>::eps()) const
+  [[nodiscard]] HOST DEVICE
+  auto versor(R eps = math::Limits<R>::eps()) const
   {
-    return vec4{*this}.normalize(eps);
+    return type{*this}.normalize(eps);
   }
 
   /// Returns the unit vector of v.
-  HOST DEVICE
-  static vec4 versor(const vec4& v, real eps = math::Limits<real>::eps())
+  [[nodiscard]] HOST DEVICE
+  static auto versor(const type& v, R eps = math::Limits<R>::eps())
   {
     return v.versor(eps);
   }
 
   /// Returns the dot product of this object and v.
-  HOST DEVICE
-  real dot(const vec4& v) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto dot(const type& v) const
   {
     return x * v.x + y * v.y + z * v.z + w * v.w;
   }
 
-  /// Returns the dot product of this object and (x, y, z, w).
-  HOST DEVICE
-  real dot(real x, real y, real z, real w) const
-  {
-    return dot(vec4(x, y, z, w));
-  }
-
   /// Returns the dot product of v and w.
-  HOST DEVICE
-  static real dot(const vec4& v, const vec4& w)
+  [[nodiscard]] HOST DEVICE
+  static auto dot(const type& v, const type& w)
   {
     return v.dot(w);
   }
@@ -408,15 +366,41 @@ public:
 
 }; // Vector4
 
-template <typename real> using Vector4 = Vector<real, 4>;
+template <IsReal R> using Vector4 = Vector<R, 4>;
 
 /// Returns the scalar multiplication of s and v.
-template <typename real>
-HOST DEVICE inline Vector4<real>
-operator *(real s, const Vector4<real>& v)
+template <IsReal R>
+[[nodiscard]] HOST DEVICE constexpr auto
+operator *(R s, const Vector4<R>& v)
 {
   return v * s;
 }
+
+namespace math
+{ // begin namespace math
+
+template <IsReal R>
+[[nodiscard]] HOST DEVICE constexpr Vector4<R>
+min(const Vector4<R>& a, const Vector4<R>& b)
+{
+  return {min(a.x, b.x), min(a.y, b.y), min(a.z, b.z), min(a.w, b.w)};
+}
+
+template <IsReal R>
+[[nodiscard]] HOST DEVICE constexpr Vector4<R>
+max(const Vector4<R>& a, const Vector4<R>& b)
+{
+  return {max(a.x, b.x), max(a.y, b.y), max(a.z, b.z), max(a.w, b.w)};
+}
+
+template <IsReal R>
+[[nodiscard]] HOST DEVICE constexpr Vector4<R>
+abs(const Vector4<R>& v)
+{
+  return {abs(v.x), abs(v.y), abs(v.z), abs(v.w)};
+}
+
+} // end namespace math
 
 using vec4f = Vector4<float>;
 using vec4d = Vector4<double>;

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2020, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2020, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for 2D point.
 //
 // Author: Paulo Pagliosa
-// Last revision: 09/12/2025
+// Last revision: 24/08/2026
 
 #ifndef __Point2_h
 #define __Point2_h
@@ -38,119 +38,99 @@
 namespace cg
 { // begin namespace cg
 
-template <typename real, int N> class Point;
+template <IsReal R, int N> class Point;
 
 
 /////////////////////////////////////////////////////////////////////
 //
 // Point2: 2D point class
 // ======
-template <typename real>
-class Point<real, 2>
+template <IsReal R>
+class Point<R, 2>
 {
 public:
-  ASSERT_REAL(real, "Point2: floating point type expected");
+  using type = Point<R, 2>;
+  using value_type = R;
 
-  using Point2 = Point<real, 2>;
-  using value_type = real;
-
-  real x;
-  real y;
+  R x;
+  R y;
 
   /// Default constructor.
   HOST DEVICE
-  Point()
-  {
-    // do nothing
-  }
+  constexpr Point() = default;
 
-  /// Constructs a Point2 object from (x, y).
+  /// Constructs a Point2 from (x, y).
   HOST DEVICE
-  Point(real x, real y)
+  constexpr Point(R x, R y)
   {
     set(x, y);
   }
 
-  /// Constructs a Point2 object from p[2].
-  HOST DEVICE
-  explicit Point(const real p[])
-  {
-    set(p);
-  }
-
-  /// Constructs a Point2 object with (s, s) or (p.x, p.y).
+  /// Constructs a Point2 from p.
   template <typename T>
   HOST DEVICE
-  explicit Point(const T& p)
+  explicit constexpr Point(const T& p)
   {
     set(p);
   }
 
-  /// Sets this object to p.
+  /// Constructs a Point2 from p[2].
   HOST DEVICE
-  void set(const Point2& p)
+  explicit Point(const R p[])
   {
-    *this = p;
+    assert(p);
+    set(p[0], p[1]);
   }
 
   /// Sets the coordinates of this object to (x, y).
   HOST DEVICE
-  void set(real x, real y)
+  void set(R x, R y)
   {
     this->x = x;
     this->y = y;
   }
 
-  /// Sets the coordinates of this object to p[2].
-  HOST DEVICE
-  void set(const real p[])
-  {
-    x = p[0];
-    y = p[1];
-  }
-
-  /// Sets the coordinates of this object to (s, s) or (p.x, p.y).
+  /// Sets the coordinates of this object to (p, p) or p.
   template <typename T>
   HOST DEVICE
   void set(const T& p)
   {
     if constexpr (std::is_arithmetic_v<T>)
-      x = y = real(p);
+      x = y = R(p);
     else
-      set(real(p.x), real(p.y));
+      set(R(p.x), R(p.y));
   }
 
-  template <typename T>
-  HOST DEVICE
-  Point2& operator =(const T& p)
+  /// Returns ths size of this object.
+  [[nodiscard]] HOST DEVICE
+  constexpr int size() const
   {
-    set(p);
-    return *this;
+    return 2;
   }
 
   /// Returns true if this object is equal to p.
-  HOST DEVICE
-  bool equals(const Point2& p, real eps = math::Limits<real>::eps()) const
+  [[nodiscard]] HOST DEVICE
+  bool equals(const type& p, R eps = math::Limits<R>::eps()) const
   {
     return math::isNull(x - p.x, y - p.y, eps);
   }
 
-  HOST DEVICE
-  bool operator ==(const Point2& p) const
+  [[nodiscard]] HOST DEVICE
+  bool operator ==(const type& p) const
   {
     return equals(p);
   }
 
   /// Returns true if this object is not equal to p.
-  HOST DEVICE
-  bool operator !=(const Point2& p) const
+  [[nodiscard]] HOST DEVICE
+  bool operator !=(const type& p) const
   {
     return !operator ==(p);
   }
 
   /// Returns a reference to this object += p.
   HOST DEVICE
-  auto& operator +=(const Point2& p)
+  auto& operator +=(const type& p)
   {
     x += p.x;
     y += p.y;
@@ -159,7 +139,7 @@ public:
 
   /// Returns a reference to this object -= v.
   HOST DEVICE
-  auto& operator +=(const Vector2<real>& v)
+  auto& operator +=(const Vector2<R>& v)
   {
     x += v.x;
     y += v.y;
@@ -168,7 +148,7 @@ public:
 
   /// Returns a reference to this object -= v.
   HOST DEVICE
-  auto& operator -=(const Vector2<real>& v)
+  auto& operator -=(const Vector2<R>& v)
   {
     x -= v.x;
     y -= v.y;
@@ -177,7 +157,7 @@ public:
 
   /// Returns a reference to this object *= s.
   HOST DEVICE
-  auto& operator *=(real s)
+  auto& operator *=(R s)
   {
     x *= s;
     y *= s;
@@ -185,78 +165,78 @@ public:
   }
 
   /// Returns a reference to the i-th coordinate of this object.
-  HOST DEVICE
+  [[nodiscard]] HOST DEVICE
   auto& operator [](int i)
   {
     return (&x)[i];
   }
 
   /// Returns the i-th coordinate of this object.
-  HOST DEVICE
+  [[nodiscard]] HOST DEVICE
   const auto& operator [](int i) const
   {
     return (&x)[i];
   }
 
   /// Returns a pointer to the elements of this object.
-  HOST DEVICE
-  explicit operator const real*() const
+  [[nodiscard]] HOST DEVICE
+  explicit operator const R*() const
   {
     return &x;
   }
 
   /// Returns this object + p.
-  HOST DEVICE
-  auto operator +(const Point2& p) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator +(const type& p) const
   {
-    return Point2{x + p.x, y + p.y};
+    return type{x + p.x, y + p.y};
   }
 
   /// Returns this object + v.
-  HOST DEVICE
-  auto operator +(const Vector2<real>& v) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator +(const Vector2<R>& v) const
   {
-    return Point2{x + v.x, y + v.y};
+    return type{x + v.x, y + v.y};
   }
 
   /// Returns this object - p.
-  HOST DEVICE
-  auto operator -(const Point2& p) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator -(const type& p) const
   {
-    return Vector2<real>{x - p.x, y - p.y};
+    return Vector2<R>{x - p.x, y - p.y};
   }
 
   /// Returns this object - v.
-  HOST DEVICE
-  auto operator -(const Vector2<real>& v) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator -(const Vector2<R>& v) const
   {
-    return Point2{x - v.x, y - v.y};
+    return type{x - v.x, y - v.y};
   }
 
   /// Returns this object * -1.
-  HOST DEVICE
-  auto operator -() const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator -() const
   {
-    return Point2{-x, -y};
+    return type{-x, -y};
   }
 
   /// Returns this object * s.
-  HOST DEVICE
-  auto operator *(real s) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator *(R s) const
   {
-    return Point2{x * s, y * s};
+    return type{x * s, y * s};
   }
 
   /// Returns the maximum coordinate of this object.
-  HOST DEVICE
-  auto max() const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto max() const
   {
     return math::max(x, y);
   }
 
   /// Returns the minimum coordinate of this object.
-  HOST DEVICE
-  auto min() const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto min() const
   {
     return math::min(x, y);
   }
@@ -268,12 +248,12 @@ public:
 
 }; // Point2
 
-template <typename real> using Point2 = Point<real, 2>;
+template <IsReal R> using Point2 = Point<R, 2>;
 
 /// Returns s * p.
-template <typename real>
-HOST DEVICE inline auto
-operator *(real s, const Point2<real>& p)
+template <IsReal R>
+[[nodiscard]] HOST DEVICE constexpr auto
+operator *(R s, const Point2<R>& p)
 {
   return p * s;
 }

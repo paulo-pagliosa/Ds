@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for 3x3 matrix.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/10/2025
+// Last revision: 19/08/2026
 
 #ifndef __Matrix3x3_h
 #define __Matrix3x3_h
@@ -38,121 +38,101 @@
 namespace cg
 { // begin namespace cg
 
-template <typename real, int M, int N> class Matrix;
+template <IsReal R, int M, int N> class Matrix;
 
 
 /////////////////////////////////////////////////////////////////////
 //
 // Matrix3x3: 3x3 matrix class (column-major format)
 // =========
-template <typename real>
-class Matrix<real, 3, 3>
+template <IsReal R>
+class Matrix<R, 3, 3>
 {
 public:
-  ASSERT_REAL(real, "Matrix3x3: floating point type expected");
-
-  using quat = Quaternion<real>;
-  using vec2 = Vector2<real>;
-  using vec3 = Vector3<real>;
-  using mat3 = Matrix<real, 3, 3>;
-  using mat4 = Matrix<real, 4, 4>;
-  using value_type = real;
+  using type = Matrix<R, 3, 3>;
+  using value_type = R;
+  using quat = Quaternion<R>;
+  using vec2 = Vector2<R>;
+  using vec3 = Vector3<R>;
+  using mat4 = Matrix<R, 4, 4>;
 
   /// Default constructor.
   HOST DEVICE
-  Matrix()
-  {
-    // do nothing
-  }
+  constexpr Matrix() = default;
 
-  /// Constructs a Matrix3x3 object from [v0; v1; v2].
+  /// Constructs a Matrix3x3 from [v0; v1; v2].
   HOST DEVICE
-  Matrix(const vec3& v0, const vec3& v1, const vec3& v2)
+  constexpr Matrix(const vec3& v0, const vec3& v1, const vec3& v2)
   {
     set(v0, v1, v2);
   }
 
-  /// Constructs a Matrix3x3 object from v[9].
+  /// Constructs a Matrix3x3 as a multiple s of the identity matrix.
   HOST DEVICE
-  explicit Matrix(const real v[])
-  {
-    set(v);
-  }
-
-  /// Constructs a Matrix3x3 object as a multiple s of the identity matrix.
-  HOST DEVICE
-  explicit Matrix(real s)
+  explicit constexpr Matrix(R s)
   {
     set(s);
   }
 
-  /// Constructs a Matrix3x3 object from the diagonal d.
+  /// Constructs a Matrix3x3 from the diagonal d.
   HOST DEVICE
-  explicit Matrix(const vec3& d)
+  explicit constexpr Matrix(const vec3& d)
   {
     set(d);
   }
 
-  /// Constructs a Matrix3x3 object from q.
+  /// Constructs a Matrix3x3 from q.
   HOST DEVICE
-  explicit Matrix(const quat& q)
+  explicit constexpr Matrix(const quat& q)
   {
     set(q);
   }
 
-  /// Constructs a Matrix3x3 object from m.
+  /// Constructs a Matrix3x3 from m.
   HOST DEVICE
-  explicit Matrix(const mat4& m)
+  explicit constexpr Matrix(const mat4& m)
   {
     set(m);
   }
 
-  /// Sets this object to m.
+  /// Constructs a Matrix3x3 from v[9].
   HOST DEVICE
-  void set(const mat3& m)
+  explicit Matrix(const R v[])
   {
-    *this = m;
+    assert(v);
+    set(vec3{&v[0]}, vec3{&v[3]}, vec3{&v[6]});
   }
 
   /// Sets the columns of this object to [v0; v1; v2].
   HOST DEVICE
-  void set(const vec3& v0, const vec3& v1, const vec3& v2)
+  constexpr void set(const vec3& v0, const vec3& v1, const vec3& v2)
   {
-    this->v0 = v0;
-    this->v1 = v1;
-    this->v2 = v2;
-  }
-
-  /// Sets the elements of this object from v[9].
-  HOST DEVICE
-  void set(const real v[])
-  {
-    v0.set(&v[0]);
-    v1.set(&v[3]);
-    v2.set(&v[6]);
+    _v0 = v0;
+    _v1 = v1;
+    _v2 = v2;
   }
 
   /// Sets this object to a multiple s of the identity matrix.
   HOST DEVICE
-  void set(real s)
+  constexpr void set(R s)
   {
-    v0.set(s, 0, 0);
-    v1.set(0, s, 0);
-    v2.set(0, 0, s);
+    _v0.set(s, 0, 0);
+    _v1.set(0, s, 0);
+    _v2.set(0, 0, s);
   }
 
   /// Sets this object to a diagonal matrix d.
   HOST DEVICE
-  void set(const vec3& d)
+  constexpr void set(const vec3& d)
   {
-    v0.set(d.x, 0, 0);
-    v1.set(0, d.y, 0);
-    v2.set(0, 0, d.z);
+    _v0.set(d.x, 0, 0);
+    _v1.set(0, d.y, 0);
+    _v2.set(0, 0, d.z);
   }
 
   /// Sets the elements of this object from q.
   HOST DEVICE
-  void set(const quat& q)
+  constexpr void set(const quat& q)
   {
     const auto qx = q.x;
     const auto qy = q.y;
@@ -171,136 +151,129 @@ public:
     const auto yw = qw * y2;
     const auto zw = qw * z2;
 
-    v0.set((real)1 - (yy + zz), xy + zw, xz - yw);
-    v1.set(xy - zw, (real)1 - (xx + zz), yz + xw);
-    v2.set(xz + yw, yz - xw, (real)1 - (xx + yy));
+    _v0.set((R)1 - (yy + zz), xy + zw, xz - yw);
+    _v1.set(xy - zw, (R)1 - (xx + zz), yz + xw);
+    _v2.set(xz + yw, yz - xw, (R)1 - (xx + yy));
   }
 
   /// Sets the elements of this object from m.
   HOST DEVICE
-  void set(const mat4& m); // implemented in Matrix4x4.h
-
-  HOST DEVICE
-  auto& operator =(const mat4& m)
-  {
-    set(m);
-    return *this;
-  }
+  constexpr void set(const mat4& m); // implemented in Matrix4x4.h
 
   /// Returns a zero matrix.
-  HOST DEVICE
-  static auto zero()
+  [[nodiscard]] HOST DEVICE
+  static constexpr auto zero()
   {
-    return mat3{(real)0};
+    return type((R)0);
   }
 
   /// Returns an identity matrix.
-  HOST DEVICE
-  static auto identity()
+  [[nodiscard]] HOST DEVICE
+  static constexpr auto identity()
   {
-    return mat3{(real)1};
+    return type((R)1);
   }
 
   /// Returns a diagonal matrix d.
-  HOST DEVICE
-  static auto diagonal(const vec3& d)
+  [[nodiscard]] HOST DEVICE
+  static constexpr auto diagonal(const vec3& d)
   {
-    return mat3{d};
+    return type{d};
   }
 
   /// Returns the diagonal of this object.
-  HOST DEVICE
-  auto diagonal() const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto diagonal() const
   {
-    return vec3{v0.x, v1.y, v2.z};
+    return vec3{_v0.x, _v1.y, _v2.z};
   }
 
   /// Returns the trace of this object.
-  HOST DEVICE
-  auto trace() const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto trace() const
   {
-    return v0.x + v1.y + v2.z;
+    return _v0.x + _v1.y + _v2.z;
   }
 
   /// Returns a reference to the j-th column of this object.
-  HOST DEVICE
+  [[nodiscard]] HOST DEVICE
   auto& operator [](int j)
   {
-    return (&v0)[j];
+    return (&_v0)[j];
   }
 
   /// Returns the j-th column of this object.
-  HOST DEVICE
+  [[nodiscard]] HOST DEVICE
   const auto& operator [](int j) const
   {
-    return (&v0)[j];
+    return (&_v0)[j];
   }
 
   /// Returns a reference to the element (i, j) of this object.
-  HOST DEVICE
+  [[nodiscard]] HOST DEVICE
   auto& operator ()(int i, int j)
   {
     return (*this)[j][i];
   }
 
   /// Returns the element (i, j) of this object.
-  HOST DEVICE
+  [[nodiscard]] HOST DEVICE
   const auto& operator ()(int i, int j) const
   {
     return (*this)[j][i];
   }
 
   /// Returns this object * s.
-  HOST DEVICE
-  auto operator *(real s) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator *(R s) const
   {
-    return mat3{v0 * s, v1 * s, v2 * s};
+    return type{_v0 * s, _v1 * s, _v2 * s};
   }
 
   /// Returns a reference to this object *= s.
   HOST DEVICE
-  auto& operator *=(real s)
+  auto& operator *=(R s)
   {
-    v0 *= s;
-    v1 *= s;
-    v2 *= s;
+    _v0 *= s;
+    _v1 *= s;
+    _v2 *= s;
     return *this;
   }
 
   /// Returns this object * m.
-  HOST DEVICE
-  auto operator *(const mat3& m) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator *(const type& m) const
   {
-    const auto b0 = transform(m.v0);
-    const auto b1 = transform(m.v1);
-    const auto b2 = transform(m.v2);
+    const auto b0 = transform(m._v0);
+    const auto b1 = transform(m._v1);
+    const auto b2 = transform(m._v2);
 
-    return mat3{b0, b1, b2};
+    return type{b0, b1, b2};
   }
 
   /// Returns a reference to this object *= m.
   HOST DEVICE
-  auto& operator *=(const mat3& m)
+  auto& operator *=(const type& m)
   {
     return *this = operator *(m);
   }
 
   /// Returns this object * v.
-  HOST DEVICE
-  auto operator *(const vec3& v) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator *(const vec3& v) const
   {
     return transform(v);
   }
 
   /// Returns the transposed of this object.
-  HOST DEVICE
-  auto transposed() const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto transposed() const
   {
-    const vec3 b0{v0.x, v1.x, v2.x};
-    const vec3 b1{v0.y, v1.y, v2.y};
-    const vec3 b2{v0.z, v1.z, v2.z};
+    const vec3 b0{_v0.x, _v1.x, _v2.x};
+    const vec3 b1{_v0.y, _v1.y, _v2.y};
+    const vec3 b2{_v0.z, _v1.z, _v2.z};
 
-    return mat3{b0, b1, b2};
+    return type{b0, b1, b2};
   }
 
   /// Transposes and returns a reference to this object.
@@ -313,104 +286,106 @@ public:
   /// \brief Tries to invert this object and returns true on success;
   /// otherwise, leaves this object unchanged and returns false.
   HOST DEVICE
-  bool invert(real eps = math::Limits<real>::eps())
+  bool invert(R eps = math::Limits<R>::eps())
   {
-    const auto b00 = v1[1] * v2[2] - v1[2] * v2[1];
-    const auto b01 = v0[2] * v2[1] - v0[1] * v2[2];
-    const auto b02 = v0[1] * v1[2] - v0[2] * v1[1];
-    const auto b10 = v1[2] * v2[0] - v1[0] * v2[2];
-    const auto b11 = v0[0] * v2[2] - v0[2] * v2[0];
-    const auto b12 = v0[2] * v1[0] - v0[0] * v1[2];
-    const auto b20 = v1[0] * v2[1] - v1[1] * v2[0];
-    const auto b21 = v0[1] * v2[0] - v0[0] * v2[1];
-    const auto b22 = v0[0] * v1[1] - v0[1] * v1[0];
-    auto d = v0[0] * b00 + v1[0] * b01 + v2[0] * b02;
+    const auto b00 = _v1[1] * _v2[2] - _v1[2] * _v2[1];
+    const auto b01 = _v0[2] * _v2[1] - _v0[1] * _v2[2];
+    const auto b02 = _v0[1] * _v1[2] - _v0[2] * _v1[1];
+    const auto b10 = _v1[2] * _v2[0] - _v1[0] * _v2[2];
+    const auto b11 = _v0[0] * _v2[2] - _v0[2] * _v2[0];
+    const auto b12 = _v0[2] * _v1[0] - _v0[0] * _v1[2];
+    const auto b20 = _v1[0] * _v2[1] - _v1[1] * _v2[0];
+    const auto b21 = _v0[1] * _v2[0] - _v0[0] * _v2[1];
+    const auto b22 = _v0[0] * _v1[1] - _v0[1] * _v1[0];
+    auto d = _v0[0] * b00 + _v1[0] * b01 + _v2[0] * b02;
 
     if (math::isZero(d, eps))
       return false;
-    d = real(1 / d);
-    v0.set(d * b00, d * b01, d * b02);
-    v1.set(d * b10, d * b11, d * b12);
-    v2.set(d * b20, d * b21, d * b22);
+    d = R(1 / d);
+    _v0.set(d * b00, d * b01, d * b02);
+    _v1.set(d * b10, d * b11, d * b12);
+    _v2.set(d * b20, d * b21, d * b22);
     return true;
   }
 
   /// Assigns this object to m and tries to invert m.
   HOST DEVICE
-  bool inverse(mat3& m, real eps = math::Limits<real>::eps()) const
+  bool inverse(type& m, R eps = math::Limits<R>::eps()) const
   {
     return (m = *this).invert(eps);
   }
 
   /// Returns v transformed by this object.
-  HOST DEVICE
-  auto transform(const vec3& v) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto transform(const vec3& v) const
   {
-    return v0 * v.x + v1 * v.y + v2 * v.z;
+    return _v0 * v.x + _v1 * v.y + _v2 * v.z;
   }
 
   /// Returns v transformed by the transposed of this object.
-  HOST DEVICE
-  auto transposeTransform(const vec3& v) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto transposeTransform(const vec3& v) const
   {
-    return vec3{v0.dot(v), v1.dot(v), v2.dot(v)};
+    return vec3{_v0.dot(v), _v1.dot(v), _v2.dot(v)};
   }
 
   /// \brief Returns a 2D point p transformed by this object.
   /// This method is slower than transform3x4, but can handle
   /// projective transformations as well.
-  HOST DEVICE
-  auto transform(const vec2& p) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto transform(const vec2& p) const
   {
     const auto r = transform(vec3{p, 1});
-    return math::isZero(r.z) ? vec2(r) : vec2(r) * ((real)1 / r.z);
+    return math::isZero(r.z) ? vec2{r} : vec2{r} * ((R)1 / r.z);
   }
 
   /// \brief Returns a 2D point p transformed by this object.
   /// This method is faster than transform, but it can solely
   /// handle affine 2D transformations.
-  HOST DEVICE
-  auto transform2x3(const vec2& p) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto transform2x3(const vec2& p) const
   {
-    const auto x = v0.x * p.x + v1.x * p.y + v2.x;
-    const auto y = v0.y * p.x + v1.y * p.y + v2.y;
+    const auto x = _v0.x * p.x + _v1.x * p.y + _v2.x;
+    const auto y = _v0.y * p.x + _v1.y * p.y + _v2.y;
 
-    return vec2{x, y};
+    return type{x, y};
   }
 
   /// Returns a vector v transformed by this object.
-  HOST DEVICE
-  auto transformVector(const vec2& v) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto transformVector(const vec2& v) const
   {
-    return vec2(v0) * v.x + vec2(v1) * v.y;
+    return vec2{_v0} * v.x + vec2{_v1} * v.y;
   }
 
   /// Returns a pointer to the elements of this object.
-  HOST DEVICE
-  explicit operator const real*() const
+  [[nodiscard]] HOST DEVICE
+  explicit operator const R*() const
   {
-    return &v0.x;
+    return &_v0.x;
   }
 
   void print(const char* s, FILE* f = stdout) const
   {
     fprintf(f, "%s\n", s);
-    fprintf(f, "[%9.4g %9.4g %9.4g]\n", v0.x, v1.x, v2.x);
-    fprintf(f, "[%9.4g %9.4g %9.4g]\n", v0.y, v1.y, v2.y);
-    fprintf(f, "[%9.4g %9.4g %9.4g]\n", v0.z, v1.z, v2.z);
+    fprintf(f, "[%9.4g %9.4g %9.4g]\n", _v0.x, _v1.x, _v2.x);
+    fprintf(f, "[%9.4g %9.4g %9.4g]\n", _v0.y, _v1.y, _v2.y);
+    fprintf(f, "[%9.4g %9.4g %9.4g]\n", _v0.z, _v1.z, _v2.z);
   }
 
 private:
-  vec3 v0; // column 0
-  vec3 v1; // column 1
-  vec3 v2; // column 2
+  vec3 _v0; // column 0
+  vec3 _v1; // column 1
+  vec3 _v2; // column 2
 
 }; // Matrix3x3
 
+template <IsReal R> using Matrix3x3 = Matrix<R, 3, 3>;
+
 /// Sets the coordinates of this object from m.
-template <typename real>
+template <IsReal R>
 HOST DEVICE void
-Quaternion<real>::set(const mat3& m) // declared in Quaternion.h
+Quaternion<R>::set(const Matrix3x3<R>& m) // declared in Quaternion.h
 {
   auto t = m.trace();
 
@@ -418,8 +393,8 @@ Quaternion<real>::set(const mat3& m) // declared in Quaternion.h
   {
     auto s = sqrt(t + 1);
 
-    w = real(0.5) * s;
-    s = real(0.5) / s;
+    w = R(0.5) * s;
+    s = R(0.5) / s;
     x = (m(2, 1) - m(1, 2)) * s;
     y = (m(0, 2) - m(2, 0)) * s;
     z = (m(1, 0) - m(0, 1)) * s;
@@ -436,8 +411,8 @@ Quaternion<real>::set(const mat3& m) // declared in Quaternion.h
   {
     auto s = sqrt(m(1, 1) - (m(2, 2) + m(0, 0)) + 1);
 
-    y = real(0.5) * s;
-    s = real(0.5) / s;
+    y = R(0.5) * s;
+    s = R(0.5) / s;
     z = (m(1, 2) + m(2, 1)) * s;
     x = (m(0, 1) + m(1, 0)) * s;
     w = (m(0, 2) - m(2, 0)) * s;
@@ -446,8 +421,8 @@ Quaternion<real>::set(const mat3& m) // declared in Quaternion.h
   {
     auto s = sqrt(m(2, 2) - (m(0, 0) + m(1, 1)) + 1);
 
-    z = real(0.5) * s;
-    s = real(0.5) / s;
+    z = R(0.5) * s;
+    s = R(0.5) / s;
     x = (m(2, 0) + m(0, 2)) * s;
     y = (m(1, 2) + m(2, 1)) * s;
     w = (m(1, 0) - m(0, 1)) * s;
@@ -456,20 +431,18 @@ Quaternion<real>::set(const mat3& m) // declared in Quaternion.h
   {
     auto s = sqrt(m(0, 0) - (m(1, 1) + m(2, 2)) + 1);
 
-    x = real(0.5) * s;
-    s = real(0.5) / s;
+    x = R(0.5) * s;
+    s = R(0.5) / s;
     y = (m(0, 1) + m(1, 0)) * s;
     z = (m(2, 0) + m(0, 2)) * s;
     w = (m(0, 1) - m(1, 2)) * s;
   }
 }
 
-template <typename real> using Matrix3x3 = Matrix<real, 3, 3>;
-
 /// Returns s * m.
-template <typename real>
-HOST DEVICE inline auto
-operator *(real s, const Matrix3x3<real>& m)
+template <IsReal R>
+[[nodiscard]] HOST DEVICE constexpr auto
+operator *(R s, const Matrix3x3<R>& m)
 {
   return m * s;
 }
