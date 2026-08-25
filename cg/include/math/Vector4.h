@@ -28,7 +28,7 @@
 // Class definition for 4D vector.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/08/2026
+// Last revision: 24/08/2026
 
 #ifndef __Vector4_h
 #define __Vector4_h
@@ -57,7 +57,6 @@ public:
   R w;
 
   /// Default constructor.
-  HOST DEVICE
   constexpr Vector() = default;
 
   /// Constructs a Vector4 from (x, y, z, w).
@@ -204,6 +203,7 @@ public:
   [[nodiscard]] HOST DEVICE
   auto& operator [](int i)
   {
+    assert(i >= 0 && i < 4);
     return (&x)[i];
   }
 
@@ -211,6 +211,7 @@ public:
   [[nodiscard]] HOST DEVICE
   const auto& operator [](int i) const
   {
+    assert(i >= 0 && i < 4);
     return (&x)[i];
   }
 

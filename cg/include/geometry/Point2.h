@@ -56,7 +56,6 @@ public:
   R y;
 
   /// Default constructor.
-  HOST DEVICE
   constexpr Point() = default;
 
   /// Constructs a Point2 from (x, y).

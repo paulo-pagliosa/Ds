@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022 Paulo Pagliosa.                              |
+//| Copyright (C) 2022, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for vis poly mesh builder.
 //
 // Author: Paulo Pagliosa
-// Last revision: 16/03/2022
+// Last revision: 24/08/2026
 
 #include "PolyMeshBuilder.h"
 
@@ -49,7 +49,7 @@ PolyMeshBuilder::makeInstance(const PolyMeshGeometry& geometry)
     _mesh->instanceColor};
 
   _mesh->_instances.add(instance);
-  _mesh->_bounds.inflate(instance.bounds());
+  _mesh->_bounds.extend(instance.bounds());
 }
 
 } // end namespace cg::vis

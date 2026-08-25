@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022 Paulo Pagliosa.                              |
+//| Copyright (C) 2022, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for vis poly mesh.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/03/2022
+// Last revision: 24/08/2026
 
 #include "PolyMesh.h"
 
@@ -46,7 +46,7 @@ PolyMesh::Instance::bounds() const
   Bounds3f b;
 
   for (const auto& e : geometry->elements())
-    b.inflate({e.bounds(), localToWorld});
+    b.extend({e.bounds(), localToWorld});
   return b;
 }
 

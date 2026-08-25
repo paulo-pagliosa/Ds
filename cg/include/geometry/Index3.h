@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for 3D index.
 //
 // Author: Paulo Pagliosa
-// Last revision: 06/08/2025
+// Last revision: 24/08/2026
 
 #ifndef __Index3_h
 #define __Index3_h
@@ -43,11 +43,9 @@ namespace cg
 //
 // Index3: 3D index class
 // ======
-template <typename T>
+template <IsInt T>
 struct Index<3, T>
 {
-  ASSERT_INT(T, "Index3: integral Index expected");
-
   using type = Index<3, T>;
   using base_type = T;
 
@@ -57,34 +55,32 @@ struct Index<3, T>
     struct { T i; T j; T k; };
   };
 
-  HOST DEVICE
-  Index()
-  {
-    // do nothing
-  }
+  Index() = default;
 
   HOST DEVICE
-  Index(T i, T j, T k = 0)
+  constexpr Index(T i, T j, T k = 0)
   {
     set(i, j, k);
   }
 
-  HOST DEVICE
-  explicit Index(T i)
-  {
-    set(i, i, i);
-  }
-
   template <typename V>
   HOST DEVICE
-  explicit Index(const V& v)
+  explicit constexpr Index(const V& v)
   {
     set(v);
   }
 
+  HOST DEVICE
+  constexpr void set(T i, T j, T k = 0)
+  {
+    x = i;
+    y = j;
+    z = k;
+  }
+
   template <typename V>
   HOST DEVICE
-  void set(const V& v)
+  constexpr void set(const V& v)
   {
     if constexpr (std::is_integral_v<V>)
       x = y = z = T(v);
@@ -92,77 +88,62 @@ struct Index<3, T>
       set(T(v.x), T(v.y), T(v.z));
   }
 
-  HOST DEVICE
-  void set(T i, T j, T k = 0)
-  {
-    x = i;
-    y = j;
-    z = k;
-  }
-
-  HOST DEVICE
-  auto& operator =(T i)
-  {
-    set(i, i, i);
-    return *this;
-  }
-
-  HOST DEVICE
-  auto operator +(const Index& other) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator +(const Index& other) const
   {
     return Index{x + other.x, y + other.y, z + other.z};
   }
 
-  HOST DEVICE
-  auto operator +(T i) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator +(T i) const
   {
     return operator +(Index{i});
   }
 
-  HOST DEVICE
-  auto operator -(const Index& other) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator -(const Index& other) const
   {
     return Index{x - other.x, y - other.y, z - other.z};
   }
 
-  HOST DEVICE
-  auto operator -(T i) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator -(T i) const
   {
     return operator -(Index{i});
   }
 
-  HOST DEVICE
+  [[nodiscard]] HOST DEVICE
   const auto& operator [](int i) const
   {
     return (&x)[i];
   }
 
-  HOST DEVICE
+  [[nodiscard]] HOST DEVICE
   auto& operator [](int i)
   {
     return (&x)[i];
   }
 
-  HOST DEVICE
+  [[nodiscard]] HOST DEVICE
   bool operator ==(const Index& other) const
   {
     return x == other.x && y == other.y && z == other.z;
   }
 
-  HOST DEVICE
+  [[nodiscard]] HOST DEVICE
   bool operator !=(const Index& other) const
   {
     return !operator ==(other);
   }
 
-  HOST DEVICE
-  auto min() const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto min() const
   {
     return math::min(math::min(x, y), z);
   }
 
-  HOST DEVICE
-  auto max() const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto max() const
   {
     return math::max(math::max(x, y), z);
   }
@@ -176,8 +157,8 @@ struct Index<3, T>
     return *this;
   }
 
-  HOST DEVICE
-  auto prod() const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto prod() const
   {
     return x * y * z;
   }

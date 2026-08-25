@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,19 +28,20 @@
 // Class definition for 3D axis-aligned bounding box.
 //
 // Author: Paulo Pagliosa
-// Last revision: 21/07/2025
+// Last revision: 24/08/2026
 
 #ifndef __Bounds3_h
 #define __Bounds3_h
 
 #include "geometry/Bounds2.h"
+#include "math/Matrix4x4.h"
 
 namespace cg
 { // begin namespace cg
 
-template <typename real>
-HOST DEVICE inline void
-inflate(Vector3<real>& p1, Vector3<real>& p2, real x, real y, real z)
+template <IsReal R>
+HOST DEVICE constexpr void
+extendBounds(Vector3<R>& p1, Vector3<R>& p2, R x, R y, R z)
 {
   if (x < p1.x)
     p1.x = x;
@@ -61,77 +62,78 @@ inflate(Vector3<real>& p1, Vector3<real>& p2, real x, real y, real z)
 //
 // Bounds3: 3D axis-aligned bounding box class
 // =======
-template <typename real>
-class Bounds<real, 3>
+template <IsReal R>
+class Bounds<R, 3>
 {
 public:
-  ASSERT_REAL(real, "Bounds3: floating point type expected");
+  ASSERT_REAL(R, "Bounds3: floating point type expected");
 
-  using vec3 = Vector3<real>;
-  using mat4 = Matrix4x4<real>;
+  using vec3 = Vector3<R>;
+  using mat4 = Matrix4x4<R>;
 
-  /// Constructs an empty Bounds3 object.
+  /// Constructs an empty Bounds3.
   HOST DEVICE
-  Bounds()
+  constexpr Bounds()
   {
     setEmpty();
   }
 
+  /// Constructs a Bounds3 from p1 and p2.
   HOST DEVICE
-  Bounds(const vec3& min, const vec3& max)
+  constexpr Bounds(const vec3& p1, const vec3& p2)
   {
-    set(min, max);
+    set(p1, p2);
   }
 
+  /// Constructs a Bounds3 from p1 and p2.
   template <typename V>
   HOST DEVICE
-  Bounds(const V& p1, const V& p2):
-    Bounds{vec3(p1), vec3(p2)}
+  constexpr Bounds(const V& p1, const V& p2):
+    Bounds{vec3{p1}, vec3{p2}}
   {
     // do nothing
   }
 
-  HOST DEVICE
-  Bounds(const Bounds& b):
-    _p1{b._p1},
-    _p2{b._p2}
-  {
-    // do nothing
-  }
-
+  /// Constructs a Bounds3 from b and m.
   HOST DEVICE
   Bounds(const Bounds& b, const mat4& m):
-    Bounds{b}
+    _p1{b._p1},
+    _p2{b._p2}
   {
     transform(m);
   }
 
-  HOST DEVICE
-  auto center() const
+  /// Returns the center of this object.
+  [[nodiscard]] HOST DEVICE
+  constexpr auto center() const
   {
-    return (_p1 + _p2) * real(0.5);
+    return (_p1 + _p2) * R(0.5);
   }
 
-  HOST DEVICE
-  auto diagonalLength() const
+  /// Returns the diagonal length this object.
+  [[nodiscard]] HOST DEVICE
+  constexpr auto diagonalLength() const
   {
     return size().length();
   }
 
-  HOST DEVICE
-  auto size() const
+  /// Returns the extents of this object.
+  [[nodiscard]] HOST DEVICE
+  constexpr auto size() const
   {
     return _p2 - _p1;
   }
 
-  HOST DEVICE
-  auto maxSize() const
+  /// Returns the maximum extent of this object.
+  [[nodiscard]] HOST DEVICE
+  constexpr auto maxExtent() const
   {
     return size().max();
   }
 
-  HOST DEVICE
-  auto area() const
+  /// Returns the area of this object.
+  [[nodiscard]] HOST DEVICE
+  constexpr auto area() const
   {
     const auto s = size();
     const auto a = s.x * (s.y + s.z) + s.y * s.z;
@@ -139,72 +141,90 @@ public:
     return a + a;
   }
 
-  HOST DEVICE
-  bool empty() const
+  /// Returns true if this object is empty.
+  [[nodiscard]] HOST DEVICE
+  constexpr bool empty() const
   {
     return _p1.x >= _p2.x || _p1.y >= _p2.y || _p1.z >= _p2.z;
   }
 
-  HOST DEVICE
-  auto& min() const
+  /// Returns a reference to the min point of this object.
+  [[nodiscard]] HOST DEVICE
+  const auto& min() const
   {
     return _p1;
   }
 
-  HOST DEVICE
-  auto& max() const
+  /// Returns a reference to the max point of this object.
+  [[nodiscard]] HOST DEVICE
+  const auto& max() const
   {
     return _p2;
   }
 
-  HOST DEVICE
-  auto& operator [](int i) const
+  /// Returns a reference to the min (0) ou max (1) point of this object.
+  [[nodiscard]] HOST DEVICE
+  const auto& operator [](int i) const
   {
+    assert(i >= 0 && i < 2);
     return (&_p1)[i];
   }
 
-  /// Returns the union of this bounding box and b.
-  HOST DEVICE
-  auto operator +(const Bounds& b) const
+  /// Returns the union of this object and b.
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator +(const Bounds& b) const
   {
     return Bounds{math::min(_p1, b._p1), math::max(_p2, b._p2)};
   }
 
+  /// Sets this object to empty.
   HOST DEVICE
-  void setEmpty()
+  constexpr void setEmpty()
   {
-    _p1.x = _p1.y = _p1.z = +math::Limits<real>::inf();
-    _p2.x = _p2.y = _p2.z = -math::Limits<real>::inf();
+    _p1.x = _p1.y = _p1.z = +math::Limits<R>::inf();
+    _p2.x = _p2.y = _p2.z = -math::Limits<R>::inf();
   }
 
+  /// Sets this object from p1 and p2.
   HOST DEVICE
-  void set(const vec3& min, const vec3& max)
+  constexpr void set(const vec3& p1, const vec3& p2)
   {
-    _p1 = min;
-    _p2 = max;
-    if (max.x < min.x)
+    _p1 = p1;
+    _p2 = p2;
+    if (p2.x < p1.x)
       math::swap(_p1.x, _p2.x);
-    if (max.y < min.y)
+    if (p2.y < p1.y)
       math::swap(_p1.y, _p2.y);
-    if (max.z < min.z)
+    if (p2.z < p1.z)
       math::swap(_p1.z, _p2.z);
   }
 
+  /// Extends this object to contain (x, y).
   HOST DEVICE
-  void inflate(real x, real y, real z)
+  constexpr void extend(R x, R y, R z)
   {
-    cg::inflate(_p1, _p2, x, y, z);
+    extendBounds(_p1, _p2, x, y, z);
   }
 
+  /// Extends this object to contain p.
   template <typename V>
   HOST DEVICE
-  void inflate(const V& p)
+  constexpr void extend(const V& p)
   {
-    inflate(real(p.x), real(p.y), real(p.z));
+    extend(p.x, p.y, p.z);
   }
 
+  /// Extends this object to contain b.
   HOST DEVICE
-  void inflate(real s)
+  constexpr void extend(const Bounds& b)
+  {
+    extend(b._p1);
+    extend(b._p2);
+  }
+
+  /// Scales this object from its center by factor s.
+  HOST DEVICE
+  constexpr void scale(R s)
   {
     if (math::isPositive(s))
     {
@@ -215,13 +235,7 @@ public:
     }
   }
 
-  HOST DEVICE
-  void inflate(const Bounds& b)
-  {
-    inflate(b._p1);
-    inflate(b._p2);
-  }
-
+  /// Transforms this object by m.
   HOST DEVICE
   void transform(const mat4& m)
   {
@@ -239,12 +253,13 @@ public:
         p[1] = max[1];
       if (i & 4)
         p[2] = max[2];
-      inflate(m.transform3x4(p));
+      extend(m.transform3x4(p));
     }
   }
 
-  HOST DEVICE
-  bool contains(const vec3& p) const
+  /// Returns true if this object contains p.
+  [[nodiscard]] HOST DEVICE
+  constexpr bool contains(const vec3& p) const
   {
     if (p.x < _p1.x || p.x > _p2.x)
       return false;
@@ -255,11 +270,12 @@ public:
     return true;
   }
 
-  HOST DEVICE
-  bool intersect(const Ray3<real>& ray, real& tMin, real& tMax) const
+  /// Returns true if ray intercepts this object.
+  [[nodiscard]] HOST DEVICE
+  constexpr bool intersect(const Ray3<R>& ray, R& tMin, R& tMax) const
   {
-    tMin = -math::Limits<real>::inf();
-    tMax = +math::Limits<real>::inf();
+    tMin = -math::Limits<R>::inf();
+    tMax = +math::Limits<R>::inf();
     for (int i = 0; i < 3; i++)
     {
       auto invDir = math::inverse(ray.direction[i]);
@@ -276,8 +292,9 @@ public:
     return true;
   }
 
-  HOST DEVICE
-  bool overlap(const Bounds& b) const
+  /// Returns true if this object overlaps b.
+  [[nodiscard]] HOST DEVICE
+  constexpr bool overlap(const Bounds& b) const
   {
     if (_p2.x < b._p1.x || _p1.x > b._p2.x)
       return false;
@@ -301,7 +318,7 @@ private:
 
 }; // Bounds3
 
-template <typename real> using Bounds3 = Bounds<real, 3>;
+template <IsReal R> using Bounds3 = Bounds<R, 3>;
 
 using Bounds3f = Bounds3<float>;
 using Bounds3d = Bounds3<double>;

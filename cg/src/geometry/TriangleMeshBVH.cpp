@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for triangle mesh BVH.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/07/2025
+// Last revision: 24/08/2026
 
 #include "geometry/TriangleMeshBVH.h"
 
@@ -58,9 +58,9 @@ TriangleMeshBVH::TriangleMeshBVH(const TriangleMesh& mesh,
     auto t = m.triangles + i;
     Bounds3f b;
 
-    b.inflate(m.vertices[t->v[0]]);
-    b.inflate(m.vertices[t->v[1]]);
-    b.inflate(m.vertices[t->v[2]]);
+    b.extend(m.vertices[t->v[0]]);
+    b.extend(m.vertices[t->v[1]]);
+    b.extend(m.vertices[t->v[2]]);
     primitiveInfo[i] = {i, b};
   }
   build(primitiveInfo);

@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/01/2026
+// Last revision: 24/08/2026
 
 #ifndef __SceneWindowBase_h
 #define __SceneWindowBase_h
@@ -139,7 +139,7 @@ namespace ImGui
 
 using namespace cg;
 
-void objectNameInput(NameableObject& object, const char* label = "Name");
+void objectNameInput(NamedObject& object, const char* label = "Name");
 void inputText(const char* label, const char* text);
 
 inline bool

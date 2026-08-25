@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for camera.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/08/2022
+// Last revision: 24/08/2026
 
 #include "graphics/Camera.h"
 #include <algorithm>
@@ -38,7 +38,7 @@ namespace cg
 { // begin namespace cg
 
 namespace
-{
+{ // begin namespace
 
 inline mat4f
 lookAt(const vec3f& p, const vec3f& u, const vec3f& v, const vec3f& n)
@@ -70,7 +70,7 @@ transformDirection(vec3f& v, const mat4f& m)
   v = m.transformVector(v).versor();
 }
 
-}
+} // end namespace
 
 
 /////////////////////////////////////////////////////////////////////
@@ -95,7 +95,7 @@ Camera::error(const std::string& message)
 }
 
 Camera::Camera(float aspect):
-  NameableObject{defaultName()},
+  NamedSharedObject{defaultName()},
   _timestamp{0}
 {
   setDefaultView(aspect);

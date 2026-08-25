@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,13 +28,12 @@
 //  Class definition for 2D/3D ray.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/06/2023
+// Last revision: 24/08/2026
 
 #ifndef __Ray_h
 #define __Ray_h
 
 #include "geometry/Point3.h"
-#include "math/Matrix4x4.h"
 
 namespace cg
 { // begin namespace cg
@@ -44,71 +43,50 @@ namespace cg
 //
 // Ray: ray class
 // ===
-template <typename real, int D>
+template <IsReal R, int D>
 class Ray
 {
 public:
-  ASSERT_REAL(real, "Ray: floating point type expected");
+  static_assert(D == 2 || D == 3);
 
-  using vec_type = Vector<real, D>;
-  using mat_type = Matrix<real, D + 1, D + 1>;
+  using vec_type = Vector<R, D>;
 
   vec_type origin;
   vec_type direction;
-  mutable real tMin;
-  mutable real tMax;
+  mutable R tMin;
+  mutable R tMax;
 
-  /// Constructs an empty Ray object.
-  HOST DEVICE
-  Ray()
-  {
-    // do nothing
-  }
+  /// Constructs an empty Ray.
+  constexpr Ray() = default;
 
+  /// Constructs a Ray from origin and direction.
   HOST DEVICE
-  Ray(const vec_type& origin, const vec_type& direction):
-    tMin{real(0)},
-    tMax{math::Limits<real>::inf()}
+  constexpr Ray(const vec_type& origin, const vec_type& direction):
+    tMin{R(0)},
+    tMax{math::Limits<R>::inf()}
   {
     set(origin, direction);
   }
 
-  /*
+  /// Sets this object from origin and direction.
   HOST DEVICE
-  Ray(const Ray<real, D>& ray, const mat_type& m):
-    tMin{ray.tMin},
-    tMax{ray.tMax}
-  {
-    set(m.transform(ray.origin), m.transformVector(ray.direction));
-  }
-  */
-
-  HOST DEVICE
-  void set(const vec_type& origin, const vec_type& direction)
+  constexpr void set(const vec_type& origin, const vec_type& direction)
   {
     this->origin = origin;
     this->direction = direction.versor();
   }
 
-  /*
-  HOST DEVICE
-  void transform(const mat_type& m)
-  {
-    origin = m.transform(origin);
-    direction = m.transformVector(direction).versor();
-  }
-  */
-
-  HOST DEVICE
-  vec_type operator ()(real t) const
+  /// Returns the point on the ray at distance t.
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator ()(R t) const
   {
     return origin + direction * t;
   }
 
 }; // Ray
 
-template <typename real> using Ray2 = Ray<real, 2>;
-template <typename real> using Ray3 = Ray<real, 3>;
+template <typename R> using Ray2 = Ray<R, 2>;
+template <typename R> using Ray3 = Ray<R, 3>;
 
 using Ray2f = Ray2<float>;
 using Ray2d = Ray2<double>;

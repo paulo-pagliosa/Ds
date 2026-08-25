@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,91 +28,88 @@
 // Class definition for triangle functions.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/09/2023
+// Last revision: 24/08/2026
 
 #ifndef __Triangle_h
 #define __Triangle_h
 
 #include "geometry/Ray.h"
 
-namespace cg
-{ // begin namespace cg
-
-namespace triangle
-{ // begin namespace triangle
+namespace cg::triangle
+{ // begin namespace cg::triangle
 
 template <typename vec3>
-HOST DEVICE inline vec3
+[[nodiscard]] HOST DEVICE constexpr auto
 normal(const vec3& v0, const vec3& v1, const vec3& v2)
 {
   return ((v1 - v0).cross(v2 - v0)).versor();
 }
 
 template <typename vec3>
-HOST DEVICE inline vec3
+[[nodiscard]] HOST DEVICE constexpr auto
 normal(const vec3* v)
 {
   return normal(v[0], v[1], v[2]);
 }
 
 template <typename vec3>
-HOST DEVICE inline vec3
+[[nodiscard]] HOST DEVICE constexpr auto
 normal(const vec3* v, int i, int j, int k)
 {
   return normal(v[i], v[j], v[k]);
 }
 
 template <typename vec3>
-HOST DEVICE inline vec3
+[[nodiscard]] HOST DEVICE constexpr auto
 normal(const vec3* v, const int i[3])
 {
   return normal(v[i[0]], v[i[1]], v[i[2]]);
 }
 
 template <typename vec3>
-HOST DEVICE inline vec3
+[[nodiscard]] HOST DEVICE constexpr auto
 center(const vec3& v0, const vec3& v1, const vec3& v2)
 {
   return (v0 + v1 + v2) * math::inverse(3.0f);
 }
 
 template <typename vec3>
-HOST DEVICE inline vec3
+[[nodiscard]] HOST DEVICE constexpr auto
 center(const vec3* v)
 {
   return center(v[0], v[1], v[2]);
 }
 
 template <typename vec3>
-HOST DEVICE inline vec3
+[[nodiscard]] HOST DEVICE constexpr auto
 center(const vec3* v, int i, int j, int k)
 {
   return center(v[i], v[j], v[k]);
 }
 
 template <typename vec3>
-HOST DEVICE inline vec3
+[[nodiscard]] HOST DEVICE constexpr auto
 center(const vec3* v, const int i[3])
 {
   return center(v[i[0]], v[i[1]], v[i[2]]);
 }
 
 template <typename T, typename vec3>
-HOST DEVICE inline T
+[[nodiscard]] HOST DEVICE constexpr auto
 interpolate(const vec3& b, const T& t0, const T& t1, const T& t2)
 {
   return t0 * b.x + t1 * b.y + t2 * b.z;
 }
 
 template <typename T, typename vec3>
-HOST DEVICE inline T
+[[nodiscard]] HOST DEVICE constexpr auto
 interpolate(const vec3& b, const T t[3])
 {
   return interpolate(b, t[0], t[1], t[2]);
 }
 
 template <typename real>
-HOST DEVICE inline bool
+[[nodiscard]] HOST DEVICE constexpr bool
 intersect(const Ray3<real>& ray,
   const Vector3<real>& p0,
   const Vector3<real>& p1,
@@ -150,8 +147,6 @@ intersect(const Ray3<real>& ray,
   return true;
 }
 
-} // end namespace triangle
-
-} // end namespace cg
+} // end namespace cg::triangle
 
 #endif // __Triangle_h

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for scene object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/11/2025
+// Last revision: 24/08/2026
 
 #ifndef __SceneObject_h
 #define __SceneObject_h
@@ -53,7 +53,7 @@ using SceneObjectAllocator = BlockAllocator<SceneObject, 32>;
 //
 // SceneObject: scene object class
 // ===========
-class SceneObject: public NameableObject,
+class SceneObject: public NamedSharedObject,
   public ObjectListNode<SceneObject, SceneObjectAllocator>
 {
 public:

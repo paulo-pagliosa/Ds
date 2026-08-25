@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for quadtree/octree base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 12/01/2023
+// Last revision: 24/08/2026
 
 #ifndef __TreeBase_h
 #define __TreeBase_h
@@ -44,18 +44,10 @@
 namespace cg
 { // begin namespace cg
 
-template <size_t n>
-inline constexpr size_t
-ipow2()
+[[nodiscard]] consteval size_t
+ipow2(size_t N)
 {
-  return 2 * ipow2<n - 1>();
-}
-
-template <>
-inline constexpr size_t
-ipow2<0>()
-{
-  return 1;
+  return N == 0 ? 1 : 2 * ipow2(N - 1);
 }
 
 //
@@ -124,7 +116,7 @@ template <int D>
 class TreeBranchNodeBase: public TreeNodeBase<D>
 {
 public:
-  static constexpr auto N = (int)ipow2<D>();
+  static constexpr auto N = (int)ipow2(D);
 
   TreeBranchNodeBase()
   {
@@ -442,7 +434,7 @@ TreeIteratorBase<D>::nextChild(TreeBranchNodeBase<D>* branch,
   int i,
   TreeKey<D>& key)
 {
-  constexpr auto N = (int)ipow2<D>();
+  constexpr auto N = (int)ipow2(D);
 
   while (++i < N)
     if (auto node = branch->child(i))
@@ -634,26 +626,26 @@ private:
 //
 // RegionTree: generic region tree class
 // ==========
-template <int D, typename real, typename LT, typename BT = void>
+template <int D, IsReal R, typename LT, typename BT = void>
 class RegionTree: public TreeBase<D>
 {
 public:
-  using tree_type = RegionTree<D, real, LT, BT>;
+  using tree_type = RegionTree<D, R, LT, BT>;
   using iterator = TreeIterator<D, tree_type>;
   using leaf_iterator = TreeLeafIterator<D, tree_type>;
-  using bounds_type = Bounds<real, D>;
-  using vec_type = Vector<real, D>;
+  using bounds_type = Bounds<R, D>;
+  using vec_type = Vector<R, D>;
   using leaf_data_type = LT;
   using key_type = TreeKey<D>;
 
-  static constexpr auto dflFatFactor = (real)1.01;
+  static constexpr auto dflFatFactor = (R)1.01;
 
   static auto fatFactor()
   {
     return _fatFactor;
   }
 
-  static void setFatFactor(real s)
+  static void setFatFactor(R s)
   {
     if (s >= 1)
       _fatFactor = s;
@@ -735,7 +727,7 @@ public:
 
   auto center(const key_type& key, int depth) const
   {
-    return point(key, depth, vec_type{real(0.5)});
+    return point(key, depth, vec_type{R(0.5)});
   }
 
   auto center(const leaf_iterator& i) const
@@ -827,7 +819,7 @@ protected:
       return nullptr;
 
     auto branch = createBranchInPlaceOf(leaf);
-    constexpr auto N = (int)ipow2<D>();
+    constexpr auto N = (int)ipow2(D);
 
     for (int i = 0; i < N; ++i)
       createLeafChild(branch, i);
@@ -846,7 +838,7 @@ protected:
 
   auto nodeSize(uint32_t depth) const
   {
-    return _resolution * real(this->sizeBits(this->_maxDepth - depth));
+    return _resolution * R(this->sizeBits(this->_maxDepth - depth));
   }
 
   static auto leafNode(const leaf_iterator& lit)
@@ -895,7 +887,7 @@ private:
 
   using NodeSet = std::set<NodeIt>;
 
-  static real _fatFactor;
+  static R _fatFactor;
 
   static bool isBalanced(const BranchNode* branch, int direction)
   {
@@ -916,25 +908,25 @@ private:
 
 }; // RegionTree
 
-template <int D, typename real, typename LT, typename BT>
-real RegionTree<D, real, LT, BT>::_fatFactor = dflFatFactor;
+template <int D, IsReal R, typename LT, typename BT>
+R RegionTree<D, R, LT, BT>::_fatFactor = dflFatFactor;
 
-template <int D, typename real, typename LT, typename BT>
-RegionTree<D, real, LT, BT>::RegionTree(const bounds_type& bounds,
+template <int D, IsReal R, typename LT, typename BT>
+RegionTree<D, R, LT, BT>::RegionTree(const bounds_type& bounds,
   uint32_t maxDepth):
   TreeBase<D>{new BranchNode(), maxDepth},
   _bounds{bounds}
 {
   if (bounds.empty())
     throw std::runtime_error("RegionTree: empty bounds");
-  _bounds.inflate(_fatFactor);
-  _resolution = _bounds.size() * (1 / real(this->sizeBits(maxDepth)));
+  _bounds.scale(_fatFactor);
+  _resolution = _bounds.size() * (1 / R(this->sizeBits(maxDepth)));
   _scale = _resolution.inverse();
 }
 
-template <int D, typename real, typename LT, typename BT>
-typename RegionTree<D, real, LT, BT>::LeafNode*
-RegionTree<D, real, LT, BT>::makeLeaf(const key_type& key,
+template <int D, IsReal R, typename LT, typename BT>
+typename RegionTree<D, R, LT, BT>::LeafNode*
+RegionTree<D, R, LT, BT>::makeLeaf(const key_type& key,
   uint64_t mask,
   BranchNode* branch)
 {
@@ -951,11 +943,11 @@ RegionTree<D, real, LT, BT>::makeLeaf(const key_type& key,
   return (LeafNode*)child;
 }
 
-template <int D, typename real, typename LT, typename BT>
+template <int D, IsReal R, typename LT, typename BT>
 void
-RegionTree<D, real, LT, BT>::makeEmptyLeafs(BranchNode* branch)
+RegionTree<D, R, LT, BT>::makeEmptyLeafs(BranchNode* branch)
 {
-  constexpr auto N = (int)ipow2<D>();
+  constexpr auto N = (int)ipow2(D);
 
   for (int i = 0; i < N; ++i)
   {
@@ -968,13 +960,13 @@ RegionTree<D, real, LT, BT>::makeEmptyLeafs(BranchNode* branch)
   }
 }
 
-template <int D, typename real, typename LT, typename BT>
+template <int D, IsReal R, typename LT, typename BT>
 void
-RegionTree<D, real, LT, BT>::makeEmptyLeafs(BranchNode* branch,
+RegionTree<D, R, LT, BT>::makeEmptyLeafs(BranchNode* branch,
   const key_type& key,
   NodeSet& leafs)
 {
-  constexpr auto N = (int)ipow2<D>();
+  constexpr auto N = (int)ipow2(D);
 
   for (int i = 0; i < N; ++i)
   {
@@ -992,9 +984,9 @@ RegionTree<D, real, LT, BT>::makeEmptyLeafs(BranchNode* branch,
   }
 }
 
-template <int D, typename real, typename LT, typename BT>
-typename RegionTree<D, real, LT, BT>::NodeIt
-RegionTree<D, real, LT, BT>::findNeighbor(const NodeIt& nit,
+template <int D, IsReal R, typename LT, typename BT>
+typename RegionTree<D, R, LT, BT>::NodeIt
+RegionTree<D, R, LT, BT>::findNeighbor(const NodeIt& nit,
   int direction) const
 {
   auto node = nit.node;
@@ -1021,9 +1013,9 @@ RegionTree<D, real, LT, BT>::findNeighbor(const NodeIt& nit,
   return NodeIt::null();
 }
 
-template <int D, typename real, typename LT, typename BT>
+template <int D, IsReal R, typename LT, typename BT>
 void
-RegionTree<D, real, LT, BT>::balanceTree()
+RegionTree<D, R, LT, BT>::balanceTree()
 {
   constexpr auto S = (int)D * 2;
   NodeSet leafs;
@@ -1053,7 +1045,7 @@ RegionTree<D, real, LT, BT>::balanceTree()
         auto leaf = (LeafNode*)currentLeaf.node;
         auto branch = createBranchInPlaceOf(leaf);
 
-        for (int i = 0; i < (int)ipow2<D>(); ++i)
+        for (int i = 0; i < (int)ipow2(D); ++i)
         {
           auto child = createLeafChild(branch, i);
           leafs.emplace(child, key_type(currentLeaf.key).pushChild(i));

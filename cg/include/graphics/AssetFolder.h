@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2022, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for asset folder.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/07/2023
+// Last revision: 24/08/2026
 
 #ifndef __AssetFolder_h
 #define __AssetFolder_h
@@ -69,7 +69,7 @@ using RefSetIterator = typename RefSet<T>::const_iterator;
 //
 // AssetFile: asset file class
 // =========
-class AssetFile: public NameableObject
+class AssetFile: public NamedSharedObject
 {
 public:
   AssetFolder* parent() const

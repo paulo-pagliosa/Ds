@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for BVH.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/07/2025
+// Last revision: 24/08/2026
 
 #include "geometry/BVH.h"
 #include <algorithm>
@@ -126,7 +126,7 @@ BVHBase::makeNode(const PrimitiveInfoArray& primitiveInfo,
 
   // Compute the bounds of all primitives in the node.
   for (auto i = first; i < end; ++i)
-    bounds.inflate(primitiveInfo[_primitiveIds[i]].bounds);
+    bounds.extend(primitiveInfo[_primitiveIds[i]].bounds);
   ++_nodeCount;
 
   auto count = end - first;
@@ -140,7 +140,7 @@ BVHBase::makeNode(const PrimitiveInfoArray& primitiveInfo,
 
   // Compute the bounds of the primitive centroids.
   for (auto i = first; i < end; ++i)
-    centroidBounds.inflate(primitiveInfo[_primitiveIds[i]].centroid);
+    centroidBounds.extend(primitiveInfo[_primitiveIds[i]].centroid);
 
   auto dim = maxDim(centroidBounds);
 
@@ -192,7 +192,7 @@ BVHBase::makeNode(const PrimitiveInfoArray& primitiveInfo,
       auto bid = bucketId(p);
 
       buckets[bid].count++;
-      buckets[bid].bounds.inflate(p.bounds);
+      buckets[bid].bounds.extend(p.bounds);
     }
 
     // Compute the cost for splitting after each bucket.
@@ -203,7 +203,7 @@ BVHBase::makeNode(const PrimitiveInfoArray& primitiveInfo,
 
       for (int c = 0, i = 0; i < maxSplits;)
       {
-        b.inflate(buckets[i].bounds);
+        b.extend(buckets[i].bounds);
         c += buckets[i].count;
         costs[i++] += c * b.area();
       }
@@ -213,7 +213,7 @@ BVHBase::makeNode(const PrimitiveInfoArray& primitiveInfo,
 
       for (int c = 0, i = maxSplits; i > 0;)
       {
-        b.inflate(buckets[i].bounds);
+        b.extend(buckets[i].bounds);
         c += buckets[i].count;
         costs[--i] += c * b.area();
       }

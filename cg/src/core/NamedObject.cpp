@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2018 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,18 +23,16 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: NameableObject.h
+// OVERVIEW: Nameabled.cpp
 // ========
-// Class definition for nameable object.
+// Source file for named object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 21/09/2018
+// Last revision: 24/08/2026
 
-#ifndef __NameableObject_h
-#define __NameableObject_h
-
-#include "core/SharedObject.h"
-#include <string>
+#include "core/NamedObject.h"
+#include <cstdarg>
+#include <cstdio>
 
 namespace cg
 { // begin namespace cg
@@ -42,34 +40,18 @@ namespace cg
 
 /////////////////////////////////////////////////////////////////////
 //
-// NameableObject: nameable object class
-// ==============
-class NameableObject: public SharedObject
+// NamedObject implementation
+// ===========
+void
+NamedObject::setName(const char* format, ...)
 {
-public:
-  /// Returns the name of this object.
-  auto name() const
-  {
-    return _name.c_str();
-  }
+  constexpr int bufferSize{128};
+  char buffer[bufferSize];
+  va_list args;
 
-  /// Sets the name of this object.
-  void setName(const char* format, ...);
-
-protected:
-  NameableObject() = default;
-
-  NameableObject(const char* name):
-    _name{name}
-  {
-    // do nothing
-  }
-
-private:
-  std::string _name;
-
-}; // NameableObject
+  va_start(args, format);
+  vsnprintf(buffer, bufferSize, format, args);
+  _name = buffer;
+}
 
 } // end namespace cg
-
-#endif // __NameableObject_h

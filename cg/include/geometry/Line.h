@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2020 Paulo Pagliosa.                              |
+//| Copyright (C) 2020, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 //  Class definition for 2D/3D line.
 //
 // Author: Paulo Pagliosa
-// Last revision: 02/06/2020
+// Last revision: 24/08/2026
 
 #ifndef __Line_h
 #define __Line_h
@@ -44,25 +44,23 @@ namespace cg
 //
 // Line: 2D/3D line class
 // ====
-template <int D, typename real>
+template <int D, IsReal R>
 class Line
 {
 public:
-  ASSERT_REAL(real, "Line: floating point type expected");
-
-  using Point = Point<real, D>;
+  using Point = cg::Point<R, D>;
 
   Point p0;
   Point p1;
 
-  auto operator ()(real u) const
+  auto operator ()(R u) const
   {
-    return real(1 - u) * p0 + u * p1;
+    return R(1 - u) * p0 + u * p1;
   }
 
   auto bounds() const
   {
-    return Bounds<real, D>{p0, p1};
+    return Bounds<R, D>{p0, p1};
   }
 
   auto direction() const
@@ -77,8 +75,8 @@ public:
 
 }; // Line
 
-template <typename real> using Line2 = Line<2, real>;
-template <typename real> using Line3 = Line<3, real>;
+template <IsReal R> using Line2 = Line<2, R>;
+template <IsReal R> using Line3 = Line<3, R>;
 
 using Line2f = Line2<float>;
 using Line2d = Line2<double>;

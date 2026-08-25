@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2020 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,16 +23,18 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: NameableObject.cpp
+// OVERVIEW: NamedObject.h
 // ========
-// Source file for nameable object.
+// Class definition for named object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/06/2020
+// Last revision: 24/08/2026
 
-#include "core/NameableObject.h"
-#include <cstdarg>
-#include <cstdio>
+#ifndef __NamedObject_h
+#define __NamedObject_h
+
+#include "core/SharedObject.h"
+#include <string>
 
 namespace cg
 { // begin namespace cg
@@ -40,18 +42,55 @@ namespace cg
 
 /////////////////////////////////////////////////////////////////////
 //
-// NameableObject implementation
-// ==============
-void
-NameableObject::setName(const char* format, ...)
+// NamedObject: named object class
+// ===========
+class NamedObject
 {
-  constexpr int bufferSize{128};
-  char buffer[bufferSize];
-  va_list args;
+public:
+  /// Destructor.
+  virtual ~NamedObject() = default;
 
-  va_start(args, format);
-  vsnprintf(buffer, bufferSize, format, args);
-  _name = buffer;
-}
+  /// Returns the name of this object.
+  auto name() const
+  {
+    return _name.c_str();
+  }
+
+  /// Sets the name of this object.
+  void setName(const char* format, ...);
+
+protected:
+  NamedObject() = default;
+
+  NamedObject(const char* name):
+    _name{name}
+  {
+    // do nothing
+  }
+
+private:
+  std::string _name;
+
+}; // NamedObject
+
+
+/////////////////////////////////////////////////////////////////////
+//
+// NamedSharedObject: named shared object class
+// =================
+class NamedSharedObject: public SharedObject, public NamedObject
+{
+protected:
+  NamedSharedObject() = default;
+
+  NamedSharedObject(const char* name):
+    NamedObject{name}
+  {
+    // do nothing
+  }
+
+}; // NamedSharedObject
 
 } // end namespace cg
+
+#endif // __NamedObject_h

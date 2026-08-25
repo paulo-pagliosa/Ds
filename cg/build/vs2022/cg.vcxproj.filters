@@ -134,7 +134,7 @@
     <ClInclude Include="..\..\include\core\Flags.h">
       <Filter>Header Files\core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\core\NameableObject.h">
+    <ClInclude Include="..\..\include\core\NamedObject.h">
       <Filter>Header Files\core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\graphics\GLMesh.h">
@@ -412,7 +412,7 @@
     <ClCompile Include="..\..\src\core\BlockAllocator.cpp">
       <Filter>Source Files\core</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\core\NameableObject.cpp">
+    <ClCompile Include="..\..\src\core\NamedObject.cpp">
       <Filter>Source Files\core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\debug\AnimatedAlgorithm.cpp">

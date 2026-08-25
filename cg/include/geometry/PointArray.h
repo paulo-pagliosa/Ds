@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,11 +28,12 @@
 // Class definition for point array.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/01/2023
+// Last revision: 24/08/2026
 
 #ifndef __PointArray_h
 #define __PointArray_h
 
+#include "core/Array.h"
 #include "core/SoA.h"
 #include "geometry/IndexList.h"
 

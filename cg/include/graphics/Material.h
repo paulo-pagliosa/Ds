@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,12 +28,12 @@
 // Class definition for material.
 //
 // Author: Paulo Pagliosa
-// Last revision: 21/04/2023
+// Last revision: 24/08/2026
 
 #ifndef __Material_h
 #define __Material_h
 
-#include "core/NameableObject.h"
+#include "core/NamedObject.h"
 #include "graphics/Color.h"
 
 namespace cg
@@ -44,7 +44,7 @@ namespace cg
 //
 // Material: material class
 // ========
-class Material: public NameableObject
+class Material: public NamedSharedObject
 {
 public:
   Color ambient; // ambient color

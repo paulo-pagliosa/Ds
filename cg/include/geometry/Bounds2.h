@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,21 +28,22 @@
 // Class definition for 2D axis-aligned bounding box.
 //
 // Author: Paulo Pagliosa
-// Last revision: 21/07/2025
+// Last revision: 24/08/2026
 
 #ifndef __Bounds2_h
 #define __Bounds2_h
 
 #include "geometry/Ray.h"
+#include "math/Matrix3x3.h"
 
 namespace cg
 { // begin namespace cg
 
-template <typename real, int D> class Bounds;
+template <IsReal R, int D> class Bounds;
 
-template <typename real>
-HOST DEVICE inline void
-inflate(Vector2<real>& p1, Vector2<real>& p2, real x, real y)
+template <IsReal R>
+HOST DEVICE constexpr void
+extendBounds(Vector2<R>& p1, Vector2<R>& p2, R x, R y)
 {
   if (x < p1.x)
     p1.x = x;
@@ -59,145 +60,162 @@ inflate(Vector2<real>& p1, Vector2<real>& p2, real x, real y)
 //
 // Bounds2: 2D axis-aligned bounding box class
 // =======
-template <typename real>
-class Bounds<real, 2>
+template <IsReal R>
+class Bounds<R, 2>
 {
 public:
-  ASSERT_REAL(real, "Bounds2: floating point type expected");
+  using vec2 = Vector2<R>;
+  using mat3 = Matrix3x3<R>;
 
-  using vec2 = Vector2<real>;
-  using mat3 = Matrix3x3<real>;
-
-  /// Constructs an empty Bounds3 object.
+  /// Constructs an empty Bounds2.
   HOST DEVICE
-  Bounds()
+  constexpr Bounds()
   {
     setEmpty();
   }
 
+  /// Constructs a Bounds2 from p1 and p2.
+  HOST DEVICE
+  constexpr Bounds(const vec2& p1, const vec2& p2)
+  {
+    set(p1, p2);
+  }
+
+  /// Constructs a Bounds2 from p1 and p2.
   template <typename V>
   HOST DEVICE
-  Bounds(const V& p1, const V& p2):
-    Bounds{vec2(p1), vec2(p2)}
+  constexpr Bounds(const V& p1, const V& p2):
+    Bounds{vec2{p1}, vec2{p2}}
   {
     // do nothing
   }
 
-  HOST DEVICE
-  Bounds(const vec2& min, const vec2& max)
-  {
-    set(min, max);
-  }
-
-  HOST DEVICE
-  Bounds(const Bounds& b):
-    _p1{b._p1},
-    _p2{b._p2}
-  {
-    // do nothing
-  }
-
+  /// Constructs a Bounds2 from b and m.
   HOST DEVICE
   Bounds(const Bounds& b, const mat3& m):
-    Bounds{b}
+    _p1{b._p1},
+    _p2{b._p2}
   {
     transform(m);
   }
 
-  HOST DEVICE
-  auto center() const
+  /// Returns the center of this object.
+  [[nodiscard]] HOST DEVICE
+  constexpr auto center() const
   {
-    return (_p1 + _p2) * real(0.5);
+    return (_p1 + _p2) * R(0.5);
   }
 
-  HOST DEVICE
-  auto diagonalLength() const
+  /// Returns the diagonal length this object.
+  [[nodiscard]] HOST DEVICE
+  constexpr auto diagonalLength() const
   {
     return size().length();
   }
 
-  HOST DEVICE
-  auto size() const
+  /// Returns the extents of this object.
+  [[nodiscard]] HOST DEVICE
+  constexpr auto size() const
   {
     return _p2 - _p1;
   }
 
-  HOST DEVICE
-  auto maxSize() const
+  /// Returns the maximum extent of this object.
+  [[nodiscard]] HOST DEVICE
+  constexpr auto maxExtent() const
   {
     return size().max();
   }
 
-  HOST DEVICE
-  auto area() const
+  /// Returns the area of this object.
+  [[nodiscard]] HOST DEVICE
+  constexpr auto area() const
   {
     return (_p2.x - _p1.x) * (_p2.y - _p1.y);
   }
 
-  HOST DEVICE
-  bool empty() const
+  /// Returns true if this object is empty.
+  [[nodiscard]] HOST DEVICE
+  constexpr bool empty() const
   {
     return _p1.x >= _p2.x || _p1.y >= _p2.y;
   }
 
-  HOST DEVICE
-  auto& min() const
+  /// Returns a reference to the min point of this object.
+  [[nodiscard]] HOST DEVICE
+  const auto& min() const
   {
     return _p1;
   }
 
-  HOST DEVICE
-  auto& max() const
+  /// Returns a reference to the max point of this object.
+  [[nodiscard]] HOST DEVICE
+  const auto& max() const
   {
     return _p2;
   }
 
-  HOST DEVICE
-  auto& operator [](int i) const
+  /// Returns a reference to the min (0) ou max (1) point of this object.
+  [[nodiscard]] HOST DEVICE
+  const auto& operator [](int i) const
   {
+    assert(i >= 0 && i < 2);
     return (&_p1)[i];
   }
 
-  /// Returns the union of this bounding box and b.
-  HOST DEVICE
-  auto operator +(const Bounds& b) const
+  /// Returns the union of this object and b.
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator +(const Bounds& b) const
   {
     return Bounds{math::min(_p1, b._p1), math::max(_p2, b._p2)};
   }
 
+  /// Sets this object to empty.
   HOST DEVICE
-  void setEmpty()
+  constexpr void setEmpty()
   {
-    _p1.x = _p1.y = +math::Limits<real>::inf();
-    _p2.x = _p2.y = -math::Limits<real>::inf();
+    _p1.x = _p1.y = +math::Limits<R>::inf();
+    _p2.x = _p2.y = -math::Limits<R>::inf();
   }
 
+  /// Sets this object from p1 and p2.
   HOST DEVICE
-  void set(const vec2& min, const vec2& max)
+  constexpr void set(const vec2& p1, const vec2& p2)
   {
-    _p1 = min;
-    _p2 = max;
-    if (max.x < min.x)
+    _p1 = p1;
+    _p2 = p2;
+    if (p2.x < p1.x)
       math::swap(_p1.x, _p2.x);
-    if (max.y < min.y)
+    if (p2.y < p1.y)
       math::swap(_p1.y, _p2.y);
   }
 
+  /// Extends this object to contain (x, y).
   HOST DEVICE
-  void inflate(real x, real y)
+  constexpr void extend(R x, R y)
   {
-    cg::inflate(_p1, _p2, x, y);
+    extendBounds(_p1, _p2, x, y);
   }
 
+  /// Extends this object to contain p.
   template <typename V>
   HOST DEVICE
-  void inflate(const V& p)
+  constexpr void extend(const V& p)
   {
-    inflate(real(p.x), real(p.y));
+    extend(p.x, p.y);
   }
 
+  /// Extends this object to contain b.
   HOST DEVICE
-  void inflate(real s)
+  constexpr void extend(const Bounds& b)
+  {
+    extend(b._p1);
+    extend(b._p2);
+  }
+
+  /// Scales this object from its center by factor s.
+  HOST DEVICE
+  constexpr void scale(R s)
   {
     if (math::isPositive(s))
     {
@@ -208,13 +226,7 @@ public:
     }
   }
 
-  HOST DEVICE
-  void inflate(const Bounds& b)
-  {
-    inflate(b._p1);
-    inflate(b._p2);
-  }
-
+  /// Transforms this object by m.
   HOST DEVICE
   void transform(const mat3& m)
   {
@@ -230,12 +242,13 @@ public:
         p[0] = max[0];
       if (i & 2)
         p[1] = max[1];
-      inflate(m.transform2x3(p));
+      extend(m.transform2x3(p));
     }
   }
 
-  HOST DEVICE
-  bool contains(const vec2& p) const
+  /// Returns true if this object contains p.
+  [[nodiscard]] HOST DEVICE
+  constexpr bool contains(const vec2& p) const
   {
     if (p.x < _p1.x || p.x > _p2.x)
       return false;
@@ -244,11 +257,12 @@ public:
     return true;
   }
 
-  HOST DEVICE
-  bool intersect(const Ray2<real>& ray, real& tMin, real& tMax) const
+  /// Returns true if ray intercepts this object.
+  [[nodiscard]] HOST DEVICE
+  constexpr bool intersect(const Ray2<R>& ray, R& tMin, R& tMax) const
   {
-    tMin = -math::Limits<real>::inf();
-    tMax = +math::Limits<real>::inf();
+    tMin = -math::Limits<R>::inf();
+    tMax = +math::Limits<R>::inf();
     for (int i = 0; i < 2; i++)
     {
       auto invDir = math::inverse(ray.direction[i]);
@@ -265,20 +279,9 @@ public:
     return true;
   }
 
-  /**
-   * \brief Returns true if the line segment from \c p1 to \c p2
-   * intersects this bounding box. The coordinates of the
-   * intersection points are returned in \c q1 and \c q2 (if not
-   * null). The method implements the Cohen-Sutherland algorithm.
-   */
-  HOST DEVICE
-  bool intersectLine(const vec2 p1,
-    const vec2 p2,
-    vec2* q1 = nullptr,
-    vec2* q2 = nullptr) const;
-
-  HOST DEVICE
-  bool overlap(const Bounds& b) const
+  /// Returns true if this object overlaps b.
+  [[nodiscard]] HOST DEVICE
+  constexpr bool overlap(const Bounds& b) const
   {
     if (_p2.x < b._p1.x || _p1.x > b._p2.x)
       return false;
@@ -298,80 +301,9 @@ private:
   vec2 _p1;
   vec2 _p2;
 
-  HOST DEVICE
-  auto outcode(const vec2 &p) const
-  {
-    return ((p.x < _p1.x)) |
-      ((p.x > _p2.x) << 1) |
-      ((p.y < _p1.y) << 2) |
-      ((p.y > _p2.y) << 3);
-  }
-
 }; // Bounds2
 
-template <typename real>
-bool Bounds<real, 2>::intersectLine(const vec2 p1,
-  const vec2 p2,
-  vec2* q1,
-  vec2* q2) const
-{
-  for (;;)
-  {
-    auto out1 = outcode(p1);
-    auto out2 = outcode(p2);
-
-    if ((out1 | out2) == 0)
-    {
-      if (q1 != nullptr)
-        *q1 = p1;
-      if (q2 != nullptr)
-        *q2 = p2;
-      return true;
-    }
-    if ((out1 & out2) != 0)
-      return false;
-
-    int code;
-    vec2 *p;
-
-    if (!out1)
-    {
-      code = out2;
-      p = &p2;
-    }
-    else
-    {
-      code = out1;
-      p = &p1;
-    }
-
-    if (code & 8)
-    {
-      p->x = p1.x + (p2.x - p1.x) * (_p2.y - p1.y) / (p2.y - p1.y);
-      p->y = _p2.y;
-      continue;
-    }
-    if (code & 4)
-    {
-      p->x = p1.x + (p2.x - p1.x) * (_p1.y - p1.y) / (p2.y - p1.y);
-      p->y = _p1.y;
-      continue;
-    }
-    if (code & 2)
-    {
-      p->y = p1.y + (p2.y - p1.y) * (_p2.x - p1.x) / (p2.x - p1.x);
-      p->x = _p2.x;
-      continue;
-    }
-    if (code & 1)
-    {
-      p->y = p1.y + (p2.y - p1.y) * (_p1.x - p1.x) / (p2.x - p1.x);
-      p->x = _p1.x;
-    }
-  }
-}
-
-template <typename real> using Bounds2 = Bounds<real, 2>;
+template <IsReal R> using Bounds2 = Bounds<R, 2>;
 
 using Bounds2f = Bounds2<float>;
 using Bounds2d = Bounds2<double>;

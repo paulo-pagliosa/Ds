@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2021, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2021, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Classes for host and CUDA arrays.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/12/2025
+// Last revision: 24/08/2026
 
 #ifndef __CUDAArray_h
 #define __CUDAArray_h
@@ -367,6 +367,7 @@ class SoA: public cg::SoA<ArrayAllocator, index_t, Args...>
 public:
   using type = SoA<index_t, Args...>;
   using Base = cg::SoA<ArrayAllocator, index_t, Args...>;
+  using SoABase = SoABase<index_t, Args...>;
 
   using Base::SoA;
 

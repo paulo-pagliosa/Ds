@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for grid base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 27/01/2023
+// Last revision: 24/08/2026
 
 #ifndef __GridBase_h
 #define __GridBase_h
@@ -333,37 +333,35 @@ private:
 //
 // RegionGrid: region grid class
 // ==========
-template <int D, typename real, typename T>
+template <int D, IsReal R, typename T>
 class RegionGrid: public Grid<D, T>
 {
 public:
-  ASSERT_REAL(real, "RegionGrid: floating point type expected");
-
   using Base = Grid<D, T>;
   using id_type = typename Base::id_type;
   using index_type = typename Base::index_type;
-  using grid_type = RegionGrid<D, real, T>;
-  using bounds_type = Bounds<real, D>;
-  using vec_type = Vector<real, D>;
+  using grid_type = RegionGrid<D, R, T>;
+  using bounds_type = Bounds<R, D>;
+  using vec_type = Vector<R, D>;
 
   using Base::index;
   using Base::id;
   using Base::operator [];
 
-  static constexpr auto dflFatFactor = (real)1.01;
+  static constexpr auto dflFatFactor = (R)1.01;
 
   static auto fatFactor()
   {
     return _fatFactor;
   }
 
-  static void setFatFactor(real s)
+  static void setFatFactor(R s)
   {
     if (s >= 1)
       _fatFactor = s;
   }
 
-  RegionGrid(const bounds_type& bounds, real h);
+  RegionGrid(const bounds_type& bounds, R h);
   RegionGrid(const bounds_type& bounds, const index_type& size);
 
   RegionGrid(const bounds_type& bounds, id_type size):
@@ -421,7 +419,7 @@ public:
     return _bounds.contains(p);
   }
 
-  bool intersect(const Ray<real, D>& ray, real& tMin, real& tMax) const
+  bool intersect(const Ray<R, D>& ray, R& tMin, R& tMax) const
   {
     return _bounds.intersect(ray, tMin, tMax);
   }
@@ -453,19 +451,19 @@ protected:
   vec_type _inverseCellSize;
 
 private:
-  static real _fatFactor;
+  static R _fatFactor;
 
 }; // RegionGrid
 
-template <int D, typename real, typename T>
-inline real RegionGrid<D, real, T>::_fatFactor = dflFatFactor;
+template <int D, IsReal R, typename T>
+inline R RegionGrid<D, R, T>::_fatFactor = dflFatFactor;
 
 namespace internal::rg
 { // begin namespace internal::rg
 
-template <typename real, int D>
+template <IsReal R, int D>
 inline auto
-boundsSize(const Bounds<real, D>& bounds)
+boundsSize(const Bounds<R, D>& bounds)
 {
   auto s = bounds.size();
 
@@ -477,13 +475,13 @@ boundsSize(const Bounds<real, D>& bounds)
 
 } // end namespace internal::rg
 
-template <int D, typename real, typename T>
-RegionGrid<D, real, T>::RegionGrid(const bounds_type& bounds, real h):
+template <int D, IsReal R, typename T>
+RegionGrid<D, R, T>::RegionGrid(const bounds_type& bounds, R h):
   _bounds{bounds}
 {
   if (h <= 0)
     throw std::runtime_error("RegionGrid: bad cell size");
-  _bounds.inflate(_fatFactor);
+  _bounds.scale(_fatFactor);
 
   const auto s = internal::rg::boundsSize(_bounds);
   const auto invH = math::inverse(h);
@@ -491,24 +489,24 @@ RegionGrid<D, real, T>::RegionGrid(const bounds_type& bounds, real h):
 
   for (int i = 0; i < D; ++i)
     size[i] = id_type(ceil(s[i] * invH));
-  _bounds.inflate(_bounds.min() + vec_type{size} * h);
+  _bounds.extend(_bounds.min() + vec_type{size} * h);
   Base::resize(size);
   _inverseCellSize.set(invH);
   _cellSize.set(h);
 }
 
-template <int D, typename real, typename T>
-RegionGrid<D, real, T>::RegionGrid(const bounds_type& bounds,
+template <int D, IsReal R, typename T>
+RegionGrid<D, R, T>::RegionGrid(const bounds_type& bounds,
   const index_type& size):
   _bounds{bounds}
 {
-  _bounds.inflate(_fatFactor);
+  _bounds.scale(_fatFactor);
 
   auto s = internal::rg::boundsSize(_bounds);
 
   Base::resize(size);
   for (int i = 0; i < D; ++i)
-    _inverseCellSize[i] = real(size[i] / s[i]);
+    _inverseCellSize[i] = R(size[i] / s[i]);
   _cellSize = _inverseCellSize.inverse();
 }
 

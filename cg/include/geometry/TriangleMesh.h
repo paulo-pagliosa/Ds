@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for simple triangle mesh.
 //
 // Author: Paulo Pagliosa
-// Last revision: 16/08/2022
+// Last revision: 24/08/2026
 
 #ifndef __TriangleMesh_h
 #define __TriangleMesh_h
@@ -42,11 +42,11 @@
 namespace cg
 { // begin namespace cg
 
-template <typename real>
-inline Matrix3x3<real>
-normalTRS(const Matrix4x4<real>& trs)
+template <IsReal R>
+inline Matrix3x3<R>
+normalTRS(const Matrix4x4<R>& trs)
 {
-  Matrix3x3<real> r{trs};
+  Matrix3x3<R> r{trs};
 
   r[0] *= math::inverse(r[0].squaredNorm());
   r[1] *= math::inverse(r[1].squaredNorm());

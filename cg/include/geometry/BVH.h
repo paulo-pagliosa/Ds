@@ -28,7 +28,7 @@
 // Class definition for BVH.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/08/2026
+// Last revision: 24/08/2026
 
 #ifndef __BVH_h
 #define __BVH_h
@@ -66,23 +66,23 @@ public:
 
   ~BVHBase() override;
 
-  auto size() const
+  [[nodiscard]] auto size() const
   {
     return (size_t)_nodeCount;
   }
 
-  NodeView root() const;
-  Bounds3f bounds() const;
-  bool intersect(const Ray3f&) const;
-  bool intersect(const Ray3f&, Intersection&) const;
+  [[nodiscard]] NodeView root() const;
+  [[nodiscard]] Bounds3f bounds() const;
+  [[nodiscard]] bool intersect(const Ray3f&) const;
+  [[nodiscard]] bool intersect(const Ray3f&, Intersection&) const;
   void iterate(NodeFunction) const;
 
-  auto empty() const
+  [[nodiscard]] auto empty() const
   {
     return _nodeCount == 0;
   }
 
-  auto primitiveId(int i) const
+  [[nodiscard]] auto primitiveId(int i) const
   {
     return _primitiveIds[i];
   }
@@ -174,38 +174,38 @@ class BVHBase::NodeView
 public:
   NodeView() = default;
 
-  const auto& bounds() const
+  [[nodiscard]] const auto& bounds() const
   {
     assert(_node);
     return _node->_bounds;
   }
 
-  auto isLeaf() const
+  [[nodiscard]] auto isLeaf() const
   {
     assert(_node);
     return _node->isLeaf();
   }
 
-  auto child(int i) const
+  [[nodiscard]] auto child(int i) const
   {
     assert(!isLeaf());
     assert(i == 0 || i == 1);
     return NodeView{_node->_children[i]};
   }
 
-  auto first() const
+  [[nodiscard]] auto first() const
   {
     assert(_node);
     return _node->_first;
   }
 
-  auto count() const
+  [[nodiscard]] auto count() const
   {
     assert(_node);
     return _node->_count;
   }
 
-  auto operator ==(const NodeView& other) const
+  [[nodiscard]] auto operator ==(const NodeView& other) const
   {
     return _node == other._node;
   }
@@ -272,7 +272,7 @@ public:
 
   BVH(PrimitiveArray&&, uint32_t = 8, SplitMethod = SAH);
 
-  auto& primitives() const
+  [[nodiscard]] const auto& primitives() const
   {
     return _primitives;
   }

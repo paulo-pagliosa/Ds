@@ -28,7 +28,7 @@
 // Class definition for RGB color.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/08/2063
+// Last revision: 24/08/2063
 
 #ifndef __Color_h
 #define __Color_h
@@ -67,7 +67,6 @@ public:
   };
 
   /// Default constructor.
-  HOST DEVICE
   Color() = default;
 
   /// Constructs a Color object from (r, g, b, a).

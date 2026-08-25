@@ -98,7 +98,7 @@
     <ClInclude Include="..\..\include\core\Exception.h" />
     <ClInclude Include="..\..\include\core\Flags.h" />
     <ClInclude Include="..\..\include\core\List.h" />
-    <ClInclude Include="..\..\include\core\NameableObject.h" />
+    <ClInclude Include="..\..\include\core\NamedObject.h" />
     <ClInclude Include="..\..\include\core\ObjectList.h" />
     <ClInclude Include="..\..\include\core\ContentHolder.h" />
     <ClInclude Include="..\..\include\core\Globals.h" />
@@ -212,7 +212,7 @@
     <ClCompile Include="..\..\externals\src\imgui_tables.cpp" />
     <ClCompile Include="..\..\externals\src\imgui_widgets.cpp" />
     <ClCompile Include="..\..\src\core\BlockAllocator.cpp" />
-    <ClCompile Include="..\..\src\core\NameableObject.cpp" />
+    <ClCompile Include="..\..\src\core\NamedObject.cpp" />
     <ClCompile Include="..\..\src\core\Exception.cpp" />
     <ClCompile Include="..\..\src\debug\AnimatedAlgorithm.cpp" />
     <ClCompile Include="..\..\src\geometry\BVH.cpp" />

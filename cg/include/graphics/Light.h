@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,13 +28,13 @@
 // Class definition for light.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/02/2022
+// Last revision: 24/08/2026
 
 #ifndef __Light_h
 #define __Light_h
 
 #include "core/Flags.h"
-#include "core/NameableObject.h"
+#include "core/NamedObject.h"
 #include "graphics/Color.h"
 #include "math/Quaternion.h"
 
@@ -46,7 +46,7 @@ namespace cg
 //
 // Light: light class
 // =====
-class Light: public NameableObject
+class Light: public NamedSharedObject
 {
 public:
   enum class Type

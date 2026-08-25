@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,13 +28,13 @@
 // Class definition for camera.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/11/2025
+// Last revision: 24/08/2026
 
 #ifndef __Camera_h
 #define __Camera_h
 
 #include "core/Flags.h"
-#include "core/NameableObject.h"
+#include "core/NamedObject.h"
 #include "math/Matrix4x4.h"
 
 namespace cg
@@ -45,7 +45,7 @@ namespace cg
 //
 // Camera: camera class
 // ======
-class Camera: public NameableObject
+class Camera: public NamedSharedObject
 {
 public:
   static constexpr float minAngle = 1;

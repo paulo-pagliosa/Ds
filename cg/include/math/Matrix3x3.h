@@ -28,7 +28,7 @@
 // Class definition for 3x3 matrix.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/08/2026
+// Last revision: 24/08/2026
 
 #ifndef __Matrix3x3_h
 #define __Matrix3x3_h
@@ -57,7 +57,6 @@ public:
   using mat4 = Matrix<R, 4, 4>;
 
   /// Default constructor.
-  HOST DEVICE
   constexpr Matrix() = default;
 
   /// Constructs a Matrix3x3 from [v0; v1; v2].
@@ -199,6 +198,7 @@ public:
   [[nodiscard]] HOST DEVICE
   auto& operator [](int j)
   {
+    assert(j >= 0 && j < 3);
     return (&_v0)[j];
   }
 
@@ -206,6 +206,7 @@ public:
   [[nodiscard]] HOST DEVICE
   const auto& operator [](int j) const
   {
+    assert(j >= 0 && j < 3);
     return (&_v0)[j];
   }
 
@@ -348,7 +349,7 @@ public:
     const auto x = _v0.x * p.x + _v1.x * p.y + _v2.x;
     const auto y = _v0.y * p.x + _v1.y * p.y + _v2.y;
 
-    return type{x, y};
+    return vec2{x, y};
   }
 
   /// Returns a vector v transformed by this object.

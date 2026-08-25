@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for scene object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/11/2025
+// Last revision: 24/08/2026
 
 #include "graph/Scene.h"
 
@@ -41,7 +41,7 @@ namespace cg::graph
 // SceneObject implementation
 // ===========
 SceneObject::SceneObject(Scene& scene, const char* name, bool movable):
-  NameableObject{name},
+  NamedSharedObject{name},
   _scene{&scene}
 {
   _flags.movable = movable;
@@ -52,7 +52,7 @@ SceneObject::SceneObject(Scene& scene, const char* name, bool movable):
 
 inline
 SceneObject::SceneObject(const SceneObject& other):
-  NameableObject{other.name()},
+  NamedSharedObject{other.name()},
   _scene{other._scene},
   _transform{other._transform},
   _flags{other._flags},

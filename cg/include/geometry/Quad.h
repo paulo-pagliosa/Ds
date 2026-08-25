@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2020 Paulo Pagliosa.                              |
+//| Copyright (C) 2020, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 //  Class definition for 2D/3D quad.
 //
 // Author: Paulo Pagliosa
-// Last revision: 02/65/2020
+// Last revision: 24/08/2026
 
 #ifndef __Quad_h
 #define __Quad_h
@@ -39,42 +39,40 @@
 namespace cg
 { // begin namespace cg
 
-template <int D, typename real> class Quad;
+template <int D, IsReal R> class Quad;
 
 
 /////////////////////////////////////////////////////////////////////
 //
 // QuadBase: 2D/3D quad base class
 // ========
-template <int D, typename real>
+template <int D, IsReal R>
 class QuadBase
 {
 public:
-  ASSERT_REAL(real, "Quad: floating point type expected");
-
-  using Point = Point<real, D>;
+  using Point = cg::Point<R, D>;
 
   Point p0;
   Point p1;
   Point p2;
   Point p3;
 
-  auto operator ()(real u, real v) const
+  auto operator ()(R u, R v) const
   {
-    const auto u1 = real(1 - u);
-    const auto v1 = real(1 - v);
+    const auto u1 = R(1 - u);
+    const auto v1 = R(1 - v);
 
     return u1 * v1 * p0 + u * v1 * p1 + u * v * p2 + u1 * v * p3;
   }
 
   auto bounds() const
   {
-    Bounds<real, D> b;
+    Bounds<R, D> b;
     
-    b.inflate(p0);
-    b.inflate(p1);
-    b.inflate(p2);
-    b.inflate(p3);
+    b.extend(p0);
+    b.extend(p1);
+    b.extend(p2);
+    b.extend(p3);
     return b;
   }
 
@@ -85,11 +83,11 @@ public:
 //
 // Quad2: 2D quad class
 // =====
-template <typename real>
-class Quad<2, real>: public QuadBase<2, real>
+template <IsReal R>
+class Quad<2, R>: public QuadBase<2, R>
 {
 public:
-  using Point = Point2<real>;
+  using Point = Point2<R>;
 
   Quad() = default;
 
@@ -98,7 +96,7 @@ public:
     set(p0, p2);
   }
 
-  Quad(const Point& center, real w, real h)
+  Quad(const Point& center, R w, R h)
   {
     set(center, w, h);
   }
@@ -111,15 +109,15 @@ public:
     this->p3.set(p0.x, p2.y);
   }
 
-  void set(const Point& center, real w, real h)
+  void set(const Point& center, R w, R h)
   {
-    Point d{real(0.5) * w, real(0.5) * h};
+    Point d{R(0.5) * w, R(0.5) * h};
     set(Point{center - d}, center + d);
   }
 
 }; // Quad2
 
-template <typename real> using Quad2 = Quad<2, real>;
+template <IsReal R> using Quad2 = Quad<2, R>;
 
 using Quad2f = Quad2<float>;
 using Quad2d = Quad2<double>;
@@ -129,8 +127,8 @@ using Quad2d = Quad2<double>;
 //
 // Quad3: 3D quad class
 // =====
-template <typename real>
-class Quad<3, real>: public QuadBase<3, real>
+template <IsReal R>
+class Quad<3, R>: public QuadBase<3, R>
 {
 public:
   enum class Plane: int
@@ -140,25 +138,25 @@ public:
     YZ, ZY
   };
 
-  using Point = Point3<real>;
+  using Point = Point3<R>;
 
   Quad() = default;
 
-  Quad(Plane plane, const Point& center, real w, real h)
+  Quad(Plane plane, const Point& center, R w, R h)
   {
     set(plane, center, w, h);
   }
 
-  void set(Plane plane, const Point& center, real w, real h);
+  void set(Plane plane, const Point& center, R w, R h);
 
 }; // Quad3
 
-template <typename real>
+template <IsReal R>
 void
-Quad<3, real>::set(Plane plane, const Point& center, real w, real h)
+Quad<3, R>::set(Plane plane, const Point& center, R w, R h)
 {
-  w *= real(0.5);
-  h *= real(0.5);
+  w *= R(0.5);
+  h *= R(0.5);
   switch (plane)
   {
     case Plane::XY:
@@ -205,7 +203,7 @@ Quad<3, real>::set(Plane plane, const Point& center, real w, real h)
   }
 }
 
-template <typename real> using Quad3 = Quad<3, real>;
+template <IsReal R> using Quad3 = Quad<3, R>;
 
 using Quad3f = Quad3<float>;
 using Quad3d = Quad3<double>;

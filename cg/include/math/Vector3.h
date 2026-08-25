@@ -28,7 +28,7 @@
 // Class definition for 3D vector.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/08/2026
+// Last revision: 24/08/2026
 
 #ifndef __Vector3_h
 #define __Vector3_h
@@ -56,7 +56,6 @@ public:
   R z;
 
   /// Default constructor.
-  HOST DEVICE
   constexpr Vector() = default;
 
   /// Constructs a Vector3 from (x, y, z).
@@ -203,6 +202,7 @@ public:
   [[nodiscard]] HOST DEVICE
   auto& operator [](int i)
   {
+    assert(i >= 0 && i < 3);
     return (&x)[i];
   }
 
@@ -210,6 +210,7 @@ public:
   [[nodiscard]] HOST DEVICE
   const auto& operator [](int i) const
   {
+    assert(i >= 0 && i < 3);
     return (&x)[i];
   }
 

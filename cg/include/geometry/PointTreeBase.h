@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2016, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2016, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for point quadtree/octree base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/01/2023
+// Last revision: 24/08/2026
 
 #ifndef __PointTreeBase_h
 #define __PointTreeBase_h
@@ -46,17 +46,17 @@ namespace cg
 //
 // PointTreeBase: point tree base class
 // =============
-template <int D, typename real, typename PA, typename IL>
-class PointTreeBase: public RegionTree<D, real, IL>,
-  public PointHolder<D, real, PA>
+template <int D, IsReal R, typename PA, typename IL>
+class PointTreeBase: public RegionTree<D, R, IL>,
+  public PointHolder<D, R, PA>
 {
 protected:
   ASSERT_INDEX_LIST(IL, "Index list expected");
 
-  using Base = RegionTree<D, real, IL>;
-  using PointSet = PointHolder<D, real, PA>;
+  using Base = RegionTree<D, R, IL>;
+  using PointSet = PointHolder<D, R, PA>;
 
-  PointTreeBase(const Bounds<real, D>& bounds,
+  PointTreeBase(const Bounds<R, D>& bounds,
     PA& points,
     uint32_t maxDepth = 20):
     Base{bounds, maxDepth},
@@ -65,7 +65,7 @@ protected:
     // do nothing
   }
 
-  PointTreeBase(PointTreeBase<D, real, PA, IL>&& other):
+  PointTreeBase(PointTreeBase<D, R, PA, IL>&& other):
     Base{std::move(other)},
     PointSet{other.points()}
   {
@@ -79,19 +79,19 @@ protected:
 //
 // PointTree: generic point tree class
 // =========
-template <int D, typename real, typename PA, typename IL = IndexList<>>
-class PointTree: public PointTreeBase<D, real, PA, IL>
+template <int D, IsReal R, typename PA, typename IL = IndexList<>>
+class PointTree: public PointTreeBase<D, R, PA, IL>
 {
 public:
-  using Base = PointTreeBase<D, real, PA, IL>;
+  using Base = PointTreeBase<D, R, PA, IL>;
   using PointSet = typename Base::PointSet;
   using point_id = typename IL::value_type;
   using pid_list = IndexList<point_id>;
-  using vec_type = Vector<real, D>;
+  using vec_type = Vector<R, D>;
   using key_type = TreeKey<D>;
-  using bounds_type = Bounds<real, D>;
+  using bounds_type = Bounds<R, D>;
   using KNN = KNNHelper<vec_type, point_id>;
-  using tree_type = PointTree<D, real, PA, IL>;
+  using tree_type = PointTree<D, R, PA, IL>;
   using leaf_iterator = typename Base::leaf_iterator;
 
   using SplitTest = std::function<bool(const PA&, IL&, uint32_t)>;
@@ -144,7 +144,7 @@ public:
     // do nothing
   }
 
-  PointTree(PointTree<D, real, PA, IL>&& other):
+  PointTree(PointTree<D, R, PA, IL>&& other):
     Base{std::move(other)},
     _splitTest{other._splitTest}
   {
@@ -161,14 +161,14 @@ public:
   int findNearestNeighbors(const vec_type& point,
     int k,
     point_id indices[],
-    real* distances = nullptr,
+    R* distances = nullptr,
     typename KNN::Norm norm = KNN::squaredNorm) const;
 
   size_t findNeighbors(const vec_type& point,
-    real radius,
+    R radius,
     pid_list& list) const;
 
-  size_t findNeighbors(int i, real radius, pid_list& list) const
+  size_t findNeighbors(int i, R radius, pid_list& list) const
   {
     return findNeighbors(vec_type{this->points()[i]}, radius, list);
   }
@@ -204,13 +204,13 @@ protected:
     const key_type& key) override;
 
   void radiusSearch(const vec_type& point,
-    real radius,
+    R radius,
     const key_type& key,
     BranchNode* branch,
     pid_list& list) const;
 
-  real knnSearch(KNN& knn,
-    real r2,
+  R knnSearch(KNN& knn,
+    R r2,
     const key_type& key,
     BranchNode* branch) const;
 
@@ -227,8 +227,8 @@ private:
 
 }; // PointTree
 
-template <int D, typename real, typename PA, typename IL>
-PointTree<D, real, PA, IL>::PointTree(const bounds_type& bounds,
+template <int D, IsReal R, typename PA, typename IL>
+PointTree<D, R, PA, IL>::PointTree(const bounds_type& bounds,
   PA& points,
   SplitTest splitTest,
   uint32_t maxDepth,
@@ -239,9 +239,9 @@ PointTree<D, real, PA, IL>::PointTree(const bounds_type& bounds,
   build(fullTree);
 }
 
-template <int D, typename real, typename PA, typename IL>
+template <int D, IsReal R, typename PA, typename IL>
 void
-PointTree<D, real, PA, IL>::build(bool fullTree)
+PointTree<D, R, PA, IL>::build(bool fullTree)
 {
   const auto& points = this->points();
 
@@ -252,14 +252,14 @@ PointTree<D, real, PA, IL>::build(bool fullTree)
     splitChildren(this->root(), fullTree);
 }
 
-template <int D, typename real, typename PA, typename IL>
+template <int D, IsReal R, typename PA, typename IL>
 bool
-PointTree<D, real, PA, IL>::splitChildren(BranchNode* branch, bool fullTree)
+PointTree<D, R, PA, IL>::splitChildren(BranchNode* branch, bool fullTree)
 {
   if (branch->depth() + 1 == this->_maxDepth)
     return false;
 
-  constexpr auto N = (int)ipow2<D>();
+  constexpr auto N = (int)ipow2(D);
   auto s = false;
 
   for (int i = 0; i < N; i++)
@@ -279,9 +279,9 @@ PointTree<D, real, PA, IL>::splitChildren(BranchNode* branch, bool fullTree)
   return s;
 }
 
-template <int D, typename real, typename PA, typename IL>
+template <int D, IsReal R, typename PA, typename IL>
 bool
-PointTree<D, real, PA, IL>::split(LeafNode* leaf, bool fullTree)
+PointTree<D, R, PA, IL>::split(LeafNode* leaf, bool fullTree)
 {
   const auto& points = this->points();
 
@@ -297,9 +297,9 @@ PointTree<D, real, PA, IL>::split(LeafNode* leaf, bool fullTree)
   return splitChildren(branch, fullTree);
 }
 
-template <int D, typename real, typename PA, typename IL>
+template <int D, IsReal R, typename PA, typename IL>
 void
-PointTree<D, real, PA, IL>::moveDataToChildren(LeafNode* leaf,
+PointTree<D, R, PA, IL>::moveDataToChildren(LeafNode* leaf,
   BranchNode* branch,
   const key_type& key)
 {
@@ -317,9 +317,9 @@ PointTree<D, real, PA, IL>::moveDataToChildren(LeafNode* leaf,
   }
 }
 
-template <int D, typename real, typename PA, typename IL>
+template <int D, IsReal R, typename PA, typename IL>
 void
-PointTree<D, real, PA, IL>::removePoints()
+PointTree<D, R, PA, IL>::removePoints()
 {
   auto& points = this->points();
 
@@ -337,26 +337,26 @@ PointTree<D, real, PA, IL>::removePoints()
 namespace internal::pt
 { // begin namespace internal::pt
 
-template <typename real>
-inline auto
-searchSize2(real d2, real r2)
+template <IsReal R>
+constexpr auto
+searchSize2(R d2, R r2)
 {
-  return d2 * real(0.25) + r2 + sqrt(d2 * r2);
+  return d2 * R(0.25) + r2 + sqrt(d2 * r2);
 }
 
-template <typename real>
+template <IsReal R>
 inline constexpr auto
-eps(real x)
+eps(R x)
 {
-  return std::numeric_limits<real>::epsilon() + x;
+  return std::numeric_limits<R>::epsilon() + x;
 }
 
 } // end namespace internal::pt
 
-template <int D, typename real, typename PA, typename IL>
+template <int D, IsReal R, typename PA, typename IL>
 size_t
-PointTree<D, real, PA, IL>::findNeighbors(const vec_type& p,
-  real radius,
+PointTree<D, R, PA, IL>::findNeighbors(const vec_type& p,
+  R radius,
   pid_list& list) const
 {
   if (/*!this->bounds().contains(p) || */radius <= 0)
@@ -366,15 +366,15 @@ PointTree<D, real, PA, IL>::findNeighbors(const vec_type& p,
   return list.size();
 }
 
-template <int D, typename real, typename PA, typename IL>
+template <int D, IsReal R, typename PA, typename IL>
 void
-PointTree<D, real, PA, IL>::radiusSearch(const vec_type& p,
-  real r2,
+PointTree<D, R, PA, IL>::radiusSearch(const vec_type& p,
+  R r2,
   const key_type& key,
   BranchNode* branch,
   pid_list& list) const
 {
-  constexpr auto N = (int)ipow2<D>();
+  constexpr auto N = (int)ipow2(D);
   auto depth = branch->depth() + 1;
   auto s2 = internal::pt::searchSize2(this->nodeSize(depth).squaredNorm(), r2);
   const auto& points = this->points();
@@ -396,12 +396,12 @@ PointTree<D, real, PA, IL>::radiusSearch(const vec_type& p,
     }
 }
 
-template <int D, typename real, typename PA, typename IL>
+template <int D, IsReal R, typename PA, typename IL>
 int
-PointTree<D, real, PA, IL>::findNearestNeighbors(const vec_type& p,
+PointTree<D, R, PA, IL>::findNearestNeighbors(const vec_type& p,
   int k,
   point_id indices[],
-  real* distances,
+  R* distances,
   typename KNN::Norm norm) const
 {
   /*
@@ -417,14 +417,14 @@ PointTree<D, real, PA, IL>::findNearestNeighbors(const vec_type& p,
     for (decltype(n) i = 0; i < n; ++i)
       knn.test(points[i], i);
   else
-    knnSearch(knn, math::Limits<real>::inf(), key_type{0LL}, this->root());
+    knnSearch(knn, math::Limits<R>::inf(), key_type{0LL}, this->root());
   return knn.results(indices, distances);
 }
 
-template <int D, typename real, typename PA, typename IL>
-real
-PointTree<D, real, PA, IL>::knnSearch(KNN& knn,
-  real r2,
+template <int D, IsReal R, typename PA, typename IL>
+R
+PointTree<D, R, PA, IL>::knnSearch(KNN& knn,
+  R r2,
   const key_type& key,
   BranchNode* branch) const
 {
@@ -444,7 +444,7 @@ PointTree<D, real, PA, IL>::knnSearch(KNN& knn,
   }; // NodeEntry
 
   using Queue = typename KNN::template Queue<NodeEntry>;
-  constexpr auto N = (int)ipow2<D>();
+  constexpr auto N = (int)ipow2(D);
 
   Queue nq{N};
   auto depth = branch->depth() + 1;

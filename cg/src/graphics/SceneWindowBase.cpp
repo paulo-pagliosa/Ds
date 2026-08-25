@@ -28,7 +28,7 @@
 // Source file for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/01/2026
+// Last revision: 24/08/2026
 
 #include "graphics/Assets.h"
 #include "graphics/Renderer.h"
@@ -38,11 +38,11 @@ namespace ImGui
 { // begin namespace ImGui
 
 void
-objectNameInput(cg::NameableObject& object, const char* label)
+objectNameInput(cg::NamedObject& object, const char* label)
 {
   constexpr auto bufferSize = 64;
   static char buffer[bufferSize];
-  static NameableObject* current;
+  static NamedObject* current;
 
   if (&object != current)
   {

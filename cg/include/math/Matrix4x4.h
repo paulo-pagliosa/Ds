@@ -28,7 +28,7 @@
 // Class definition for 4x4 matrix.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/08/2026
+// Last revision: 24/08/2026
 
 #ifndef __Matrix4x4_h
 #define __Matrix4x4_h
@@ -56,7 +56,6 @@ public:
   using quat = Quaternion<R>;
 
   /// Default constructor.
-  HOST DEVICE
   constexpr Matrix() = default;
 
   /// Constructs a Matrix4x4 from [v0; v1; v2; v3].
@@ -187,6 +186,7 @@ public:
   [[nodiscard]] HOST DEVICE
   auto& operator [](int j)
   {
+    assert(j >= 0 && j < 4);
     return (&_v0)[j];
   }
 
@@ -194,6 +194,7 @@ public:
   [[nodiscard]] HOST DEVICE
   const auto& operator [](int j) const
   {
+    assert(j >= 0 && j < 4);
     return (&_v0)[j];
   }
 

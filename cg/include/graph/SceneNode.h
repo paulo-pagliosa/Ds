@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,12 +28,12 @@
 // Class definition for generic scene node.
 //
 // Author: Paulo Pagliosa
-// Last revision: 23/07/2025
+// Last revision: 24/08/2026
 
 #ifndef __SceneNode_h
 #define __SceneNode_h
 
-#include "core/NameableObject.h"
+#include "core/NamedObject.h"
 
 namespace cg::graph
 { // begin namespace cg::graph
@@ -48,13 +48,13 @@ class SceneNode
 public:
   SceneNode() = default;
 
-  SceneNode(NameableObject* object):
+  SceneNode(NamedObject* object):
     _object{object}
   {
     // do nothing
   }
 
-  auto& operator =(NameableObject* object)
+  auto& operator =(NamedObject* object)
   {
     _object = object;
     return *this;
@@ -65,7 +65,7 @@ public:
     return _object;
   }
 
-  operator NameableObject* () const
+  operator NamedObject* () const
   {
     return _object;
   }
@@ -77,7 +77,7 @@ public:
   }
 
 private:
-  NameableObject* _object{};
+  NamedObject* _object{};
 
 }; // SceneNode
 

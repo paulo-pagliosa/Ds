@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2016, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2016, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for KNN helper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 12/09/2022
+// Last revision: 24/08/2026
 
 #ifndef __KNNHelper_h
 #define __KNNHelper_h
@@ -44,14 +44,14 @@ namespace cg
 //
 // KNNHelper: KNNHelper class
 // =========
-template <typename Vector, typename Index = int>
+template <typename Vector, typename index_t = int>
 class KNNHelper
 {
 public:
   using real = typename Vector::value_type;
   using Norm = std::function<real(const Vector&)>;
 
-  template<typename Value>
+  template <typename Value>
   class Queue
   {
   public:
@@ -147,12 +147,12 @@ public:
     _norm = norm ? norm : squaredNorm;
   }
 
-  bool test(const Vector&p, Index id)
+  bool test(const Vector&p, index_t id)
   {
     return _queue.insert(_norm(_sample - p), id);
   }
 
-  bool test(const Vector&p, Index id, real maxd)
+  bool test(const Vector&p, index_t id, real maxd)
   {
     auto d = _norm(_sample - p);
     return d < maxd ? _queue.insert(d, id) : false;
@@ -168,7 +168,7 @@ public:
     return _queue.maxKey();
   }
 
-  auto results(Index indices[], real* distances = nullptr) const
+  auto results(index_t indices[], real* distances = nullptr) const
   {
     auto k = _queue.size();
 
@@ -186,7 +186,7 @@ public:
 
 private:
   Vector _sample;
-  Queue<Index> _queue;
+  Queue<index_t> _queue;
   Norm _norm;
 
 }; // KNNHelper

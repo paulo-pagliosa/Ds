@@ -28,7 +28,7 @@
 // Class definition for 2x2 matrix.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/08/2026
+// Last revision: 24/08/2026
 
 #ifndef __Matrix2x2_h
 #define __Matrix2x2_h
@@ -49,14 +49,11 @@ template <IsReal R>
 class Matrix<R, 2, 2>
 {
 public:
-  ASSERT_REAL(R, "Matrix2x2: floating point type expected");
-
   using type = Matrix<R, 2, 2>;
   using value_type = R;
   using vec2 = Vector2<R>;
 
   /// Default constructor.
-  HOST DEVICE
   constexpr Matrix() = default;
 
   /// Constructs a Matrix2x2 from [v0; v1].
@@ -151,6 +148,7 @@ public:
   [[nodiscard]] HOST DEVICE
   auto& operator [](int j)
   {
+    assert(j >= 0 && j < 2);
     return (&_v0)[j];
   }
 
@@ -158,6 +156,7 @@ public:
   [[nodiscard]] HOST DEVICE
   const auto& operator [](int j) const
   {
+    assert(j >= 0 && j < 2);
     return (&_v0)[j];
   }
 

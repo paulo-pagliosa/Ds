@@ -94,7 +94,6 @@ public:
   R w;
 
   /// Default constructor.
-  HOST DEVICE
   Quaternion() = default;
 
   /// Constructs a Quaternion from [(x, y, z), w].

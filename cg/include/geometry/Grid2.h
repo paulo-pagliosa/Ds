@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for 2D grid.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/02/2022
+// Last revision: 24/08/2026
 
 #ifndef __Grid2_h
 #define __Grid2_h
@@ -77,8 +77,8 @@ using Grid2 = Grid<2, T>;
 //
 // RegionGrid2: 2D region grid class
 // ===========
-template <typename real, typename T>
-using RegionGrid2 = RegionGrid<2, real, T>;
+template <IsReal R, typename T>
+using RegionGrid2 = RegionGrid<2, R, T>;
 
 } // end namespace cg
 

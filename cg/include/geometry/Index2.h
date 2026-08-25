@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for 2D index.
 //
 // Author: Paulo Pagliosa
-// Last revision: 06/08/2025
+// Last revision: 24/08/2026
 
 #ifndef __Index2_h
 #define __Index2_h
@@ -40,13 +40,7 @@ namespace cg
 { // begin namespace cg
 
 template <typename T>
-inline constexpr bool
-isInt()
-{
-  return std::is_integral_v<T>;
-}
-
-#define ASSERT_INT(T, msg) static_assert(isInt<T>(), msg)
+concept IsInt = std::integral<T>;
 
 template <int D, typename T = int64_t> struct Index;
 
@@ -55,11 +49,9 @@ template <int D, typename T = int64_t> struct Index;
 //
 // Index2: 2D index class
 // ======
-template <typename T>
+template <IsInt T>
 struct Index<2, T>
 {
-  ASSERT_INT(T, "Index2: integral Index expected");
-
   using type = Index<2, T>;
   using base_type = T;
 
@@ -69,27 +61,23 @@ struct Index<2, T>
     struct { T i; T j; };
   };
 
-  HOST DEVICE
-  Index()
-  {
-    // do nothing
-  }
+  Index() = default;
 
   HOST DEVICE
-  Index(T i, T j)
+  constexpr Index(T i, T j)
   {
     set(i, j);
   }
 
   template <typename V>
   HOST DEVICE
-  explicit Index(const V& v)
+  explicit constexpr Index(const V& v)
   {
     set(v);
   }
 
   HOST DEVICE
-  void set(T i, T j)
+  constexpr void set(T i, T j)
   {
     x = i;
     y = j;
@@ -105,69 +93,62 @@ struct Index<2, T>
       set(T(v.x), T(v.y));
   }
 
-  HOST DEVICE
-  auto& operator =(T i)
-  {
-    set(i, i);
-    return *this;
-  }
-
-  HOST DEVICE
-  auto operator +(const Index& other) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator +(const Index& other) const
   {
     return Index{x + other.x, y + other.y};
   }
 
-  HOST DEVICE
-  auto operator +(T i) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator +(T i) const
   {
     return operator +(Index{i});
   }
 
-  HOST DEVICE
-  auto operator -(const Index& other) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator -(const Index& other) const
   {
     return Index{x - other.x, y - other.y};
   }
 
-  HOST DEVICE
-  auto operator -(T i) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator -(T i) const
   {
     return operator -(Index{i});
   }
 
-  HOST DEVICE
+  [[nodiscard]] HOST DEVICE
   const auto& operator [](int i) const
   {
     return (&x)[i];
   }
 
-  HOST DEVICE
+  [[nodiscard]] HOST DEVICE
   auto& operator [](int i)
   {
     return (&x)[i];
   }
 
-  HOST DEVICE
+  [[nodiscard]] HOST DEVICE
   bool operator ==(const Index& other) const
   {
     return x == other.x && y == other.y;
   }
 
-  HOST DEVICE
+  [[nodiscard]] HOST DEVICE
   bool operator !=(const Index& other) const
   {
     return !operator ==(other);
   }
 
-  HOST DEVICE
-  auto min() const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto min() const
   {
     return math::min(x, y);
   }
 
-  HOST DEVICE
-  auto max() const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto max() const
   {
     return math::max(x, y);
   }
@@ -180,8 +161,8 @@ struct Index<2, T>
     return *this;
   }
 
-  HOST DEVICE
-  auto prod() const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto prod() const
   {
     return x * y;
   }

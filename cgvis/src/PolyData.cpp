@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for vis poly data.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/03/2022
+// Last revision: 24/08/2024
 
 #include "PolyData.h"
 
@@ -54,7 +54,7 @@ PolyData::deleteAll()
 int
 PolyData::addVertex(const vec3f& p)
 {
-  _bounds.inflate(p);
+  _bounds.extend(p);
   if (_locator != nullptr)
     return _locator->add(p);
   _vertices.push_back(p);

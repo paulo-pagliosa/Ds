@@ -28,7 +28,7 @@
 // Class definition for 2D vector.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/08/2026
+// Last revision: 24/08/2026
 
 #ifndef __Vector2_h
 #define __Vector2_h
@@ -58,7 +58,6 @@ public:
   R y;
 
   /// Default constructor.
-  HOST DEVICE
   constexpr Vector() = default;
 
   /// Constructs a Vector2 from (x, y).
@@ -98,9 +97,9 @@ public:
   constexpr void set(const T& v)
   {
     if constexpr (std::is_arithmetic_v<T>)
-      x = y = T(v);
+      x = y = R(v);
     else
-      set(T(v.x), T(v.y));
+      set(R(v.x), R(v.y));
   }
 
   /// Returns a null vector.
@@ -177,6 +176,7 @@ public:
   [[nodiscard]] HOST DEVICE
   auto& operator [](int i)
   {
+    assert(i >= 0 && i < 2);
     return (&x)[i];
   }
 
@@ -184,6 +184,7 @@ public:
   [[nodiscard]] HOST DEVICE
   const auto& operator [](int i) const
   {
+    assert(i >= 0 && i < 2);
     return (&x)[i];
   }
 

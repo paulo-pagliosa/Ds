@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for cg vis demo main window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 09/06/2023
+// Last revision: 24/08/2026
 
 #include "graphics/Application.h"
 #include "MainWindow.h"
@@ -129,7 +129,7 @@ MainWindow::gui()
   mainMenu();
 
   constexpr auto evw = (float)360;
-  constexpr auto evh = (float)308;
+  constexpr auto evh = (float)310;
   constexpr auto lft = (float)0;
   constexpr auto top = (float)23;
   auto w = (float)width();

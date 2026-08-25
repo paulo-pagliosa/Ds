@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for 3D grid.
 //
 // Author: Paulo Pagliosa
-// Last revision: 16/12/2022
+// Last revision: 24/08/2026
 
 #ifndef __Grid3_h
 #define __Grid3_h
@@ -99,8 +99,8 @@ using Grid3 = Grid<3, T>;
 //
 // RegionGrid3: 3D region grid class
 // ===========
-template <typename real, typename T>
-using RegionGrid3 = RegionGrid<3, real, T>;
+template <IsReal R, typename T>
+using RegionGrid3 = RegionGrid<3, R, T>;
 
 } // end namespace cg
 

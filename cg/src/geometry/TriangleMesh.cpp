@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for simple triangle mesh.
 //
 // Author: Paulo Pagliosa
-// Last revision: 30/07/2023
+// Last revision: 24/08/2026
 
 #include "geometry/MeshSweeper.h"
 #include <cstring>
@@ -63,7 +63,7 @@ TriangleMesh::bounds() const
 {
   if (_bounds.empty())
     for (int i = 0; i < _data.vertexCount; i++)
-      _bounds.inflate(_data.vertices[i]);
+      _bounds.extend(_data.vertices[i]);
   return _bounds;
 }
 

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for generic 3D point grid.
 //
 // Author: Paulo Pagliosa
-// Last revision: 12/09/2022
+// Last revision: 24/08/2026
 
 #ifndef __PointGrid3_h
 #define __PointGrid3_h
@@ -44,11 +44,11 @@ namespace cg
 //
 // PointGrid3: generic 3D point grid class
 // ==========
-template <typename real, typename PA, typename IL>
-class PointGridSearcher<3, real, PA, IL>
+template <IsReal R, typename PA, typename IL>
+class PointGridSearcher<3, R, PA, IL>
 {
 public:
-  using Grid = PointGrid<3, real, PA, IL>;
+  using Grid = PointGrid<3, R, PA, IL>;
   using vec_type = typename Grid::vec_type;
   using pid_list = typename Grid::pid_list;
 
@@ -58,9 +58,9 @@ public:
 
 }; // PointGridSearcher
 
-template <typename real, typename PA, typename IL>
+template <IsReal R, typename PA, typename IL>
 size_t
-PointGridSearcher<3, real, PA, IL>::findNeighbors(const Grid& grid,
+PointGridSearcher<3, R, PA, IL>::findNeighbors(const Grid& grid,
   const vec_type& point,
   pid_list& nids)
 {
@@ -98,8 +98,8 @@ PointGridSearcher<3, real, PA, IL>::findNeighbors(const Grid& grid,
   return nids.size();
 }
 
-template <typename real, typename PA, typename IL = IndexList<>>
-using PointGrid3 = PointGrid<3, real, PA, IL>;
+template <IsReal R, typename PA, typename IL = IndexList<>>
+using PointGrid3 = PointGrid<3, R, PA, IL>;
 
 } // namespace cg
 

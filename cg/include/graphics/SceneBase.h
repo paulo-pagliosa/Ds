@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for scene base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 18/02/2022
+// Last revision: 24/08/2026
 
 #ifndef __SceneBase_h
 #define __SceneBase_h
@@ -45,7 +45,7 @@ namespace cg
 //
 // SceneBase: scene base class
 // =========
-class SceneBase: public virtual NameableObject
+class SceneBase: public virtual NamedSharedObject
 {
 public:
   Color backgroundColor{Color::gray};

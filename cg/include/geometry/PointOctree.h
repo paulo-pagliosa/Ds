@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for generic point octree.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/09/2022
+// Last revision: 24/08/2026
 
 #ifndef __PointOctree_h
 #define __PointOctree_h
@@ -44,8 +44,8 @@ namespace cg
 //
 // PointOctree: generic point octree class
 // ===========
-template <typename real, typename PA, typename IL = IndexList<>>
-using PointOctree = PointTree<3, real, PA, IL>;
+template <IsReal R, typename PA, typename IL = IndexList<>>
+using PointOctree = PointTree<3, R, PA, IL>;
 
 } // namespace cg
 

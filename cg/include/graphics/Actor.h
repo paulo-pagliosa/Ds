@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for actor.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/01/2022
+// Last revision: 24/08/2026
 
 #ifndef __Actor_h
 #define __Actor_h
@@ -43,7 +43,7 @@ namespace cg
 //
 // Actor: actor class
 // =====
-class Actor: public NameableObject
+class Actor: public NamedSharedObject
 {
 public:
   bool visible{true};

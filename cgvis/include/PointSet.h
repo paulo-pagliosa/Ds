@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022 Paulo Pagliosa.                              |
+//| Copyright (C) 2022, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for vis point set.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/03/2022
+// Last revision: 24/08/2026
 
 #ifndef __VisPointSet_h
 #define __VisPointSet_h
@@ -71,13 +71,13 @@ public:
   void add(const vec3f& p)
   {
     Points::add(p);
-    _bounds.inflate(p);
+    _bounds.extend(p);
   }
 
   void set(int i, const vec3f& p)
   {
     Points::set(i, p);
-    _bounds.inflate(p);
+    _bounds.extend(p);
   }
 
 private:
