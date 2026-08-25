@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2007, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2007, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for generic reader base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/11/2025
+// Last revision: 24/08/2026
 
 #include "math/Matrix3x3.h"
 #include "ReaderBase.h"
@@ -357,6 +357,7 @@ _float:
     case '%':
     case '^':
     case '&':
+    case '|':
       break;
     default:
       error(UNEXPECTED_CHAR, c);

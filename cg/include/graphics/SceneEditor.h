@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for scene editor.
 //
 // Author: Paulo Pagliosa
-// Last revision: 26/02/2022
+// Last revision: 24/08/2026
 
 #ifndef __SceneEditor_h
 #define __SceneEditor_h
@@ -73,16 +73,17 @@ public:
   void drawLight(const Light&);
   void drawTransform(const vec3f&, const quatf&);
 
-private:
-  float _orbitDistance{10};
-  Color _lightGismoColor{255, 255, 153};
-  Color _cameraLineColor{255, 255, 153};
-
+protected:
   SceneEditor(SceneBase& scene):
     GLRenderer{scene, *new Camera}
   {
     // do nothing
   }
+
+private:
+  float _orbitDistance{10};
+  Color _lightGismoColor{255, 255, 153};
+  Color _cameraLineColor{255, 255, 153};
 
   void outlineSphere(const vec3f&, float, const Color&);
   void outlineCone(const vec3f&, const mat3f&, float, float);
