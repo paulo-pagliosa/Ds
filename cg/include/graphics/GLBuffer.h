@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2020 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for OpenGL buffer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 06/07/2020
+// Last revision: 26/08/2026
 
 #ifndef __GLBuffer_h
 #define __GLBuffer_h
@@ -40,14 +40,48 @@
 #define NOMINMAX
 #include <GL/gl3w.h>
 #endif
+#include <cassert>
 #include <cstdint>
 #include <iostream>
-#include <stdexcept>
+#include <map>
 
 namespace cg
 { // begin namespace cg
 
-#define DFL_GL_MAP_ACCESS (GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_RANGE_BIT)
+[[nodiscard]] consteval GLbitfield
+dflGLMapAccess()
+{
+  return GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_RANGE_BIT;
+}
+
+
+/////////////////////////////////////////////////////////////////////
+//
+// GLBufferBinder: GL buffer binder class
+// ==============
+class GLBufferBinder
+{
+public:
+  static bool bind(GLenum target, GLuint buffer)
+  {
+    auto& b = _boundBuffers[target];
+    return buffer == b? false : (glBindBuffer(target, b = buffer), true);
+  }
+
+  static void unbind(GLenum target)
+  {
+    bind(target, 0);
+  }
+
+  [[nodiscard]] static auto currentBuffer(GLenum target)
+  {
+    return _boundBuffers[target];
+  }
+
+private:
+  inline static std::map<GLenum, GLuint> _boundBuffers;
+
+}; // GLBufferBinder
 
 
 /////////////////////////////////////////////////////////////////////
@@ -58,43 +92,54 @@ template <typename T>
 class GLBuffer: public SharedObject
 {
 public:
-  ~GLBuffer() override
+  GLBuffer(uint32_t size, GLenum target = GL_ARRAY_BUFFER):
+    _target{target},
+    _size{}
   {
-    glDeleteBuffers(1, &_buffer);
-  }
-
-  GLBuffer(uint32_t size, GLenum target = GL_ARRAY_BUFFER)
-  {
-    if (size == 0)
-      throw std::runtime_error("GLBuffer(): bad size");
     glGenBuffers(1, &_buffer);
-    _target = target;
     bind();
     resize(size);
   }
 
-  void bind()
+  ~GLBuffer() override
   {
-    glBindBuffer(_target, _buffer);
+    assert(!_mapped);
+    unbind();
+    glDeleteBuffers(1, &_buffer);
+  }
+
+  bool bind()
+  {
+    return GLBufferBinder::bind(_target, _buffer);
   }
 
   void unbind()
   {
-    glBindBuffer(_target, 0);
+    GLBufferBinder::unbind(_target);
   }
 
-  void resize(uint32_t size);
+  [[nodiscard]] bool bound() const
+  {
+    return GLBufferBinder::currentBuffer(_target) == _buffer;
+  }
 
-  T* map(uint32_t first, uint32_t count, GLbitfield = DFL_GL_MAP_ACCESS);
+  bool resize(uint32_t size);
 
-  T* map(GLbitfield access = DFL_GL_MAP_ACCESS)
+  [[nodiscard]] T* map(uint32_t first, uint32_t count, GLbitfield access);
+
+  [[nodiscard]] T* map(GLbitfield access = dflGLMapAccess())
   {
     return map(0, _size, access);
   }
 
   void unmap()
   {
-    glUnmapBuffer(_target);
+    if (_mapped)
+    {
+      assert(bound());
+      glUnmapBuffer(_target);
+      _mapped = false;
+    }
   }
 
   void setData(uint32_t first, uint32_t count, const T* data);
@@ -104,12 +149,17 @@ public:
     setData(0, _size, data);
   }
 
-  operator GLuint()
+  [[nodiscard]] auto target() const
+  {
+    return _target;
+  }
+
+  [[nodiscard]] operator GLuint() const
   {
     return _buffer;
   }
 
-  uint32_t size() const
+  [[nodiscard]] auto size() const
   {
     return _size;
   }
@@ -118,34 +168,46 @@ public:
 
 private:
   GLenum _target;
-  uint32_t _size;
   GLuint _buffer;
+  uint32_t _size;
+  bool _mapped{};
 
 }; // GLShader
 
 template <typename T>
-inline void
+inline bool
 GLBuffer<T>::resize(uint32_t size)
 {
+  assert(bound() && size > 0);
+  if (_size == size)
+    return false;
   glBufferData(_target, size * sizeof(T), nullptr, GL_DYNAMIC_DRAW);
-  _size = size;
+  return _size = size;
 }
 
 template <typename T>
 inline T*
 GLBuffer<T>::map(uint32_t first, uint32_t count, GLbitfield access)
 {
-  bind();
-  return static_cast<T*>(glMapBufferRange(_target,
+  if (_mapped)
+    return nullptr;
+  assert(bound() && first + count <= _size);
+
+  auto data = static_cast<T*>(glMapBufferRange(_target,
     first * sizeof(T),
     count * sizeof(T),
     access));
+
+  if (data)
+    _mapped = true;
+  return data;
 }
 
 template <typename T>
 inline void
 GLBuffer<T>::setData(uint32_t first, uint32_t count, const T* data)
 {
+  assert(bound() && first + count <= _size);
   glBufferSubData(_target, first * sizeof(T), count * sizeof(T), data);
 }
 
@@ -153,11 +215,14 @@ template <typename T>
 void
 GLBuffer<T>::dump(std::ostream& out)
 {
-  T* data = map(GL_MAP_READ_BIT);
-
-  for (uint32_t i = 0; i < _size; ++i)
-    out << i << ": " << data[i] << '\n';
-  unmap();
+  if (auto data = map(GL_MAP_READ_BIT); !data)
+    out << "Ubable to map buffer " << _buffer << '\n';
+  else
+  {
+    for (uint32_t i = 0; i < _size; ++i)
+      out << i << ": " << data[i] << '\n';
+    unmap();
+  }
 }
 
 } // end namespace cg
