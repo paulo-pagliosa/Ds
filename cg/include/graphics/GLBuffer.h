@@ -28,7 +28,7 @@
 // Class definition for OpenGL buffer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 26/08/2026
+// Last revision: 29/08/2026
 
 #ifndef __GLBuffer_h
 #define __GLBuffer_h
@@ -65,7 +65,7 @@ public:
   static bool bind(GLenum target, GLuint buffer)
   {
     auto& b = _boundBuffers[target];
-    return buffer == b? false : (glBindBuffer(target, b = buffer), true);
+    return buffer == b ? false : (glBindBuffer(target, b = buffer), true);
   }
 
   static void unbind(GLenum target)

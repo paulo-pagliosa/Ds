@@ -28,7 +28,7 @@
 // Class definition for asset folder.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 29/08/2026
 
 #ifndef __AssetFolder_h
 #define __AssetFolder_h
@@ -69,7 +69,7 @@ using RefSetIterator = typename RefSet<T>::const_iterator;
 //
 // AssetFile: asset file class
 // =========
-class AssetFile: public NamedSharedObject
+class AssetFile: public SharedNamedObject
 {
 public:
   AssetFolder* parent() const

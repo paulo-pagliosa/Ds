@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for OpenGL window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/08/2025
+// Last revision: 29/08/2026
 
 #ifndef __GLWindow_h
 #define __GLWindow_h
@@ -54,25 +54,25 @@ public:
   virtual ~GLWindow();
 
   /// Returns the title of this window.
-  auto title() const
+  [[nodiscard]] auto title() const
   {
     return _title;
   }
 
   /// Returns the width of this window.
-  auto width() const
+  [[nodiscard]] auto width() const
   {
     return _width;
   }
 
   /// Returns the height of this window.
-  auto height() const
+  [[nodiscard]] auto height() const
   {
     return _height;
   }
 
   /// Returns the elapsed time since the last frame.
-  auto deltaTime() const
+  [[nodiscard]] auto deltaTime() const
   {
     return _deltaTime;
   }
@@ -100,12 +100,12 @@ protected:
   /// Constructs an intance of GLWindow.
   GLWindow(const char* title, int width, int height);
 
-  auto argc() const
+  [[nodiscard]] auto argc() const
   {
     return _argc;
   }
 
-  auto argv(int i) const
+  [[nodiscard]] auto argv(int i) const
   {
     assert(i >= 0 && i < _argc);
     return _argv[i];

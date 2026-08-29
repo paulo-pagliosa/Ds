@@ -28,7 +28,7 @@
 // Class definition for camera.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 29/08/2026
 
 #ifndef __Camera_h
 #define __Camera_h
@@ -45,7 +45,7 @@ namespace cg
 //
 // Camera: camera class
 // ======
-class Camera: public NamedSharedObject
+class Camera: public SharedNamedObject
 {
 public:
   static constexpr float minAngle = 1;
@@ -64,20 +64,20 @@ public:
 
   Camera(float aspect = 1);
 
-  const vec3f& position() const;
-  const vec3f& eulerAngles() const;
-  const quatf& rotation() const;
-  vec3f directionOfProjection() const;
-  const vec3f& viewPlaneNormal() const;
-  const vec3f& viewUp() const;
-  float viewAngle() const;
-  float height() const;
-  float aspectRatio() const;
+  [[nodiscard]] const vec3f& position() const;
+  [[nodiscard]] const vec3f& eulerAngles() const;
+  [[nodiscard]] const quatf& rotation() const;
+  [[nodiscard]] vec3f directionOfProjection() const;
+  [[nodiscard]] const vec3f& viewPlaneNormal() const;
+  [[nodiscard]] const vec3f& viewUp() const;
+  [[nodiscard]] float viewAngle() const;
+  [[nodiscard]] float height() const;
+  [[nodiscard]] float aspectRatio() const;
   float clippingPlanes(float& F, float& B) const;
-  float nearPlane() const;
-  ProjectionType projectionType() const;
-  const vec3f& focalPoint() const;
-  float distance() const;
+  [[nodiscard]] float nearPlane() const;
+  [[nodiscard]] ProjectionType projectionType() const;
+  [[nodiscard]] const vec3f& focalPoint() const;
+  [[nodiscard]] float distance() const;
 
   void setPosition(const vec3f& value);
   void setEulerAngles(const vec3f& value);
@@ -99,8 +99,8 @@ public:
   void changeProjectionType();
   uint32_t update();
 
-  uint32_t timestamp() const;
-  bool modified() const;
+  [[nodiscard]] uint32_t timestamp() const;
+  [[nodiscard]] bool modified() const;
 
   void azimuth(float angle);
   void elevation(float angle);
@@ -113,12 +113,12 @@ public:
   void translate(const vec3f& d);
   void translateNearPlane(float d);
 
-  float windowHeight() const;
-  const mat4f& worldToCameraMatrix() const;
-  const mat4f& cameraToWorldMatrix() const;
-  const mat4f& projectionMatrix() const;
-  vec3f worldToCamera(const vec3f& p) const;
-  vec3f cameraToWorld(const vec3f& p) const;
+  [[nodiscard]] float windowHeight() const;
+  [[nodiscard]] const mat4f& worldToCameraMatrix() const;
+  [[nodiscard]] const mat4f& cameraToWorldMatrix() const;
+  [[nodiscard]] const mat4f& projectionMatrix() const;
+  [[nodiscard]] vec3f worldToCamera(const vec3f& p) const;
+  [[nodiscard]] vec3f cameraToWorld(const vec3f& p) const;
 
   void print(FILE* out = stdout) const;
 

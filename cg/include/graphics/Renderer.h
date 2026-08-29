@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,12 +28,12 @@
 // Class definition for generic renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/08/2022
+// Last revision: 29/08/2026
 
 #ifndef __Renderer_h
 #define __Renderer_h
 
-#include "graphics/Camera.h"
+#include "graphics/CameraHolder.h"
 #include "graphics/SceneBase.h"
 #include <utility>
 
@@ -50,32 +50,38 @@ struct Viewport
 }; // Viewport
 
 
-//////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 //
 // Renderer: generic renderer class
 // ========
-class Renderer: public virtual SharedObject
+class Renderer: public CameraHolder, public virtual SharedObject
 {
 public:
   // Constructors
   Renderer() = default;
 
-  Renderer(SceneBase&, Camera&);
-
-  Renderer(const Renderer& other):
-    Renderer{*other.scene(), *other.camera()}
+  Renderer(SceneBase& scene, Camera* camera):
+    CameraHolder{camera},
+    _scene{&scene}
   {
     // do nothing
   }
 
-  SceneBase* scene() const
+  Renderer(const Renderer& other):
+    Renderer{*other.scene(), other.camera()}
+  {
+    // do nothing
+  }
+
+  [[nodiscard]] SceneBase* scene() const
   {
     return _scene;
   }
 
-  Camera* camera() const
+  void setScene(SceneBase& scene)
   {
-    return _camera;
+    if (&scene != _scene.get())
+      _scene = &scene;
   }
 
   void imageSize(int& w, int& h) const
@@ -84,29 +90,26 @@ public:
     h = _viewport.h;
   }
 
-  auto imageSize() const
+  [[nodiscard]] auto imageSize() const
   {
     return std::pair{_viewport.w, _viewport.h};
   }
 
-  void setScene(SceneBase&);
-  void setCamera(Camera&);
   void setImageSize(int, int);
 
-  vec3f project(const vec3f&) const;
-  vec3f unproject(const vec3f&) const;
+  [[nodiscard]] vec3f project(const vec3f&) const;
+  [[nodiscard]] vec3f unproject(const vec3f&) const;
 
   virtual void update();
   virtual void render() = 0;
 
 protected:
   Reference<SceneBase> _scene;
-  Reference<Camera> _camera;
   Viewport _viewport{0, 0, 1, 1};
 
 }; // Renderer
 
-inline auto
+[[nodiscard]] constexpr auto
 normalize(const vec4f& p)
 {
   return vec3f{p} * math::inverse(p.w);

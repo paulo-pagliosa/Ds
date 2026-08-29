@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for OpenGL 3D graphics.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/09/2023
+// Last revision: 29/08/2026
 
 #include "geometry/MeshSweeper.h"
 #include "graphics/GLGraphics3.h"
@@ -36,9 +36,8 @@
 namespace cg
 { // begin namespace cg
 
-#define STRINGIFY(A) "#version 400\n"#A
-
-static const char* vertexShader = STRINGIFY(
+static const char* vertexShader = R"glsl(
+  #version 400
   uniform mat4 transform;
   uniform mat3 normalMatrix;
   uniform mat4 vpMatrix;
@@ -46,7 +45,6 @@ static const char* vertexShader = STRINGIFY(
   uniform vec4 lightColor = vec4(1);
   uniform vec4 color;
   uniform int flatMode;
-
   layout(location = 0) in vec4 position;
   layout(location = 1) in vec3 normal;
   out vec4 vertexColor;
@@ -60,9 +58,10 @@ static const char* vertexShader = STRINGIFY(
     gl_Position = vpMatrix * P;
     vertexColor = color * lightColor * max(dot(N, L), float(flatMode));
   }
-);
+)glsl";
 
-static const char* fragmentShader = STRINGIFY(
+static const char* fragmentShader = R"glsl(
+  #version 400
   in vec4 vertexColor;
   out vec4 fragmentColor;
 
@@ -70,7 +69,7 @@ static const char* fragmentShader = STRINGIFY(
   {
     fragmentColor = vertexColor;
   }
-);
+)glsl";
 
 static inline TriangleMesh*
 makeCircle(const int np = 40)

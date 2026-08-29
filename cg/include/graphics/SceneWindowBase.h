@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 29/08/2026
 
 #ifndef __SceneWindowBase_h
 #define __SceneWindowBase_h
@@ -48,12 +48,12 @@ namespace cg
 class SceneWindowBase: public GLWindow
 {
 public:
-  GLRenderer* renderer() const
+  [[nodiscard]] GLRenderer* renderer() const
   {
     return _editor;
   }
 
-  Ray3f makeRay(int x, int y) const;
+  [[nodiscard]] Ray3f makeRay(int x, int y) const;
 
 protected:
   Color _selectedWireframeColor[2]
@@ -66,7 +66,7 @@ protected:
 
   using GLWindow::GLWindow;
 
-  SceneEditor* editor() const
+  [[nodiscard]] SceneEditor* editor() const
   {
     return _editor;
   }

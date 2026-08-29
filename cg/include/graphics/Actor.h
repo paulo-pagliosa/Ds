@@ -28,7 +28,7 @@
 // Class definition for actor.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 29/08/2026
 
 #ifndef __Actor_h
 #define __Actor_h
@@ -43,7 +43,7 @@ namespace cg
 //
 // Actor: actor class
 // =====
-class Actor: public NamedSharedObject
+class Actor: public SharedNamedObject
 {
 public:
   bool visible{true};
@@ -54,12 +54,12 @@ public:
     // do nothing
   }
 
-  bool isVisible() const
+  [[nodiscard]] bool isVisible() const
   {
     return visible;
   }
 
-  PrimitiveMapper* mapper() const
+  [[nodiscard]] PrimitiveMapper* mapper() const
   {
     return _mapper;
   }

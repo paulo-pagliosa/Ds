@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for scene editor.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/03/2022
+// Last revision: 29/98/2026
 
 #include "graphics/SceneEditor.h"
 
@@ -43,31 +43,31 @@ namespace cg
 void
 SceneEditor::setDefaultView(float aspect)
 {
-  _camera->setDefaultView(aspect);
+  camera()->setDefaultView(aspect);
 }
 
 void
 SceneEditor::zoom(float s)
 {
-  _camera->zoom(s);
+  camera()->zoom(s);
 }
 
 void
 SceneEditor::rotateView(float ax, float ay)
 {
-  _camera->rotateYX(ay, ax);
+  camera()->rotateYX(ay, ax);
 }
 
 void
 SceneEditor::orbit(float ax, float ay)
 {
-  _camera->rotateYX(ay, ax, true);
+  camera()->rotateYX(ay, ax, true);
 }
 
 void
 SceneEditor::pan(const vec3f& d)
 {
-  _camera->translate(d);
+  camera()->translate(d);
 }
 
 void
@@ -136,9 +136,9 @@ SceneEditor::outlineSphere(const vec3f& p, float r, const Color& color)
   vec3f n;
   float s;
 
-  if (_camera->projectionType() == Camera::Parallel)
+  if (const auto c = camera() ;c->projectionType() == Camera::Parallel)
   {
-    const auto& m = _camera->cameraToWorldMatrix();
+    const auto& m = c->cameraToWorldMatrix();
 
     u.set(m[0]);
     v.set(m[1]);
@@ -147,7 +147,7 @@ SceneEditor::outlineSphere(const vec3f& p, float r, const Color& color)
   }
   else
   {
-    n = _camera->position() - p;
+    n = c->position() - p;
 
     const auto l = n.length();
 
@@ -225,7 +225,7 @@ SceneEditor::drawLight(const Light& light)
   setMeshColor(_lightGismoColor);
   setPolygonMode(PolygonMode::FILL);
   setFlatMode(true);
-  drawCircle(p, pixelsLength(lr), _camera->viewPlaneNormal());
+  drawCircle(p, pixelsLength(lr), camera()->viewPlaneNormal());
   setFlatMode(false);
   setLineColor(_lightGismoColor);
   setPolygonMode(PolygonMode::LINE);

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2023 Paulo Pagliosa.                              |
+//| Copyright (C) 2023, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for OpenGL 3D points renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 05/09/2023
+// Last revision: 29/08/2026
 
 #ifndef __GLPoints3Renderer_h
 #define __GLPoints3Renderer_h
@@ -45,13 +45,13 @@ namespace cg
 //
 // GLPoints3Renderer: OpenGL 3D points renderer class
 // =================
-class GLPoints3Renderer: public CameraHolder
+class GLPoints3Renderer: public SharedCameraHolder
 {
 public:
   bool usePointColors{};
 
   GLPoints3Renderer(Camera* camera = nullptr):
-    CameraHolder{camera}
+    SharedCameraHolder{camera}
   {
     // do nothing
   }

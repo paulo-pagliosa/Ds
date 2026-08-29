@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for vis triangle mesh mapper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 15/03/2022
+// Last revision: 29/08/2026
 
 #include "graphics/GLRenderer.h"
 #include "TriCellMeshMapper.h"
@@ -52,7 +52,7 @@ TriCellMeshMapper::renderColorMap() const
 {
   if (auto nc = (uint32_t)colorMap().size())
   {
-    if (_colorBuffer == nullptr)
+    if (!_colorBuffer)
       _colorBuffer = new GLColorBuffer{nc};
     else
     {
@@ -74,10 +74,10 @@ bool
 TriCellMeshMapper::draw(GLRenderer& renderer) const
 {
   renderer.flags.enable(GLRenderer::UseVertexColors,
-    _colorBuffer != nullptr && useVertexColors);
+    _colorBuffer && useVertexColors);
   if (auto m = glMesh(input()->mesh()))
   {
-    m->setColors(_colorBuffer, 2);
+    m->setColors(_colorBuffer);
     renderer.drawMesh(*input());
   }
   return true;

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for OpenGL 2D render window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/06/2023
+// Last revision: 29/08/2026
 
 #ifndef __GLRenderWindow2_h
 #define __GLRenderWindow2_h
@@ -53,7 +53,7 @@ class GLRenderWindow<2>: public GLWindow
 public:
   using GLWindow::GLWindow;
 
-  GLGraphics2* g2() const
+  [[nodiscard]] GLGraphics2* g2() const
   {
     return _g2;
   }

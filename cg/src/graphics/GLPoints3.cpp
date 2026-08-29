@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2023 Paulo Pagliosa.                              |
+//| Copyright (C) 2023, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for OpenGL 3D point buffer object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2023
+// Last revision: 29/08/2026
 
 #include "graphics/GLPoints3.h"
 #include <cassert>
@@ -37,7 +37,7 @@ namespace cg
 { // begin namespace cg
 
 template <typename T>
-inline auto bufferSize(size_t n)
+constexpr auto bufferSize(size_t n)
 {
   return sizeof(T) * n;
 }
@@ -55,6 +55,7 @@ GLPoints3::GLPoints3(const PointArray& points):
   glGenBuffers(1, &_buffer);
   if (auto s = bufferSize<vec3f>(_size))
   {
+    // location 0: position
     glBindBuffer(GL_ARRAY_BUFFER, _buffer);
     glBufferData(GL_ARRAY_BUFFER, s, points.data(), GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -63,17 +64,17 @@ GLPoints3::GLPoints3(const PointArray& points):
 }
 
 void
-GLPoints3::setColors(GLColorBuffer* colors, int location)
+GLPoints3::setColors(GLColorBuffer* colors)
 {
-  bind();
   if (colors != nullptr)
   {
     assert(colors->size() == _size);
+    bind();
     colors->bind();
-    glVertexAttribPointer(location, 4, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(location);
+    glVertexAttribPointer(colorLoc, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(colorLoc);
   }
-  glVertexAttrib4f(location, 0, 0, 0, 0);
+  glVertexAttrib4f(colorLoc, 0, 0, 0, 0);
 }
 
 } // end namespace cg

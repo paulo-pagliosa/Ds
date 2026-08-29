@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2023 Paulo Pagliosa.                              |
+//| Copyright (C) 2023, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for OpenGL 3D line buffer object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2023
+// Last revision: 29/08/2026
 
 #ifndef __GLLines3_h
 #define __GLLines3_h
@@ -60,7 +60,7 @@ public:
     // do nothing
   }
 
-  auto lineCount() const
+  [[nodiscard]] auto lineCount() const
   {
     return uint32_t(_lineEnds.size());
   }

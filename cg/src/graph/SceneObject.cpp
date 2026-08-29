@@ -28,7 +28,7 @@
 // Source file for scene object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 29/08/2026
 
 #include "graph/Scene.h"
 
@@ -41,7 +41,7 @@ namespace cg::graph
 // SceneObject implementation
 // ===========
 SceneObject::SceneObject(Scene& scene, const char* name, bool movable):
-  NamedSharedObject{name},
+  SharedNamedObject{name},
   _scene{&scene}
 {
   _flags.movable = movable;
@@ -52,7 +52,7 @@ SceneObject::SceneObject(Scene& scene, const char* name, bool movable):
 
 inline
 SceneObject::SceneObject(const SceneObject& other):
-  NamedSharedObject{other.name()},
+  SharedNamedObject{other.name()},
   _scene{other._scene},
   _transform{other._transform},
   _flags{other._flags},

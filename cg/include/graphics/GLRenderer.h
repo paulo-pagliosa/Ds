@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,13 +28,14 @@
 // Class definition for OpenGL Renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 02/09/2023
+// Last revision: 29/08/2026
 
 #ifndef __GLRenderer_h
 #define __GLRenderer_h
 
 #include "graphics/GLGraphics3.h"
-#include "graphics/GLRendererBase.h"
+#include "graphics/GLMeshRendererBase.h"
+#include "graphics/Renderer.h"
 #include <functional>
 
 namespace cg
@@ -45,13 +46,12 @@ namespace cg
 //
 // GLRenderer: OpenGL renderer class
 // ==========
-class GLRenderer: public GLRendererBase, public GLGraphics3
+class GLRenderer: public Renderer,
+  public GLMeshRendererBase,
+  public GLGraphics3  
 {
 public:
-  constexpr static auto maxLights = 8;
-
   using RenderFunction = std::function<void(GLRenderer&)>;
-  using enum RenderMode;
 
   using GLGraphics3::drawAxes;
   using GLGraphics3::drawMesh;
@@ -66,8 +66,8 @@ public:
   void update();
   void render();
 
-  void renderMaterial(const Material& material) final;
-  bool drawMesh(const Primitive& primitive) final;
+  void renderMaterial(const Material& material);
+  bool drawMesh(const Primitive& primitive);
 
   bool drawSubMesh(const TriangleMesh& mesh,
     int count,

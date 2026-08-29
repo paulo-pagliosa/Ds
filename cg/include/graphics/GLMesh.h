@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for OpenGL mesh array object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/08/2023
+// Last revision: 29/08/2026
 
 #ifndef __GLMesh_h
 #define __GLMesh_h
@@ -64,27 +64,30 @@ public:
     glBindVertexArray(_vao);
   }
 
-  auto vertexCount() const
+  [[nodiscard]] auto triangleCount() const
   {
-    return _vertexCount;
+    return _triangleCount;
   }
 
-  void setColors(GLColorBuffer* colors, int location = 3);
+  void setColors(GLColorBuffer* colors);
 
 private:
+  constexpr static auto colorLoc = 3;
+
   GLuint _vao;
   GLuint _buffers[4];
   int _vertexCount;
+  int _triangleCount;
 
 }; // GLMesh
 
-inline GLMesh*
+[[nodiscard]] inline GLMesh*
 asGLMesh(SharedObject* object)
 {
   return dynamic_cast<GLMesh*>(object);
 }
 
-inline GLMesh*
+[[nodiscard]] inline GLMesh*
 glMesh(const TriangleMesh* mesh)
 {
   if (nullptr == mesh)

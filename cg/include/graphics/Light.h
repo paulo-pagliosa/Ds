@@ -28,7 +28,7 @@
 // Class definition for light.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 29/08/2026
 
 #ifndef __Light_h
 #define __Light_h
@@ -46,7 +46,7 @@ namespace cg
 //
 // Light: light class
 // =====
-class Light: public NamedSharedObject
+class Light: public SharedNamedObject
 {
 public:
   enum class Type
@@ -82,7 +82,7 @@ public:
   // Constructor
   Light();
 
-  auto type() const
+  [[nodiscard]] auto type() const
   {
     return _type;
   }
@@ -92,7 +92,7 @@ public:
     _type = type;
   }
 
-  bool isTurnedOn() const
+  [[nodiscard]] bool isTurnedOn() const
   {
     return flags.isSet(TurnedOn);
   }
@@ -102,7 +102,7 @@ public:
     flags.enable(TurnedOn, state);
   }
 
-  const auto& position() const
+  [[nodiscard]] const auto& position() const
   {
     return _position;
   }
@@ -112,19 +112,19 @@ public:
     _position = value;
   }
 
-  const auto& direction() const
+  [[nodiscard]] const auto& direction() const
   {
     return _direction;
   }
 
-  const auto& eulerAngles() const
+  [[nodiscard]] const auto& eulerAngles() const
   {
     return _eulerAngles;
   }
 
   void setEulerAngles(const vec3f& value);
 
-  const auto& rotation() const
+  [[nodiscard]] const auto& rotation() const
   {
     return _rotation;
   }
@@ -138,7 +138,7 @@ public:
 
   void setRange(float value);
 
-  auto spotAngle() const
+  [[nodiscard]] auto spotAngle() const
   {
     return _spotAngle;
   }
@@ -146,7 +146,7 @@ public:
   void setSpotAngle(float value);
 
   /// Returns the light color at a point.
-  Color lightColor(float distance) const;
+  [[nodiscard]] Color lightColor(float distance) const;
 
   /**
    *  Computes the light incident vector at the point P.

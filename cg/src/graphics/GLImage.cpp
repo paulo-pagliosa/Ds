@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for OpenGL image.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/11/2022
+// Last revision: 29/08/2026
 
 #include "graphics/GLImage.h"
 #include <memory>
@@ -36,9 +36,8 @@
 namespace cg
 { // begin namespace cg
 
-#define STRINGIFY(A) "#version 400\n"#A
-
-static const char* vertexShader = STRINGIFY(
+static const char* vertexShader = R"glsl(
+  #version 400
   uniform vec4 vp[] = vec4[4](
     vec4(-1.0f, -1.0f, 0, 1),
     vec4(+1.0f, -1.0f, 0, 1),
@@ -50,22 +49,25 @@ static const char* vertexShader = STRINGIFY(
     vec2(1.0f, 1.0f),
     vec2(0.0f, 1.0f));
   out vec2 v_uv;
+
   void main()
   {
     gl_Position = vp[gl_VertexID];
     v_uv = uv[gl_VertexID];
   }
-);
+)glsl";
 
-static const char* fragmentShader = STRINGIFY(
+static const char* fragmentShader = R"glsl(
+  #version 400
   uniform sampler2D tex;
   in vec2 v_uv;
   out vec4 f_color;
+
   void main()
   {
     f_color = texture(tex, v_uv);
   }
-);
+)glsl";
 
 //
 // Auxiliary functions

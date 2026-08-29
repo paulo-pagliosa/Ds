@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for OpenGL 3D graphics.
 //
 // Author: Paulo Pagliosa
-// Last revision: 02/09/2023
+// Last revision: 29/08/2026
 
 #ifndef __GLGraphics3_h
 #define __GLGraphics3_h
@@ -44,7 +44,7 @@ namespace cg
 //
 // Auxiliary functions
 //
-inline auto
+[[nodiscard]] inline auto
 TRS(const vec3f& p, const mat3f& r, const vec3f& s)
 {
   mat4f t{r, p};
@@ -55,7 +55,7 @@ TRS(const vec3f& p, const mat3f& r, const vec3f& s)
   return t;
 }
 
-inline auto
+[[nodiscard]] inline auto
 normalMatrix(const mat3f& r, const vec3f& s)
 {
   auto n = r;
@@ -85,7 +85,7 @@ public:
   GLGraphics3();
 
   /// Returns the color for mesh drawings.
-  const auto& meshColor() const
+  [[nodiscard]] const auto& meshColor() const
   {
     return _meshColor;
   }
@@ -97,7 +97,7 @@ public:
   }
 
   /// Returns the color for grid drawing.
-  const auto& gridColor() const
+  [[nodiscard]] const auto& gridColor() const
   {
     return _gridColor;
   }

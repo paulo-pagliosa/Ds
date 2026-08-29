@@ -45,7 +45,8 @@ namespace cg
 static const char* vertexShader = STRINGIFY(
   layout(location = 0) in vec4 position;
   layout(location = 1) in vec3 normal;
-  layout(location = 2) in vec4 color;
+  layout(location = 2) in vec2 uv;
+  layout(location = 3) in vec4 color;
   uniform mat4 mvMatrix;
   uniform mat3 normalMatrix;
   uniform mat4 mvpMatrix;
@@ -403,7 +404,7 @@ GLRenderer::GLData::GLData():
 }
 
 GLRenderer::GLRenderer(SceneBase& scene, Camera& camera):
-  GLRendererBase{scene, camera},
+  Renderer{scene, &camera},
   _gl{new GLData{}}
 {
   // do nothing
@@ -417,8 +418,10 @@ GLRenderer::~GLRenderer()
 void
 GLRenderer::update()
 {
+  const auto camera = this->camera();
+
   // TODO: do it only when camera or viewport has been changed
-  GLGraphics3::setView(_camera->position(), vpMatrix(_camera));
+  GLGraphics3::setView(camera->position(), vpMatrix(camera));
   glViewport(0, 0, _viewport.w, _viewport.h);
 
   auto w = _viewport.w / 2.0f;
@@ -428,20 +431,22 @@ GLRenderer::update()
   _gl->viewportMatrix[1].set(0, h, 0, 0);
   _gl->viewportMatrix[2].set(0, 0, 1, 0);
   _gl->viewportMatrix[3].set(w, h, 0, 0);
-  _windowViewportRatio = _camera->windowHeight() / _viewport.h;
+  _windowViewportRatio = camera->windowHeight() / _viewport.h;
 }
 
 void
 GLRenderer::setBasePoint(const vec3f& p)
 {
-  _basePointZ = -_camera->worldToCamera(_basePoint = p).z;
+  _basePointZ = -camera()->worldToCamera(_basePoint = p).z;
 }
 
 float
 GLRenderer::pixelsLength(float d) const
 {
-  if (_camera->projectionType() == Camera::Perspective)
-    d *= _basePointZ / _camera->nearPlane();
+  const auto camera = this->camera();
+
+  if (camera->projectionType() == Camera::Perspective)
+    d *= _basePointZ / camera->nearPlane();
   return _windowViewportRatio * d;
 }
 
@@ -455,7 +460,7 @@ GLRenderer::renderLights()
     return;
   }
 
-  const auto& vm = _camera->worldToCameraMatrix();
+  const auto& vm = camera()->worldToCameraMatrix();
   int nl{0};
 
   for (auto light : _scene->lights())
@@ -514,7 +519,7 @@ GLRenderer::beginRender()
   glClearColor((float)bc.r, (float)bc.g, (float)bc.b, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   _gl->program.use();
-  _gl->program.setUniform(_gl->projectionTypeLoc, _camera->projectionType());
+  _gl->program.setUniform(_gl->projectionTypeLoc, camera()->projectionType());
   _gl->program.setUniformMat4(_gl->viewportMatrixLoc, _gl->viewportMatrix);
 }
 
@@ -603,11 +608,12 @@ GLRenderer::drawMesh(const TriangleMesh& mesh,
   int count,
   int offset)
 {
-  auto mvm = mvMatrix(t, _camera);
+  const auto camera = this->camera();
+  auto mvm = mvMatrix(t, camera);
 
   _gl->program.setUniformMat4(_gl->mvMatrixLoc, mvm);
-  _gl->program.setUniformMat4(_gl->mvpMatrixLoc, mvpMatrix(mvm, _camera));
-  _gl->program.setUniformMat3(_gl->normalMatrixLoc, normalMatrix(n, _camera));
+  _gl->program.setUniformMat4(_gl->mvpMatrixLoc, mvpMatrix(mvm, camera));
+  _gl->program.setUniformMat3(_gl->normalMatrixLoc, normalMatrix(n, camera));
   glPolygonMode(GL_FRONT_AND_BACK, (renderMode != Wireframe) + GL_LINE);
 
   GLuint subIds[2];

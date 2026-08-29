@@ -160,7 +160,7 @@
     <ClInclude Include="..\..\include\graphics\GLPoints3Renderer.h" />
     <ClInclude Include="..\..\include\graphics\GLProgram.h" />
     <ClInclude Include="..\..\include\graphics\GLRenderer.h" />
-    <ClInclude Include="..\..\include\graphics\GLRendererBase.h" />
+    <ClInclude Include="..\..\include\graphics\GLMeshRendererBase.h" />
     <ClInclude Include="..\..\include\graphics\GLRenderWindow2.h" />
     <ClInclude Include="..\..\include\graphics\GLRenderWindow3.h" />
     <ClInclude Include="..\..\include\graphics\GLTextureFramebuffer.h" />
@@ -236,7 +236,6 @@
     <ClCompile Include="..\..\src\graphics\GLPoints3Renderer.cpp" />
     <ClCompile Include="..\..\src\graphics\GLProgram.cpp" />
     <ClCompile Include="..\..\src\graphics\GLRenderer.cpp" />
-    <ClCompile Include="..\..\src\graphics\GLRendererBase.cpp" />
     <ClCompile Include="..\..\src\graphics\GLRenderWindow2.cpp" />
     <ClCompile Include="..\..\src\graphics\GLRenderWindow3.cpp" />
     <ClCompile Include="..\..\src\graphics\GLTextureFramebuffer.cpp" />

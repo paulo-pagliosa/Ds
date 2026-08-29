@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2023 Paulo Pagliosa.                              |
+//| Copyright (C) 2023, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,16 +28,15 @@
 // Source file for OpenGL 3D lines renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 18/09/2023
+// Last revision: 29/08/2026
 
 #include "graphics/GLLines3Renderer.h"
 
 namespace cg
 { // begin namespace cg
 
-#define STRINGIFY(A) "#version 400\n"#A
-
-static const char* vertexShader = STRINGIFY(
+static const char* vertexShader = R"glsl(
+  #version 400
   layout(location = 0) in vec4 position;
   layout(location = 1) in vec4 color;
   uniform mat4 mvpMatrix;
@@ -50,12 +49,12 @@ static const char* vertexShader = STRINGIFY(
     gl_Position = mvpMatrix * position;
     v_color = usePointColors != 0 ? color : lineColor;
   }
-);
+)glsl";
 
-static const char* geometryShader = STRINGIFY(
+static const char* geometryShader = R"glsl(
+  #version 400
   layout(lines) in;
   layout(triangle_strip, max_vertices = 4) out;
-
   in vec4 v_color[];
   uniform vec2 viewportSize;
   uniform float lineWidth;
@@ -86,9 +85,10 @@ static const char* geometryShader = STRINGIFY(
     handleVertex(1, offset);
     EndPrimitive();
   }
-);
+)glsl";
 
-static const char* fragmentShader = STRINGIFY(
+static const char* fragmentShader = R"glsl(
+  #version 400
   in vec4 v_color;// g_color;
   //noperspective in float smoothline;
   //uniform float lineWidth;
@@ -99,7 +99,7 @@ static const char* fragmentShader = STRINGIFY(
     f_color = v_color;// g_color;
     //f_color.a *= clamp((lineWidth + 1) * 0.5f - abs(smoothline), 0, 1);
   }
-);
+)glsl";
 
 
 /////////////////////////////////////////////////////////////////////

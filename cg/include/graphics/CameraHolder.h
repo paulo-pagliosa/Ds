@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2023 Paulo Pagliosa.                              |
+//| Copyright (C) 2023, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for camera holder.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2023
+// Last revision: 29/08/2026
 
 #ifndef __CameraHolder_h
 #define __CameraHolder_h
@@ -43,18 +43,18 @@ namespace cg
 //
 // CameraHolder: camera holder class
 // ============
-class CameraHolder: public SharedObject
+class CameraHolder
 {
 public:
-  Camera* camera() const
+  [[nodiscard]] Camera* camera() const
   {
     return _camera;
   }
 
-  void setCamera(Camera* camera)
+  void setCamera(Camera& camera)
   {
-    if (camera != _camera.get())
-      (_camera = camera ? camera : new Camera{})->update();
+    if (&camera != _camera.get())
+      _camera = &camera;
   }
 
 protected:
@@ -68,6 +68,18 @@ private:
   Reference<Camera> _camera;
 
 }; // CameraHolder
+
+
+/////////////////////////////////////////////////////////////////////
+//
+// SharedCameraHolder: shared camera holder class
+// ==================
+class SharedCameraHolder: public CameraHolder, public SharedObject
+{
+protected:
+  using CameraHolder::CameraHolder;
+
+}; // SharedCameraObject
 
 } // end namespace cg
 

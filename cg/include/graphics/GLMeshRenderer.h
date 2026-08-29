@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,15 +28,13 @@
 // Class definition for OpenGL mesh renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2023
+// Last revision: 29/08/2026
 
 #ifndef __GLMeshRenderer_h
 #define __GLMeshRenderer_h
 
 #include "graphics/CameraHolder.h"
-#include "graphics/GLGraphics3.h"
-#include "graphics/Light.h"
-#include "graphics/Material.h"
+#include "graphics/GLMeshRendererBase.h"
 
 namespace cg
 { // begin namespace cg
@@ -46,41 +44,13 @@ namespace cg
 //
 // GLMeshRenderer: OpenGL mesh renderer class
 // ==============
-class GLMeshRenderer: public CameraHolder
+class GLMeshRenderer: public GLMeshRendererBase, public SharedCameraHolder
 {
 public:
-  constexpr static auto maxLights = 8;
-
-  enum class RenderMode
-  {
-    Wireframe = 1,
-    HiddenLines = 2,
-    Flat = 4,
-    Smooth = 0
-  };
-
-  enum class RenderBits
-  {
-    UseLights = 1,
-    UseVertexColors = 2
-  };
-
-  using enum RenderMode;
-  using enum RenderBits;
-  using RenderFlags = Flags<RenderBits>;
-
-  RenderMode renderMode{Smooth};
-  RenderFlags flags{UseLights};
-
   GLMeshRenderer(Camera* camera = nullptr):
-    CameraHolder{camera}
+    SharedCameraHolder{camera}
   {
     // do nothing
-  }
-
-  auto useVertexColors() const
-  {
-    return flags.isSet(UseVertexColors);
   }
 
   void begin();

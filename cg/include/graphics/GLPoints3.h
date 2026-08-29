@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2023 Paulo Pagliosa.                              |
+//| Copyright (C) 2023, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for OpenGL 3D point buffer object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 05/09/2023
+// Last revision: 29/08/2026
 
 #ifndef __GLPoints3_h
 #define __GLPoints3_h
@@ -64,7 +64,7 @@ public:
     glDeleteVertexArrays(1, &_vao);
   }
 
-  auto size() const
+  [[nodiscard]] auto size() const
   {
     return _size;
   }
@@ -74,9 +74,11 @@ public:
     glBindVertexArray(_vao);
   }
 
-  void setColors(GLColorBuffer* colors, int location = 1);
+  void setColors(GLColorBuffer* colors);
 
 private:
+  constexpr static auto colorLoc = 1;
+
   GLuint _vao;
   GLuint _buffer;
   uint32_t _size;

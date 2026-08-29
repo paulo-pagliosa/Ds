@@ -28,7 +28,7 @@
 // Class definition for scene object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 29/08/2026
 
 #ifndef __SceneObject_h
 #define __SceneObject_h
@@ -53,7 +53,7 @@ using SceneObjectAllocator = BlockAllocator<SceneObject, 32>;
 //
 // SceneObject: scene object class
 // ===========
-class SceneObject: public NamedSharedObject,
+class SceneObject: public SharedNamedObject,
   public ObjectListNode<SceneObject, SceneObjectAllocator>
 {
 public:

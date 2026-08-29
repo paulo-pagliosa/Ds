@@ -28,7 +28,7 @@
 // Class definition for scene base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 29/08/2026
 
 #ifndef __SceneBase_h
 #define __SceneBase_h
@@ -45,7 +45,7 @@ namespace cg
 //
 // SceneBase: scene base class
 // =========
-class SceneBase: public virtual NamedSharedObject
+class SceneBase: public virtual SharedNamedObject
 {
 public:
   Color backgroundColor{Color::gray};

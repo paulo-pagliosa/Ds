@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2020, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2020, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,32 +23,33 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: GLRendererBase.h
+// OVERVIEW: GLMeshRendererBase.h
 // ========
-// Class definition for OpenGL renderer base.
+// Class definition for OpenGL mesh renderer base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/02/2022
+// Last revision: 29/08/2026
 
-#ifndef __GLRendererBase_h
-#define __GLRendererBase_h
+#ifndef __GLMeshRendererBase_h
+#define __GLMeshRendererBase_h
 
-#include "core/Flags.h"
-#include "geometry/TriangleMesh.h"
-#include "graphics/Renderer.h"
+#include "graphics/GLGraphics3.h"
+#include "graphics/Light.h"
 #include "graphics/Material.h"
 
 namespace cg
 { // begin namespace cg
 
 
-//////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
 //
-// GLRendererBase: OpenGL renderer base class
-// ==============
-class GLRendererBase: public Renderer
+// GLMeshRendererBase: OpenGL mesh renderer base class
+// ==================
+class GLMeshRendererBase
 {
 public:
+  constexpr static auto maxLights = 8;
+
   enum class RenderMode
   {
     Wireframe = 1,
@@ -57,7 +58,7 @@ public:
     Smooth = 0
   };
 
-  enum RenderBits
+  enum class RenderBits
   {
     UseLights = 1,
     UseVertexColors = 2,
@@ -65,23 +66,21 @@ public:
     DrawNormals = 8
   };
 
+  using enum RenderMode;
+  using enum RenderBits;
   using RenderFlags = Flags<RenderBits>;
 
-  RenderMode renderMode;
-  RenderFlags flags;
-  Color boundsColor;
+  RenderMode renderMode{Smooth};
+  RenderFlags flags{UseLights};
+  Color boundsColor{255, 102, 0};
 
-  using Renderer::Renderer;
+  [[nodiscard]] auto useVertexColors() const
+  {
+    return flags.isSet(UseVertexColors);
+  }
 
-  virtual bool drawMesh(const Primitive& primitive) = 0;
-  virtual void renderMaterial(const Material& material) = 0;
-
-protected:
-  /// Constructs a GL renderer object.
-  GLRendererBase(SceneBase& scene, Camera& camera);
-
-}; // GLRendererBase
+}; // GLMeshRendererBase
 
 } // end namespace cg
 
-#endif // __GLRendererBase_h
+#endif // __GLMeshRendererBase_h

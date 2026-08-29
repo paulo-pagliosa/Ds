@@ -28,7 +28,7 @@
 // Source file for OpenGL 3D points renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 09/08/2023
+// Last revision: 29/08/2026
 
 #include "graphics/GLPoints3Renderer.h"
 #include <cassert>
@@ -36,9 +36,8 @@
 namespace cg
 { // begin namespace cg
 
-#define STRINGIFY(A) "#version 400\n"#A
-
-static const char* vertexShader = STRINGIFY(
+static const char* vertexShader = R"glsl(
+  #version 400
   layout(location = 0) in vec4 position;
   layout(location = 1) in vec4 color;
   uniform mat4 mvpMatrix;
@@ -46,14 +45,15 @@ static const char* vertexShader = STRINGIFY(
   uniform vec4 pointColor;
   out vec4 vertexColor;
 
-void main()
-{
-  gl_Position = mvpMatrix * position;
-  vertexColor = usePointColors != 0 ? color : pointColor;
-}
-);
+  void main()
+  {
+    gl_Position = mvpMatrix * position;
+    vertexColor = usePointColors != 0 ? color : pointColor;
+  }
+)glsl";
 
-static const char* fragmentShader = STRINGIFY(
+static const char* fragmentShader = R"glsl(
+  #version 400
   in vec4 vertexColor;
   out vec4 fragmentColor;
 
@@ -61,7 +61,7 @@ static const char* fragmentShader = STRINGIFY(
   {
     fragmentColor = vertexColor;
   }
-);
+)glsl";
 
 
 /////////////////////////////////////////////////////////////////////

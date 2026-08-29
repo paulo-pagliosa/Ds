@@ -543,7 +543,7 @@ GLMeshRenderer::render(TriangleMesh& mesh, const mat4f& t, const mat3f& n)
   auto m = glMesh(&mesh);
 
   m->bind();
-  glDrawElements(GL_TRIANGLES, m->vertexCount(), GL_UNSIGNED_INT, 0);
+  glDrawElements(GL_TRIANGLES, m->triangleCount() * 3, GL_UNSIGNED_INT, 0);
 }
 
 void

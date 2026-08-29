@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2020, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2020, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for OpenGL 3D render window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 05/09/2023
+// Last revision: 29/08/2026
 
 #include "graphics/GLRenderWindow3.h"
 
@@ -43,20 +43,22 @@ namespace cg
 void
 GLRenderWindow3::initialize()
 {
-  _camera = new Camera{};
-  _camera->setAspectRatio((float)width() / (float)height());
-  _g3 = makeRenderer(*_camera);
+  auto c = camera();
+
+  c->setAspectRatio((float)width() / (float)height());
+  _g3 = makeRenderer(*c);
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_POLYGON_OFFSET_FILL);
   glPolygonOffset(1.0f, 1.0f);
   glEnable(GL_LINE_SMOOTH);
+  glEnable(GL_MULTISAMPLE);
 }
 
 void
 GLRenderWindow3::render()
 {
   GLWindow::render();
-  _g3->updateView(*_camera);
+  _g3->updateView(*camera());
   renderScene();
 }
 
@@ -75,7 +77,7 @@ GLRenderWindow3::renderScene()
 bool
 GLRenderWindow3::windowResizeEvent(int width, int height)
 {
-  _camera->setAspectRatio((float)width / (float)height);
+  camera()->setAspectRatio(width / (float)height);
   return GLWindow::windowResizeEvent(width, height);
 }
 
@@ -93,7 +95,8 @@ GLRenderWindow3::keyInputEvent(int key, int action, int)
   if (ImGui::GetIO().WantCaptureKeyboard || action == GLFW_RELEASE)
     return false;
 
-  const auto delta = _camera->distance() * CAMERA_RES;
+  auto c = camera();
+  const auto delta = c->distance() * CAMERA_RES;
   auto d = vec3f::null();
 
   switch (key)
@@ -119,7 +122,7 @@ GLRenderWindow3::keyInputEvent(int key, int action, int)
     default:
       return false;
   }
-  _camera->translate(d);
+  c->translate(d);
   return true;
 }
 
@@ -128,7 +131,7 @@ GLRenderWindow3::scrollEvent(double, double yOffset)
 {
   if (ImGui::GetIO().WantCaptureMouse)
     return false;
-  _camera->zoom(yOffset < 0 ? 1.0f / ZOOM_SCALE : ZOOM_SCALE);
+  camera()->zoom(yOffset < 0 ? 1.0f / ZOOM_SCALE : ZOOM_SCALE);
   return true;
 }
 
@@ -166,15 +169,17 @@ GLRenderWindow3::mouseMoveEvent(double xPos, double yPos)
   _pivotY = _mouseY;
   if (dx != 0 || dy != 0)
   {
+    const auto c = camera();
+
     if (_dragFlags.isSet(DragBits::Rotate))
     {
-      const auto da = -_camera->viewAngle() * CAMERA_RES;
-      _camera->rotateYX(dx * da, dy * da, isKeyPressed(GLFW_KEY_LEFT_ALT));
+      const auto da = -c->viewAngle() * CAMERA_RES;
+      c->rotateYX(dx * da, dy * da, isKeyPressed(GLFW_KEY_LEFT_ALT));
     }
     else if (_dragFlags.isSet(DragBits::Pan))
     {
-      const auto dt = -_camera->distance() * CAMERA_RES;
-      _camera->translate(-dt * math::sign(dx), dt * math::sign(dy), 0);
+      const auto dt = -c->distance() * CAMERA_RES;
+      c->translate(-dt * math::sign(dx), dt * math::sign(dy), 0);
     }
   }
   return true;

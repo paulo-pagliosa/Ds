@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,60 +28,75 @@
 // Source file for OpenGL graphics base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 02/09/2023
+// Last revision: 29/08/2026
 
 #include "graphics/GLGraphicsBase.h"
 
 namespace cg
 { // begin namespace cg
 
-static const char* pointVertexShader =
-  "#version 400\n"
-  "uniform vec4 p;\n"
-  "uniform vec4 pointColor;\n"
-  "out vec4 color;\n"
-  "void main() {\n"
-  "gl_Position = p;\n"
-  "color = pointColor;\n"
-  "}";
+static const char* pointVertexShader = R"glsl(
+  #version 400
+  uniform vec4 p;
+  uniform vec4 pointColor;
+  out vec4 color;
 
-static const char* lineVertexShader =
-  "#version 400\n"
-  "uniform vec4 p[2];\n"
-  "uniform vec4 vertexColors[2];\n"
-  "out vec4 color;\n"
-  "void main() {\n"
-  "gl_Position = p[gl_VertexID];\n"
-  "color = vertexColors[gl_VertexID];\n"
-  "}";
+  void main()
+  {
+    gl_Position = p;
+    color = pointColor;
+  }
+)glsl";
 
-static const char* triangleVertexShader =
-  "#version 400\n"
-  "uniform vec4 p[3];\n"
-  "uniform vec4 vertexColors[3];\n"
-  "out vec4 color;\n"
-  "void main() {\n"
-  "gl_Position = p[gl_VertexID];\n"
-  "color = vertexColors[gl_VertexID];\n"
-  "}";
+static const char* lineVertexShader = R"glsl(
+  #version 400
+  uniform vec4 p[2];
+  uniform vec4 vertexColors[2];
+  out vec4 color;
 
-static const char* quadVertexShader =
-  "#version 400\n"
-  "uniform vec4 p[4];\n"
-  "uniform vec4 vertexColors[4];\n"
-  "out vec4 color;\n"
-  "void main() {\n"
-  "gl_Position = p[gl_VertexID];\n"
-  "color = vertexColors[gl_VertexID];\n"
-  "}";
+  void main()
+  {
+    gl_Position = p[gl_VertexID];
+    color = vertexColors[gl_VertexID];
+  }
+)glsl";
 
-static const char* fragmentShader =
-  "#version 400\n"
-  "in vec4 color;\n"
-  "out vec4 fragmentColor;\n"
-  "void main() {\n"
-  "fragmentColor = color;\n"
-  "}";
+static const char* triangleVertexShader = R"glsl(
+  #version 400
+  uniform vec4 p[3];
+  uniform vec4 vertexColors[3];
+  out vec4 color;
+
+  void main()
+  {
+    gl_Position = p[gl_VertexID];
+    color = vertexColors[gl_VertexID];
+  }
+)glsl";
+
+static const char* quadVertexShader = R"glsl(
+  #version 400
+  uniform vec4 p[4];
+  uniform vec4 vertexColors[4];
+  out vec4 color;
+
+  void main()
+  {
+    gl_Position = p[gl_VertexID];
+    color = vertexColors[gl_VertexID];
+  }
+)glsl";
+
+static const char* fragmentShader = R"glsl(
+  #version 400
+  in vec4 color;
+  out vec4 fragmentColor;
+
+  void main()
+  {
+    fragmentColor = color;
+  }
+)glsl";
 
 
 /////////////////////////////////////////////////////////////////////

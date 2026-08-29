@@ -28,7 +28,7 @@
 // Source file for simple ray tracer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/08/2026
+// Last revision: 29/08/2026
 
 #include "graphics/Camera.h"
 #include "utils/Stopwatch.h"
@@ -57,7 +57,7 @@ printElapsedTime(const char* s, Stopwatch::ms_time time)
 // RayTracer implementation
 // =========
 RayTracer::RayTracer(SceneBase& scene, Camera& camera):
-  Renderer{scene, camera},
+  Renderer{scene, &camera},
   _maxRecursionLevel{6},
   _minWeight{minMinWeight},
   _adaptivityDistance{16}
@@ -103,8 +103,11 @@ RayTracer::renderImage(Image& image)
 
   update();
   timer.start();
+
+  const auto camera = this->camera();
+
   {
-    const auto& m = _camera->cameraToWorldMatrix();
+    const auto& m = camera->cameraToWorldMatrix();
 
     // VRC axes
     _vrc.u.set(m[0]);
@@ -119,7 +122,7 @@ RayTracer::renderImage(Image& image)
   _Iw = math::inverse(float(w));
   _Ih = math::inverse(float(h));
   {
-    auto wh = _camera->windowHeight();
+    auto wh = camera->windowHeight();
 
     if (w >= h)
       _Vw = (_Vh = wh) * w * _Ih;
@@ -130,8 +133,8 @@ RayTracer::renderImage(Image& image)
   // init pixel ray
   float F, B;
 
-  _camera->clippingPlanes(F, B);
-  if (_camera->projectionType() == Camera::Perspective)
+  camera->clippingPlanes(F, B);
+  if (camera->projectionType() == Camera::Perspective)
   {
     // distance from the camera position to a frustum back corner
     auto z = B / F * 0.5f;
@@ -139,7 +142,7 @@ RayTracer::renderImage(Image& image)
   }
   _pixelRay.tMin = F;
   _pixelRay.tMax = B;
-  _pixelRay.set(_camera->position(), -_vrc.n);
+  _pixelRay.set(camera->position(), -_vrc.n);
   _numberOfRays = _numberOfHits = 0;
   scan(image);
 
@@ -158,16 +161,17 @@ RayTracer::setPixelRay(float x, float y)
 //|  @param y cordinates of the pixel                   |
 //[]---------------------------------------------------[]
 {
+  const auto camera = this->camera();
   auto p = imageToWindow(x, y);
 
-  switch (_camera->projectionType())
+  switch (camera->projectionType())
   {
     case Camera::Perspective:
-      _pixelRay.direction = (p - _camera->nearPlane() * _vrc.n).versor();
+      _pixelRay.direction = (p - camera->nearPlane() * _vrc.n).versor();
       break;
 
     case Camera::Parallel:
-      _pixelRay.origin = _camera->position() + p;
+      _pixelRay.origin = camera->position() + p;
       break;
   }
 }

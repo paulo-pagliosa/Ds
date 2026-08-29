@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for graphics application.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/12/2022
+// Last revision: 29/08/2026
 
 #ifndef __Application_h
 #define __Application_h
@@ -54,7 +54,7 @@ public:
   Application(GLWindow* mainWindow);
 
   /// Returns the title of this application.
-  auto id() const
+  [[nodiscard]] auto id() const
   {
     return _id;
   }
@@ -69,7 +69,7 @@ public:
   }
 
   /// Returns the asset file path for \c filename.
-  static std::string assetFilePath(const char* filename)
+  [[nodiscard]] static std::string assetFilePath(const char* filename)
   {
     return _assetsPath + filename;
   }
@@ -81,7 +81,7 @@ public:
   }
 
   /// Loads a mesh from an OBJ file.
-  static TriangleMesh* loadMesh(const char* filename)
+  [[nodiscard]] static TriangleMesh* loadMesh(const char* filename)
   {
     return MeshReader::readOBJ(assetFilePath(filename).c_str());
   }

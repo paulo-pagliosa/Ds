@@ -308,7 +308,7 @@
     <ClInclude Include="..\..\include\graphics\GLRenderer.h">
       <Filter>Header Files\graphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\graphics\GLRendererBase.h">
+    <ClInclude Include="..\..\include\graphics\GLMeshRendererBase.h">
       <Filter>Header Files\graphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\graphics\PrimitiveMapper.h">
@@ -488,9 +488,6 @@
       <Filter>Source Files\graphics</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\graphics\GLRenderer.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\graphics\GLRendererBase.cpp">
       <Filter>Source Files\graphics</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\graphics\PrimitiveMapper.cpp">

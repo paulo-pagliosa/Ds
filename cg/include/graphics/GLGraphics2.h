@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for OpenGL 2D graphics.
 //
 // Author: Paulo Pagliosa
-// Last revision: 26/08/2023
+// Last revision: 29/08/2026
 
 #ifndef __GLGraphics2_h
 #define __GLGraphics2_h
@@ -45,14 +45,14 @@ namespace cg
 //
 // View2: 2D view class
 // =====
-class View2: public SharedObject
+class View2: public virtual SharedObject
 {
 public:
   /// Default constructor.
   View2();
 
   /// Returns the bounds of this view.
-  const auto& bounds() const
+  [[nodiscard]] const auto& bounds() const
   {
     return _bounds;
   }
@@ -67,7 +67,7 @@ public:
   }
 
   /// Returns the aspect ratio of this view.
-  auto aspectRatio() const
+  [[nodiscard]] auto aspectRatio() const
   {
     return _aspectRatio;
   }

@@ -76,20 +76,20 @@ private:
 
 /////////////////////////////////////////////////////////////////////
 //
-// NamedSharedObject: named shared object class
+// SharedNamedObject: shared named object class
 // =================
-class NamedSharedObject: public SharedObject, public NamedObject
+class SharedNamedObject: public NamedObject, public SharedObject
 {
 protected:
-  NamedSharedObject() = default;
+  SharedNamedObject() = default;
 
-  NamedSharedObject(const char* name):
+  SharedNamedObject(const char* name):
     NamedObject{name}
   {
     // do nothing
   }
 
-}; // NamedSharedObject
+}; // SharedNamedObject
 
 } // end namespace cg
 

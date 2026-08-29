@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for OpenGL mesh array object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2023
+// Last revision: 29/08/2026
 
 #include "graphics/GLMesh.h"
 
@@ -36,7 +36,7 @@ namespace cg
 { // begin namespace cg
 
 template <typename T>
-inline auto bufferSize(int n)
+constexpr auto bufferSize(int n)
 {
   return sizeof(T) * n;
 }
@@ -54,43 +54,48 @@ GLMesh::GLMesh(const TriangleMesh& mesh)
 
   const auto& m = mesh.data();
 
-  if (auto s = bufferSize<vec3f>(m.vertexCount))
+  _vertexCount = m.vertexCount;
+  _triangleCount = m.triangleCount;
+  if (auto s = bufferSize<vec3f>(_vertexCount))
   {
+    // location 0: position
     glBindBuffer(GL_ARRAY_BUFFER, _buffers[0]);
     glBufferData(GL_ARRAY_BUFFER, s, m.vertices, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
+    // location 1: normal
     glBindBuffer(GL_ARRAY_BUFFER, _buffers[1]);
     glBufferData(GL_ARRAY_BUFFER, s, m.vertexNormals, GL_STATIC_DRAW);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(1);
   }
-  if (auto s = mesh.hasUV() * bufferSize<vec2f>(m.vertexCount))
+  if (auto s = mesh.hasUV() * bufferSize<vec2f>(_vertexCount))
   {
+    // location 2: uv
     glBindBuffer(GL_ARRAY_BUFFER, _buffers[2]);
     glBufferData(GL_ARRAY_BUFFER, s, m.uv, GL_STATIC_DRAW);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(2);
   }
-  if (auto s = bufferSize<TriangleMesh::Triangle>(m.triangleCount))
+  if (auto s = bufferSize<TriangleMesh::Triangle>(_triangleCount))
   {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _buffers[3]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, s, m.triangles, GL_STATIC_DRAW);
   }
-  _vertexCount = m.triangleCount * 3;
 }
 
 void
-GLMesh::setColors(GLColorBuffer* colors, int location)
+GLMesh::setColors(GLColorBuffer* colors)
 {
-  bind();
   if (colors != nullptr)
   {
+    assert(colors->size() == _vertexCount);
+    bind();
     colors->bind();
-    glVertexAttribPointer(location, 4, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(location);
+    glVertexAttribPointer(colorLoc, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(colorLoc);
   }
-  glVertexAttrib4f(location, 0, 0, 0, 0);
+  glVertexAttrib4f(colorLoc, 0, 0, 0, 0);
 }
 
 } // end namespace cg

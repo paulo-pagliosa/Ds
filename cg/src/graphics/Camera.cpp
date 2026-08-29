@@ -28,7 +28,7 @@
 // Source file for camera.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 29/08/2026
 
 #include "graphics/Camera.h"
 #include <algorithm>
@@ -95,7 +95,7 @@ Camera::error(const std::string& message)
 }
 
 Camera::Camera(float aspect):
-  NamedSharedObject{defaultName()},
+  SharedNamedObject{defaultName()},
   _timestamp{0}
 {
   setDefaultView(aspect);

@@ -28,7 +28,7 @@
 // Class definition for material.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 29/08/2026
 
 #ifndef __Material_h
 #define __Material_h
@@ -44,7 +44,7 @@ namespace cg
 //
 // Material: material class
 // ========
-class Material: public NamedSharedObject
+class Material: public SharedNamedObject
 {
 public:
   Color ambient; // ambient color

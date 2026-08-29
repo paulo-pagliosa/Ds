@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2020, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2020, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,12 +28,12 @@
 // Class definition for OpenGL 3D render window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/06/2023
+// Last revision: 29/08/2026
 
 #ifndef __GLRenderWindow3_h
 #define __GLRenderWindow3_h
 
-#include "core/Flags.h"
+#include "graphics/CameraHolder.h"
 #include "graphics/GLGraphics3.h"
 #include "graphics/GLWindow.h"
 
@@ -48,22 +48,17 @@ template <size_t D> class GLRenderWindow;
 // GLRenderWindow3: OpenGL 3D render window
 // ===============
 template <>
-class GLRenderWindow<3>: public GLWindow
+class GLRenderWindow<3>: public GLWindow, public CameraHolder
 {
 public:
   using GLWindow::GLWindow;
 
-  GLGraphics3* g3() const
+  [[nodiscard]] GLGraphics3* g3() const
   {
     return _g3;
   }
 
 protected:
-  Camera* camera() const
-  {
-    return _camera;
-  }
-
   void initialize() override;
   void render() override;
 
@@ -96,7 +91,6 @@ private:
   };
 
   Reference<GLGraphics3> _g3;
-  Reference<Camera> _camera;
   Flags<MoveBits> _moveFlags{};
   Flags<DragBits> _dragFlags{};
   int _pivotX;
