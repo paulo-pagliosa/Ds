@@ -236,6 +236,7 @@
     <ClCompile Include="..\..\src\graphics\GLPoints3Renderer.cpp" />
     <ClCompile Include="..\..\src\graphics\GLProgram.cpp" />
     <ClCompile Include="..\..\src\graphics\GLRenderer.cpp" />
+    <ClCompile Include="..\..\src\graphics\GLMeshRendererBase.cpp" />
     <ClCompile Include="..\..\src\graphics\GLRenderWindow2.cpp" />
     <ClCompile Include="..\..\src\graphics\GLRenderWindow3.cpp" />
     <ClCompile Include="..\..\src\graphics\GLTextureFramebuffer.cpp" />

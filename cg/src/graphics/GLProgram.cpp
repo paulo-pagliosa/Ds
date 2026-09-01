@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for GLSL program.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/07/2025
+// Last revision: 31/08/2026
 
 #include "graphics/GLProgram.h"
 #include <cstdarg>
@@ -39,11 +39,8 @@
 #include <iostream>
 #include <stdexcept>
 
-namespace cg
-{ // begin namespace cg
-
-namespace GLSL
-{ // begin namespace GLSL
+namespace cg::GLSL
+{ // begin namespace cg::GLSL
 
 enum ErrorCode
 {
@@ -128,50 +125,43 @@ infoLog(GLuint obj, ObjectParamFunc getParam, InfoLogFunc getLog)
 //
 // Shader: GLSL shader class
 // ======
-class Shader
+class Shader: public NamedObject
 {
 public:
-  // Constructor.
+  /// Constructs a Shader.
   Shader(GLenum shaderType):
-    _handle{glCreateShader(shaderType)},
-    _name{shaderName(shaderType)}
+    NamedObject{shaderName(shaderType)},
+    _handle{glCreateShader(shaderType)}
   {
     // do nothing
   }
 
-  // Destructor.
+  /// Destructor.
   ~Shader()
   {
     glDeleteShader(_handle);
   }
 
-  // Loads source from file.
+  /// Sets the source of this shader from a file.
   void loadSourceFromFile(const char*);
 
-  // Sets source.
+  /// Sets the source of this shader from a string.
   void setSource(const char*);
 
-  // Casts to handle type.
-  operator GLuint() const
+  // Returns the id of this shader.
+  [[nodiscard]] operator GLuint() const
   {
     return _handle;
   }
 
-  // Returns the name of this shader.
-  auto name() const
-  {
-    return _name.c_str();
-  }
-
   // Returns true if this shader is compiled.
-  bool isCompiled() const
+  [[nodiscard]] bool isCompiled() const
   {
     return _compiled;
   }
 
 private:
   GLuint _handle;
-  std::string _name;
   bool _compiled{};
 
   // Compiles this shader.
@@ -202,42 +192,42 @@ private:
 }; // Shader
 
 inline void
-Shader::loadSourceFromFile(const char* fileName)
+Shader::loadSourceFromFile(const char* filename)
 {
-  if (fileName == nullptr)
+  if (!filename)
     return;
 
-  const auto* buffer = readShaderFile(fileName);
+  const auto* buffer = readShaderFile(filename);
 
-  // Set shader source code.
+  // Set the shader source code.
   glShaderSource(_handle, 1, &buffer, 0);
   _compiled = false;
-  // Delete buffer.
+  // Delete the source code buffer.
   delete[] buffer;
-  // Compile shader.
+  // Compile the shader.
   compile();
 }
 
 inline void
 Shader::setSource(const char* buffer)
 {
-  if (buffer == nullptr)
+  if (!buffer)
     return;
-  // Set shader source code.
+  // Set the shader source code.
   glShaderSource(_handle, 1, &buffer, 0);
-  // Compile shader.
+  // Compile the shader.
   compile();
 }
 
 void
 Shader::compile()
 {
-  // Compile shader.
+  // Compile the shader.
   glCompileShader(_handle);
 
   GLint ok;
 
-  // Get compile status.
+  // Check for compilation errors.
   glGetShaderiv(_handle, GL_COMPILE_STATUS, &ok);
   if (ok == GL_TRUE)
     _compiled = true;
@@ -248,15 +238,16 @@ Shader::compile()
   }
 }
 
+
 /////////////////////////////////////////////////////////////////////
 //
 // Program implementation
 // =======
 Program* Program::_current;
 
-Program::Program(const char* programName):
+Program::Program(const char* name):
+  NamedObject{name},
   _handle{0},
-  _name{programName},
   _state{State::CREATED}
 {
   // do nothing
@@ -264,10 +255,10 @@ Program::Program(const char* programName):
 
 Program::~Program()
 {
-  if (_handle != 0)
+  if (_handle)
   {
     disuse();
-    // Delete program.
+    // Delete the program.
     glDeleteProgram(_handle);
   }
 }
@@ -275,8 +266,8 @@ Program::~Program()
 Program&
 Program::addShader(GLenum type, ShaderSource source, const char* buffer)
 {
-  if (_handle == 0)
-    // Create program.
+  if (!_handle)
+    // Create the program.
     _handle = glCreateProgram();
 
   Shader s{type};
@@ -287,7 +278,7 @@ Program::addShader(GLenum type, ShaderSource source, const char* buffer)
     s.loadSourceFromFile(buffer);
   else
     s.setSource(buffer);
-  // Attach shader.
+  // Attach the shader.
   glAttachShader(_handle, s);
   _state = State::MODIFIED;
   return *this;
@@ -307,7 +298,7 @@ Program::use()
       link();
       [[fallthrough]];
     case State::BUILT:
-      if (_current != nullptr)
+      if (_current)
         _current->_state = State::BUILT;
       glUseProgram(_handle);
       _state = State::IN_USE;
@@ -315,8 +306,8 @@ Program::use()
   }
 }
 
-inline void
-Program::checkInUse() const
+void
+Program::assertInUse() const
 {
   if (_state != State::IN_USE)
     error(PROGRAM_NOT_IN_USE, name());
@@ -334,11 +325,11 @@ Program::disuse()
 }
 
 GLint
-Program::attributeLocation(const char* s) const
+Program::uniformLocation(const char* s) const
 {
-  checkInUse();
+  assertInUse();
 
-  auto loc = glGetAttribLocation(_handle, s);
+  auto loc = glGetUniformLocation(_handle, s);
 
   if (loc == -1)
     error(VARIABLE_NOT_FOUND, name(), s);
@@ -346,11 +337,11 @@ Program::attributeLocation(const char* s) const
 }
 
 GLint
-Program::uniformLocation(const char* s) const
+Program::attributeLocation(const char* s) const
 {
-  checkInUse();
+  assertInUse();
 
-  auto loc = glGetUniformLocation(_handle, s);
+  auto loc = glGetAttribLocation(_handle, s);
 
   if (loc == -1)
     error(VARIABLE_NOT_FOUND, name(), s);
@@ -360,7 +351,7 @@ Program::uniformLocation(const char* s) const
 GLuint
 Program::subroutineIndex(GLenum shader, const char* s) const
 {
-  checkInUse();
+  assertInUse();
 
   auto index = glGetSubroutineIndex(_handle, shader, s);
 
@@ -372,12 +363,12 @@ Program::subroutineIndex(GLenum shader, const char* s) const
 void
 Program::link()
 {
-  // Link program
+  // Link the program.
   glLinkProgram(_handle);
 
   GLint ok;
 
-  // Get link status
+  // Check for linking errors.
   glGetProgramiv(_handle, GL_LINK_STATUS, &ok);
   if (ok == GL_TRUE)
     _state = State::BUILT;
@@ -388,6 +379,4 @@ Program::link()
   }
 }
 
-} // end namespace GLSL
-
-} // end namespace cg
+} // end namespace cg::GLSL

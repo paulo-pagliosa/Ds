@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,13 +28,14 @@
 // Class definition for OpenGL graphics base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/01/2022
+// Last revision: 31/08/2026
 
 #ifndef __GLGraphicsBase_h
 #define __GLGraphicsBase_h
 
 #include "Color.h"
 #include "GLProgram.h"
+#include <algorithm>
 
 namespace cg
 { // begin namespace cg
@@ -57,7 +58,7 @@ public:
   ~GLGraphicsBase();
 
   /// Returns the point color.
-  const Color& pointColor() const
+  [[nodiscard]] const auto& pointColor() const
   {
     return _pointColor;
   }
@@ -69,7 +70,7 @@ public:
   }
 
   /// Returns the point size.
-  float pointSize() const
+  [[nodiscard]] auto pointSize() const
   {
     return _pointSize;
   }
@@ -80,29 +81,32 @@ public:
     _pointSize = size;
   }
 
-  /// Returns the vertex line colors.
-  void lineColor(Color colors[2]) const
+  /// Returns the line vertex colors.
+  [[nodiscard]] const auto& lineColor(size_t index) const
   {
-    colors[0] = _lineColors[0];
-    colors[1] = _lineColors[1];
+    assert(index < 2);
+    return _lineColors[index];
+  }
+
+  void lineColor(Color (&colors)[2]) const
+  {
+    std::copy(_lineColors, _lineColors + 2, colors);
   }
 
   /// Sets the line color.
   void setLineColor(const Color& color)
   {
-    _lineColors[0] = color;
-    _lineColors[1] = color;
+    std::fill_n(_lineColors, 2, color);
   }
 
-  /// Sets the vertex line colors.
-  void setLineColors(const Color colors[2])
+  /// Sets the line vertex colors.
+  void setLineColors(const Color (&colors)[2])
   {
-    _lineColors[0] = colors[0];
-    _lineColors[1] = colors[1];
+    std::copy(colors, colors + 2, _lineColors);
   }
 
   /// Returns the line width.
-  float lineWidth() const
+  [[nodiscard]] float lineWidth() const
   {
     return _lineWidth;
   }
@@ -113,58 +117,64 @@ public:
     _lineWidth = width;
   }
 
-  /// Returns the vertex triangle colors.
-  void triangleColors(Color colors[3]) const
+  /// Returns the triangle vertex colors.
+  [[nodiscard]] const auto& triangleColor(size_t index) const
   {
-    colors[0] = _polygonColors[0];
-    colors[1] = _polygonColors[1];
-    colors[2] = _polygonColors[2];
+    assert(index < 3);
+    return _triangleColors[index];
+  }
+
+  void triangleColors(Color (&colors)[3]) const
+  {
+    std::copy(_triangleColors, _triangleColors + 3, colors);
   }
 
   /// Sets the triangle color.
   void setTriangleColor(const Color& color)
   {
-    _polygonColors[0] = color;
-    _polygonColors[1] = color;
-    _polygonColors[2] = color;
+    std::fill_n(_triangleColors, 2, color);
   }
 
-  /// Sets the vertex triangle colors.
-  void setTriangleColors(const Color colors[3])
+  /// Sets the triangle vertex colors.
+  void setTriangleColors(const Color (&colors)[3])
   {
-    _polygonColors[0] = colors[0];
-    _polygonColors[1] = colors[1];
-    _polygonColors[2] = colors[2];
+    std::copy(colors, colors + 3, _triangleColors);
   }
 
-  auto polygonMode() const
+  /// Returns the quad vertex colors.
+  [[nodiscard]] const auto& quadColor(size_t index) const
   {
-    return _polygonMode;
+    assert(index < 4);
+    return _quadColors[index];
   }
 
-  void setPolygonMode(PolygonMode mode)
+  void quadColors(Color (&colors)[4]) const
   {
-    glPolygonMode(GL_FRONT_AND_BACK, _polygonMode = mode);
-  }
-
-  /// Returns the vertex quad colors.
-  void quadColors(Color colors[4]) const
-  {
-    triangleColors(colors);
-    colors[3] = _polygonColors[3];
+    std::copy(_quadColors, _quadColors + 4, colors);
   }
 
   /// Sets the quad color.
   void setQuadColor(const Color& color)
   {
-    setTriangleColor(_polygonColors[3] = color);
+    std::fill_n(_quadColors, 4, color);
   }
 
-  /// Sets the vertex quad colors.
-  void setQuadColors(const Color colors[4])
+  /// Sets the quad vertex colors.
+  void setQuadColors(const Color (&colors)[4])
   {
-    setTriangleColors(colors);
-    _polygonColors[3] = colors[3];
+    std::copy(colors, colors + 4, _quadColors);
+  }
+
+  /// Returns the polygon mode.
+  [[nodiscard]] auto polygonMode() const
+  {
+    return _polygonMode;
+  }
+
+  /// Sets the polygon mode.
+  void setPolygonMode(PolygonMode mode)
+  {
+    glPolygonMode(GL_FRONT_AND_BACK, _polygonMode = mode);
   }
 
 protected:
@@ -198,10 +208,11 @@ private:
   GLSL::Program _triangleDrawer;
   GLint _trianglePointsLoc;
   GLint _triangleColorsLoc;
+  Color _triangleColors[3];
   GLSL::Program _quadDrawer;
   GLint _quadPointsLoc;
   GLint _quadColorsLoc;
-  Color _polygonColors[4];
+  Color _quadColors[4];
   PolygonMode _polygonMode;
 
 }; // GLGraphicsBase

@@ -28,7 +28,7 @@
 // Class definition for OpenGL mesh renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2026
+// Last revision: 31/08/2026
 
 #ifndef __GLMeshRenderer_h
 #define __GLMeshRenderer_h
@@ -44,129 +44,44 @@ namespace cg
 //
 // GLMeshRenderer: OpenGL mesh renderer class
 // ==============
-class GLMeshRenderer: public GLMeshRendererBase, public SharedCameraHolder
+class GLMeshRenderer: public GLMeshRendererBase, public CameraHolder
 {
 public:
   GLMeshRenderer(Camera* camera = nullptr):
-    SharedCameraHolder{camera}
+    CameraHolder{camera}
   {
     // do nothing
   }
 
-  void begin();
-
-  void setAmbientLight(const Color& color)
+  void begin()
   {
-    _program.setUniformVec4(_program.ambientLightLoc, color);
+    GLMeshRendererBase::begin(*camera());
   }
 
-  template <typename LightIterator>
-  void setLights(LightIterator, LightIterator);
-
-  void setLineColor(const Color& color)
+  template <typename LightIt>
+  void setLights(LightIt begin, LightIt end)
   {
-    _program.setUniformVec4(_program.lineColorLoc, color);
+    GLMeshRendererBase::setLights(begin, end, *camera());
   }
 
-  void setMaterial(const Material&, void* = nullptr);
-
-  void render(TriangleMesh&, const mat4f&, const mat3f&);
-  void render(TriangleMesh&, const vec3f&, const mat3f&, const vec3f&);
+  void render(TriangleMesh& mesh, // mesh
+    const mat4f& t, // local to world matriz
+    const mat3f& n) // normal matrix
+  {
+    GLMeshRendererBase::render(mesh, t, n, *camera());
+  }
 
   void render(TriangleMesh& mesh)
   {
     render(mesh, mat4f::identity(), mat3f::identity());
   }
 
-  void end();
-
-private:
-  struct GLState
-  {
-    GLSL::Program* program;
-    bool depthTest;
-    int texture;
-    int vao;
-  };
-
-  struct GLProgram: public GLSL::Program
-  {
-    struct LightPropLoc
-    {
-      GLint type;
-      GLint color;
-      GLint position;
-      GLint direction;
-      GLint falloff;
-      GLint range;
-      GLint angle;
-    };
-
-    GLint mvMatrixLoc;
-    GLint normalMatrixLoc;
-    GLint mvpMatrixLoc;
-    GLint viewportMatrixLoc;
-    GLint projectionTypeLoc;
-    GLint ambientLightLoc;
-    GLint useTextureLoc;
-    GLint lightCountLoc;
-    LightPropLoc lightLocs[maxLights];
-    GLint OaLoc;
-    GLint OdLoc;
-    GLint OsLoc;
-    GLint nsLoc;
-    GLint lineWidthLoc;
-    GLint lineColorLoc;
-    GLuint noMixIdx;
-    GLuint lineColorMixIdx;
-    GLuint modelMaterialIdx;
-    GLuint colorMapMaterialIdx;
-
-    GLProgram();
-
-    void renderMaterial(const Material&);
-    void renderLight(int, const Light&, const Camera&);
-    void renderDefaultLights();
-
-  private:
-    GLint uniformLightLocation(int i, const char* field)
-    {
-      constexpr auto maxName = 32;
-      char name[maxName];
-
-      snprintf(name, maxName, "lights[%d].%s", i, field);
-      return uniformLocation(name);
-    }
-
-    void initProgram();
-    void initUniformLocations();
-    void initSubroutineIndices();
-    void initUniformLightLocations(int);
-
-  }; // GLProgram
-
-  GLProgram _program;
-  GLState _lastState;
-  mat4f _viewportMatrix;
-  int _lightCount{};
-  GLuint _texture{};
-
-  bool setLight(int, const Light&);
-  void updateView();
+  void render(TriangleMesh&, // mesh
+    const vec3f&, // position
+    const mat3f&, // rotation
+    const vec3f&); // scale
 
 }; // GLMeshRenderer
-
-template <typename LightIterator>
-void
-GLMeshRenderer::setLights(LightIterator begin, LightIterator end)
-{
-  _lightCount = 0;
-  while (begin != end)
-    if (setLight(_lightCount, *begin++))
-      if (++_lightCount == maxLights)
-        break;
-  _program.setUniform(_program.lightCountLoc, _lightCount);
-}
 
 } // end namespace cg
 

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for GLSL program.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/12/2023
+// Last revision: 31/08/2026
 
 #ifndef __GLProgram_h
 #define __GLProgram_h
@@ -40,13 +40,10 @@
 #include "GL/gl3w.h"
 #endif
 #include "GLFW/glfw3.h"
-#include <string>
+#include "core/NamedObject.h"
 
-namespace cg
-{ // begin namespace cg
-
-namespace GLSL
-{ // begin namespace GLSL
+namespace cg::GLSL
+{ // begin namespace cg::GLSL
 
 enum class ShaderSource
 {
@@ -59,7 +56,7 @@ enum class ShaderSource
 //
 // Program: GLSL program class
 // =======
-class Program
+class Program: public NamedObject
 {
 public:
   enum class State
@@ -70,67 +67,64 @@ public:
     IN_USE
   };
 
-  // Constructs an intance of Program.
+  /// Constructs a Program.
   Program(const char*);
 
   Program(const Program&) = delete;
   Program& operator =(const Program&) = delete;
 
-  // Destructor.
+  /// Destructor.
   ~Program();
 
-  // Casts to handle type.
-  operator GLuint() const
+  /// Returns tho id of this program.
+  [[nodiscard]] operator GLuint() const
   {
     return _handle;
   }
 
-  // Returns the name of this program.
-  auto name() const
-  {
-    return _name.c_str();
-  }
-
-  // Returns the state of this program.
-  State state() const
+  /// Returns the state of this program.
+  [[nodiscard]] auto state() const
   {
     return _state;
   }
 
-  // Adds a shader in this program.
+  /// Adds a shader in this program.
   Program& addShader(GLenum, ShaderSource, const char*);
 
-  Program& setShader(GLenum type, const char* code)
+  auto& setShader(GLenum type, const char* code)
   {
     return addShader(type, ShaderSource::STRING, code);
   }
 
-  Program& loadShader(GLenum type, const std::string& filename)
+  auto& loadShader(GLenum type, const std::string& filename)
   {
     return addShader(type, ShaderSource::FILE, filename.c_str());
   }
 
-  // Adds vertex and fragment shaders in this program.
-  Program& setShaders(const char* vs, const char* fs)
+  /// Adds vertex and fragment shaders in this program.
+  auto& setShaders(const char* vs, const char* fs)
   {
     setShader(GL_VERTEX_SHADER, vs);
     return setShader(GL_FRAGMENT_SHADER, fs);
   }
 
-  Program& loadShaders(const std::string& vs, const std::string& fs)
+  auto& loadShaders(const std::string& vs, const std::string& fs)
   {
     loadShader(GL_VERTEX_SHADER, vs);
     return loadShader(GL_FRAGMENT_SHADER, fs);
   }
 
-  // Uses/disuses this program.
+  /// Uses/disuses this program.
   void use();
   void disuse();
 
-  // Gets uniform variable location.
-  GLint uniformLocation(const char*) const;
+  /// Gets a uniform variable location of this program.
+  [[nodiscard]] GLint uniformLocation(const char*) const;
 
-  // Sets uniform variable by location.
+  /// Asserts this program is in use.
+  void assertInUse() const;
+
+  /// Sets a uniform variable of this program by location.
   static void setUniform(GLint, int);
   static void setUniform(GLint, unsigned);
   static void setUniform(GLint, float);
@@ -144,7 +138,7 @@ public:
   template<typename mat3f> static void setUniformMat3(GLint, const mat3f&);
   template<typename mat4f> static void setUniformMat4(GLint, const mat4f&);
 
-  // Sets uniform variable by name.
+  /// Sets a uniform variable of this program by name.
   void setUniform(const char*, int);
   void setUniform(const char*, unsigned);
   void setUniform(const char*, float);
@@ -158,35 +152,35 @@ public:
   template<typename mat3f> void setUniformMat3(const char*, const mat3f&);
   template<typename mat4f> void setUniformMat4(const char*, const mat4f&);
 
-  // Gets atributte location.
-  GLint attributeLocation(const char*) const;
+  // Gets an atributte location of this program.
+  [[nodiscard]] GLint attributeLocation(const char*) const;
 
-  // Gets subroutine index.
-  GLuint subroutineIndex(GLenum, const char*) const;
-  GLuint vertexSubroutineIndex(const char*) const;
-  GLuint fragmentSubroutineIndex(const char*) const;
+  /// Gets a subroutine index of this program.
+  [[nodiscard]] GLuint subroutineIndex(GLenum, const char*) const;
+  [[nodiscard]] GLuint vertexSubroutineIndex(const char*) const;
+  [[nodiscard]] GLuint fragmentSubroutineIndex(const char*) const;
 
-  // Sets subroutine by index.
+  /// Sets a subroutine of this program by index.
   static void setSubroutine(GLenum, GLuint&);
   static void setVertexSubroutine(GLuint&);
   static void setFragmentSubroutine(GLuint&);
 
-  // Sets subroutine by name.
+  /// Sets a ubroutine of thi program by name.
   void setSubroutine(GLenum, const char*);
   void setVertexSubroutine(const char*);
   void setFragmentSubroutine(const char*);
 
-  // Gets the current program.
-  static auto current()
+  /// Gets the current program.
+  [[nodiscard]] static auto current()
   {
     return _current;
   }
 
-  // Sets the current program.
+  /// Sets the current program.
   static void setCurrent(Program* program)
   {
     if (_current != program)
-      program == nullptr ? _current->disuse() : program->use();
+      program ? program->use() : _current->disuse();
   }
 
 protected:
@@ -197,11 +191,7 @@ private:
   static Program* _current;
 
   GLuint _handle;
-  std::string _name;
   State _state;
-
-  // Check if this program is in use.
-  void checkInUse() const;
 
 }; // Program
 
@@ -410,8 +400,6 @@ Program::setFragmentSubroutine(const char* name)
   setSubroutine(GL_FRAGMENT_SHADER, name);
 }
 
-} // end namespace GLSL
-
-} // end namespace cg
+} // end namespace cg::GLSL
 
 #endif // __GLProgram_h

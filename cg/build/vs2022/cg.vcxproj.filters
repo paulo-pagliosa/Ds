@@ -568,5 +568,8 @@
     <ClCompile Include="..\..\src\utils\MeshWriter.cpp">
       <Filter>Source Files\utils</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\graphics\GLMeshRendererBase.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

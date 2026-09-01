@@ -28,7 +28,7 @@
 // Source file for OpenGL graphics base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2026
+// Last revision: 31/08/2026
 
 #include "graphics/GLGraphicsBase.h"
 
@@ -111,20 +111,16 @@ GLGraphicsBase::GLGraphicsBase():
 {
   using namespace GLSL;
 
-  _pointDrawer.setShaders(pointVertexShader, fragmentShader);
-  _pointDrawer.use();
+  _pointDrawer.setShaders(pointVertexShader, fragmentShader).use();
   _pointLoc = _pointDrawer.uniformLocation("p");
   _pointColorLoc = _pointDrawer.uniformLocation("pointColor");
-  _lineDrawer.setShaders(lineVertexShader, fragmentShader);
-  _lineDrawer.use();
+  _lineDrawer.setShaders(lineVertexShader, fragmentShader).use();
   _linePointsLoc = _lineDrawer.uniformLocation("p[0]");
   _lineColorsLoc = _lineDrawer.uniformLocation("vertexColors[0]");
-  _triangleDrawer.setShaders(triangleVertexShader, fragmentShader);
-  _triangleDrawer.use();
+  _triangleDrawer.setShaders(triangleVertexShader, fragmentShader).use();
   _trianglePointsLoc = _triangleDrawer.uniformLocation("p[0]");
   _triangleColorsLoc = _triangleDrawer.uniformLocation("vertexColors[0]");
-  _quadDrawer.setShaders(quadVertexShader, fragmentShader);
-  _quadDrawer.use();
+  _quadDrawer.setShaders(quadVertexShader, fragmentShader).use();
   _quadPointsLoc = _quadDrawer.uniformLocation("p[0]");
   _quadColorsLoc = _quadDrawer.uniformLocation("vertexColors[0]");
   glGenVertexArrays(1, &_vao);
@@ -182,7 +178,7 @@ GLGraphicsBase::drawTriangle(const vec4f* points)
 
   _triangleDrawer.use();
   glBindVertexArray(_vao);
-  glUniform4fv(_triangleColorsLoc, 3, (float*)_polygonColors);
+  glUniform4fv(_triangleColorsLoc, 3, (float*)_triangleColors);
   glUniform4fv(_trianglePointsLoc, 3, (float*)points);
   glDrawArrays(GL_TRIANGLES, 0, 3);
   Program::setCurrent(cp);
@@ -197,7 +193,7 @@ GLGraphicsBase::drawQuad(const vec4f* points)
 
   _quadDrawer.use();
   glBindVertexArray(_vao);
-  glUniform4fv(_quadColorsLoc, 4, (float*)_polygonColors);
+  glUniform4fv(_quadColorsLoc, 4, (float*)_quadColors);
   glUniform4fv(_quadPointsLoc, 4, (float*)points);
 
   glDrawArrays(_polygonMode == LINE ? GL_LINE_LOOP : GL_TRIANGLE_FAN, 0, 4);
