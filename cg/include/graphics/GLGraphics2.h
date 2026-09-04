@@ -28,7 +28,7 @@
 // Class definition for OpenGL 2D graphics.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2026
+// Last revision: 04/09/2026
 
 #ifndef __GLGraphics2_h
 #define __GLGraphics2_h
@@ -45,7 +45,7 @@ namespace cg
 //
 // View2: 2D view class
 // =====
-class View2: public virtual SharedObject
+class View2
 {
 public:
   /// Default constructor.
@@ -141,7 +141,7 @@ public:
   }
 
   /// Transforms screen coordinates \c p to world coordinates.
-  vec2f screenToWorld(const vec2f& p) const;
+  [[nodiscard]] vec2f screenToWorld(const vec2f& p) const;
 
 private:
   using Base = GLGraphicsBase;

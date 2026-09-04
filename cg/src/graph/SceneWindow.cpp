@@ -28,7 +28,7 @@
 // Source file for generic graph scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/01/2026
+// Last revision: 04/09/2026
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
@@ -56,6 +56,7 @@ SceneWindow::makeScene()
   SceneObjectBuilder::setScene(*scene);
   _currentNode = scene;
   _editFlags = {true, true};
+  _viewMode = ViewMode::Editor;
   return scene;
 }
 
@@ -65,8 +66,8 @@ SceneWindow::setScene(Scene& scene)
   SceneObjectBuilder::setScene(scene);
   _currentNode = &scene;
   editor()->setScene(scene);
-  _viewMode = ViewMode::Editor;
   _editFlags = {true, true};
+  _viewMode = ViewMode::Editor;
 }
 
 void

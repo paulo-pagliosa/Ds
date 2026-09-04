@@ -28,7 +28,7 @@
 // Class definition for OpenGL mesh renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 31/08/2026
+// Last revision: 01/09/2026
 
 #ifndef __GLMeshRenderer_h
 #define __GLMeshRenderer_h
@@ -64,19 +64,19 @@ public:
     GLMeshRendererBase::setLights(begin, end, *camera());
   }
 
-  void render(TriangleMesh& mesh, // mesh
+  void render(const TriangleMesh& mesh, // mesh
     const mat4f& t, // local to world matriz
     const mat3f& n) // normal matrix
   {
     GLMeshRendererBase::render(mesh, t, n, *camera());
   }
 
-  void render(TriangleMesh& mesh)
+  void render(const TriangleMesh& mesh)
   {
     render(mesh, mat4f::identity(), mat3f::identity());
   }
 
-  void render(TriangleMesh&, // mesh
+  void render(const TriangleMesh&, // mesh
     const vec3f&, // position
     const mat3f&, // rotation
     const vec3f&); // scale

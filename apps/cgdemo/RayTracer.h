@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for simple ray tracer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 02/12/2025
+// Last revision: 04/09/2026
 
 #ifndef __RayTracer_h
 #define __RayTracer_h
@@ -75,7 +75,7 @@ public:
     _maxRecursionLevel = math::min(rl, maxMaxRecursionLevel);
   }
 
-  void update() override;
+  void update();
   void render() override;
   virtual void renderImage(Image&);
 

@@ -28,7 +28,7 @@
 // Class definition for OpenGL graphics base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 31/08/2026
+// Last revision: 04/09/2026
 
 #ifndef __GLGraphicsBase_h
 #define __GLGraphicsBase_h
@@ -45,7 +45,7 @@ namespace cg
 //
 // GLGraphicsBase: OpenGL graphics base class
 // ==============
-class GLGraphicsBase
+class GLGraphicsBase: public virtual SharedObject
 {
 public:
   enum PolygonMode
@@ -55,7 +55,7 @@ public:
   };
 
   /// Destructs this GL graphics base
-  ~GLGraphicsBase();
+  ~GLGraphicsBase() override;
 
   /// Returns the point color.
   [[nodiscard]] const auto& pointColor() const

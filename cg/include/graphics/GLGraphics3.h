@@ -28,12 +28,12 @@
 // Class definition for OpenGL 3D graphics.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2026
+// Last revision: 04/09/2026
 
 #ifndef __GLGraphics3_h
 #define __GLGraphics3_h
 
-#include "graphics/Camera.h"
+#include "graphics/CameraHolder.h"
 #include "graphics/GLGraphicsBase.h"
 #include "graphics/GLMesh.h"
 #include <functional>
@@ -71,7 +71,7 @@ normalMatrix(const mat3f& r, const vec3f& s)
 //
 // GLGraphics3: OpenGL 3D graphics class
 // ===========
-class GLGraphics3: public GLGraphicsBase, public virtual SharedObject
+class GLGraphics3: public GLGraphicsBase
 {
 public:
   static TriangleMesh* circle();
@@ -169,11 +169,7 @@ public:
   }
 
   /// Updates the view-projection matrix of this object.
-  void updateView(Camera& camera)
-  {
-    camera.update();
-    setView(camera.position(), vpMatrix(&camera));
-  }
+  virtual void updateView(Camera&);
 
   /// Toggles flat mode for mesh drawings.
   void setFlatMode(bool value)

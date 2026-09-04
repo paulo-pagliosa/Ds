@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,21 +28,13 @@
 // Source file for generic image.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/02/2022
+// Last revision: 04/09/2026
 
 #include "graphics/Image.h"
 #include <algorithm>
 
 namespace cg
 { // begin namespace cg
-
-#ifdef _DEBUG
-static inline void
-image_bad_size()
-{
-  throw std::logic_error("Image: bad size");
-}
-#endif // _DEBUG
 
 
 /////////////////////////////////////////////////////////////////////
@@ -51,10 +43,7 @@ image_bad_size()
 // ===========
 ImageBuffer::ImageBuffer(int w, int h)
 {
-#ifdef _DEBUG
-  if (w < 1 || h < 1)
-    image_bad_size();
-#endif // _DEBUG
+  assert(w > 0 && h > 0);
   _W = w;
   _H = h;
   _data = new Pixel[(size_t)w * h];
@@ -72,7 +61,7 @@ ImageBuffer::ImageBuffer(ImageBuffer&& other) noexcept:
 ImageBuffer&
 ImageBuffer::operator =(ImageBuffer&& other) noexcept
 {
-  delete[]_data;
+  delete []_data;
   _W = other._W;
   _H = other._H;
   _data = other._data;
@@ -86,23 +75,17 @@ ImageBuffer::operator =(ImageBuffer&& other) noexcept
 //
 // Image implementation
 // =====
-Image::Image(int w, int h):
-  _W{w},
-  _H{h}
+Image::Image(int w, int h)
 {
-#ifdef _DEBUG
-  if (w < 1 || h < 1)
-    image_bad_size();
-#endif // _DEBUG
+  assert(w > 0 && h > 0);
+  _W = w;
+  _H = h;
 }
 
 void
 Image::setData(int x, int y, const ImageBuffer& buffer)
 {
-#ifdef _DEBUG
-  if (x < 0 || x >= _W || y < 0 || y >= _H)
-    image_index_out_of_range();
-#endif // _DEBUG
+  assert(x >= 0 && x < _W && y >= 0 && y < _H);
 
   auto w = std::min(_W, buffer._W);
   auto h = std::min(_H, buffer._H);
@@ -117,10 +100,7 @@ Image::setData(int x, int y, const ImageBuffer& buffer)
 ImageBuffer
 Image::data(int x, int y, int w, int h) const
 {
-#ifdef _DEBUG
-  if (x < 0 || x >= _W || y < 0 || y >= _H)
-    image_index_out_of_range();
-#endif // _DEBUG
+  assert(x >= 0 && x < _W && y >= 0 && y < _H);
   w = std::min(_W, w);
   h = std::min(_H, h);
   if (x + w > _W)

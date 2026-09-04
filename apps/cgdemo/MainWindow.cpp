@@ -28,7 +28,7 @@
 // Source file for cg demo main window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 18/08/2026
+// Last revision: 04/09/2026
 
 #include "graphics/Application.h"
 #include "graphics/AssetFolder.h"
@@ -137,6 +137,14 @@ MainWindow::openSceneCommand()
   }
 }
 
+inline void
+MainWindow::updateRayTracerScene()
+{
+  if (_rayTracer)
+    _rayTracer->setScene(*scene());
+  _image = nullptr;
+}
+
 void
 MainWindow::readScene(const std::string& filename) try
 {
@@ -144,7 +152,7 @@ MainWindow::readScene(const std::string& filename) try
 
   reader.setInput(filename);
   reader.execute();
-  if (reader.scene() != nullptr)
+  if (reader.scene())
   {
     SceneWindow::setScene(*reader.scene());
 
@@ -152,6 +160,7 @@ MainWindow::readScene(const std::string& filename) try
 
     for (const auto& [name, m] : reader.materials)
       materials[name] = m;
+    updateRayTracerScene();
   }
 }
 catch (const std::exception& e)
@@ -178,7 +187,10 @@ MainWindow::fileMenu()
   if (ImGui::BeginMenu("File"))
   {
     if (ImGui::MenuItem("New Scene"))
+    {
       newScene();
+      updateRayTracerScene();
+    }
     if (ImGui::BeginMenu("Open"))
     {
       openSceneCommand();
@@ -330,12 +342,12 @@ MainWindow::renderScene()
 
   auto camera = CameraProxy::current();
 
-  if (nullptr == camera)
+  if (!camera)
     camera = editor()->camera();
-  if (_image == nullptr)
+  if (!_image)
   {
     _image = new GLImage{width(), height()};
-    if (_rayTracer == nullptr)
+    if (!_rayTracer)
       _rayTracer = new RayTracer{*scene(), *camera};
     else
       _rayTracer->setCamera(*camera);

@@ -28,7 +28,7 @@
 // Class definition for OpenGL mesh renderer base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 31/08/2026
+// Last revision: 01/09/2026
 
 #ifndef __GLMeshRendererBase_h
 #define __GLMeshRendererBase_h
@@ -51,6 +51,7 @@ class GLMeshRendererBase: public GLGraphics3
 {
 public:
   constexpr static auto maxLights = 8;
+  constexpr static auto minNormalScale = 0.1f;
 
   enum class RenderMode
   {
@@ -74,6 +75,7 @@ public:
 
   RenderMode renderMode{Smooth};
   RenderFlags flags{UseLights};
+  Color normalColor{Color::gray};
   Color boundsColor{255, 102, 0};
 
   /// Destructor.
@@ -89,20 +91,50 @@ public:
   void setMaterial(const Material&, TextureId = {});
   void end();
 
+  [[nodiscard]] auto normalScale() const
+  {
+    return _normalScale;
+  }
+
+  void setNormalScale(float scale)
+  {
+    _normalScale = math::max(minNormalScale, scale);
+  }
+
 protected:
   /// Constructs a GLMeshRendererBase.
   GLMeshRendererBase();
 
   template <typename LightIt>
-  void setLights(LightIt, LightIt, const Camera&);
+  void setLights(LightIt begin, LightIt end, const Camera& camera)
+  {
+    _program->assertInUse();
+    for (_lightCount = 0; begin != end;)
+      if (_program->setLight(_lightCount, toRef(*begin++), camera))
+        if (++_lightCount == maxLights)
+          break;
+    _program->endLights(_lightCount);
+  }
 
   void updateView(Camera&);
   void begin(Camera&);
 
-  void render(TriangleMesh&, // mesh
+  bool render(const TriangleMesh&, // mesh
+    int, // triangle count
+    int, // first triangle index
     const mat4f&, // local to global matrix
     const mat3f&, // normal matrix
     const Camera&); // camera
+
+  bool render(const TriangleMesh&, // mesh
+    const mat4f&, // local to global matrix
+    const mat3f&, // normal matrix
+    const Camera&); // camera
+
+  [[nodiscard]] auto& program()
+  {
+    return *_program;
+  }
 
 private:
   struct GLState
@@ -153,12 +185,15 @@ private:
     void initUniformLocations();
     void initProgram();
 
-    void setLineColor(const Color&);
     void setAmbientLight(const Color&);
+    void setLineColor(const Color&);
     void setMaterial(const Material&);
+    void setViewportMatrix(const mat4f&);
+    void setProjectionType(const Camera&);
     void setTransforms(const mat4f&, const mat3f&, const Camera&);
     bool setLight(int, const Light&, const Camera&);
     void setDefaultLights();
+    void endLights(int);
     void setHiddenLinesFlag(bool);
     void setUseTexture(bool);
     void setUseVertexColors(bool);
@@ -167,26 +202,23 @@ private:
 
   }; // GLProgram
 
+  template <typename T>
+  constexpr const auto& toRef(T&& it) noexcept
+  {
+    if constexpr (std::is_pointer_v<std::remove_reference_t<T>>)
+      return *it;
+    else
+      return it;
+  }
+
   GLProgram* _program{};
   GLState _lastState;
   mat4f _viewportMatrix;
   int _lightCount{};
   GLuint _texture{};
+  float _normalScale{0.5f};
 
 }; // GLMeshRendererBase
-
-template <typename LightIt>
-void
-GLMeshRendererBase::setLights(LightIt begin, LightIt end, const Camera& camera)
-{
-  _program->assertInUse();
-  _lightCount = 0;
-  while (begin != end)
-    if (_program->setLight(_lightCount, *begin++, camera))
-      if (++_lightCount == maxLights)
-        break;
-  _program->setUniform(_program->lightCountLoc, _lightCount);
-}
 
 } // end namespace cg
 

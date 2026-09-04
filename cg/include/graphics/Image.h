@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,30 +28,23 @@
 // Class definition for generic image.
 //
 // Author: Paulo Pagliosa
-// Last revision: 02/12/2025
+// Last revision: 04/09/2026
 
 #ifndef __Image_h
 #define __Image_h
 
 #include "core/SharedObject.h"
 #include "graphics/Color.h"
-#include <stdexcept>
 
 namespace cg
 { // begin namespace cg
 
-#define MIN_IMAGE_WIDTH 4
+constexpr auto minImageWidth = 4;
 
-inline int
+[[nodiscard]] constexpr auto
 roundupImageWidth(int w)
 {
-  return (w + MIN_IMAGE_WIDTH - 1) & -MIN_IMAGE_WIDTH;
-}
-
-static inline
-void image_index_out_of_range()
-{
-  throw std::logic_error("Image: index out of range");
+  return (w + minImageWidth - 1) & -minImageWidth;
 }
 
 //
@@ -72,26 +65,22 @@ struct Pixel
   byte g;
   byte b;
 
-  HOST DEVICE
-  Pixel()
-  {
-    // do nothing
-  }
+  constexpr Pixel() = default;
 
   HOST DEVICE
-  Pixel(byte r, byte g, byte b)
+  constexpr Pixel(byte r, byte g, byte b)
   {
     set(r, g, b);
   }
 
   HOST DEVICE
-  Pixel(const Color& c)
+  constexpr Pixel(const Color& c)
   {
     set(c);
   }
 
   HOST DEVICE
-  void set(byte r, byte g, byte b)
+  constexpr void set(byte r, byte g, byte b)
   {
     this->r = r;
     this->g = g;
@@ -99,27 +88,27 @@ struct Pixel
   }
 
   HOST DEVICE
-  void set(const Color& c)
+  constexpr void set(const Color& c)
   {
     r = (byte)(255 * c.r);
     g = (byte)(255 * c.g);
     b = (byte)(255 * c.b);
   }
   
-  HOST DEVICE
-  auto operator +(const Pixel& p) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator +(const Pixel& p) const
   {
     return Pixel{byte(r + p.r), byte(g + p.g), byte(b + p.b)};
   }
 
-  HOST DEVICE
-  auto operator +(const Color& c) const
+  [[nodiscard]] HOST DEVICE
+  constexpr auto operator +(const Color& c) const
   {
     return operator +(Pixel{c});
   }
 
   HOST DEVICE
-  auto& operator +=(const Pixel& p)
+  constexpr auto& operator +=(const Pixel& p)
   {
     r += p.r;
     g += p.g;
@@ -128,7 +117,7 @@ struct Pixel
   }
 
   HOST DEVICE
-  auto& operator +=(const Color& c)
+  constexpr auto& operator +=(const Color& c)
   {
     return operator +=(Pixel{c});
   }
@@ -162,59 +151,47 @@ public:
     delete []_data;
   }
 
-  auto width() const
+  [[nodiscard]] auto width() const
   {
     return _W;
   }
 
-  auto height() const
+  [[nodiscard]] auto height() const
   {
     return _H;
   }
 
-  const Pixel* data() const
+  [[nodiscard]] const auto data() const
   {
     return _data;
   }
 
-  const auto& operator ()(int x, int y) const
+  [[nodiscard]] const auto& operator ()(int x, int y) const
   {
-#ifdef _DEBUG
-    if (x < 0 || x >= _W || y < 0 || y >= _H)
-      image_index_out_of_range();
-#endif // _DEBUG
+    assert(x >= 0 && x < _W && y >= 0 && y < _H);
     return _data[y * _W + x];
   }
 
-  auto& operator ()(int x, int y)
+  [[nodiscard]] auto& operator ()(int x, int y)
   {
-#ifdef _DEBUG
-    if (x < 0 || x >= _W || y < 0 || y >= _H)
-      image_index_out_of_range();
-#endif // _DEBUG
+    assert(x >= 0 && x < _W && y >= 0 && y < _H);
     return _data[y * _W + x];
   }
 
-  auto length() const
+  [[nodiscard]] auto length() const
   {
     return _W * _H;
   }
 
-  const auto& operator [](int i) const
+  [[nodiscard]] const auto& operator [](int i) const
   {
-#ifdef _DEBUG
-    if (i < 0 || i >= _W * _H)
-      image_index_out_of_range();
-#endif // _DEBUG
+    assert(i >= 0 && i < _W * _H);
     return _data[i];
   }
 
-  auto& operator [](int i)
+  [[nodiscard]] auto& operator [](int i)
   {
-#ifdef _DEBUG
-    if (i < 0 || i >= _W * _H)
-      image_index_out_of_range();
-#endif // _DEBUG
+    assert(i >= 0 && i < _W * _H);
     return _data[i];
   }
 
@@ -235,12 +212,12 @@ private:
 class Image: public SharedObject
 {
 public:
-  auto width() const
+  [[nodiscard]] auto width() const
   {
     return _W;
   }
 
-  auto height() const
+  [[nodiscard]] auto height() const
   {
     return _H;
   }
@@ -252,9 +229,9 @@ public:
     setData(0, 0, buffer);
   }
 
-  ImageBuffer data(int x, int y, int w, int h) const;
+  [[nodiscard]] ImageBuffer data(int x, int y, int w, int h) const;
 
-  auto data() const
+  [[nodiscard]] auto data() const
   {
     return data(0, 0, _W, _H);
   }

@@ -28,7 +28,7 @@
 // Source file for simple ray tracer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2026
+// Last revision: 01/09/2026
 
 #include "graphics/Camera.h"
 #include "utils/Stopwatch.h"

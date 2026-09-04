@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2022, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for cg demo main window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/11/2025
+// Last revision: 04/19/2026
 
 #ifndef __MainWindow_h
 #define __MainWindow_h
@@ -58,7 +58,7 @@ class MainWindow final: public SceneWindow
 {
 public:
   MainWindow(int width, int height):
-    SceneWindow{"Ds Demo Version 1.4", width, height}
+    SceneWindow{"Ds Demo Version 1.5", width, height}
   {
     // do nothing
   }
@@ -90,6 +90,7 @@ private:
   Component* addComponentMenu(const SceneObject&) override;
   void createObjectMenu() override;
 
+
   void mainMenu();
   void fileMenu();
   void viewMenu();
@@ -97,6 +98,7 @@ private:
   void showOptions();
 
   void readScene(const std::string& filename);
+  void updateRayTracerScene();
   void openSceneCommand();
   void saveScene();
 

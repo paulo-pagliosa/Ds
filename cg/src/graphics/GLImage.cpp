@@ -28,7 +28,7 @@
 // Source file for OpenGL image.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2026
+// Last revision: 04/09/2026
 
 #include "graphics/GLImage.h"
 #include <memory>
@@ -135,7 +135,7 @@ public:
   }
 
   // Render an OpenGL texture.
-  void draw(uint32_t texture, int x, int y, int width, int height)
+  void draw(uint32_t texture, int x, int y, int w, int h)
   {
     auto dt = glIsEnabled(GL_DEPTH_TEST);
     auto cp = GLSL::Program::current();
@@ -145,7 +145,7 @@ public:
 
     this->use();
     glGetIntegerv(GL_VIEWPORT, cv);
-    glViewport(x, y, width, height);
+    glViewport(x, y, w, h);
     glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &cva);
     glBindVertexArray(_vao);
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &ct);

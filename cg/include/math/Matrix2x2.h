@@ -28,7 +28,7 @@
 // Class definition for 2x2 matrix.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 01/09/2026
 
 #ifndef __Matrix2x2_h
 #define __Matrix2x2_h
@@ -295,7 +295,7 @@ template <IsReal R> using Matrix2x2 = Matrix<R, 2, 2>;
 
 /// Returns s * m.
 template <IsReal R>
-HOST DEVICE constexpr auto
+[[nodiscard]] HOST DEVICE constexpr auto
 operator *(R s, const Matrix2x2<R>& m)
 {
   return m * s;

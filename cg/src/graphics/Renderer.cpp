@@ -28,7 +28,7 @@
 // Source file for generic renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2026
+// Last revision: 04/09/2026
 
 #include "graphics/Renderer.h"
 
@@ -43,15 +43,10 @@ namespace cg
 void
 Renderer::setImageSize(int w, int h)
 {
+  assert(w >= 0 && h >= 0);
   _viewport.w = w;
   _viewport.h = h;
   camera()->setAspectRatio((float)(w) / (float)(h));
-}
-
-void
-Renderer::update()
-{
-  // do nothing
 }
 
 vec3f

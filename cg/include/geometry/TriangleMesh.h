@@ -28,7 +28,7 @@
 // Class definition for simple triangle mesh.
 //
 // Author: Paulo Pagliosa
-// Last revision: 31/08/2026
+// Last revision: 01/09/2026
 
 #ifndef __TriangleMesh_h
 #define __TriangleMesh_h
@@ -106,6 +106,11 @@ public:
     return _data;
   }
 
+  [[nodiscard]] auto vertexCount() const
+  {
+    return _data.vertexCount;
+  }
+
   [[nodiscard]] bool hasVertexNormals() const
   {
     return _data.vertexNormals;
@@ -114,6 +119,11 @@ public:
   [[nodiscard]] bool hasUV() const
   {
     return _data.uv;
+  }
+
+  [[nodiscard]] auto triangleCount() const
+  {
+    return _data.triangleCount;
   }
 
   void print(const char* s, FILE* f = stdout) const;

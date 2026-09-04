@@ -28,7 +28,7 @@
 // Class definition for 4x4 matrix.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 01/09/2026
 
 #ifndef __Matrix4x4_h
 #define __Matrix4x4_h
@@ -362,7 +362,7 @@ public:
   [[nodiscard]] HOST DEVICE
   constexpr auto transformVector(const vec3& v) const
   {
-    return vec3{_v0} *v.x + vec3{_v1} *v.y + vec3{_v2} *v.z;
+    return vec3{_v0} * v.x + vec3{_v1} * v.y + vec3{_v2} * v.z;
   }
 
   /// Returns a translation, rotation, and scaling matrix.

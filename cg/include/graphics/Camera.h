@@ -28,7 +28,7 @@
 // Class definition for camera.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2026
+// Last revision: 01/09/2026
 
 #ifndef __Camera_h
 #define __Camera_h
@@ -118,7 +118,9 @@ public:
   [[nodiscard]] const mat4f& cameraToWorldMatrix() const;
   [[nodiscard]] const mat4f& projectionMatrix() const;
   [[nodiscard]] vec3f worldToCamera(const vec3f& p) const;
+  [[nodiscard]] vec3f worldToCameraVector(const vec3f& v) const;
   [[nodiscard]] vec3f cameraToWorld(const vec3f& p) const;
+  [[nodiscard]] vec3f cameraToWorldVector(const vec3f& v) const;
 
   void print(FILE* out = stdout) const;
 
@@ -307,9 +309,21 @@ Camera::worldToCamera(const vec3f& p) const
 }
 
 inline vec3f
+Camera::worldToCameraVector(const vec3f& v) const
+{
+  return _worldToCamera.transformVector(v);
+}
+
+inline vec3f
 Camera::cameraToWorld(const vec3f& p) const
 {
   return _cameraToWorld.transform3x4(p);
+}
+
+inline vec3f
+Camera::cameraToWorldVector(const vec3f& v) const
+{
+  return _cameraToWorld.transformVector(v);
 }
 
 //

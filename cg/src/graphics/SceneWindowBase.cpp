@@ -28,7 +28,7 @@
 // Source file for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 04/09/2026
 
 #include "graphics/Assets.h"
 #include "graphics/Renderer.h"
@@ -142,9 +142,10 @@ SceneWindowBase::newScene()
 {
   auto scene = makeScene();
 
-  assert(scene != nullptr);
+  assert(scene);
   _editor->setScene(*scene);
   initializeScene();
+
 }
 
 void
@@ -269,7 +270,7 @@ SceneWindowBase::preview(Camera& camera)
 
   ImGui::SetNextWindowPos({((float)wv - wt) / 2, (float)hv - (ht + 2)});
   ImGui::SetNextWindowSize({wt, ht});
-  if (_fbo == nullptr)
+  if (!_fbo )
     _fbo = new GLTextureFramebuffer{wv, hv};
   _fbo->use();
   {

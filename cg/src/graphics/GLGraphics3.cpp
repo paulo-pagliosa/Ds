@@ -227,6 +227,13 @@ GLGraphics3::GLGraphics3():
 }
 
 void
+GLGraphics3::updateView(Camera& camera)
+{
+  camera.update();
+  setView(camera.position(), vpMatrix(&camera));
+}
+
+void
 GLGraphics3::drawMesh(const TriangleMesh& mesh,
   const mat4f& t,
   const mat3f& n,

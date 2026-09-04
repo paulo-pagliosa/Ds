@@ -28,7 +28,7 @@
 // Source file for OpenGL mesh renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 31/08/2026
+// Last revision: 01/09/2026
 
 #include "graphics/GLMeshRenderer.h"
 
@@ -41,7 +41,7 @@ namespace cg
 // GLMeshRenderer implementation
 // ==============
 void
-GLMeshRenderer::render(TriangleMesh& mesh,
+GLMeshRenderer::render(const TriangleMesh& mesh,
   const vec3f& p,
   const mat3f& r,
   const vec3f& s)

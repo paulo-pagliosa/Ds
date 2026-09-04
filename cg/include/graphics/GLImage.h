@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for OpenGL image.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/11/2022
+// Last revision: 04/09/2026
 
 #ifndef __GLImage_h
 #define __GLImage_h
@@ -48,7 +48,7 @@ class GLImage: public Image
 {
 public:
   // Constructs an empty image.
-  GLImage(int width, int height);
+  GLImage(int w, int h);
 
   // Destructor.
   ~GLImage() override;
@@ -58,16 +58,16 @@ public:
 
   void bind() const;
 
-  operator uint32_t() const
+  [[nodiscard]] operator uint32_t() const
   {
     return _handle;
   }
 
   // Creates an RGB texture.
-  static uint32_t createTexture(int width, int height);
+  [[nodiscard]] static uint32_t createTexture(int w, int h);
 
   // Draws an RGB texture.
-  static void drawTexture(uint32_t id, int x, int y, int width, int height);
+  static void drawTexture(uint32_t id, int x, int y, int w, int h);
 
 private:
   class Drawer;

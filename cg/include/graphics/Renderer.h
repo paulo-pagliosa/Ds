@@ -28,7 +28,7 @@
 // Class definition for generic renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2026
+// Last revision: 04/09/2026
 
 #ifndef __Renderer_h
 #define __Renderer_h
@@ -100,7 +100,6 @@ public:
   [[nodiscard]] vec3f project(const vec3f&) const;
   [[nodiscard]] vec3f unproject(const vec3f&) const;
 
-  virtual void update();
   virtual void render() = 0;
 
 protected:

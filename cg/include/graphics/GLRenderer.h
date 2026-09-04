@@ -28,7 +28,7 @@
 // Class definition for OpenGL Renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2026
+// Last revision: 01/09/2026
 
 #ifndef __GLRenderer_h
 #define __GLRenderer_h
@@ -46,9 +46,7 @@ namespace cg
 //
 // GLRenderer: OpenGL renderer class
 // ==========
-class GLRenderer: public Renderer,
-  public GLMeshRendererBase,
-  public GLGraphics3  
+class GLRenderer: public Renderer, public GLMeshRendererBase  
 {
 public:
   using RenderFunction = std::function<void(GLRenderer&)>;
@@ -60,18 +58,24 @@ public:
   /// Constructs a GL renderer object.
   GLRenderer(SceneBase& scene, Camera& camera);
 
-  /// Destructor.
-  ~GLRenderer();
+  void setImageSize(int w, int h)
+  {
+    Renderer::setImageSize(w, h);
+    glViewport(0, 0, w, h);
+  }
 
-  void update();
-  void render();
+  void update()
+  {
+    updateView(*camera());
+  }
 
-  void renderMaterial(const Material& material);
+  void render() override;
+
   bool drawMesh(const Primitive& primitive);
 
   bool drawSubMesh(const TriangleMesh& mesh,
     int count,
-    int offset,
+    int index,
     const Material& material,
     const mat4f& t,
     const mat3f& n);
@@ -83,7 +87,7 @@ public:
 
   void setBasePoint(const vec3f& p);
 
-  float pixelsLength(float d) const;
+  [[nodiscard]] float pixelsLength(float d) const;
 
 protected:
   RenderFunction _renderFunction;
@@ -91,23 +95,14 @@ protected:
   float _basePointZ;
   float _windowViewportRatio;
 
+  void updateView(Camera&) override;
+
   virtual void beginRender();
   virtual void endRender();
   virtual void renderActors();
   virtual void renderLights();
 
   void drawAxes(const mat4f&, float);
-  void drawMesh(const TriangleMesh&,
-    const Material&,
-    const mat4f&,
-    const mat3f&,
-    int,
-    int);
-
-private:
-  struct GLData;
-
-  GLData* _gl;
 
 }; // GLRenderer
 

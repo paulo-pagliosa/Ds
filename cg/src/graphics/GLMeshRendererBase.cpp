@@ -150,6 +150,7 @@ static const char* fragmentShader = R"glsl(
   in vec2 g_uv;
   in vec4 g_color;
   noperspective in vec3 g_edgeDistance;
+  //uniform vec4 backFaceColor;
   uniform int projectionType; // PERSPECTIVE/PARALLEL
   uniform vec4 ambientLight;
   uniform int lightCount;
@@ -364,15 +365,6 @@ GLMeshRendererBase::GLProgram::setAmbientLight(const Color& c)
   setUniformVec4(ambientLightLoc, c);
 }
 
-void
-GLMeshRendererBase::GLProgram::setMaterial(const Material& material)
-{
-  setUniformVec4(OaLoc, material.ambient);
-  setUniformVec4(OdLoc, material.diffuse);
-  setUniformVec4(OsLoc, material.spot);
-  setUniform(nsLoc, material.shine);
-}
-
 GLMeshRendererBase::GLProgram::GLProgram(GLMeshRendererBase& parent):
   GLSL::Program{"Mesh Renderer"}
 {
@@ -384,6 +376,27 @@ GLMeshRendererBase::GLProgram::GLProgram(GLMeshRendererBase& parent):
   setAmbientLight(Color::darkGray);
   setMaterial(*Material::defaultMaterial());
   GLSL::Program::setCurrent(cp);
+}
+
+void
+GLMeshRendererBase::GLProgram::setMaterial(const Material& material)
+{
+  setUniformVec4(OaLoc, material.ambient);
+  setUniformVec4(OdLoc, material.diffuse);
+  setUniformVec4(OsLoc, material.spot);
+  setUniform(nsLoc, material.shine);
+}
+
+inline void
+GLMeshRendererBase::GLProgram::setViewportMatrix(const mat4f& m)
+{
+  setUniformMat4(viewportMatrixLoc, m);
+}
+
+inline void
+GLMeshRendererBase::GLProgram::setProjectionType(const Camera& camera)
+{
+  setUniform(projectionTypeLoc, camera.projectionType());
 }
 
 namespace
@@ -404,7 +417,7 @@ mvMatrix(const mat4f& t, const Camera& c)
 inline auto
 normalMatrix(const mat3f& n, const Camera& c)
 {
-  return mat3f{c.worldToCameraMatrix()} *n;
+  return mat3f{c.worldToCameraMatrix()} * n;
 }
 
 } // end namesspace
@@ -427,44 +440,53 @@ namespace
 inline auto
 lightPosition(const Light& light, const Camera& camera)
 {
-  return light.flags.isSet(Light::Camera) ? light.position() :
-    camera.worldToCameraMatrix().transform3x4(light.position());
+  return light.flags.isSet(Light::Camera) ?
+    light.position() : camera.worldToCamera(light.position());
 }
 
 inline auto
 lightDirection(const Light& light, const Camera& camera)
 {
-  return light.flags.isSet(Light::Camera) ? light.direction() :
-    camera.worldToCameraMatrix().transformVector(light.direction());
+  return light.flags.isSet(Light::Camera) ?
+    light.direction() : camera.worldToCameraVector(light.direction());
 }
 
 } // end namespace
 
 bool
-GLMeshRendererBase::GLProgram::setLight(int i,
+GLMeshRendererBase::GLProgram::setLight(int index,
   const Light& light,
   const Camera& camera)
 {
   if (!light.isTurnedOn())
     return false;
-  setUniform(lightLocs[i].type, (int)light.type());
-  setUniformVec4(lightLocs[i].color, light.color);
-  setUniformVec3(lightLocs[i].position, lightPosition(light, camera));
-  setUniformVec3(lightLocs[i].direction, lightDirection(light, camera));
-  setUniform(lightLocs[i].falloff, (int)light.falloff);
-  setUniform(lightLocs[i].range, light.range());
-  setUniform(lightLocs[i].angle, light.spotAngle());
+
+  auto loc = lightLocs + index;
+
+  setUniform(loc->type, (int)light.type());
+  setUniformVec4(loc->color, light.color);
+  setUniformVec3(loc->position, lightPosition(light, camera));
+  setUniformVec3(loc->direction, lightDirection(light, camera));
+  setUniform(loc->falloff, (int)light.falloff);
+  setUniform(loc->range, light.range());
+  setUniform(loc->angle, light.spotAngle());
   return true;
 }
 
 inline void
 GLMeshRendererBase::GLProgram::setDefaultLights()
 {
-  setUniform(lightLocs[0].type, 1); // point light
-  setUniformVec4(lightLocs[0].color, vec4f{1, 1, 1, 0});
-  setUniformVec3(lightLocs[0].position, vec3f{0});
-  setUniform(lightLocs[0].range, 0.0f);
+  setUniform(lightLocs->type, 1); // point light
+  setUniformVec4(lightLocs->color, vec4f{1, 1, 1, 0});
+  setUniformVec3(lightLocs->position, vec3f{0});
+  setUniform(lightLocs->range, 0.0f);
   setUniform(lightCountLoc, 1);
+}
+
+void
+GLMeshRendererBase::GLProgram::endLights(int count)
+{
+  count ? setUniform(lightCountLoc, count) : setDefaultLights();
 }
 
 inline void
@@ -537,7 +559,7 @@ GLMeshRendererBase::GLMeshRendererBase():
   // do nothing
 }
 
-inline void
+void
 GLMeshRendererBase::updateView(Camera& camera)
 {
   GLGraphics3::updateView(camera);
@@ -546,13 +568,13 @@ GLMeshRendererBase::updateView(Camera& camera)
 
   glGetIntegerv(GL_VIEWPORT, v);
 
-  float w2 = v[2] / 2.0f;
-  float h2 = v[3] / 2.0f;
+  float w = v[2] / 2.0f;
+  float h = v[3] / 2.0f;
 
-  _viewportMatrix[0].set(w2, 0, 0, 0);
-  _viewportMatrix[1].set(0, h2, 0, 0);
+  _viewportMatrix[0].set(w, 0, 0, 0);
+  _viewportMatrix[1].set(0, h, 0, 0);
   _viewportMatrix[2].set(0, 0, 1, 0);
-  _viewportMatrix[3].set(v[0] + w2, v[1] + h2, 0, 0);
+  _viewportMatrix[3].set(v[0] + w, v[1] + h, 0, 0);
 }
 
 void
@@ -568,12 +590,15 @@ GLMeshRendererBase::begin(Camera& camera)
     glPolygonMode(GL_FRONT_AND_BACK, (renderMode != Wireframe) + GL_LINE);
     updateView(camera);
     _program->use();
-    _program->setUniformMat4(_program->viewportMatrixLoc, _viewportMatrix);
+    _program->setProjectionType(camera);
+    _program->setViewportMatrix(_viewportMatrix);
   }
 }
 
-void
-GLMeshRendererBase::render(TriangleMesh& mesh,
+bool
+GLMeshRendererBase::render(const TriangleMesh& mesh,
+  int count,
+  int index,
   const mat4f& t,
   const mat3f& n,
   const Camera& camera)
@@ -583,10 +608,8 @@ GLMeshRendererBase::render(TriangleMesh& mesh,
   auto m = glMesh(&mesh);
 
   if (!m)
-    return;
+    return false;
   m->bind();
-  if (_lightCount == 0)
-    _program->setDefaultLights();
   _program->setTransforms(t, n, camera);
   _program->setHiddenLinesFlag(!(renderMode != HiddenLines));
 
@@ -597,7 +620,31 @@ GLMeshRendererBase::render(TriangleMesh& mesh,
     glBindTexture(GL_TEXTURE_2D, _texture);
   _program->setUseTexture(utFlag);
   _program->setUseVertexColors(uvcFlag);
-  glDrawElements(GL_TRIANGLES, m->triangleCount() * 3, GL_UNSIGNED_INT, 0);
+  // For efficiency reasons, validation of 'count' and 'index'
+  // parameters against valid mesh triangles should be handled
+  // by derived class methods.
+  glDrawElements(GL_TRIANGLES,
+    count * 3,
+    GL_UNSIGNED_INT,
+    (void*)(sizeof(TriangleMesh::Triangle) * index));
+  return true;
 }
+
+bool
+GLMeshRendererBase::render(const TriangleMesh& mesh,
+  const mat4f& t,
+  const mat3f& n,
+  const Camera& camera)
+{
+  if (!render(mesh, mesh.triangleCount(), 0, t, n, camera))
+    return false;
+  if (flags.isSet(DrawNormals))
+  {
+    setVectorColor(normalColor);
+    drawNormals(mesh, t, n, _normalScale);
+  }
+  return true;
+}
+
 
 } // end namespace cg

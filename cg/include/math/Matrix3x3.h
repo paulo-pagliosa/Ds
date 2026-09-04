@@ -28,7 +28,7 @@
 // Class definition for 3x3 matrix.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 01/09/2026
 
 #ifndef __Matrix3x3_h
 #define __Matrix3x3_h
@@ -388,9 +388,7 @@ template <IsReal R>
 HOST DEVICE void
 Quaternion<R>::set(const Matrix3x3<R>& m) // declared in Quaternion.h
 {
-  auto t = m.trace();
-
-  if (t >= 0)
+  if (auto t = m.trace(); t >= 0)
   {
     auto s = sqrt(t + 1);
 
