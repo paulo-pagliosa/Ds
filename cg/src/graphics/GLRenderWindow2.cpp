@@ -28,7 +28,7 @@
 // Source file for OpenGL 2D render window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2026
+// Last revision: 04/09/2026
 
 #include "graphics/GLRenderWindow2.h"
 
@@ -36,7 +36,7 @@ namespace cg
 { // begin namespace cg
 
 
-//////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 //
 // GLRenderWindow2 implementation
 // ===============

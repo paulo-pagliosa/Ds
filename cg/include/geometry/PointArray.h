@@ -28,7 +28,7 @@
 // Class definition for point array.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 04/09/2026
 
 #ifndef __PointArray_h
 #define __PointArray_h
@@ -41,7 +41,7 @@ namespace cg
 { // begin namespace cg
 
 
-//////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 //
 // PointArray: point array class
 // ==========

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2010, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2010, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for generic writer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/07/2023
+// Last revision: 04/09/2026
 
 #include "Writer.h"
 #include <cstdarg>
@@ -43,9 +43,6 @@ namespace cg::util
 // ======
 void
 Writer::writeTabs()
-//[]----------------------------------------------------[]
-//|  Write tabs                                          |
-//[]----------------------------------------------------[]
 {
   if (_level == 0)
     return;
@@ -55,9 +52,6 @@ Writer::writeTabs()
 
 void
 Writer::write(const char* format, ...)
-//[]----------------------------------------------------[]
-//|  Write                                               |
-//[]----------------------------------------------------[]
 {
   constexpr auto maxLen = 1024;
   char buffer[maxLen];

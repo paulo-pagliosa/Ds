@@ -28,7 +28,7 @@
 // Source file for camera.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2026
+// Last revision: 04/09/2026
 
 #include "graphics/Camera.h"
 #include <algorithm>
@@ -124,17 +124,16 @@ Camera::setRotation(const mat3f& r)
   updateFocalPoint();
 }
 
+/**
+ * @brief Set the camera's position.
+ *
+ * @details Setting the camera's position will not change
+ * neither the direction of projection nor the distance
+ * between the position and the focal point. The focal
+ * point will be moved along the direction of projection.
+ */
 void
 Camera::setPosition(const vec3f& value)
-//[]---------------------------------------------------[]
-//|  Set the camera's position                          |
-//|                                                     |
-//|  Setting the camera's position will not change      |
-//|  neither the direction of projection nor the        |
-//|  distance between the position and the focal point. |
-//|  The focal point will be moved along the direction  |
-//|  of projection.                                     |
-//[]---------------------------------------------------[]
 {
   if (_position != value)
   {
@@ -175,16 +174,16 @@ Camera::setTransform(const vec3f& p, const quatf& q)
   updateFocalPoint();
 }
 
+/**
+ * @brief Set the cmera's direction of projection.
+ *
+ * @details Setting the camera's direction of projection
+ * will not change the distance between the position and
+ * the focal point. The focal point will be moved along
+ * the direction of projection.
+ */
 void
 Camera::setDirectionOfProjection(const vec3f& value)
-//[]---------------------------------------------------[]
-//|  Set the direction of projection                    |
-//|                                                     |
-//|  Setting the direction of projection will not       |
-//|  change the distance between the position and the   |
-//|  focal point. The focal point will be moved along   |
-//|  the direction of projection.                       |
-//[]---------------------------------------------------[]
 {
   if (value.isNull())
     error("DOP cannot be null");
@@ -199,11 +198,11 @@ Camera::setDirectionOfProjection(const vec3f& value)
     setRotation({u, v, n});
 }
 
+/**
+ * @brief Set the camera's view up vector.
+ */
 void
 Camera::setViewUp(const vec3f& value)
-//[]---------------------------------------------------[]
-//|  Set the camera's view up                           |
-//[]---------------------------------------------------[]
 {
   if (value.isNull())
     error("VUP cannot be null");
@@ -218,11 +217,11 @@ Camera::setViewUp(const vec3f& value)
     setRotation({u, v, n});
 }
 
+/**
+ * @brief Set the camera's projection type.
+ */
 void
 Camera::setProjectionType(ProjectionType value)
-//[]---------------------------------------------------[]
-//|  Set the camera's projection type                   |
-//[]---------------------------------------------------[]
 {
   if (_projectionType != value)
   {
@@ -231,15 +230,15 @@ Camera::setProjectionType(ProjectionType value)
   }
 }
 
+/**
+ * @brief Set the camera's distance.
+ *
+ * @details Setting the camera's distance between the
+ * position and focal point will move the focal point
+ * along the direction of projection.
+ */
 void
 Camera::setDistance(float value)
-//[]---------------------------------------------------[]
-//|  Set the camera's distance                          |
-//|                                                     |
-//|  Setting the distance between the position and      |
-//|  focal point will move the focal point along the    |
-//|  direction of projection.                           |
-//[]---------------------------------------------------[]
 {
   if (value <= 0)
     error("Distance must be positive");
@@ -250,11 +249,11 @@ Camera::setDistance(float value)
   }
 }
 
+/**
+ * @brief Set the camera's view angle.
+ */
 void
 Camera::setViewAngle(float value)
-//[]---------------------------------------------------[]
-//|  Set the camera's view angle                        |
-//[]---------------------------------------------------[]
 {
   if (value <= 0)
     error("View angle must be positive");
@@ -266,11 +265,11 @@ Camera::setViewAngle(float value)
   }
 }
 
+/**
+ * @brief Set the camera's view height.
+ */
 void
 Camera::setHeight(float value)
-//[]---------------------------------------------------[]
-//|  Set the camera's view_height                       |
-//[]---------------------------------------------------[]
 {
   if (value <= 0)
     error("Height of the view window must be positive");
@@ -282,11 +281,11 @@ Camera::setHeight(float value)
   }
 }
 
+/**
+ * @brief Set the camera's aspect ratio.
+ */
 void
 Camera::setAspectRatio(float value)
-//[]---------------------------------------------------[]
-//|  Set the camera's aspect ratio                      |
-//[]---------------------------------------------------[]
 {
   if (value <= 0)
     error("Aspect ratio must be positive");
@@ -297,11 +296,12 @@ Camera::setAspectRatio(float value)
   }
 }
 
+/**
+ * @brief Set the distance of the near (front) and far
+ * (back) clipping planes.
+ */
 void
 Camera::setClippingPlanes(float F, float B)
-//[]---------------------------------------------------[]
-//|  Set the distance of the clippling planes           |
-//[]---------------------------------------------------[]
 {
   if (F <= 0 || B <= 0)
     error("Clipping plane distance must be positive");
@@ -319,11 +319,11 @@ Camera::setClippingPlanes(float F, float B)
   }
 }
 
+/**
+ * @brief Set the distance of the near clipping plane.
+ */
 void
 Camera::setNearPlane(float F)
-//[]---------------------------------------------------[]
-//|  Set the distance of the near clipping plane        |
-//[]---------------------------------------------------[]
 {
   if (F > minFrontPlane && _B - F > minDepth && !math::isEqual(_F, F))
   {
@@ -339,14 +339,14 @@ Camera::rotate(float angle, const vec3f& axis)
   _eulerAngles = _rotation.eulerAngles();
 }
 
+/**
+ * @brief Azimuth rotation.
+ *
+ * @details Rotate the camera's position about the view up
+ * vector centered at the focal point.
+ */
 void
 Camera::azimuth(float angle)
-//[]---------------------------------------------------[]
-//|  Azimuth                                            |
-//|                                                     |
-//|  Rotate the camera's position about the view up     |
-//|  vector centered at the focal point.                |
-//[]---------------------------------------------------[]
 {
   if (!math::isZero(angle))
   {
@@ -359,15 +359,15 @@ Camera::azimuth(float angle)
   }
 }
 
+/**
+ * @brief Elevation rotation.
+ *
+ * @details Rotate the camera's position about the cross
+ * product of the view plane normal and the view up vector
+ * centered at the focal point.
+ */
 void
 Camera::elevation(float angle)
-//[]---------------------------------------------------[]
-//|  Elevation                                          |
-//|                                                     |
-//|  Rotate the camera's position about the cross       |
-//|  product of the view plane normal and the view up   |
-//|  vector centered at the focal point.                |
-//[]---------------------------------------------------[]
 {
   if (!math::isZero(angle))
   {
@@ -380,14 +380,14 @@ Camera::elevation(float angle)
   }
 }
 
+/**
+ * @brief Roll rotation.
+ *
+ * @details Rotate the view up vector around the view
+ * plane normal.
+ */
 void
 Camera::roll(float angle)
-//[]---------------------------------------------------[]
-//|  Roll                                               |
-//|                                                     |
-//|  Rotate the view up vector around the view plane    |
-//|  normal.                                            |
-//[]---------------------------------------------------[]
 {
   if (!math::isZero(angle))
   {
@@ -396,14 +396,14 @@ Camera::roll(float angle)
   }
 }
 
+ /**
+  * @brief Yaw rotation.
+  *
+  * @details Rotate the focal point about the view up
+  * vector centered at the camera's position.
+  */
 void
 Camera::yaw(float angle)
-//[]---------------------------------------------------[]
-//|  Yaw                                                |
-//|                                                     |
-//|  Rotate the focal point about the view up vector    |
-//|  centered at the camera's position.                 |
-//[]---------------------------------------------------[]
 {
   if (!math::isZero(angle))
   {
@@ -413,15 +413,15 @@ Camera::yaw(float angle)
   }
 }
 
+/**
+ * @brief Pitch rotation.
+ *
+ * @details Rotate the focal point about the cross product
+ * of the view up vector and the view plane normal
+ * centered at the camera's position.
+ */
 void
 Camera::pitch(float angle)
-//[]---------------------------------------------------[]
-//|  Pitch                                              |
-//|                                                     |
-//|  Rotate the focal point about the cross product of  |
-//|  the view up vector and the view plane normal       |
-//|  centered at the camera's position.                 |
-//[]---------------------------------------------------[]
 {
   if (!math::isZero(angle))
   {
@@ -431,16 +431,16 @@ Camera::pitch(float angle)
   }
 }
 
+/**
+ * @brief Rotate YX.
+ *
+ * @details If orbit is true, then it is a composition of
+ * an azimuth of \p ay with an elevation of \p ax, in this
+ * order. Otherwise, it is a composition of a yaw of \p ay
+ * with a pitch of \p ax, in this order.
+ */
 void
 Camera::rotateYX(float ay, float ax, bool orbit)
-//[]---------------------------------------------------[]
-//|  Rotate YX                                          |
-//|                                                     |
-//|  If orbit is true, then it is a composition of an   |
-//|  azimuth of ay with an elevation of ax, in this     |
-//|  order. Otherwise, it is a composition of a yaw of  |
-//|  ay with a pitch of ax, in this order.              |
-//[]---------------------------------------------------[]
 {
   auto q = quatf{ay, vec3f::up()} * _rotation;
   auto u = q.rotate(vec3f{1, 0, 0});
@@ -463,16 +463,16 @@ Camera::rotateYX(float ay, float ax, bool orbit)
   _modified = true;
 }
 
+/**
+ * @brief Zoom.
+ *
+ * @details Change the camera's view angle (or height) so
+ * that more or less a scene occupies the view window.
+ * A \p zoom value > 1 is a zoom-in. A \p \zoom value < 1
+ * is a zoom-out.
+ */
 void
 Camera::zoom(float zoom)
-//[]---------------------------------------------------[]
-//|  Zoom                                               |
-//|                                                     |
-//|  Change the view angle (or height) of the camera so |
-//|  that more or less of a scene occupies the view     |
-//|  window. A value > 1 is a zoom-in. A value < 1 is   |
-//|  zoom-out.                                          |
-//[]---------------------------------------------------[]
 {
   if (zoom > 0)
     if (_projectionType == Perspective)
@@ -481,11 +481,11 @@ Camera::zoom(float zoom)
       setHeight(_height / zoom);
 }
 
+/**
+ * @brief Translate the camera.
+ */
 void
 Camera::translate(float dx, float dy, float dz)
-//[]---------------------------------------------------[]
-//|  Translate the camera                               |
-//[]---------------------------------------------------[]
 {
   if (!math::isZero(dx))
     _position += vec3f{_cameraToWorld[0]} * dx;
@@ -498,11 +498,11 @@ Camera::translate(float dx, float dy, float dz)
   _modified = true;
 }
 
+/**
+ * @brief Set default view settings.
+ */
 void
 Camera::setDefaultView(float aspect)
-//[]---------------------------------------------------[]
-//|  Set default view                                   |
-//[]---------------------------------------------------[]
 {
   _position.set(0.0f, 0.0f, 10.0f);
   _eulerAngles.set(0.0f);
@@ -545,9 +545,6 @@ Camera::set(const Camera& camera)
 
 uint32_t
 Camera::update()
-//[]---------------------------------------------------[]
-//|  Update camera                                      |
-//[]---------------------------------------------------[]
 {
   if (_modified)
   {
@@ -580,9 +577,6 @@ Camera::updateView()
 
 inline const char*
 projectionName(const Camera* camera)
-//[]---------------------------------------------------[]
-//|  Projection name                                    |
-//[]---------------------------------------------------[]
 {
   static const char* projectionName[] = {"Perspective", "Ortographic"};
   return projectionName[camera->projectionType()];
@@ -590,9 +584,6 @@ projectionName(const Camera* camera)
 
 void
 Camera::print(FILE* f) const
-//[]---------------------------------------------------[]
-//|  Print camera                                       |
-//[]---------------------------------------------------[]
 {
   fprintf(f, "Camera name: \"%s\"\n", name());
   fprintf(f, "Projection type: %s\n", projectionName(this));

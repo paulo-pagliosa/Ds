@@ -28,7 +28,7 @@
 // Source file for simple ray tracer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/09/2026
+// Last revision: 04/09/2026
 
 #include "graphics/Camera.h"
 #include "utils/Stopwatch.h"
@@ -43,7 +43,7 @@ namespace cg
 namespace
 { // begin namespace
 
-inline void
+[[nodiscard]] inline void
 printElapsedTime(const char* s, Stopwatch::ms_time time)
 {
   printf("%sElapsed time: %g ms\n", s, time);
@@ -68,7 +68,7 @@ RayTracer::RayTracer(SceneBase& scene, Camera& camera):
 void
 RayTracer::update()
 {
-  // Delete current BVH before creating a new one
+  // Delete the current BVH before creating a new one
   _bvh = nullptr;
 
   PrimitiveBVH::PrimitiveArray primitives;
@@ -115,7 +115,7 @@ RayTracer::renderImage(Image& image)
     _vrc.n.set(m[2]);
   }
 
-  // init auxiliary mapping variables
+  // Init auxiliary mapping variables
   auto w = image.width(), h = image.height();
 
   setImageSize(w, h);
@@ -130,13 +130,13 @@ RayTracer::renderImage(Image& image)
       _Vh = (_Vw = wh) * h * _Iw;
   }
 
-  // init pixel ray
+  // Init the pixel ray
   float F, B;
 
   camera->clippingPlanes(F, B);
   if (camera->projectionType() == Camera::Perspective)
   {
-    // distance from the camera position to a frustum back corner
+    // Distance from the camera position to a frustum back corner
     auto z = B / F * 0.5f;
     B = vec3f{_Vw * z, _Vh * z, B}.length();
   }
@@ -153,13 +153,14 @@ RayTracer::renderImage(Image& image)
   printElapsedTime("\nDONE! ", et);
 }
 
+/**
+ * @brief Set pixel ray.
+ *
+ * @param x X coordinate of the pixel.
+ * @param y Y coordinate of the pixel.
+ */
 void
 RayTracer::setPixelRay(float x, float y)
-//[]---------------------------------------------------[]
-//|  Set pixel ray                                      |
-//|  @param x coordinate of the pixel                   |
-//|  @param y cordinates of the pixel                   |
-//[]---------------------------------------------------[]
 {
   const auto camera = this->camera();
   auto p = imageToWindow(x, y);
@@ -169,7 +170,6 @@ RayTracer::setPixelRay(float x, float y)
     case Camera::Perspective:
       _pixelRay.direction = (p - camera->nearPlane() * _vrc.n).versor();
       break;
-
     case Camera::Parallel:
       _pixelRay.origin = camera->position() + p;
       break;
@@ -272,41 +272,43 @@ RayTracer::scan(Image& image)
   }
 }
 
+/**
+ * @brief Shoot a pixel ray.
+ *
+ * @param x X coordinate of the pixel.
+ * @param y Y coordinate of the pixel.
+ * @return RGB color of the pixel.
+ */
 Color
 RayTracer::shoot(float x, float y)
-//[]---------------------------------------------------[]
-//|  Shoot a pixel ray                                  |
-//|  @param x coordinate of the pixel                   |
-//|  @param y cordinates of the pixel                   |
-//|  @return RGB color of the pixel                     |
-//[]---------------------------------------------------[]
 {
-  // set pixel ray
+  // Set the pixel ray
   setPixelRay(x, y);
 
-  // trace pixel ray
-  Color color = trace(_pixelRay, 0, 1);
+  // Trace the pixel ray
+  auto color = trace(_pixelRay, 0, 1);
 
-  // adjust RGB color
+  // Adjust RGB color
   if (color.r > 1.0f)
     color.r = 1.0f;
   if (color.g > 1.0f)
     color.g = 1.0f;
   if (color.b > 1.0f)
     color.b = 1.0f;
-  // return pixel color
+  // Return pixel color
   return color;
 }
 
+/**
+ * @brief Trace a ray.
+ *
+ * @param ray The ray to be traced.
+ * @param level Recursion level.
+ * @param weight Ray weight.
+ * @return Color of the ray.
+ */
 Color
 RayTracer::trace(const Ray3f& ray, uint32_t level, float weight)
-//[]---------------------------------------------------[]
-//|  Trace a ray                                        |
-//|  @param the ray                                     |
-//|  @param recursion level                             |
-//|  @param ray weight                                  |
-//|  @return color of the ray                           |
-//[]---------------------------------------------------[]
 {
   if (level > _maxRecursionLevel)
     return Color::black;
@@ -323,14 +325,16 @@ rt_eps()
   return 1e-4f;
 }
 
+/**
+ * @brief Ray/object intersection.
+ *
+ * @param[in] ray The ray.
+ * @param[out] hit Information on intersection.
+ * @return @c true if the ray intersects an object,
+ * @c false otherwise.
+ */
 bool
 RayTracer::intersect(const Ray3f& ray, Intersection& hit)
-//[]---------------------------------------------------[]
-//|  Ray/object intersection                            |
-//|  @param the ray (input)                             |
-//|  @param information on intersection (output)        |
-//|  @return true if the ray intersects an object       |
-//[]---------------------------------------------------[]
 {
   hit.object = nullptr;
   hit.distance = ray.tMax;
@@ -343,19 +347,20 @@ maxRGB(const Color& c)
   return math::max(math::max(c.r, c.g), c.b);
 }
 
+/**
+ * @brief Shade a point P.
+ *
+ * @param[in] ray The ray.
+ * @param[in] hit Information about the intersection.
+ * @param level Recursion level.
+ * @param weight Ray weight.
+ * @return Color at point P.
+ */
 Color
 RayTracer::shade(const Ray3f& ray,
   Intersection& hit,
   uint32_t level,
   float weight)
-//[]---------------------------------------------------[]
-//|  Shade a point P                                    |
-//|  @param the ray (input)                             |
-//|  @param information on intersection (input)         |
-//|  @param recursion level                             |
-//|  @param ray weight                                  |
-//|  @return color at point P                           |
-//[]---------------------------------------------------[]
 {
   auto primitive = (Primitive*)hit.object;
 
@@ -365,7 +370,7 @@ RayTracer::shade(const Ray3f& ray,
   const auto& V = ray.direction;
   auto NV = N.dot(V);
 
-  // Make sure "real" normal is on right side
+  // Make sure the "real" normal is on right side
   if (NV > 0)
     N.negate(), NV = -NV;
 
@@ -375,7 +380,7 @@ RayTracer::shade(const Ray3f& ray,
   auto color = _scene->ambientLight * m->ambient;
   auto P = ray(hit.distance);
 
-  // Compute direct lighting
+  // Compute the direct lighting
   for (auto light : _scene->lights())
   {
     // If the light is turned off, then continue
@@ -392,7 +397,7 @@ RayTracer::shade(const Ray3f& ray,
 
     auto NL = N.dot(L);
 
-    // If light vector is backfaced, then continue
+    // If the light vector is backfaced, then continue
     if (NL <= 0)
       continue;
 
@@ -424,23 +429,24 @@ RayTracer::shade(const Ray3f& ray,
   return color;
 }
 
+/**
+ * @brief Returns the scene's background color.
+ */
 Color
 RayTracer::background() const
-//[]---------------------------------------------------[]
-//|  Background                                         |
-//|  @return background color                           |
-//[]---------------------------------------------------[]
 {
   return _scene->backgroundColor;
 }
 
+/**
+ * @brief Verify if ray is a shadow ray.
+ *
+ * @param[in] ray The ray.
+ * @return @c true if the ray intersects an object,
+ * @c false otherwise.
+ */
 bool
 RayTracer::shadow(const Ray3f& ray)
-//[]---------------------------------------------------[]
-//|  Verifiy if ray is a shadow ray                     |
-//|  @param the ray (input)                             |
-//|  @return true if the ray intersects an object       |
-//[]---------------------------------------------------[]
 {
   return _bvh->intersect(ray) ? ++_numberOfHits : false;
 }

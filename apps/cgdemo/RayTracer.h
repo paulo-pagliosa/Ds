@@ -55,7 +55,7 @@ public:
 
   RayTracer(SceneBase&, Camera&);
 
-  auto minWeight() const
+  [[nodiscard]] auto minWeight() const
   {
     return _minWeight;
   }
@@ -65,7 +65,7 @@ public:
     _minWeight = math::max(w, minMinWeight);
   }
 
-  auto maxRecursionLevel() const
+  [[nodiscard]] auto maxRecursionLevel() const
   {
     return _maxRecursionLevel;
   }
