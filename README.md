@@ -17,9 +17,9 @@ and geometric processing.
 
 ## Compiling Ds
 
-The current master version is 1.3 and supports Windows 11 and Linux. All
+The current master version is 1.5 and supports Windows 11 and Linux. All
 headers and source files are in the [cg/](/cg) folder. The only dependencies
-are [GLFW] 3.4 and [Dear ImGui]. All headers, source files, and libraries (for
+are [GLFW] 3.5 and [Dear ImGui]. All headers, source files, and libraries (for
 Windows) needed are already included in the [cg/externals/](/cg/externals)
 folder (package glfw3 is required for Linux). The project file for Visual
 Studio 2022 is located in the [cg/build/vs2022/](/cg/build/vs2022) folder.
@@ -75,7 +75,7 @@ Visual Studio 2022 are in the
 
 ## Upcoming Changes
 
-Some of the goals for 2025 are:
+Some upcoming goals are:
 
 - Full API documentation
 - ~~CMake project and support for macOS and Linux with Clang and GCC~~
