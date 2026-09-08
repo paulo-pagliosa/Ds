@@ -28,7 +28,7 @@
 // Source file for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/09/2026
+// Last revision: 08/09/2026
 
 #include "graphics/Assets.h"
 #include "graphics/Renderer.h"
@@ -72,11 +72,14 @@ showStyleSelector(const char* label)
     return false;
   switch (style)
   {
-    case 0: ImGui::StyleColorsClassic();
+    case 0:
+      ImGui::StyleColorsClassic();
       break;
-    case 1: ImGui::StyleColorsDark();
+    case 1:
+      ImGui::StyleColorsDark();
       break;
-    case 2: ImGui::StyleColorsLight();
+    case 2:
+      ImGui::StyleColorsLight();
       break;
   }
   return true;
@@ -219,23 +222,13 @@ SceneWindowBase::editorView()
     ImGui::Separator();
   }
   {
-    // TODO: shade modes
-    static int sm;
+    static auto displayMode = 1;
 
-    ImGui::Combo("Shading Mode",
-      &sm,
-      /*"None\0Flat\0Gouraud\0"*/"Phong\0""\0");
-
-    // TODO: show/color edges
-    static Color edgeColor;
-    static bool showEdges;
-
-    ImGui::colorEdit3("Edges", edgeColor);
-    ImGui::SameLine();
-    ImGui::Checkbox("###showEdges", &showEdges);
-    _editor->renderMode = showEdges ?
-      GLRenderer::RenderMode::HiddenLines :
-      GLRenderer::RenderMode::Smooth;
+    if (ImGui::Combo("Display Mode",
+      &displayMode,
+      "Wireframe\0Shaded\0Shaded with Edges\0"))
+      _editor->renderMode = GLRenderer::RenderMode(displayMode);
+    ImGui::colorEdit3("Edge Color", _editor->wireframeColor);
   }
   ImGui::Separator();
   ImGui::Checkbox("Show Ground", &_editor->showGround);

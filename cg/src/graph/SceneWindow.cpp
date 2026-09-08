@@ -28,7 +28,7 @@
 // Source file for generic graph scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/09/2026
+// Last revision: 08/09/2026
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
@@ -369,7 +369,7 @@ SceneWindow::inspectCamera(SceneWindow& window, CameraProxy& proxy)
     editor->update();
   }
   ImGui::SameLine();
-  if (ImGui::Button("Set From Editor View"))
+  if (ImGui::Button("Set from Editor View"))
   {
     auto c = editor->camera();
     auto t = proxy.transform();

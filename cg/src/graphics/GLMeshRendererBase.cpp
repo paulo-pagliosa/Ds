@@ -28,7 +28,7 @@
 // Source file for OpenGL mesh renderer base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 31/08/2026
+// Last revision: 08/09/2026
 
 #include "graphics/GLMeshRendererBase.h"
 
@@ -372,7 +372,6 @@ GLMeshRendererBase::GLProgram::GLProgram(GLMeshRendererBase& parent):
 
   initProgram();
   setUniform(lineWidthLoc, 0.5f);
-  setLineColor(parent.lineColor(0));
   setAmbientLight(Color::darkGray);
   setMaterial(*Material::defaultMaterial());
   GLSL::Program::setCurrent(cp);
@@ -518,14 +517,6 @@ GLMeshRendererBase::~GLMeshRendererBase()
 }
 
 void
-GLMeshRendererBase::setLineColor(const Color& color)
-{
-  _program->assertInUse();
-  _program->setLineColor(color);
-  GLGraphics3::setLineColor(color);
-}
-
-void
 GLMeshRendererBase::setAmbientLight(const Color& color)
 {
   _program->assertInUse();
@@ -592,6 +583,7 @@ GLMeshRendererBase::begin(Camera& camera)
     _program->use();
     _program->setProjectionType(camera);
     _program->setViewportMatrix(_viewportMatrix);
+    _program->setLineColor(wireframeColor);
   }
 }
 
@@ -611,7 +603,7 @@ GLMeshRendererBase::render(const TriangleMesh& mesh,
     return false;
   m->bind();
   _program->setTransforms(t, n, camera);
-  _program->setHiddenLinesFlag(!(renderMode != HiddenLines));
+  _program->setHiddenLinesFlag(!(renderMode != ShadedWithEdges));
 
   const auto uvcFlag = useVertexColors();
   auto utFlag = false;

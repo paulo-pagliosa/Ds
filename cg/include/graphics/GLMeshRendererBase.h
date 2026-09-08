@@ -28,7 +28,7 @@
 // Class definition for OpenGL mesh renderer base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/09/2026
+// Last revision: 08/09/2026
 
 #ifndef __GLMeshRendererBase_h
 #define __GLMeshRendererBase_h
@@ -55,10 +55,9 @@ public:
 
   enum class RenderMode
   {
-    Wireframe = 1,
-    HiddenLines = 2,
-    Flat = 4,
-    Smooth = 0
+    Wireframe,
+    Shaded,
+    ShadedWithEdges
   };
 
   enum class RenderBits
@@ -73,10 +72,11 @@ public:
   using enum RenderBits;
   using RenderFlags = Flags<RenderBits>;
 
-  RenderMode renderMode{Smooth};
+  RenderMode renderMode{Shaded};
   RenderFlags flags{UseLights};
   Color normalColor{Color::gray};
   Color boundsColor{255, 102, 0};
+  Color wireframeColor{Color::white};
 
   /// Destructor.
   ~GLMeshRendererBase() override;
@@ -86,7 +86,6 @@ public:
     return flags.isSet(UseVertexColors);
   }
 
-  void setLineColor(const Color&);
   void setAmbientLight(const Color&);
   void setMaterial(const Material&, TextureId = {});
   void end();
