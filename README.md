@@ -3,46 +3,40 @@
 Ds is an Open Source C++ class library for [OpenGL]-based graphics application
 development. It contains classes and templates for math objects (vectors,
 points, quaternions, and transformations), spatial data structures (grids,
-trees, and bounding volume hierarchies), scene graph management
-("[Unity]-like" scene object hierarchy and components such as triangle meshes,
-lights, and cameras), and basic [OpenGL] rendering and ray-tracing support,
-among others.
+trees, and bounding volume hierarchies), scene graph management ("[Unity]-like"
+scene object hierarchy and components such as triangle meshes, lights, and
+cameras), and basic [OpenGL] rendering and ray-tracing support, among others.
 
 Ds has been employed in the teaching of subjects such as computer graphics,
 visualization, and games, in undergraduate and graduate courses in Computer
 Science at the [Faculty of Computing](https://www.facom.ufms.br) of the
 [Federal University of Mato Grosso do Sul](https://www.ufms.br). Ds has
-also been used in several research projects in physics-based animation
-and geometric processing.
+also been used in several research projects in physics-based animation and
+geometric processing.
 
-## Compiling Ds
+The current master version is 1.5 and supports Windows 11 and Linux. Ds is
+written in C++20.
 
-The current master version is 1.5 and supports Windows 11 and Linux. All
-headers and source files are in the [cg/](/cg) folder. The only dependencies
-are [GLFW] 3.5 and [Dear ImGui]. All headers, source files, and libraries (for
-Windows) needed are already included in the [cg/externals/](/cg/externals)
-folder (package glfw3 is required for Linux). The project file for Visual
-Studio 2022 is located in the [cg/build/vs2022/](/cg/build/vs2022) folder.
-There is also a (zipped) pre-compiled binary (for Windows) available in the
-[cg/lib/](/cg/lib) folder.
+## Building Ds
 
-## Ds Demo
+All headers and source files are in the [`cg/`](cg) folder. The only
+dependencies are [GLFW] 3.5 and [Dear ImGui]. All headers, source files,
+and libraries (for Windows) needed are already included in the
+[`cg/externals/`](cg/externals) folder (package `glfw3` is required for
+Linux).
 
-Ds Demo is a simple ray-tracing application built on top of Ds. The headers,
-source files, and a Windows binary are available in the
-[apps/cgdemo/](/apps/cgdemo) folder. The Solution and project files for
-Visual Studio 2022 are in the
-[apps/cgdemo/build/vs2022](/apps/cgdemo/build/vs2022).
+**Building with Visual Studio** (Windows)
 
-![cgdemo]
+- Open [`cg/build/vs2022/cg.vcxproj`](cg/build/vs2022) and build it.
 
-The ray tracing relies on bounding volume hierarchies (BVHs) for accelerating
-ray/object intersections. Also, the code includes a scene reader with a LL(1)
-parser. The grammar for the specification of a scene and its scene objects is
-[here](/apps/cgdemo/reader/grammar.txt). The scene file shown in this example
-is available [here](/apps/cgdemo/assets/scenes/).
+**Building with CMake** (≥ 3.16, Windows and Linux)
 
-![cgdemo-scene]
+- `cmake -S cg -B cg/build`
+- `cmake --build cg/build`
+- On Windows, this generates and builds with your default toolchain (pass
+`-G "Visual Studio 17 2022"` to force it explicitly).
+- On Linux, install the `glfw3` development package through your distro's
+package manager first (GLFW itself is *not* vendored for Linux).
 
 ## Ds-Vis
 
@@ -58,20 +52,37 @@ visualization pipeline such that the output of a source or filter is the input
 of another filter or sink. A mapper is a type of sink capable of rendering its
 input dataset. Every actor in a scene has a mapper.
 
-All headers and source files of Ds-Vis are in the [cgvis/](/cgvis) folder.
-The project file for Visual Studio 2022 is located in the
-[cgvis/build/vs2022/](/cgvis/build/vs2022) folder. A (zipped) pre-compiled
-binary (for Windows) is available in the [cgvis/lib/](/cgvis/lib) folder.
+### Building Ds-Vis
 
-### Ds-Vis Demo
+All headers and source files of Ds-Vis are in the [`cgvis/`](cgvis) folder.
+Ds-Vis depends on Ds — build Ds first (see [Building Ds](#building-ds) above).
 
-Ds-Vis Demo is a visualization application built using Ds and Ds-Vis. The
-headers, source files, and a Windows binary are available in the
-[apps/cgvisdemo/](/apps/cgvisdemo) folder. The Solution and project files for
-Visual Studio 2022 are in the
-[apps/cgvisdemo/build/vs2022](/apps/cgvisdemo/build/vs2022).
+**Building with Visual Studio 2022** (Windows)
 
-![cgvisdemo]
+- Open [`cgvis/build/vs2022/cgvis.vcxproj`](cgvis/build/vs2022) and build
+  it.
+
+**Building with CMake** (≥ 3.16, Windows and Linux)
+
+- `cmake -S cgvis -B cgvis/build`
+- `cmake --build cgvis/build`
+- On Windows, pass `-G "Visual Studio 17 2022"` if you want to force that
+  generator instead of your default toolchain.
+
+Ds-Vis is a separate static library that does *not* embed Ds's object
+code — anyone linking against Ds-Vis (a demo, for instance) must link
+both `cgvis` and `cg` (plus OpenGL) explicitly.
+
+## Demos
+
+Ds ships with demo applications built on top of the library, each depending
+on Ds or Ds-Vis and following the same build pattern used for the libraries
+above. See the [demos page](docs/demos.md) for the full list, source folders,
+and pre-built Windows binaries.
+
+[![cgdemo](https://user-images.githubusercontent.com/32277980/153728061-df2b3644-176b-44cc-bbc0-ba3011012ee0.png)](https://user-images.githubusercontent.com/32277980/153728061-df2b3644-176b-44cc-bbc0-ba3011012ee0.png)
+
+*Ds Demo, a ray-tracing application built on top of Ds. [See all demos →](docs/demos.md)*
 
 ## Upcoming Changes
 
@@ -82,20 +93,21 @@ Some upcoming goals are:
 - Textured and transparent materials
 - ~~Basic scientific visualization API~~
 - Demos for 2D/3D neighbor particle searching with regular grids and
-quadtrees/octrees
+  quadtrees/octrees
 - Bézier and B-spline curves and surfaces rendering API
 
 ## Credits
 
 Developed by [Paulo Pagliosa](https://www.facom.ufms.br/~pagliosa).<br/>
-CMake files by [Felipe Silva](https://github.com/MachSilva).
+First version of CMake files by [Felipe Silva](https://github.com/MachSilva).
 
 ## License
 
-Ds is licensed under the zlib License, see [LICENCE.txt](/LICENSE.txt)
-for more information.
+Ds is licensed under the zlib License, see [LICENSE.txt](LICENSE.txt) for more
+information.
 
 ## Contact
+
 If you have questions related to the use of Ds, a bug to report or a
 feature you would like to request, please send an e-mail to:<br/>
 *ppagliosa @ gmail dot com*
@@ -108,6 +120,3 @@ feature you would like to request, please send an e-mail to:<br/>
 [Dear ImGui]: <https://github.com/ocornut/imgui>
 [CUDA]: <https://developer.nvidia.com/cuda-downloads>
 [VTK]: <https://vtk.org/>
-[cgdemo]: <https://user-images.githubusercontent.com/32277980/153728061-df2b3644-176b-44cc-bbc0-ba3011012ee0.png>
-[cgdemo-scene]: <https://user-images.githubusercontent.com/32277980/153728083-cd875b86-2d29-41d2-8b01-b2a610d5e7d1.png>
-[cgvisdemo]: <https://user-images.githubusercontent.com/32277980/158721233-25ec422a-9922-4b92-89d2-e5a41376d25d.png>
