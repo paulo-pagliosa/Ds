@@ -87,7 +87,7 @@ above. See the [demos page](docs/demos.md) for the full list, source folders,
 and pre-built Windows binaries.
 
 <div align="center">
-  <img src="https://user-images.githubusercontent.com/32277980/153728061-df2b3644-176b-44cc-bbc0-ba3011012ee0.png" alt="cgdemo" width="90%"><br>
+  <img src="https://user-images.githubusercontent.com/32277980/153728061-df2b3644-176b-44cc-bbc0-ba3011012ee0.png" alt="cgdemo" width="95%"><br>
 
 *Ds Demo, a ray-tracing application built on top of Ds. [See all demos →](docs/demos.md)*
 </div>
