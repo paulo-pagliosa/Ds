@@ -17,7 +17,22 @@ add_executable(cgvisdemo
   MainWindow.cpp
 )
 
-target_link_libraries(cgvisdemo cgvis)
+target_link_directories(cgvisdemo PUBLIC
+  ${CMAKE_CURRENT_LIST_DIR}/../../cg/lib
+  ${CMAKE_CURRENT_LIST_DIR}/../../cgvis/lib
+)
+target_link_libraries(cgvisdemo
+  $<$<CONFIG:Debug>:cgvisD>$<$<NOT:$<CONFIG:Debug>>:cgvis>
+  $<$<CONFIG:Debug>:cgD>$<$<NOT:$<CONFIG:Debug>>:cg>
+)
+
+find_package(OpenGL REQUIRED)
+target_link_libraries(cgvisdemo OpenGL::GL)
+
+if(NOT WIN32)
+  find_package(glfw3 REQUIRED)
+  target_link_libraries(cgvisdemo glfw)
+endif()
 
 set(CGVISDEMO_RUNTIME_OUTPUT_DIR ${CMAKE_CURRENT_LIST_DIR})
 set_target_properties(cgvisdemo PROPERTIES

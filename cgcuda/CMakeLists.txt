@@ -23,7 +23,11 @@ target_include_directories(cgcuda PUBLIC
 find_package(CUDA REQUIRED)
 target_compile_definitions(cgcuda PUBLIC _USE_CUDA)
 
-target_link_libraries(cgcuda cg CUDA::cudart_static)
+target_link_directories(cgcuda PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../cg/lib)
+target_link_libraries(cgcuda
+  $<$<CONFIG:Debug>:cgD>$<$<NOT:$<CONFIG:Debug>>:cg>
+  CUDA::cudart_static
+)
 
 set(CGCUDA_LIB_OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 set_target_properties(cgcuda PROPERTIES

@@ -40,7 +40,8 @@ target_include_directories(cgvis PUBLIC
   ${CMAKE_CURRENT_LIST_DIR}/include/
 )
 
-target_link_libraries(cgvis cg)
+target_link_directories(cgvis PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../cg/lib)
+target_link_libraries(cgvis $<$<CONFIG:Debug>:cgD>$<$<NOT:$<CONFIG:Debug>>:cg>)
 
 set(CGVIS_LIB_OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 set_target_properties(cgvis PROPERTIES

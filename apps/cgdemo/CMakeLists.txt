@@ -27,7 +27,16 @@ add_executable(cgdemo
   reader/Scope.cpp
 )
 
-target_link_libraries(cgdemo cg)
+target_link_directories(cgdemo PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../../cg/lib)
+target_link_libraries(cgdemo $<$<CONFIG:Debug>:cgD>$<$<NOT:$<CONFIG:Debug>>:cg>)
+
+find_package(OpenGL REQUIRED)
+target_link_libraries(cgdemo OpenGL::GL)
+
+if(NOT WIN32)
+  find_package(glfw3 REQUIRED)
+  target_link_libraries(cgdemo glfw)
+endif()
 
 set(CGDEMO_RUNTIME_OUTPUT_DIR ${CMAKE_CURRENT_LIST_DIR})
 set_target_properties(cgdemo PROPERTIES

@@ -16,7 +16,16 @@ add_executable(myapp
   MainWindow.cpp
 )
 
-target_link_libraries(myapp cg)
+target_link_directories(myapp PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../../cg/lib)
+target_link_libraries(myapp $<$<CONFIG:Debug>:cgD>$<$<NOT:$<CONFIG:Debug>>:cg>)
+
+find_package(OpenGL REQUIRED)
+target_link_libraries(myapp OpenGL::GL)
+
+if(NOT WIN32)
+  find_package(glfw3 REQUIRED)
+  target_link_libraries(myapp glfw)
+endif()
 
 set(MYAPP_RUNTIME_OUTPUT_DIR ${CMAKE_CURRENT_LIST_DIR})
 set_target_properties(myapp PROPERTIES
