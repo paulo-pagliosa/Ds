@@ -91,7 +91,7 @@ and pre-built Windows binaries.
 Some upcoming goals are:
 
 - Full API documentation
-- ~~CMake project and support for macOS and Linux with Clang and GCC~~
+- ~~CMake project and support for Linux with GCC~~
 - Textured and transparent materials
 - ~~Basic scientific visualization API~~
 - Demos for 2D/3D neighbor particle searching with regular grids and
