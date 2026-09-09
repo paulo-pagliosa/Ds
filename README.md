@@ -27,13 +27,15 @@ Linux).
 
 **Building with Visual Studio** (Windows)
 
-- Open [`cg/build/vs2022/cg.vcxproj`](cg/build/vs2022) and build it.
+Open [`cg/build/vs2022/cg.vcxproj`](cg/build/vs2022) and build it.
 
 **Building with CMake** (≥ 3.16, Windows and Linux)
 
-- `cmake -S cg -B cg/build`
-- `cmake --build cg/build`
-
+From the `cg` folder, run:
+```bash
+cmake -S . -B build
+cmake --build build
+```
 On Windows, this generates and builds with your default toolchain (pass
 `-G "Visual Studio 17 2022"` to force it explicitly). On Linux, install the
 `glfw3` development package through your distro's package manager first
@@ -60,14 +62,16 @@ Ds-Vis depends on Ds — build Ds first (see [Building Ds](#building-ds) above).
 
 **Building with Visual Studio 2022** (Windows)
 
-- Open [`cgvis/build/vs2022/cgvis.vcxproj`](cgvis/build/vs2022) and build
+Open [`cgvis/build/vs2022/cgvis.vcxproj`](cgvis/build/vs2022) and build
   it.
 
 **Building with CMake** (≥ 3.16, Windows and Linux)
 
-- `cmake -S cgvis -B cgvis/build`
-- `cmake --build cgvis/build`
-
+From the `cgvis` folder, run:
+```bash
+cmake -S . -B build
+cmake --build build
+```
 On Windows, pass `-G "Visual Studio 17 2022"` if you want to force that
 generator instead of your default toolchain.
 
@@ -82,9 +86,11 @@ on Ds or Ds-Vis and following the same build pattern used for the libraries
 above. See the [demos page](docs/demos.md) for the full list, source folders,
 and pre-built Windows binaries.
 
-[![cgdemo](https://user-images.githubusercontent.com/32277980/153728061-df2b3644-176b-44cc-bbc0-ba3011012ee0.png)](https://user-images.githubusercontent.com/32277980/153728061-df2b3644-176b-44cc-bbc0-ba3011012ee0.png)
+<div align="center">
+  <img src="https://user-images.githubusercontent.com/32277980/153728061-df2b3644-176b-44cc-bbc0-ba3011012ee0.png" alt="cgdemo" width="90%"><br>
 
 *Ds Demo, a ray-tracing application built on top of Ds. [See all demos →](docs/demos.md)*
+</div>
 
 ## Upcoming Changes
 
@@ -96,7 +102,7 @@ Some upcoming goals are:
 - ~~Basic scientific visualization API~~
 - Demos for 2D/3D neighbor particle searching with regular grids and
   quadtrees/octrees
-- Bézier and B-spline curves and surfaces rendering API
+- Subdivision surfaces and T-splines rendering API
 
 ## Credits
 
@@ -112,7 +118,7 @@ information.
 
 If you have questions related to the use of Ds, a bug to report or a
 feature you would like to request, please send an e-mail to:
-*ppagliosa @ gmail dot com*
+*ppagliosa @ gmail dot com*.
 
 [//]:#
 
