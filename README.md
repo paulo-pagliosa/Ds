@@ -33,10 +33,11 @@ Linux).
 
 - `cmake -S cg -B cg/build`
 - `cmake --build cg/build`
-- On Windows, this generates and builds with your default toolchain (pass
-`-G "Visual Studio 17 2022"` to force it explicitly).
-- On Linux, install the `glfw3` development package through your distro's
-package manager first (GLFW itself is *not* vendored for Linux).
+
+On Windows, this generates and builds with your default toolchain (pass
+`-G "Visual Studio 17 2022"` to force it explicitly). On Linux, install the
+`glfw3` development package through your distro's package manager first
+(GLFW itself is *not* vendored for Linux).
 
 ## Ds-Vis
 
@@ -66,8 +67,9 @@ Ds-Vis depends on Ds — build Ds first (see [Building Ds](#building-ds) above).
 
 - `cmake -S cgvis -B cgvis/build`
 - `cmake --build cgvis/build`
-- On Windows, pass `-G "Visual Studio 17 2022"` if you want to force that
-  generator instead of your default toolchain.
+
+On Windows, pass `-G "Visual Studio 17 2022"` if you want to force that
+generator instead of your default toolchain.
 
 Ds-Vis is a separate static library that does *not* embed Ds's object
 code — anyone linking against Ds-Vis (a demo, for instance) must link
@@ -109,7 +111,7 @@ information.
 ## Contact
 
 If you have questions related to the use of Ds, a bug to report or a
-feature you would like to request, please send an e-mail to:<br/>
+feature you would like to request, please send an e-mail to:
 *ppagliosa @ gmail dot com*
 
 [//]:#
