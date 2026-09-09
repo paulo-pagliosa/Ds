@@ -28,7 +28,7 @@
 // Class definition for OpenGL mesh renderer base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/09/2026
+// Last revision: 09/09/2026
 
 #ifndef __GLMeshRendererBase_h
 #define __GLMeshRendererBase_h
@@ -72,7 +72,6 @@ public:
   using enum RenderBits;
   using RenderFlags = Flags<RenderBits>;
 
-  RenderMode renderMode{Shaded};
   RenderFlags flags{UseLights};
   Color edgeColor{Color::darkGray};
   Color vertexNormalColor{Color::gray};
@@ -80,6 +79,13 @@ public:
 
   /// Destructor.
   ~GLMeshRendererBase() override;
+
+  [[nodiscard]] auto renderMode() const
+  {
+    return _renderMode;
+  }
+
+  void setRenderMode(RenderMode);
 
   [[nodiscard]] auto useVertexColors() const
   {
@@ -107,9 +113,17 @@ protected:
   template <typename LightIt>
   void setLights(LightIt begin, LightIt end, const Camera& camera)
   {
+    auto lref = []<typename T>(T&& it) constexpr -> decltype(auto)
+    {
+      if constexpr (std::is_pointer_v<std::remove_reference_t<T>>)
+        return *it;
+      else
+        return it;
+    };
+
     _program->assertInUse();
     for (_lightCount = 0; begin != end;)
-      if (_program->setLight(_lightCount, toRef(*begin++), camera))
+      if (_program->setLight(_lightCount, lref(*begin++), camera))
         if (++_lightCount == maxLights)
           break;
     _program->endLights(_lightCount);
@@ -201,21 +215,18 @@ private:
 
   }; // GLProgram
 
-  template <typename T>
-  constexpr const auto& toRef(T&& it) noexcept
-  {
-    if constexpr (std::is_pointer_v<std::remove_reference_t<T>>)
-      return *it;
-    else
-      return it;
-  }
-
   GLProgram* _program{};
   GLState _lastState;
   mat4f _viewportMatrix;
   int _lightCount{};
   GLuint _texture{};
   float _normalScale{0.5f};
+  RenderMode _renderMode{Shaded};
+
+  void updatePolygonMode()
+  {
+    setPolygonMode(_renderMode == Wireframe ? LINE : FILL);
+  }
 
 }; // GLMeshRendererBase
 

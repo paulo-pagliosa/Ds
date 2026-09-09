@@ -28,7 +28,7 @@
 // Source file for GLSL program.
 //
 // Author: Paulo Pagliosa
-// Last revision: 31/08/2026
+// Last revision: 09/09/2026
 
 #include "graphics/GLProgram.h"
 #include <cstdarg>
@@ -248,7 +248,7 @@ Program* Program::_current;
 Program::Program(const char* name):
   NamedObject{name},
   _handle{0},
-  _state{State::CREATED}
+  _state{Created}
 {
   // do nothing
 }
@@ -272,15 +272,15 @@ Program::addShader(GLenum type, ShaderSource source, const char* buffer)
 
   Shader s{type};
 
-  if (_state == State::IN_USE)
+  if (_state == InUse)
     error(CANNOT_ATTACH_SHADER, name(), s.name());
-  if (source == ShaderSource::FILE)
+  if (source == ShaderSource::File)
     s.loadSourceFromFile(buffer);
   else
     s.setSource(buffer);
   // Attach the shader.
   glAttachShader(_handle, s);
-  _state = State::MODIFIED;
+  _state = Modified;
   return *this;
 }
 
@@ -289,19 +289,19 @@ Program::use()
 {
   switch (_state)
   {
-    case State::IN_USE:
+    case InUse:
       break;
-    case State::CREATED:
+    case Created:
       error(CANNOT_USE_PROGRAM, name());
       break;
-    case State::MODIFIED:
+    case Modified:
       link();
       [[fallthrough]];
-    case State::BUILT:
-      if (_current)
-        _current->_state = State::BUILT;
+    case Built:
       glUseProgram(_handle);
-      _state = State::IN_USE;
+      _state = InUse;
+      if (_current)
+        _current->_state = Built;
       _current = this;
   }
 }
@@ -309,18 +309,18 @@ Program::use()
 void
 Program::assertInUse() const
 {
-  if (_state != State::IN_USE)
+  if (!inUse())
     error(PROGRAM_NOT_IN_USE, name());
 }
 
 void
 Program::disuse()
 {
-  if (_state == State::IN_USE)
+  if (inUse())
   {
-    _current = nullptr;
     glUseProgram(0);
-    _state = State::BUILT;
+    _state = Built;
+    _current = nullptr;
   }
 }
 
@@ -371,7 +371,7 @@ Program::link()
   // Check for linking errors.
   glGetProgramiv(_handle, GL_LINK_STATUS, &ok);
   if (ok == GL_TRUE)
-    _state = State::BUILT;
+    _state = Built;
   else
   {
     auto log = infoLog(_handle, glGetProgramiv, glGetProgramInfoLog);

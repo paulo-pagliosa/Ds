@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/09/2026
+// Last revision: 09/09/2026
 
 #ifndef __SceneWindowBase_h
 #define __SceneWindowBase_h
@@ -91,12 +91,7 @@ protected:
   static void inspectCamera(Camera&);
   static void inspectLight(Light&);
   static void inspectMaterial(Material&);
-  static void inspectDisplayMode(RenderMode&, Color&);
-
-  void inspectDisplayMode()
-  {
-    inspectDisplayMode(_editor->renderMode, _editor->edgeColor);
-  }
+  static void inspectDisplayMode(RenderMode&);
 
 private:
   enum class MoveBits
@@ -134,6 +129,14 @@ private:
   bool keyInputEvent(int, int, int) override;
 
   virtual SceneBase* makeScene() = 0;
+
+  void inspectDisplayMode()
+  {
+    auto mode = _editor->renderMode();
+
+    inspectDisplayMode(mode);
+    _editor->setRenderMode(mode);
+  }
 
 }; // SceneWindowBase
 

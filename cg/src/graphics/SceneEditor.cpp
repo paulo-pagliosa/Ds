@@ -28,7 +28,7 @@
 // Source file for scene editor.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/98/2026
+// Last revision: 09/09/2026
 
 #include "graphics/SceneEditor.h"
 
@@ -223,12 +223,12 @@ SceneEditor::drawLight(const Light& light)
 
   glDisable(GL_DEPTH_TEST);
   setMeshColor(_lightGismoColor);
-  setPolygonMode(PolygonMode::FILL);
+  setPolygonMode(FILL);
   setFlatMode(true);
   drawCircle(p, pixelsLength(lr), camera()->viewPlaneNormal());
   setFlatMode(false);
   setLineColor(_lightGismoColor);
-  setPolygonMode(PolygonMode::LINE);
+  setPolygonMode(LINE);
 
   auto range = 20.0f;
 

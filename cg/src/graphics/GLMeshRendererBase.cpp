@@ -28,7 +28,7 @@
 // Source file for OpenGL mesh renderer base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/09/2026
+// Last revision: 09/09/2026
 
 #include "graphics/GLMeshRendererBase.h"
 
@@ -517,6 +517,14 @@ GLMeshRendererBase::~GLMeshRendererBase()
 }
 
 void
+GLMeshRendererBase::setRenderMode(RenderMode mode)
+{
+  _renderMode = mode;
+  if (_program->inUse())
+    updatePolygonMode();
+}
+
+void
 GLMeshRendererBase::setAmbientLight(const Color& color)
 {
   _program->assertInUse();
@@ -578,12 +586,12 @@ GLMeshRendererBase::begin(Camera& camera)
     glEnable(GL_DEPTH_TEST);
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &_lastState.texture);
     glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &_lastState.vao);
-    glPolygonMode(GL_FRONT_AND_BACK, (renderMode != Wireframe) + GL_LINE);
     updateView(camera);
     _program->use();
     _program->setProjectionType(camera);
     _program->setViewportMatrix(_viewportMatrix);
     _program->setLineColor(edgeColor);
+    updatePolygonMode();
   }
 }
 
@@ -603,7 +611,7 @@ GLMeshRendererBase::render(const TriangleMesh& mesh,
     return false;
   m->bind();
   _program->setTransforms(t, n, camera);
-  _program->setHiddenLinesFlag(renderMode == ShadedWithEdges);
+  _program->setHiddenLinesFlag(_renderMode == ShadedWithEdges);
 
   const auto uvcFlag = useVertexColors();
   auto utFlag = false;

@@ -28,7 +28,7 @@
 // Source file for triangle mesh mapper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/09/2026
+// Last revision: 09/09/2026
 
 #include "graphics/TriangleMeshMapper.h"
 
@@ -55,19 +55,15 @@ TriangleMeshMapper::setMesh(const TriangleMesh& mesh)
 bool
 TriangleMeshMapper::render(GLRenderer& renderer) const
 {
-  if (!useObjectRenderMode)
+  auto m = renderer.renderMode();
+
+  if (m == renderMode || !useObjectRenderMode)
     return renderer.drawMesh(*_primitive);
-
-  auto m = renderer.renderMode;
-  auto c = renderer.edgeColor;
-
-  renderer.renderMode = renderMode;
-  renderer.edgeColor = edgeColor;
+  renderer.setRenderMode(renderMode);
 
   auto r = renderer.drawMesh(*_primitive);
 
-  renderer.renderMode = m;
-  renderer.edgeColor = c;
+  renderer.setRenderMode(m);
   return r;
 }
 

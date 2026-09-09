@@ -28,7 +28,7 @@
 // Source file for generic graph scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/09/2026
+// Last revision: 09/09/2026
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
@@ -88,7 +88,7 @@ SceneWindow::drawSelectedPrimitive(const PrimitiveMapper& mapper,
     auto editor = this->editor();
 
     editor->setMeshColor(color);
-    editor->setPolygonMode(GLGraphics3::LINE);
+    editor->setPolygonMode(GLRenderer::LINE);
     editor->drawMesh(*mesh, p->localToWorldMatrix(), p->normalMatrix());
   }
 }
@@ -420,12 +420,10 @@ SceneWindow::inspectPrimitive(SceneWindow& window, TriangleMeshProxy& proxy)
   auto mapper = proxy.mapper();
 
   window.inspectMaterial(*(mapper->primitive()));
-  /*
   ImGui::Separator();
-  ImGui::Checkbox("Object Display Mode", &mapper->useObjectRenderMode);
-  if (mapper->useObjectRenderMode)
-    inspectDisplayMode(mapper->renderMode, mapper->edgeColor);
-  */
+  inspectDisplayMode(mapper->renderMode);
+  ImGui::SameLine();
+  ImGui::Checkbox("###ODM", &mapper->useObjectRenderMode);
   proxy.actor()->visible = proxy.sceneObject()->visible();
 }
 

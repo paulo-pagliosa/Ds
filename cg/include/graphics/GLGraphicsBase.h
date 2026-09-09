@@ -28,7 +28,7 @@
 // Class definition for OpenGL graphics base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/09/2026
+// Last revision: 09/09/2026
 
 #ifndef __GLGraphicsBase_h
 #define __GLGraphicsBase_h
@@ -48,11 +48,13 @@ namespace cg
 class GLGraphicsBase: public virtual SharedObject
 {
 public:
-  enum PolygonMode
+  enum class PolygonMode: GLenum
   {
     LINE = GL_LINE,
     FILL = GL_FILL
   };
+
+  using enum PolygonMode;
 
   /// Destructs this GL graphics base
   ~GLGraphicsBase() override;
@@ -172,10 +174,7 @@ public:
   }
 
   /// Sets the polygon mode.
-  void setPolygonMode(PolygonMode mode)
-  {
-    glPolygonMode(GL_FRONT_AND_BACK, _polygonMode = mode);
-  }
+  void setPolygonMode(PolygonMode mode);
 
 protected:
   /// Constructs a GL graphics base.

@@ -28,7 +28,7 @@
 // Source file for OpenGL 3D graphics.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2026
+// Last revision: 09/09/2026
 
 #include "geometry/MeshSweeper.h"
 #include "graphics/GLGraphics3.h"
@@ -507,11 +507,12 @@ GLGraphics3::drawVector(const vec3f& p, const vec3f& d, float s)
 void
 GLGraphics3::drawAxes(const vec3f& p, const mat3f& r, float s)
 {
-  auto dt = glIsEnabled(GL_DEPTH_TEST);
-  auto& glyph = *cone();
+  const auto dt = glIsEnabled(GL_DEPTH_TEST);
+  const auto pm = polygonMode();
+  const auto& glyph = *cone();
 
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glDisable(GL_DEPTH_TEST);
+  setPolygonMode(FILL);
   _flatMode = 1;
   setVectorColor(Color::red);
   drawAxis(p, r[0], s, glyph);
@@ -520,7 +521,7 @@ GLGraphics3::drawAxes(const vec3f& p, const mat3f& r, float s)
   setVectorColor(Color::blue);
   drawAxis(p, r[2], s, glyph);
   _flatMode = 0;
-  glPolygonMode(GL_FRONT_AND_BACK, polygonMode());
+  setPolygonMode(pm);
   if (dt)
     glEnable(GL_DEPTH_TEST);
 }

@@ -28,7 +28,7 @@
 // Source file for OpenGL graphics base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 31/08/2026
+// Last revision: 09/09/2026
 
 #include "graphics/GLGraphicsBase.h"
 
@@ -107,7 +107,8 @@ GLGraphicsBase::GLGraphicsBase():
   _pointDrawer{"Point Drawer"},
   _lineDrawer{"Line Drawer"},
   _triangleDrawer{"Triangle Drawer"},
-  _quadDrawer{"Quad Drawer"}
+  _quadDrawer{"Quad Drawer"},
+  _polygonMode{LINE}
 {
   using namespace GLSL;
 
@@ -198,6 +199,13 @@ GLGraphicsBase::drawQuad(const vec4f* points)
 
   glDrawArrays(_polygonMode == LINE ? GL_LINE_LOOP : GL_TRIANGLE_FAN, 0, 4);
   Program::setCurrent(cp);
+}
+
+void
+GLGraphicsBase::setPolygonMode(PolygonMode mode)
+{
+  if (_polygonMode != mode)
+    glPolygonMode(GL_FRONT_AND_BACK, GLenum(_polygonMode = mode));
 }
 
 } // end namespace cg

@@ -225,9 +225,10 @@ SceneWindowBase::editorView()
     if (ImGui::dragVec3("Rotation", temp))
       camera->setEulerAngles(temp);
     inspectCamera(*camera);
-    ImGui::Separator();
   }
+  ImGui::Separator();
   inspectDisplayMode();
+  ImGui::colorEdit3("Edge Color", _editor->edgeColor);
   ImGui::Separator();
   ImGui::Checkbox("Show Ground", &_editor->showGround);
   {
@@ -614,14 +615,13 @@ SceneWindowBase::inspectMaterial(Material& material)
 }
 
 void
-SceneWindowBase::inspectDisplayMode(RenderMode& renderMode, Color& edgeColor)
+SceneWindowBase::inspectDisplayMode(RenderMode& renderMode)
 {
   constexpr const char* itens{"Wireframe\0Shaded\0Shaded with Edges\0"};
   auto mode = int(renderMode);
 
   if (ImGui::Combo("Display Mode", &mode, itens))
     renderMode = RenderMode(mode);
-  ImGui::colorEdit3("Edge Color", edgeColor);
 }
 
 } // end namespace cg

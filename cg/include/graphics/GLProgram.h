@@ -28,7 +28,7 @@
 // Class definition for GLSL program.
 //
 // Author: Paulo Pagliosa
-// Last revision: 31/08/2026
+// Last revision: 09/09/2026
 
 #ifndef __GLProgram_h
 #define __GLProgram_h
@@ -47,8 +47,8 @@ namespace cg::GLSL
 
 enum class ShaderSource
 {
-  FILE,
-  STRING
+  File,
+  String
 };
 
 
@@ -61,11 +61,13 @@ class Program: public NamedObject
 public:
   enum class State
   {
-    CREATED,
-    MODIFIED,
-    BUILT,
-    IN_USE
+    Created,
+    Modified,
+    Built,
+    InUse
   };
+
+  using enum State;
 
   /// Constructs a Program.
   Program(const char*);
@@ -88,17 +90,23 @@ public:
     return _state;
   }
 
+  /// Returns true if this program is in use.
+  [[nodiscard]] auto inUse() const
+  {
+    return _state == InUse;
+  }
+
   /// Adds a shader in this program.
   Program& addShader(GLenum, ShaderSource, const char*);
 
   auto& setShader(GLenum type, const char* code)
   {
-    return addShader(type, ShaderSource::STRING, code);
+    return addShader(type, ShaderSource::String, code);
   }
 
   auto& loadShader(GLenum type, const std::string& filename)
   {
-    return addShader(type, ShaderSource::FILE, filename.c_str());
+    return addShader(type, ShaderSource::File, filename.c_str());
   }
 
   /// Adds vertex and fragment shaders in this program.
