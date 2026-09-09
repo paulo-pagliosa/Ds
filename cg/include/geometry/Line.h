@@ -28,7 +28,7 @@
 //  Class definition for 2D/3D line.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 08/09/2026
 
 #ifndef __Line_h
 #define __Line_h
@@ -53,22 +53,22 @@ public:
   Point p0;
   Point p1;
 
-  auto operator ()(R u) const
+  [[nodiscard]] auto operator ()(R u) const
   {
     return R(1 - u) * p0 + u * p1;
   }
 
-  auto bounds() const
+  [[nodiscard]] auto bounds() const
   {
     return Bounds<R, D>{p0, p1};
   }
 
-  auto direction() const
+  [[nodiscard]] auto direction() const
   {
     return (p1 - p0).versor();
   }
 
-  auto length() const
+  [[nodiscard]] auto length() const
   {
     return (p1 - p0).length();
   }

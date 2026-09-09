@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022 Paulo Pagliosa.                              |
+//| Copyright (C) 2022, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for generic primitive mapper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/02/2022
+// Last revision: 08/09/2026
 
 #ifndef __PrimitiveMapper_h
 #define __PrimitiveMapper_h
@@ -51,8 +51,8 @@ public:
   virtual void update();
   virtual bool render(GLRenderer&) const;
 
-  virtual Bounds3f bounds() const;
-  virtual Primitive* primitive() const;
+  [[nodiscard]] virtual Bounds3f bounds() const;
+  [[nodiscard]] virtual Primitive* primitive() const;
 
 }; // PrimitiveMapper
 

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2022, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for triangle mesh shape.
 //
 // Author: Paulo Pagliosa
-// Last revision: 21/06/2023
+// Last revision: 08/09/2026
 
 #ifndef __TriangleMeshShape_h
 #define __TriangleMeshShape_h
@@ -49,12 +49,12 @@ class TriangleMeshShape: public Shape
 public:
   TriangleMeshShape(const TriangleMesh&);
 
-  const TriangleMesh* tesselate() const override;
-  bool canIntersect() const override;
-  vec3f normal(const Intersection&) const override;
-  Bounds3f bounds() const override;
+  [[nodiscard]] const TriangleMesh* tesselate() const override;
+  [[nodiscard]] bool canIntersect() const override;
+  [[nodiscard]] vec3f normal(const Intersection&) const override;
+  [[nodiscard]] Bounds3f bounds() const override;
 
-  const TriangleMesh* mesh() const
+  [[nodiscard]] const TriangleMesh* mesh() const
   {
     return _mesh;
   }

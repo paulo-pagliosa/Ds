@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022 Paulo Pagliosa.                              |
+//| Copyright (C) 2022, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for primitive BVH.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/01/2022
+// Last revision: 08/09/2026
 
 #ifndef __PrimitiveBVH_h
 #define __PrimitiveBVH_h
@@ -55,12 +55,12 @@ public:
     // do nothing
   }
 
-  auto& primitives() const
+  [[nodiscard]] auto& primitives() const
   {
     return _bvh->primitives();
   }
 
-  Bounds3f bounds() const override;
+  [[nodiscard]] Bounds3f bounds() const override;
 
 private:
   Reference<BVH<Primitive>> _bvh;

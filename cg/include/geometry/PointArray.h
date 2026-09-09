@@ -28,7 +28,7 @@
 // Class definition for point array.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/09/2026
+// Last revision: 08/09/2026
 
 #ifndef __PointArray_h
 #define __PointArray_h
@@ -64,17 +64,17 @@ public:
     // do nothing
   }
 
-  auto capacity() const
+  [[nodiscard]] auto capacity() const
   {
     return _data.size();
   }
 
-  auto size() const
+  [[nodiscard]] auto size() const
   {
     return _size;
   }
 
-  auto activeCount() const
+  [[nodiscard]] auto activeCount() const
   {
     return _activeCount;
   }
@@ -116,21 +116,21 @@ public:
     return i >= 0 && i < _size ? deactivate(i), true : false;
   }
 
-  bool active(PointId i) const
+  [[nodiscard]] bool active(PointId i) const
   {
     assert(i >= 0 && i < _size);
     return _flag.template get<0>(i) == activeFlag;
   }
 
   template <size_t I>
-  const auto& get(PointId i) const
+  [[nodiscard]] const auto& get(PointId i) const
   {
     assert(i >= 0 && i < _size);
     return _data.template get<I>(i);
   }
 
   template <size_t I>
-  auto& get(PointId i)
+  [[nodiscard]] auto& get(PointId i)
   {
     assert(i >= 0 && i < _size);
     return _data.template get<I>(i);
@@ -142,12 +142,12 @@ public:
     _data.set(i, p, args...);
   }
 
-  const auto& position(PointId i) const
+  [[nodiscard]] const auto& position(PointId i) const
   {
     return this->template get<0>(i);
   }
 
-  auto& position(PointId i)
+  [[nodiscard]] auto& position(PointId i)
   {
     return this->template get<0>(i);
   }
@@ -157,32 +157,32 @@ public:
     position(i) = p;
   }
 
-  const auto& operator [](PointId i) const
+  [[nodiscard]] const auto& operator [](PointId i) const
   {
     return position(i);
   }
 
-  auto& operator [](PointId i)
+  [[nodiscard]] auto& operator [](PointId i)
   {
     return position(i);
   }
 
-  auto cbegin() const
+  [[nodiscard]] auto cbegin() const
   {
     return _data.cbegin();
   }
 
-  auto cend() const
+  [[nodiscard]] auto cend() const
   {
     return typename Data::const_iterator{&_data, _size};
   }
 
-  auto begin()
+  [[nodiscard]] auto begin()
   {
     return _data.begin();
   }
 
-  auto end()
+  [[nodiscard]] auto end()
   {
     return typename Data::iterator{&_data, _size};
   }

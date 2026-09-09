@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for triangle mesh BVH.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/07/2025
+// Last revision: 08/09/2026
 
 #ifndef __TriangleMeshBVH_h
 #define __TriangleMeshBVH_h
@@ -51,7 +51,7 @@ public:
     uint32_t maxTrianglesPerNode = 20,
     SplitMethod splitMethod = SAH);
 
-  const TriangleMesh* mesh() const
+  [[nodiscard]] const TriangleMesh* mesh() const
   {
     return _mesh;
   }

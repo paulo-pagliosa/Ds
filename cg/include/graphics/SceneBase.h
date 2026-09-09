@@ -28,7 +28,7 @@
 // Class definition for scene base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2026
+// Last revision: 08/09/2026
 
 #ifndef __SceneBase_h
 #define __SceneBase_h
@@ -51,32 +51,32 @@ public:
   Color backgroundColor{Color::gray};
   Color ambientLight{Color::black};
 
-  auto actorCount() const
+  [[nodiscard]] auto actorCount() const
   {
     return (int)_actors.size();
   }
 
-  const auto& actors() const
+  [[nodiscard]] const auto& actors() const
   {
     return _actors;
   }
 
-  auto& actors()
+  [[nodiscard]] auto& actors()
   {
     return _actors;
   }
 
-  auto lightCount() const
+  [[nodiscard]] auto lightCount() const
   {
     return (int)_lights.size();
   }
 
-  const auto& lights() const
+  [[nodiscard]] const auto& lights() const
   {
     return _lights;
   }
 
-  auto& lights()
+  [[nodiscard]] auto& lights()
   {
     return _lights;
   }

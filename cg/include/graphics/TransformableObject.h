@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022 Paulo Pagliosa.                              |
+//| Copyright (C) 2022, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for generic transformable object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/03/2022
+// Last revision: 08/09/2026
 
 #ifndef __TransformableObject_h
 #define __TransformableObject_h
@@ -47,12 +47,12 @@ namespace cg
 class TransformableObject: public virtual SharedObject
 {
 public:
-  const auto& localToWorldMatrix() const
+  [[nodiscard]] const auto& localToWorldMatrix() const
   {
     return _localToWorld;
   }
 
-  const auto& worldToLocalMatrix() const
+  [[nodiscard]] const auto& worldToLocalMatrix() const
   {
     return _worldToLocal;
   }

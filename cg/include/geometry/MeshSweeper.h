@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for mesh sweeper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/03/2022
+// Last revision: 08/09/2026
 
 #ifndef __MeshSweeper_h
 #define __MeshSweeper_h
@@ -46,10 +46,10 @@ namespace cg
 class MeshSweeper
 {
 public:
-  static TriangleMesh* makeBox();
-  static TriangleMesh* makeCone(int = 16);
-  static TriangleMesh* makeCylinder(int = 16);
-  static TriangleMesh* makeSphere(int = 16);
+  [[nodiscard]] static TriangleMesh* makeBox();
+  [[nodiscard]] static TriangleMesh* makeCone(int = 16);
+  [[nodiscard]] static TriangleMesh* makeCylinder(int = 16);
+  [[nodiscard]] static TriangleMesh* makeSphere(int = 16);
 
 }; // MeshSweeper
 

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for scene object transform.
 //
 // Author: Paulo Pagliosa
-// Last revision: 13/11/2023
+// Last revision: 08/09/2026
 
 #ifndef __Transform_h
 #define __Transform_h
@@ -57,28 +57,28 @@ public:
   Transform();
 
   /// Returns the parent of this transform.
-  Transform* parent() const; // implemented in SceneObject.h
+  [[nodiscard]] Transform* parent() const; // implemented in SceneObject.h
 
   /// Returns the local position of this transform.
-  const vec3f& localPosition() const
+  [[nodiscard]] const vec3f& localPosition() const
   {
     return _localPosition;
   }
 
   /// Returns the local rotation of this transform.
-  const quatf& localRotation() const
+  [[nodiscard]] const quatf& localRotation() const
   {
     return _localRotation;
   }
 
   /// Returns the local Euler angles (in degrees) of this transform.
-  const vec3f& localEulerAngles() const
+  [[nodiscard]] const vec3f& localEulerAngles() const
   {
     return _localEulerAngles;
   }
 
   /// Returns the local scale of this transform.
-  const vec3f& localScale() const
+  [[nodiscard]] const vec3f& localScale() const
   {
     return _localScale;
   }
@@ -120,40 +120,40 @@ public:
   }
 
   /// Returns the world position of this transform.
-  const vec3f& position() const
+  [[nodiscard]] const vec3f& position() const
   {
     return _position;
   }
 
   /// Returns the world rotation of this transform.
-  const quatf& rotation() const
+  [[nodiscard]] const quatf& rotation() const
   {
     return _rotation;
   }
 
   /// Returns the world Euler angles (in degrees) of this transform.
-  vec3f eulerAngles() const
+  [[nodiscard]] vec3f eulerAngles() const
   {
     return _rotation.eulerAngles();
   }
 
   /// Returns the lossy scale of this transform.
-  vec3f lossyScale() const;
+  [[nodiscard]] vec3f lossyScale() const;
 
   /// Returns the direction of the world Z axis of this transform.
-  vec3f forward() const
+  [[nodiscard]] vec3f forward() const
   {
     return _rotation * vec3f{0, 0, 1};
   }
 
   /// Returns the direction of the world Y axis of this transform.
-  vec3f up() const
+  [[nodiscard]] vec3f up() const
   {
     return _rotation * vec3f::up();
   }
 
   /// Returns the direction of the world Z axis of this transform.
-  vec3f right() const
+  [[nodiscard]] vec3f right() const
   {
     return _rotation * vec3f{1, 0, 0};
   }
@@ -186,43 +186,43 @@ public:
   }
 
   /// Returns the local to world matrix of this transform.
-  const mat4f& localToWorldMatrix() const
+  [[nodiscard]] const mat4f& localToWorldMatrix() const
   {
     return _localToWorld;
   }
 
   /// Returns the world to local matrix of this transform.
-  const mat4f& worldToLocalMatrix() const
+  [[nodiscard]] const mat4f& worldToLocalMatrix() const
   {
     return _worldToLocal;
   }
 
   /// Transforms \c p from local space to world space.
-  vec3f transform(const vec3f& p) const
+  [[nodiscard]] vec3f transform(const vec3f& p) const
   {
     return _localToWorld.transform3x4(p);
   }
 
   /// Transforms \c p from world space to local space.
-  vec3f inverseTransform(const vec3f& p) const
+  [[nodiscard]] vec3f inverseTransform(const vec3f& p) const
   {
     return _worldToLocal.transform3x4(p);
   }
 
   /// Transforms \c v from local space to world space.
-  vec3f transformVector(const vec3f& v) const
+  [[nodiscard]] vec3f transformVector(const vec3f& v) const
   {
     return _localToWorld.transformVector(v);
   }
 
   /// Transforms \c v from world space to local space.
-  vec3f inverseTransformVector(const vec3f& v) const
+  [[nodiscard]] vec3f inverseTransformVector(const vec3f& v) const
   {
     return _worldToLocal.transformVector(v);
   }
 
   /// Transforms \c d from world space to local space.
-  vec3f transformDirection(const vec3f& d) const
+  [[nodiscard]] vec3f transformDirection(const vec3f& d) const
   {
     return _rotation.rotate(d);
   }
@@ -231,7 +231,7 @@ public:
   void reset();
 
   /// Returns true if this transform has been changed.
-  auto changed() const
+  [[nodiscard]] auto changed() const
   {
     return _flags.changed;
   }

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for scene object component.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/11/2025
+// Last revision: 08/09/2026
 
 #ifndef __SceneObjectComponent_h
 #define __SceneObjectComponent_h
@@ -51,28 +51,28 @@ class Component: public SharedObject
 {
 public:
   /// Returns the type name of this component.
-  auto typeName() const
+  [[nodiscard]] auto typeName() const
   {
     return _typeName.c_str();
   }
 
   /// Returns the scene object owning this component.
-  auto sceneObject() const
+  [[nodiscard]] auto sceneObject() const
   {
     return _sceneObject;
   }
 
   /// Returns the transform of this component.
-  Transform* transform() const; // implemented in SceneObject.h
+  [[nodiscard]] Transform* transform() const; // implemented in SceneObject.h
 
   /// Returns true if this component is erasable.
-  auto erasable() const
+  [[nodiscard]] auto erasable() const
   {
     return _flags.erasable;
   }
 
   /// Returns true if this component is transformable.
-  auto transformable() const
+  [[nodiscard]] auto transformable() const
   {
     return _flags.transformable;
   }

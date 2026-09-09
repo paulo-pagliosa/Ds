@@ -109,6 +109,12 @@ namespace cg
 //
 // SceneWindowBase implementation
 // ===============
+SceneEditor*
+SceneWindowBase::makeEditor(SceneBase& scene)
+{
+  return new SceneEditor{scene};
+}
+
 void
 SceneWindowBase::initialize()
 {
@@ -116,8 +122,8 @@ SceneWindowBase::initialize()
 
   auto scene = makeScene();
 
-  assert(scene != nullptr);
-  _editor = new SceneEditor{*scene};
+  assert(scene);
+  _editor = makeEditor(*scene);
 
   auto w = width(), h = height();
 
@@ -221,15 +227,7 @@ SceneWindowBase::editorView()
     inspectCamera(*camera);
     ImGui::Separator();
   }
-  {
-    static auto displayMode = 1;
-
-    if (ImGui::Combo("Display Mode",
-      &displayMode,
-      "Wireframe\0Shaded\0Shaded with Edges\0"))
-      _editor->renderMode = GLRenderer::RenderMode(displayMode);
-    ImGui::colorEdit3("Edge Color", _editor->wireframeColor);
-  }
+  inspectDisplayMode();
   ImGui::Separator();
   ImGui::Checkbox("Show Ground", &_editor->showGround);
   {
@@ -613,6 +611,17 @@ SceneWindowBase::inspectMaterial(Material& material)
   ImGui::colorEdit3("Specular", material.specular);
   ImGui::colorEdit3("Transparency", material.transparency);
   ImGui::DragFloat("IOR", &material.ior, 0.01f, 1, 5);
+}
+
+void
+SceneWindowBase::inspectDisplayMode(RenderMode& renderMode, Color& edgeColor)
+{
+  constexpr const char* itens{"Wireframe\0Shaded\0Shaded with Edges\0"};
+  auto mode = int(renderMode);
+
+  if (ImGui::Combo("Display Mode", &mode, itens))
+    renderMode = RenderMode(mode);
+  ImGui::colorEdit3("Edge Color", edgeColor);
 }
 
 } // end namespace cg

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022 Paulo Pagliosa.                              |
+//| Copyright (C) 2022, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,9 +28,8 @@
 // Source file for triangle mesh mapper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 15/07/2022
+// Last revision: 08/09/2026
 
-#include "graphics/GLRenderer.h"
 #include "graphics/TriangleMeshMapper.h"
 
 namespace cg
@@ -56,8 +55,20 @@ TriangleMeshMapper::setMesh(const TriangleMesh& mesh)
 bool
 TriangleMeshMapper::render(GLRenderer& renderer) const
 {
-  renderer.drawMesh(*_primitive);
-  return true;
+  if (!useObjectRenderMode)
+    return renderer.drawMesh(*_primitive);
+
+  auto m = renderer.renderMode;
+  auto c = renderer.edgeColor;
+
+  renderer.renderMode = renderMode;
+  renderer.edgeColor = edgeColor;
+
+  auto r = renderer.drawMesh(*_primitive);
+
+  renderer.renderMode = m;
+  renderer.edgeColor = c;
+  return r;
 }
 
 Bounds3f

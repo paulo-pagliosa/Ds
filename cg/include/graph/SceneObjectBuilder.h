@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2022, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for scene object builder.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/08/2023
+// Last revision: 08/09/2026
 
 #ifndef __SceneObjectBuilder_h
 #define __SceneObjectBuilder_h
@@ -49,21 +49,21 @@ namespace cg::graph
 class SceneObjectBuilder
 {
 public:
-  Scene* scene() const
+  [[nodiscard]] Scene* scene() const
   {
     return _scene;
   }
 
-  void setScene(Scene&);
+  void setScene(Scene& scene);
 
   SceneObject* createEmptyObject();
   SceneObject* createCameraObject(float aspect = 1, const char* = "");
-  SceneObject* createLightObject(Light::Type, const char* = "");
+  SceneObject* createLightObject(Light::Type , const char* = "");
   SceneObject* createPrimitiveObject(const TriangleMesh&, const std::string&);
 
   SceneObject* createObject(const char* name, Component* component)
   {
-    assert(name != nullptr);
+    assert(name);
 
     auto object = SceneObject::New(*_scene, name);
 

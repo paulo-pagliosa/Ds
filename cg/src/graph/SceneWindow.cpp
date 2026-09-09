@@ -416,7 +416,16 @@ SceneWindow::inspectPrimitive(SceneWindow& window, TriangleMeshProxy& proxy)
     ImGui::EndPopup();
   }
   ImGui::Separator();
-  window.inspectMaterial(*(proxy.mapper()->primitive()));
+
+  auto mapper = proxy.mapper();
+
+  window.inspectMaterial(*(mapper->primitive()));
+  /*
+  ImGui::Separator();
+  ImGui::Checkbox("Object Display Mode", &mapper->useObjectRenderMode);
+  if (mapper->useObjectRenderMode)
+    inspectDisplayMode(mapper->renderMode, mapper->edgeColor);
+  */
   proxy.actor()->visible = proxy.sceneObject()->visible();
 }
 

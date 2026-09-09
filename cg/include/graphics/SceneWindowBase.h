@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2026
+// Last revision: 08/09/2026
 
 #ifndef __SceneWindowBase_h
 #define __SceneWindowBase_h
@@ -48,14 +48,11 @@ namespace cg
 class SceneWindowBase: public GLWindow
 {
 public:
-  [[nodiscard]] GLRenderer* renderer() const
-  {
-    return _editor;
-  }
-
   [[nodiscard]] Ray3f makeRay(int x, int y) const;
 
 protected:
+  using RenderMode = GLRenderer::RenderMode;
+
   Color _selectedWireframeColor[2]
   {
     Color{255, 102, 0}, // parent
@@ -66,10 +63,12 @@ protected:
 
   using GLWindow::GLWindow;
 
-  [[nodiscard]] SceneEditor* editor() const
+  SceneEditor* editor() const
   {
     return _editor;
   }
+
+  virtual SceneEditor* makeEditor(SceneBase&);
 
   void initialize() override;
   void render() override;
@@ -92,6 +91,12 @@ protected:
   static void inspectCamera(Camera&);
   static void inspectLight(Light&);
   static void inspectMaterial(Material&);
+  static void inspectDisplayMode(RenderMode&, Color&);
+
+  void inspectDisplayMode()
+  {
+    inspectDisplayMode(_editor->renderMode, _editor->edgeColor);
+  }
 
 private:
   enum class MoveBits

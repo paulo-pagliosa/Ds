@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2022, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for camera proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/11/2025
+// Last revision: 08/09/2026
 
 #ifndef __CameraProxy_h
 #define __CameraProxy_h
@@ -48,17 +48,17 @@ class CameraProxy final: public ComponentProxy<Camera>
 {
 public:
   /// Constructs a default camera.
-  static auto New(float aspect = 1)
+  [[nodiscard]] static auto New(float aspect = 1)
   {
     return new CameraProxy{aspect};
   }
 
-  static auto New(const Camera& camera)
+  [[nodiscard]] static auto New(const Camera& camera)
   {
     return new CameraProxy{camera};
   }
 
-  static Camera* current()
+  [[nodiscard]] static auto current()
   {
     return _current;
   }
@@ -67,7 +67,7 @@ public:
 
   ~CameraProxy() override;
 
-  Camera* camera() const
+  [[nodiscard]] Camera* camera() const
   {
     return _object;
   }

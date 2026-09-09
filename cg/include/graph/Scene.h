@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for graph scene.
 //
 // Author: Paulo Pagliosa
-// Last revision: 03/07/2023
+// Last revision: 08/09/2026
 
 #ifndef __GraphScene_h
 #define __GraphScene_h
@@ -50,18 +50,18 @@ class Scene: public SceneBase
 {
 public:
   /// Constructs an empty scene.
-  static auto New(const char* const name = nullptr)
+  [[nodiscard]] static auto New(const char* const name = nullptr)
   {
     return new Scene{name};
   }
 
   /// Returns the root scene object of this scene.
-  const auto root() const
+  [[nodiscard]] const auto root() const
   {
     return &_root;
   }
 
-  auto root()
+  [[nodiscard]] auto root()
   {
     return &_root;
   }

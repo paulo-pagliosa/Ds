@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2020, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2020, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for generic graph scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/11/2025
+// Last revision: 08/09/2026
 
 #ifndef __GraphSceneWindow_h
 #define __GraphSceneWindow_h
@@ -49,12 +49,12 @@ namespace cg::graph
 class SceneWindow: public SceneWindowBase, public SceneObjectBuilder
 {
 public:
-  Scene* scene() const
+  [[nodiscard]] Scene* scene() const
   {
     return (Scene*)editor()->scene();
   }
 
-  auto currentNode() const
+  [[nodiscard]] auto currentNode() const
   {
     return _currentNode;
   }

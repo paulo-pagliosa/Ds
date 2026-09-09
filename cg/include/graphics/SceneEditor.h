@@ -28,7 +28,7 @@
 // Class definition for scene editor.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 08/09/2026
 
 #ifndef __SceneEditor_h
 #define __SceneEditor_h
@@ -61,7 +61,7 @@ public:
     pan({dx, dy, dz});
   }
 
-  auto orbitDistance() const
+  [[nodiscard]] auto orbitDistance() const
   {
     return _orbitDistance;
   }

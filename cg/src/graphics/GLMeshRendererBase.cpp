@@ -583,7 +583,7 @@ GLMeshRendererBase::begin(Camera& camera)
     _program->use();
     _program->setProjectionType(camera);
     _program->setViewportMatrix(_viewportMatrix);
-    _program->setLineColor(wireframeColor);
+    _program->setLineColor(edgeColor);
   }
 }
 
@@ -603,7 +603,7 @@ GLMeshRendererBase::render(const TriangleMesh& mesh,
     return false;
   m->bind();
   _program->setTransforms(t, n, camera);
-  _program->setHiddenLinesFlag(!(renderMode != ShadedWithEdges));
+  _program->setHiddenLinesFlag(renderMode == ShadedWithEdges);
 
   const auto uvcFlag = useVertexColors();
   auto utFlag = false;
@@ -632,7 +632,7 @@ GLMeshRendererBase::render(const TriangleMesh& mesh,
     return false;
   if (flags.isSet(DrawNormals))
   {
-    setVectorColor(normalColor);
+    setVectorColor(vertexNormalColor);
     drawNormals(mesh, t, n, _normalScale);
   }
   return true;

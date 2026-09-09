@@ -28,7 +28,7 @@
 // Class definition for generic scene node.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 08/09/2026
 
 #ifndef __SceneNode_h
 #define __SceneNode_h
@@ -60,18 +60,18 @@ public:
     return *this;
   }
 
-  auto operator ->() const
+  [[nodiscard]] auto operator ->() const
   {
     return _object;
   }
 
-  operator NamedObject* () const
+  [[nodiscard]] operator NamedObject*() const
   {
     return _object;
   }
 
   template <typename T>
-  auto as()
+  [[nodiscard]] auto as()
   {
     return dynamic_cast<T*>(_object);
   }

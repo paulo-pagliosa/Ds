@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2022, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for primitive proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/12/2025
+// Last revision: 08/09/2026
 
 #ifndef __PrimitiveProxy_h
 #define __PrimitiveProxy_h
@@ -48,17 +48,17 @@ namespace cg::graph
 class PrimitiveProxy: public ComponentProxy<PrimitiveMapper>
 {
 public:
-  static auto New(const PrimitiveMapper& mapper)
+  [[nodiscard]] static auto New(const PrimitiveMapper& mapper)
   {
     return new PrimitiveProxy{mapper};
   }
 
-  PrimitiveMapper* mapper() const
+  [[nodiscard]] PrimitiveMapper* mapper() const
   {
     return _object;
   }
 
-  Actor* actor() const
+  [[nodiscard]] Actor* actor() const
   {
     return _actor;
   }
@@ -79,7 +79,7 @@ protected:
 
 }; // PrimitiveProxy
 
-inline auto
+[[nodiscard]] inline auto
 asPrimitive(const Component* component)
 {
   return dynamic_cast<const PrimitiveProxy*>(component);
@@ -93,19 +93,25 @@ asPrimitive(const Component* component)
 class TriangleMeshProxy final: public PrimitiveProxy
 {
 public:
-  static auto New(const TriangleMesh& mesh, const std::string& meshName)
+  [[nodiscard]] static auto New(const TriangleMesh& mesh,
+    const std::string& meshName)
   {
     return new TriangleMeshProxy{mesh, meshName};
   }
 
-  const char* meshName() const
+  [[nodiscard]] const char* meshName() const
   {
     return _meshName.c_str();
   }
 
+  [[nodiscard]] auto mapper() const
+  {
+    return ((TriangleMeshMapper*)PrimitiveProxy::mapper());
+  }
+
   void setMesh(const TriangleMesh& mesh, const std::string& meshName)
   {
-    ((TriangleMeshMapper*)mapper())->setMesh(mesh);
+    mapper()->setMesh(mesh);
     _meshName = meshName;
   }
 

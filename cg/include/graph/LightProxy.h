@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2022, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for light proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/11/2025
+// Last revision: 08/09/2026
 
 #ifndef __LightProxy_h
 #define __LightProxy_h
@@ -48,17 +48,17 @@ class LightProxy final: public ComponentProxy<Light>
 {
 public:
   /// Constructs a default light.
-  static auto New()
+  [[nodiscard]] static auto New()
   {
     return new LightProxy;
   }
 
-  static auto New(const Light& light)
+  [[nodiscard]] static auto New(const Light& light)
   {
     return new LightProxy{light};
   }
 
-  Light* light() const
+  [[nodiscard]] Light* light() const
   {
     return _object;
   }

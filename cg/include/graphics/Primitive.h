@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022 Paulo Pagliosa.                              |
+//| Copyright (C) 2022, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for primitive.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/03/2022
+// Last revision: 08/09/2026
 
 #ifndef __Primitive_h
 #define __Primitive_h
@@ -53,19 +53,19 @@ using PrimitiveArray = Array<Reference<Primitive>>;
 class Primitive: public TransformableObject
 {
 public:
-  virtual const TriangleMesh* tesselate() const;
-  virtual bool canIntersect() const;
+  [[nodiscard]] virtual const TriangleMesh* tesselate() const;
+  [[nodiscard]] virtual bool canIntersect() const;
 
-  bool intersect(const Ray3f&, Intersection&) const;
-  bool intersect(const Ray3f&) const;
-  virtual Material* material() const;
+  [[nodiscard]] bool intersect(const Ray3f&, Intersection&) const;
+  [[nodiscard]] bool intersect(const Ray3f&) const;
+  [[nodiscard]] virtual Material* material() const;
 
-  virtual vec3f normal(const Intersection&) const = 0;
-  virtual Bounds3f bounds() const = 0;
+  [[nodiscard]] virtual vec3f normal(const Intersection&) const = 0;
+  [[nodiscard]] virtual Bounds3f bounds() const = 0;
 
   virtual void setMaterial(Material*);
 
-  const auto& normalMatrix() const
+  [[nodiscard]] const auto& normalMatrix() const
   {
     return  _normalMatrix;
   }
@@ -99,8 +99,8 @@ protected:
 class Aggregate: public Primitive
 {
 public:
-  vec3f normal(const Intersection&) const override;
-  Material* material() const override;
+  [[nodiscard]] vec3f normal(const Intersection&) const override;
+  [[nodiscard]] Material* material() const override;
 
 }; // Aggregate
 
@@ -118,12 +118,12 @@ public:
     // do nothing
   }
 
-  const TriangleMesh* tesselate() const override;
-  bool canIntersect() const override;
-  vec3f normal(const Intersection&) const override;
-  Bounds3f bounds() const override;
+  [[nodiscard]] const TriangleMesh* tesselate() const override;
+  [[nodiscard]] bool canIntersect() const override;
+  [[nodiscard]] vec3f normal(const Intersection&) const override;
+  [[nodiscard]] Bounds3f bounds() const override;
 
-  const Shape* shape() const
+  [[nodiscard]] const Shape* shape() const
   {
     return _shape;
   }

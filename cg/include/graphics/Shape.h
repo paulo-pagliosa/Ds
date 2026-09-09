@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022 Paulo Pagliosa.                              |
+//| Copyright (C) 2022, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for generic shape.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/02/2022
+// Last revision: 08/09/2026
 
 #ifndef __Shape_h
 #define __Shape_h
@@ -53,23 +53,23 @@ class TriangleMesh;
 class Shape: public virtual SharedObject
 {
 public:
-  virtual const TriangleMesh* tesselate() const;
-  virtual bool canIntersect() const;
+  [[nodiscard]] virtual const TriangleMesh* tesselate() const;
+  [[nodiscard]] virtual bool canIntersect() const;
 
-  bool intersect(const Ray3f& ray) const
+  [[nodiscard]] bool intersect(const Ray3f& ray) const
   {
     assert(canIntersect());
     return localIntersect(ray);
   }
 
-  bool intersect(const Ray3f& ray, Intersection& hit) const
+  [[nodiscard]] bool intersect(const Ray3f& ray, Intersection& hit) const
   {
     assert(canIntersect());
     return localIntersect(ray, hit);
   }
 
-  virtual vec3f normal(const Intersection&) const;
-  virtual Bounds3f bounds() const;
+  [[nodiscard]] virtual vec3f normal(const Intersection&) const;
+  [[nodiscard]] virtual Bounds3f bounds() const;
 
 protected:
   virtual bool localIntersect(const Ray3f&) const;

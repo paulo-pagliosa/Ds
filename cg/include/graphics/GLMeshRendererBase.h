@@ -74,9 +74,9 @@ public:
 
   RenderMode renderMode{Shaded};
   RenderFlags flags{UseLights};
-  Color normalColor{Color::gray};
+  Color edgeColor{Color::darkGray};
+  Color vertexNormalColor{Color::gray};
   Color boundsColor{255, 102, 0};
-  Color wireframeColor{Color::white};
 
   /// Destructor.
   ~GLMeshRendererBase() override;

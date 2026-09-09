@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022 Paulo Pagliosa.                              |
+//| Copyright (C) 2022, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,11 +28,12 @@
 // Class definition for triangle mesh mapper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 16/07/2022
+// Last revision: 08/09/2026
 
 #ifndef __TriangleMeshMapper_h
 #define __TriangleMeshMapper_h
 
+#include "graphics/GLRenderer.h"
 #include "graphics/PrimitiveMapper.h"
 #include "graphics/TriangleMeshShape.h"
 
@@ -49,18 +50,24 @@ class TriangleMesh;
 class TriangleMeshMapper: public PrimitiveMapper
 {
 public:
+  using RenderMode = GLRenderer::RenderMode;
+
+  Color edgeColor{Color::gray};
+  RenderMode renderMode{RenderMode::Shaded};
+  bool useObjectRenderMode{};
+
   TriangleMeshMapper(const TriangleMesh& mesh);
 
   bool render(GLRenderer&) const override;
-  Bounds3f bounds() const override;
-  Primitive* primitive() const override;
+  [[nodiscard]] Bounds3f bounds() const override;
+  [[nodiscard]] Primitive* primitive() const override;
 
-  const TriangleMeshShape* shape() const
+  [[nodiscard]] const TriangleMeshShape* shape() const
   {
     return _shape;
   }
 
-  const TriangleMesh* mesh() const
+  [[nodiscard]] const TriangleMesh* mesh() const
   {
     return _shape->mesh();
   }

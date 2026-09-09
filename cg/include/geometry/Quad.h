@@ -28,7 +28,7 @@
 //  Class definition for 2D/3D quad.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 08/09/2026
 
 #ifndef __Quad_h
 #define __Quad_h
@@ -57,7 +57,7 @@ public:
   Point p2;
   Point p3;
 
-  auto operator ()(R u, R v) const
+  [[nodiscard]] auto operator ()(R u, R v) const
   {
     const auto u1 = R(1 - u);
     const auto v1 = R(1 - v);
@@ -65,7 +65,7 @@ public:
     return u1 * v1 * p0 + u * v1 * p1 + u * v * p2 + u1 * v * p3;
   }
 
-  auto bounds() const
+  [[nodiscard]] auto bounds() const
   {
     Bounds<R, D> b;
     

@@ -28,7 +28,7 @@
 // Class definition for scene object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2026
+// Last revision: 08/09/2026
 
 #ifndef __SceneObject_h
 #define __SceneObject_h
@@ -58,7 +58,7 @@ class SceneObject: public SharedNamedObject,
 {
 public:
   /// Constructs an empty scene object.
-  static auto New(Scene& scene, const char* name = "")
+  [[nodiscard]] static auto New(Scene& scene, const char* name = "")
   {
     return new SceneObject{scene, name};
   }
@@ -66,13 +66,13 @@ public:
   ~SceneObject() override;
 
   /// Returns the scene which this scene object belong to.
-  auto scene() const
+  [[nodiscard]] auto scene() const
   {
     return _scene;
   }
 
   /// Returns the parent of this scene object.
-  auto parent() const
+  [[nodiscard]] auto parent() const
   {
     return _parent;
   }
@@ -81,12 +81,12 @@ public:
   void setParent(SceneObject* parent);
 
   /// Returns the transform of this scene object.
-  auto transform() const
+  [[nodiscard]] auto transform() const
   {
     return &_transform;
   }
 
-  auto transform()
+  [[nodiscard]] auto transform()
   {
     return &_transform;
   }
@@ -106,17 +106,17 @@ public:
 
   bool removeChild(SceneObject* child);
 
-  auto childrenCount() const
+  [[nodiscard]] auto childrenCount() const
   {
     return (int)_children.size();
   }
 
-  const auto& children() const
+  [[nodiscard]] const auto& children() const
   {
     return _children;
   }
 
-  auto& children()
+  [[nodiscard]] auto& children()
   {
     return _children;
   }
@@ -129,31 +129,31 @@ public:
 
   bool removeComponent(const char* typeName);
 
-  auto componentCount() const
+  [[nodiscard]] auto componentCount() const
   {
     return (int)_components.size();
   }
 
-  const auto& components() const
+  [[nodiscard]] const auto& components() const
   {
     return _components;
   }
 
-  auto& components()
+  [[nodiscard]] auto& components()
   {
     return _components;
   }
 
-  Component* findComponent(const char* typeName) const;
+  [[nodiscard]] Component* findComponent(const char* typeName) const;
 
   /// Returns true if this scene object is movable.
-  auto movable() const
+  [[nodiscard]] auto movable() const
   {
     return _flags.movable;
   }
 
   /// Returns true if this scene object is visible.
-  auto visible() const
+  [[nodiscard]] auto visible() const
   {
     return _flags.visible;
   }
@@ -161,13 +161,13 @@ public:
   void setVisible(bool value);
 
   /// Returns true if this scene object is selected.
-  auto selected() const
+  [[nodiscard]] auto selected() const
   {
     return _flags.selected;
   }
 
   /// Returns true if this scene object is selectable.
-  auto selectable() const
+  [[nodiscard]] auto selectable() const
   {
     return _flags.selectable;
   }
