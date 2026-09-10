@@ -27,7 +27,7 @@ source files are in [`apps/cgdemo/`](../apps/cgdemo).
 
 [Download the latest Windows binary](https://github.com/paulo-pagliosa/Ds/releases/download/v1.5/cgdemo-win64-v1.5.zip)
 
-[![cgdemo](https://user-images.githubusercontent.com/32277980/153728061-df2b3644-176b-44cc-bbc0-ba3011012ee0.png)](https://user-images.githubusercontent.com/32277980/153728061-df2b3644-176b-44cc-bbc0-ba3011012ee0.png)
+<img alt="cgdemo" src="https://github.com/user-attachments/assets/b6b552b5-91ed-461b-b5f1-9dedffd75b85" /></br>
 
 The ray tracing relies on bounding volume hierarchies (BVHs) for accelerating
 ray/object intersections. Also, the code includes a scene reader with a LL(1)
@@ -35,7 +35,7 @@ parser. The grammar for the specification of a scene and its scene objects is
 [here](../apps/cgdemo/reader/grammar.txt). The scene file shown in this
 example is available [here](../apps/cgdemo/assets/scenes).
 
-[![cgdemo-scene](https://user-images.githubusercontent.com/32277980/153728083-cd875b86-2d29-41d2-8b01-b2a610d5e7d1.png)](https://user-images.githubusercontent.com/32277980/153728083-cd875b86-2d29-41d2-8b01-b2a610d5e7d1.png)
+<img alt="cgdemo-scene" src="https://github.com/user-attachments/assets/512c344f-1d20-498d-8d6a-862cab8c5561" />
 
 ## Ds-Vis Demo
 
