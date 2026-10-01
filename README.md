@@ -14,32 +14,62 @@ Science at the [Faculty of Computing](https://www.facom.ufms.br) of the
 also been used in several research projects in physics-based animation and
 geometric processing.
 
-The current master version is 1.5 and supports Windows 11 and Linux. Ds is
-written in C++20.
+The current master version is 1.5 and supports Windows 11, Linux, and macOS.
+Ds is written in C++20.
 
 ## Building Ds
 
 All headers and source files are in the [`cg/`](cg) folder. The only
 dependencies are [GLFW] 3.5 and [Dear ImGui]. All headers, source files,
-and libraries (for Windows) needed are already included in the
-[`cg/externals/`](cg/externals) folder (package `glfw3` is required for
-Linux).
+and libraries (GLFW static libraries for Windows and macOS) needed are
+already included in the [`cg/externals/`](cg/externals) folder (package
+`glfw3` is required for Linux).
 
 **Building with Visual Studio** (Windows)
 
 Open [`cg/build/vs2022/cg.vcxproj`](cg/build/vs2022) and build it.
 
-**Building with CMake** (≥ 3.16, Windows and Linux)
+**Building with CMake** (≥ 3.18, Windows, Linux, and macOS)
 
-From the `cg` folder, run:
+From the `cg` folder, run the build script for your platform, optionally
+passing the configuration (`Release`, the default, or `Debug`):
 ```bash
-cmake -S . -B build
-cmake --build build
+./build.sh [Release|Debug]   # Linux and macOS
+build.bat [Release|Debug]    # Windows
 ```
-On Windows, this generates and builds with your default toolchain (pass
-`-G "Visual Studio 17 2022"` to force it explicitly). On Linux, install the
-`glfw3` development package through your distro's package manager first
-(GLFW itself is *not* vendored for Linux).
+The library is written to the `cg/lib/` folder: `cg.lib` (`cgD.lib` in
+Debug) on Windows, and `libcg.a` (`libcgD.a` in Debug) on Linux and macOS.
+
+The scripts are thin wrappers around CMake. To run it by hand, the same two
+commands work on all platforms (each generator ignores the option that does
+not apply to it):
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release
+```
+
+Platform notes:
+
+- **Windows:** CMake uses your default toolchain (pass
+  `-G "Visual Studio 17 2022"` to force it explicitly).
+- **Linux:** install the `glfw3` development package through your distro's
+  package manager first (GLFW itself is *not* vendored for Linux).
+- **macOS:** install the Xcode Command Line Tools (`xcode-select --install`)
+  and CMake. Apple deprecated OpenGL and supports it only up to version 4.1,
+  which is what Ds requires; the deprecation warnings are silenced by the
+  build.
+
+**Using Ds in your own application**
+
+With CMake, include [`cg/ImportCg.cmake`](cg/import.cmake) in your
+`CMakeLists.txt` and link the imported target `cg`. It brings along Ds's
+include folders, compile definitions, and dependencies (OpenGL, GLFW, and
+platform-specific settings), and picks `cg` or `cgD` according to the
+configuration:
+```cmake
+include(<path to cg>/ImportCg.cmake)
+target_link_libraries(myapp PRIVATE cg)
+```
 
 ## Ds-Vis
 
@@ -65,19 +95,28 @@ Ds-Vis depends on Ds — build Ds first (see [Building Ds](#building-ds) above).
 Open [`cgvis/build/vs2022/cgvis.vcxproj`](cgvis/build/vs2022) and build
   it.
 
-**Building with CMake** (≥ 3.16, Windows and Linux)
+**Building with CMake** (≥ 3.18, Windows, Linux, and macOS)
 
-From the `cgvis` folder, run:
+From the `cgvis` folder, run the build script for your platform, the same way
+as for Ds:
 ```bash
-cmake -S . -B build
-cmake --build build
+./build.sh [Release|Debug]   # Linux and macOS
+build.bat [Release|Debug]    # Windows
 ```
-On Windows, pass `-G "Visual Studio 17 2022"` if you want to force that
-generator instead of your default toolchain.
+The library is written to the `cgvis/lib/` folder (`cgvis.lib`/`cgvisD.lib`
+on Windows, `libcgvis.a`/`libcgvisD.a` on Linux and macOS). The manual
+CMake commands and platform notes of [Building Ds](#building-ds) apply as
+well.
 
 Ds-Vis is a separate static library that does *not* embed Ds's object
 code — anyone linking against Ds-Vis (a demo, for instance) must link
-both `cgvis` and `cg` (plus OpenGL) explicitly.
+both `cgvis` and `cg` (plus their dependencies). With CMake, include
+[`cgvis/ImportCgvis.cmake`](cgvis/ImportCgvis.cmake) and link the imported
+target `cgvis`, which brings `cg` along:
+```cmake
+include(<path to cgvis>/import.cmake)
+target_link_libraries(myapp PRIVATE cgvis)
+```
 
 ## Demos
 
@@ -97,7 +136,7 @@ and pre-built Windows binaries.
 Some upcoming goals are:
 
 - Full API documentation
-- ~~CMake project and support for Linux with GCC~~
+- ~~CMake project and support for Linux and macOS~~
 - Textured and transparent materials
 - ~~Basic scientific visualization API~~
 - Demos for 2D/3D neighbor particle searching with regular grids and

@@ -3,15 +3,27 @@
 Ds ships with a growing set of demo applications built on top of the library.
 Every demo follows the same [build pattern](../README.md#building-ds): a Visual
 Studio 2022 project (and solution) under `build/vs2022/` (for Windows), and a
-`CMakeLists.txt`, inside the demo's own folder under `apps/`.
+`CMakeLists.txt` with build scripts (`build.bat` for Windows, `build.sh` for
+Linux and macOS), inside the demo's own folder under `apps/`.
 
 Each demo has its own version number, independent of the version of the
 library (Ds or Ds-Vis) it depends on — so a release of the library may ship
 demo binaries at different version numbers.
 
 Demos don't have build dependencies of their own — they only need the
-corresponding library (Ds or Ds-Vis) already built, following the
+corresponding library (Ds or Ds-Vis) already built, in the same configuration
+(`Release` or `Debug`), following the
 [Building Ds](../README.md#building-ds) and [Building Ds-Vis](../README.md#building-ds-vis) instructions.
+Then, from the demo's folder, run:
+```bash
+./build.sh [Release|Debug]   # Linux and macOS
+build.bat [Release|Debug]    # Windows
+```
+The scripts check that the required libraries have been built before
+calling CMake. The executable is written to the demo's folder.
+
+Pre-built binaries are available for Windows only; on Linux and macOS, build
+the demos from source.
 
 > **Note:** Ds-Vis Demo reuses an asset from Ds Demo's assets folder. If
 > you're downloading the pre-built Windows binaries below, extract both
