@@ -28,9 +28,10 @@
 // Source file for OpenGL image.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/09/2026
+// Last revision: 30/09/2026
 
 #include "graphics/GLImage.h"
+#include "graphics/GLTextureHelper.h"
 #include <memory>
 
 namespace cg
@@ -72,24 +73,6 @@ static const char* fragmentShader = R"glsl(
 //
 // Auxiliary functions
 //
-inline GLuint
-createRGBTexture(int w, int h)
-{
-  GLuint id;
-
-  // Create texture
-  glGenTextures(1, &id);
-  glBindTexture(GL_TEXTURE_2D, id);
-  // Initialize texture
-  glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB8, w, h);
-  // Set texture sampler parameters
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  return id;
-}
-
 inline void
 setTextureData(int x, int y, int w, int h, const Pixel* data)
 {
@@ -228,6 +211,7 @@ GLImage::createTexture(int w, int h)
 {
   return createRGBTexture(w, h);
 }
+
 void
 GLImage::drawTexture(uint32_t id, int x, int y, int w, int h)
 {

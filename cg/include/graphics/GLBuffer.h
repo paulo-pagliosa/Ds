@@ -28,18 +28,20 @@
 // Class definition for OpenGL buffer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2026
+// Last revision: 30/09/2026
 
 #ifndef __GLBuffer_h
 #define __GLBuffer_h
 
 #include "core/SharedObject.h"
 #ifdef __APPLE__
-#include <OpenGL/gl3.h>
-#else
-#define NOMINMAX
-#include <GL/gl3w.h>
+#ifndef GL_SILENCE_DEPRECATION
+#define GL_SILENCE_DEPRECATION
 #endif
+#elif _WIN32
+#define NOMINMAX
+#endif
+#include <GL/gl3w.h>
 #include <cassert>
 #include <cstdint>
 #include <iostream>

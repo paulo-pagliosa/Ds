@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.18)
 
 if(POLICY CMP0091)
   # Allow MSVC_RUNTIME_LIBRARY to control the CRT (/MD, /MDd)
@@ -17,23 +17,26 @@ add_executable(cgvisdemo
   MainWindow.cpp
 )
 
-target_link_directories(cgvisdemo PUBLIC
-  ${CMAKE_CURRENT_LIST_DIR}/../../cg/lib
-  ${CMAKE_CURRENT_LIST_DIR}/../../cgvis/lib
-)
-target_link_libraries(cgvisdemo
-  $<$<CONFIG:Debug>:cgvisD>$<$<NOT:$<CONFIG:Debug>>:cgvis>
-  $<$<CONFIG:Debug>:cgD>$<$<NOT:$<CONFIG:Debug>>:cg>
-)
+# cgvis and cg libraries (prebuilt in ../../cgvis/lib and ../../cg/lib)
+include(${CMAKE_CURRENT_LIST_DIR}/../../cgvis/import.cmake)
+target_link_libraries(cgvisdemo PRIVATE cgvis)
 
-find_package(OpenGL REQUIRED)
-target_link_libraries(cgvisdemo OpenGL::GL)
-
-if(NOT WIN32)
-  find_package(glfw3 REQUIRED)
-  target_link_libraries(cgvisdemo glfw)
+# Compiler options
+if(MSVC)
+  target_compile_options(cgvisdemo PRIVATE /W3 /sdl /permissive-)
+  # RuntimeLibrary MultiThreaded(Debug)DLL (must match cg and cgvis)
+  set_target_properties(cgvisdemo PROPERTIES
+    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"
+  )
+else()
+  target_compile_options(cgvisdemo PRIVATE
+    -Wno-dangling-else
+    -Wno-parentheses
+    -Wno-narrowing
+  )
 endif()
 
+# Output directory: the executable goes next to this file
 set(CGVISDEMO_RUNTIME_OUTPUT_DIR ${CMAKE_CURRENT_LIST_DIR})
 set_target_properties(cgvisdemo PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY ${CGVISDEMO_RUNTIME_OUTPUT_DIR}
@@ -45,17 +48,10 @@ foreach(CGVISDEMO_OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
   )
 endforeach()
 
-# Whole-program optimization in Release
+# Link-time optimization in Release
 include(CheckIPOSupported)
 check_ipo_supported(RESULT CGVISDEMO_IPO_SUPPORTED OUTPUT CGVISDEMO_IPO_ERROR)
 if(CGVISDEMO_IPO_SUPPORTED)
-  set_target_properties(cgvisdemo PROPERTIES INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
-endif()
-
-if(MSVC)
-  target_compile_options(cgvisdemo PRIVATE /W3 /sdl /permissive-)
-  # RuntimeLibrary MultiThreaded(Debug)DLL
   set_target_properties(cgvisdemo PROPERTIES
-    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"
-  )
+    INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
 endif()

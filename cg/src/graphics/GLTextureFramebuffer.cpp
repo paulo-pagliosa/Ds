@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,9 +28,10 @@
 // Source file for OpenGL texture FBO.
 //
 // Author: Paulo Pagliosa
-// Last revision: 31/01/2022
+// Last revision: 30/09/2026
 
 #include "graphics/GLTextureFramebuffer.h"
+#include "graphics/GLTextureHelper.h"
 
 namespace cg
 { // begin namespace cg
@@ -59,7 +60,7 @@ GLTextureFramebuffer::GLTextureFramebuffer(int width, int height):
   glActiveTexture(GL_TEXTURE0);
   glGenTextures(1, &_texture);
   glBindTexture(GL_TEXTURE_2D, _texture);
-  glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB8, width, height);
+  allocateRGBTexture(GL_TEXTURE_2D, width, height);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glGenRenderbuffers(1, &_depthBuffer);

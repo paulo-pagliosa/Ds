@@ -1,0 +1,13 @@
+# Normalize line endings of text files detected by Git
+* text=auto
+
+# Shell scripts must use LF, or bash fails on macOS/Linux
+*.sh text eol=lf
+
+# Batch files must use CRLF, or cmd may misbehave on Windows
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Prebuilt libraries are binary
+*.a   binary
+*.lib binary

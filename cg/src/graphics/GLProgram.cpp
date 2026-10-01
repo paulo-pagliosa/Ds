@@ -28,7 +28,7 @@
 // Source file for GLSL program.
 //
 // Author: Paulo Pagliosa
-// Last revision: 09/09/2026
+// Last revision: 30/09/2026
 
 #include "graphics/GLProgram.h"
 #include <cstdarg>
@@ -184,8 +184,10 @@ private:
         return "geometry shader";
       case GL_FRAGMENT_SHADER:
         return "fragment shader";
+#ifndef __APPLE__
       case GL_COMPUTE_SHADER:
         return "compute shader";
+#endif // __APPLE__
     }
   }
 

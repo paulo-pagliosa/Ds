@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.18)
 
 if(POLICY CMP0091)
   # Allow MSVC_RUNTIME_LIBRARY to control the CRT (/MD, /MDd)
@@ -27,17 +27,30 @@ add_executable(cgdemo
   reader/Scope.cpp
 )
 
-target_link_directories(cgdemo PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../../cg/lib)
-target_link_libraries(cgdemo $<$<CONFIG:Debug>:cgD>$<$<NOT:$<CONFIG:Debug>>:cg>)
+# cg library (prebuilt in ../../cg/lib): includes, definitions and dependencies
+include(${CMAKE_CURRENT_LIST_DIR}/../../cg/import.cmake)
+target_link_libraries(cgdemo PRIVATE cg)
 
-find_package(OpenGL REQUIRED)
-target_link_libraries(cgdemo OpenGL::GL)
-
-if(NOT WIN32)
-  find_package(glfw3 REQUIRED)
-  target_link_libraries(cgdemo glfw)
+# ---------------------------------------------------------------------------
+# Compiler options
+# ---------------------------------------------------------------------------
+if(MSVC)
+  target_compile_options(cgdemo PRIVATE /W3 /sdl /permissive-)
+  # RuntimeLibrary MultiThreaded(Debug)DLL (must match cg)
+  set_target_properties(cgdemo PROPERTIES
+    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"
+  )
+else()
+  target_compile_options(cgdemo PRIVATE
+    -Wno-dangling-else
+    -Wno-parentheses
+    -Wno-narrowing
+  )
 endif()
 
+# ---------------------------------------------------------------------------
+# Output directory: the executable goes next to this file
+# ---------------------------------------------------------------------------
 set(CGDEMO_RUNTIME_OUTPUT_DIR ${CMAKE_CURRENT_LIST_DIR})
 set_target_properties(cgdemo PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY ${CGDEMO_RUNTIME_OUTPUT_DIR}
@@ -49,17 +62,10 @@ foreach(CGDEMO_OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
   )
 endforeach()
 
-# Whole-program optimization in Release
+# Link-time optimization in Release
 include(CheckIPOSupported)
 check_ipo_supported(RESULT CGDEMO_IPO_SUPPORTED OUTPUT CGDEMO_IPO_ERROR)
 if(CGDEMO_IPO_SUPPORTED)
-  set_target_properties(cgdemo PROPERTIES INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
-endif()
-
-if(MSVC)
-  target_compile_options(cgdemo PRIVATE /W3 /sdl /permissive-)
-  # RuntimeLibrary MultiThreaded(Debug)DLL
   set_target_properties(cgdemo PROPERTIES
-    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"
-  )
+    INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
 endif()

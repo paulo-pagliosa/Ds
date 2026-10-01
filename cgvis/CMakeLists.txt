@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.18)
 
 if(POLICY CMP0091)
   # Allow MSVC_RUNTIME_LIBRARY to control the CRT (/MD, /MDd)
@@ -40,9 +40,26 @@ target_include_directories(cgvis PUBLIC
   ${CMAKE_CURRENT_LIST_DIR}/include/
 )
 
-target_link_directories(cgvis PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../cg/lib)
-target_link_libraries(cgvis $<$<CONFIG:Debug>:cgD>$<$<NOT:$<CONFIG:Debug>>:cg>)
+# cg library (prebuilt in ../cg/lib): includes, definitions and dependencies
+include(${CMAKE_CURRENT_LIST_DIR}/../cg/import.cmake)
+target_link_libraries(cgvis PUBLIC cg)
 
+# Compiler options
+if(MSVC)
+  target_compile_options(cgvis PRIVATE /W3 /sdl /permissive-)
+  # RuntimeLibrary MultiThreaded(Debug)DLL, i.e. dynamic CRT (/MD, /MDd)
+  set_target_properties(cgvis PROPERTIES
+    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"
+  )
+else()
+  target_compile_options(cgvis PRIVATE
+    -Wno-dangling-else
+    -Wno-parentheses
+    -Wno-narrowing
+  )
+endif()
+
+# Output directory
 set(CGVIS_LIB_OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 set_target_properties(cgvis PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY ${CGVIS_LIB_OUTPUT_DIR}
@@ -55,16 +72,10 @@ foreach(CGVIS_OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
   )
 endforeach()
 
+# Link-time optimization in Release
 include(CheckIPOSupported)
 check_ipo_supported(RESULT CGVIS_IPO_SUPPORTED OUTPUT CGVIS_IPO_ERROR)
 if(CGVIS_IPO_SUPPORTED)
-  set_target_properties(cgvis PROPERTIES INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
-endif()
-
-if(MSVC)
-  target_compile_options(cgvis PRIVATE /W3 /sdl /permissive-)
-  # RuntimeLibrary MultiThreaded(Debug)DLL, i.e. dynamic CRT (/MD, /MDd)
   set_target_properties(cgvis PROPERTIES
-    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"
-  )
+    INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
 endif()

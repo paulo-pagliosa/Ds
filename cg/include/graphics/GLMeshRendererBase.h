@@ -28,7 +28,7 @@
 // Class definition for OpenGL mesh renderer base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 09/09/2026
+// Last revision: 30/09/2026
 
 #ifndef __GLMeshRendererBase_h
 #define __GLMeshRendererBase_h
@@ -129,7 +129,7 @@ protected:
     _program->endLights(_lightCount);
   }
 
-  void updateView(Camera&);
+  void updateView(Camera&) override;
   void begin(Camera&);
 
   bool render(const TriangleMesh&, // mesh

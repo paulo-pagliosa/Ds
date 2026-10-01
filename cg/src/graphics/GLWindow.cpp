@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for OpenGL window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 22/09/2025
+// Last revision: 30/09/2026
 
 #include "core/Exception.h"
 #include "graphics/Application.h"
@@ -238,8 +238,10 @@ GLWindow::show(int argc, char** argv)
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_SAMPLES, 8);
-  _window = createGlfwWindow(_title.c_str(), _width, _height);
-  if (_window == nullptr)
+#ifdef __APPLE__
+  glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
+#endif
+  if (!(_window = createGlfwWindow(_title.c_str(), _width, _height)))
     runtimeError("Unable to create GLFW window");
   glfwSetWindowUserPointer(_window, this);
   centerWindow();

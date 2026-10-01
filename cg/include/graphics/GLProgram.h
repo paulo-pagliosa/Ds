@@ -28,17 +28,19 @@
 // Class definition for GLSL program.
 //
 // Author: Paulo Pagliosa
-// Last revision: 09/09/2026
+// Last revision: 30/09/2026
 
 #ifndef __GLProgram_h
 #define __GLProgram_h
 
 #ifdef __APPLE__
-#include <OpenGL/gl3.h>
-#else
-#define NOMINMAX
-#include "GL/gl3w.h"
+#ifndef GL_SILENCE_DEPRECATION
+#define GL_SILENCE_DEPRECATION
 #endif
+#elif _WIN32
+#define NOMINMAX
+#endif
+#include <GL/gl3w.h>
 #include "GLFW/glfw3.h"
 #include "core/NamedObject.h"
 

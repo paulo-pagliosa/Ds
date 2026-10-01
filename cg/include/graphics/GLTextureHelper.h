@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022, 2026 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -23,41 +23,67 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: ComponentProxy.h
+// OVERVIEW: GLTextureHelper.h
 // ========
-// Class definition for generic component proxy.
+// Class definition for OpenGL texture helper.
 //
 // Author: Paulo Pagliosa
 // Last revision: 30/09/2026
 
-#ifndef __ComponentProxy_h
-#define __ComponentProxy_h
+#ifndef __GLTextureHelper_h
+#define __GLTextureHelper_h
 
-#include "graph/SceneObject.h"
+#ifdef __APPLE__
+#ifndef GL_SILENCE_DEPRECATION
+#define GL_SILENCE_DEPRECATION
+#endif
+#elif _WIN32
+#define NOMINMAX
+#endif
+#include <GL/gl3w.h>
 
-namespace cg::graph
-{ // begin namespace cg::graph
+namespace cg
+{ // begin namespace cg
 
-
-/////////////////////////////////////////////////////////////////////
-//
-// ComponentProxy: generic component proxy class
-// ==============
-template <typename T>
-class ComponentProxy: public Component
+inline void
+allocateRGBTexture(GLenum target, int w, int h)
 {
-protected:
-  Reference<T> _object;
+#ifndef __APPLE__
+  glTexStorage2D(target, 1, GL_RGB8, w, h);
+#else
+  // macOS (OpenGL 4.1 fallback)
+  glTexImage2D(target,
+    0,
+    GL_RGB8,
+    w,
+    h, 
+    0,
+    GL_RGB,
+    GL_UNSIGNED_BYTE,
+    nullptr
+  );
+  glTexParameteri(target, GL_TEXTURE_MAX_LEVEL, 0);
+#endif
+}
 
-  ComponentProxy(const char* const typeName, const T& object):
-    Component{typeName},
-    _object{&object}
-  {
-    // do nothing
-  }
+inline GLuint
+createRGBTexture(int w, int h)
+{
+  GLuint id;
 
-}; // ComponentProxy
+  // Create texture
+  glGenTextures(1, &id);
+  glBindTexture(GL_TEXTURE_2D, id);
+  // Initialize texture
+  allocateRGBTexture(GL_TEXTURE_2D, w, h);
+  // Set texture sampler parameters
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  return id;
+}
 
-} // end namepace cg::graph
+} // end namespace cg
 
-#endif // __ComponentProxy_h
+#endif // __GLTextureHelper_h

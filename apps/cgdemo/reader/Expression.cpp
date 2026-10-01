@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2007, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2007, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for simple expression tree.
 //
 // Author: Paulo Pagliosa
-// Last revision: 02/02/2022
+// Last revision: 30/09/2026
 
 #include "Expression.h"
 
@@ -164,6 +164,8 @@ Expression::operator +() const
     case Type::Vec3:
     case Type::Vec4:
       return *this;
+    default:
+      break;
   }
   throw IllegalOperation{'+', *this};
 }
@@ -183,6 +185,8 @@ Expression::operator -() const
       return -_value.vec3;
     case Type::Vec4:
       return -_value.vec4;
+    default:
+      break;
   }
   throw IllegalOperation{'-', *this};
 }
@@ -220,6 +224,8 @@ Expression::operator +(const Expression& rhs) const
       if (rhs._type == Type::Color)
         return _value.color + rhs._value.color;
       break;
+    default:
+      break;
   }
   throw IllegalOperation{'+', *this, rhs};
 }
@@ -256,6 +262,8 @@ Expression::operator -(const Expression& rhs) const
     case Type::Color:
       if (rhs._type == Type::Color)
         return _value.color - rhs._value.color;
+      break;
+    default:
       break;
   }
   throw IllegalOperation{'-', *this, rhs};
@@ -323,6 +331,8 @@ Expression::operator *(const Expression& rhs) const
         return _value.color * rhs._value.real;
       if (rhs._type == Type::Color)
         return _value.color + rhs._value.color;
+    default:
+      break;
   }
   throw IllegalOperation{'*', *this, rhs};
 }
@@ -382,6 +392,8 @@ Expression::operator /(const Expression& rhs) const
         return _value.color * math::inverse((float)rhs._value.integer);
       if (rhs._type == Type::Float)
         return _value.color * math::inverse(rhs._value.real);
+    default:
+      break;
   }
   throw IllegalOperation{'/', *this, rhs};
 }
