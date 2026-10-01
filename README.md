@@ -34,8 +34,11 @@ Open [`cg/build/vs2022/cg.vcxproj`](cg/build/vs2022) and build it.
 From the `cg` folder, run the build script for your platform, optionally
 passing the configuration (`Release`, the default, or `Debug`):
 ```bash
-./build.sh [Release|Debug]   # Linux and macOS
 build.bat [Release|Debug]    # Windows
+```
+or
+```bash
+./build.sh [Release|Debug]   # Linux and macOS
 ```
 The library is written to the `cg/lib/` folder: `cg.lib` (`cgD.lib` in
 Debug) on Windows, and `libcg.a` (`libcgD.a` in Debug) on Linux and macOS.
@@ -61,13 +64,13 @@ Platform notes:
 
 **Using Ds in your own application**
 
-With CMake, include [`cg/ImportCg.cmake`](cg/import.cmake) in your
+With CMake, include [`cg/import.cmake`](cg/import.cmake) in your
 `CMakeLists.txt` and link the imported target `cg`. It brings along Ds's
 include folders, compile definitions, and dependencies (OpenGL, GLFW, and
 platform-specific settings), and picks `cg` or `cgD` according to the
 configuration:
 ```cmake
-include(<path to cg>/ImportCg.cmake)
+include(<path to cg>/import.cmake)
 target_link_libraries(myapp PRIVATE cg)
 ```
 
@@ -100,8 +103,11 @@ Open [`cgvis/build/vs2022/cgvis.vcxproj`](cgvis/build/vs2022) and build
 From the `cgvis` folder, run the build script for your platform, the same way
 as for Ds:
 ```bash
-./build.sh [Release|Debug]   # Linux and macOS
 build.bat [Release|Debug]    # Windows
+```
+or
+```bash
+./build.sh [Release|Debug]   # Linux and macOS
 ```
 The library is written to the `cgvis/lib/` folder (`cgvis.lib`/`cgvisD.lib`
 on Windows, `libcgvis.a`/`libcgvisD.a` on Linux and macOS). The manual
@@ -111,7 +117,7 @@ well.
 Ds-Vis is a separate static library that does *not* embed Ds's object
 code — anyone linking against Ds-Vis (a demo, for instance) must link
 both `cgvis` and `cg` (plus their dependencies). With CMake, include
-[`cgvis/ImportCgvis.cmake`](cgvis/ImportCgvis.cmake) and link the imported
+[`cgvis/import.cmake`](cgvis/import.cmake) and link the imported
 target `cgvis`, which brings `cg` along:
 ```cmake
 include(<path to cgvis>/import.cmake)
