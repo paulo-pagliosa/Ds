@@ -16,8 +16,11 @@ corresponding library (Ds or Ds-Vis) already built, in the same configuration
 [Building Ds](../README.md#building-ds) and [Building Ds-Vis](../README.md#building-ds-vis) instructions.
 Then, from the demo's folder, run:
 ```bash
-./build.sh [Release|Debug]   # Linux and macOS
 build.bat [Release|Debug]    # Windows
+```
+or
+```bash
+./build.sh [Release|Debug]   # Linux and macOS
 ```
 The scripts check that the required libraries have been built before
 calling CMake. The executable is written to the demo's folder.
