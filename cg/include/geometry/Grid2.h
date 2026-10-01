@@ -28,7 +28,7 @@
 // Class definition for 2D grid.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 01/10/2026
 
 #ifndef __Grid2_h
 #define __Grid2_h
@@ -51,7 +51,7 @@ public:
   using id_type = typename Base::id_type;
   using index_type = typename Base::index_type;
 
-  using Base::GridDataBase;
+  using Base::Base;
 
   auto id(const index_type& index) const
   {
