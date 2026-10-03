@@ -389,6 +389,9 @@
     <ClInclude Include="..\..\include\math\Matrix2x2.h">
       <Filter>Header Files\math</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\graphics\GLTextureHelper.h">
+      <Filter>Header Files\graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\externals\src\gl3w.c">

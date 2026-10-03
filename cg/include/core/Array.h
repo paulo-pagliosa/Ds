@@ -153,7 +153,7 @@ class ArrayBase
 public:
   ~ArrayBase()
   {
-    release();
+    free();
   }
 
   ArrayBase() = default;
@@ -179,7 +179,7 @@ public:
   {
     if (this != &other)
     {
-      release();
+      free();
       _data = std::exchange(other._data, nullptr);
       _size = std::exchange(other._size, 0);
     }
@@ -206,7 +206,7 @@ protected:
   size_t _size{};
 
 private:
-  void release() noexcept
+  void free() noexcept
   {
     Allocator::template free<T>(_data);
   }

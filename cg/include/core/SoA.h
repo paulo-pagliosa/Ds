@@ -427,7 +427,7 @@ public:
 
   ~SoA()
   {
-    release();
+    free();
   }
 
   SoA()
@@ -458,7 +458,7 @@ public:
   {
     if (this != &other)
     {
-      release();
+      free();
       this->_arrays = std::exchange(other._arrays, {});
       this->_size = std::exchange(other._size, 0);
     }
@@ -470,7 +470,7 @@ public:
     assert(size >= 0);
     if (size == this->_size)
       return false;
-    release();
+    free();
     this->_size = 0;
  
     soa::Arrays<index_t, Args...> arrays{};
@@ -533,7 +533,7 @@ public:
   }
 
 private:
-  void release() noexcept
+  void free() noexcept
   {
     this->_arrays.template free<Allocator>();
   }
