@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for OpenGL FBO.
 //
 // Author: Paulo Pagliosa
-// Last revision: 31/01/2022
+// Last revision: 03/10/2026
 
 #include "graphics/GLFramebuffer.h"
 #include <cassert>
@@ -41,29 +41,7 @@ namespace cg
 //
 // GLFramebuffer implementation
 // =============
-GLFramebuffer*
-GLFramebuffer::New(const fbo::Description& description)
-{
-  auto fbo = new GLFramebuffer{description};
-  auto status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-
-  if (status != GL_FRAMEBUFFER_COMPLETE)
-  {
-    delete fbo;
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    throw std::runtime_error("FBO creation error");
-  }
-  return fbo;
-}
-
-GLFramebuffer::~GLFramebuffer()
-{
-  glDeleteRenderbuffers(_description.colorCount, _colorBuffers);
-  if (_description.depthBufferFormat)
-    glDeleteRenderbuffers(1, &_depthBuffer);
-  glDeleteFramebuffers(1, &_fbo);
-}
-
+inline
 GLFramebuffer::GLFramebuffer(const fbo::Description& description):
   _description{description}
 {
@@ -97,13 +75,35 @@ GLFramebuffer::GLFramebuffer(const fbo::Description& description):
       _colorBuffers[i]);
   }
   glDrawBuffers(_description.colorCount, (GLenum*)_description.attachments);
+}
+
+GLFramebuffer*
+GLFramebuffer::New(const fbo::Description& description)
+{
+  auto fbo = new GLFramebuffer{description};
+  auto status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  if (status != GL_FRAMEBUFFER_COMPLETE)
+  {
+    delete fbo;
+    throw std::runtime_error("FBO creation error");
+  }
+  return fbo;
+}
+
+GLFramebuffer::~GLFramebuffer()
+{
+  glDeleteRenderbuffers(_description.colorCount, _colorBuffers);
+  if (_description.depthBufferFormat)
+    glDeleteRenderbuffers(1, &_depthBuffer);
+  glDeleteFramebuffers(1, &_fbo);
 }
 
 bool
 GLFramebuffer::resize(uint32_t width, uint32_t height)
 {
-  if (_description.width >= width && _description.height >= height)
+  if (width < _description.width && height < _description.height)
     return false;
   _description.width = width;
   _description.height = height;
@@ -170,8 +170,10 @@ GLFramebuffer::endDraw()
 void
 GLFramebuffer::copyToFramebuffer(int index, int x, int y, int w, int h)
 {
-  assert(x + w < (int)width());
-  assert(y + h < (int)height());
+  w += x;
+  h += y;
+  assert(w <= (int)width());
+  assert(h <= (int)height());
   beginRead(index);
   glBlitFramebuffer(x, y, w, h, x, y, w, h, GL_COLOR_BUFFER_BIT, GL_NEAREST);
   endRead();

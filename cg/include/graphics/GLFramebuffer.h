@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for OpenGL FBO.
 //
 // Author: Paulo Pagliosa
-// Last revision: 30/07/2023
+// Last revision: 03/10/2026
 
 #ifndef __GLFramebuffer_h
 #define __GLFramebuffer_h
@@ -43,7 +43,7 @@ class GLFramebuffer;
 namespace fbo
 { // begin namespace fbo
 
-static constexpr auto MaxColors = 7;
+static constexpr auto maxColors = 7;
 
 enum class ColorAttachment: GLenum
 {
@@ -72,9 +72,9 @@ public:
     return *this;
   }
 
-  auto& attachColorBuffer(ColorAttachment attachment, GLenum format = GL_RGB8)
+  auto& attachColorBuffer(ColorAttachment attachment, GLenum format = GL_RGBA8)
   {
-    if (colorCount < MaxColors)
+    if (colorCount < maxColors)
     {
       attachments[colorCount] = attachment;
       formats[colorCount++] = format;
@@ -87,8 +87,8 @@ private:
   uint32_t height;
   uint32_t colorCount{};
   GLenum depthBufferFormat{};
-  ColorAttachment attachments[MaxColors];
-  GLenum formats[MaxColors];
+  ColorAttachment attachments[maxColors];
+  GLenum formats[maxColors];
 
   friend GLFramebuffer;
 
@@ -131,7 +131,7 @@ public:
 private:
   GLuint _fbo;
   GLuint _depthBuffer{};
-  GLuint _colorBuffers[fbo::MaxColors]{};
+  GLuint _colorBuffers[fbo::maxColors]{};
   fbo::Description _description;
   mutable struct
   {

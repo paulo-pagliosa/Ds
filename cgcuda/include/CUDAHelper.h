@@ -28,7 +28,7 @@
 // Classes and functions for CUDA utilities.
 //
 // Author: Paulo Pagliosa
-// Last revision: 02/01/2026
+// Last revision: 03/10/2026
 
 #ifndef __CUDAHelper_h
 #define __CUDAHelper_h
@@ -36,6 +36,7 @@
 #include "core/Globals.h"
 #include <iostream>
 #include <type_traits>
+#include <utility>
 
 namespace cg::cuda
 { // begin namespace cg::cuda
@@ -75,7 +76,7 @@ initialize(int device = -1)
   printf("Using CUDA device %d: %s\n", device, deviceProp.name);
 }
 
-inline int
+[[nodiscard]] inline int
 currentDevice()
 {
   int device;
@@ -328,7 +329,7 @@ copyFromSymbol(T& dst, const T& src)
   copyFromSymbol<T>(&dst, &src, 1);
 }
 
-inline void*
+[[nodiscard]] inline void*
 address_v(const void* symbol)
 {
   void* ptr;
@@ -338,7 +339,7 @@ address_v(const void* symbol)
 }
 
 template <typename T>
-inline T*
+[[nodiscard]] inline T*
 address(const T* symbol)
 {
   return (T*)address_v(symbol);
@@ -367,14 +368,24 @@ template <typename T>
 class Buffer
 {
 public:
+  static_assert(std::is_trivially_copyable_v<T>);
+
   using value_type = T;
+
+  ~Buffer()
+  {
+    free<T>(_data);
+    _size = 0;
+  }
 
   Buffer() = default;
 
   Buffer(size_t size, const T* hData = nullptr)
   {
+#ifdef _DEBUG
     if (size == 0)
       throw std::logic_error("cuda::Buffer ctor: bad size");
+#endif // _DEBUG
     allocate<T>(_data, _size = size);
     if (hData != nullptr)
       copyToDevice<T>(_data, hData, size);
@@ -383,18 +394,11 @@ public:
   Buffer(const Buffer<T>&) = delete;
   Buffer<T>& operator =(const Buffer<T>&) = delete;
 
-  Buffer(Buffer<T>&& other):
-    _data{other._data},
-    _size{other._size}
+  Buffer(Buffer<T>&& other) noexcept:
+    _data{std::exchange(other._data, nullptr)},
+    _size{std::exchange(other._size, 0)}
   {
-    other._data = nullptr;
-    other._size = 0;
-  }
-
-  ~Buffer()
-  {
-    free<T>(_data);
-    _size = 0;
+    // do nothing
   }
 
   void copy(const T*, const T*, size_t);
@@ -409,24 +413,22 @@ public:
   Buffer<T>& operator =(Buffer<T>&& other) noexcept
   {
     free<T>(_data);
-    _data = other._data;
-    _size = other._size;
-    other._data = nullptr;
-    other._size = 0;
+    _data = std::exchange(other._data, nullptr);
+    _size = std::exchange(other._size, 0);
     return *this;
   }
 
-  auto size() const
+  [[nodiscard]] auto size() const
   {
     return _size;
   }
 
-  operator const value_type*() const
+  [[nodiscard]] operator const value_type*() const
   {
     return _data;
   }
 
-  operator value_type*()
+  [[nodiscard]] operator value_type*()
   {
     return _data;
   }

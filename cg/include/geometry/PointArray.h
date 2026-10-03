@@ -28,7 +28,7 @@
 // Class definition for point array.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/09/2026
+// Last revision: 03/10/2026
 
 #ifndef __PointArray_h
 #define __PointArray_h
@@ -64,6 +64,32 @@ public:
     // do nothing
   }
 
+  PointArray(const PointArray&) = delete;
+  PointArray& operator =(const PointArray&) = delete;
+
+  PointArray(PointArray&& other) noexcept:
+    _data{std::move(other._data)},
+    _flag{std::move(other._flag)},
+    _size{std::exchange(other._size, 0)},
+    _activeCount{std::exchange(other._activeCount, 0)},
+    _freeList{std::exchange(other._freeList, eol)}
+  {
+    // do nothing
+  }
+ 
+  PointArray& operator =(PointArray&& other) noexcept
+  {
+    if (this != &other)
+    {
+      _data = std::move(other._data);
+      _flag = std::move(other._flag);
+      _size = std::exchange(other._size, 0);
+      _activeCount = std::exchange(other._activeCount, 0);
+      _freeList = std::exchange(other._freeList, eol);
+    }
+    return *this;
+  }
+ 
   [[nodiscard]] auto capacity() const
   {
     return _data.size();
@@ -81,9 +107,19 @@ public:
 
   void reallocate(index_t capacity)
   {
-    _data.reallocate(capacity);
-    _flag.reallocate(capacity);
     clear();
+    try
+    {
+      _data.reallocate(capacity);
+      _flag.reallocate(capacity);
+    }
+    catch (...)
+    {
+      // Keep both arrays with the same capacity
+      _data.reallocate(0);
+      _flag.reallocate(0);
+      throw;
+    }
   }
 
   void clear()
@@ -92,20 +128,23 @@ public:
     _freeList = eol;
   }
 
-  auto add(const Vector& p, const Args&... args)
+  PointId add(const Vector& p, const Args&... args)
   {
     PointId i;
 
     if (_freeList != eol)
-    {
       i = _freeList;
-      _freeList = _flag.template get<0>(i);
-    }
     else if (_size < capacity())
-      i = _size++;
+      i = _size;
     else
-      return -1;
+      return eol;
+    // Store the point before changing any state: if an assignment
+    // throws, the array is left unchanged
     _data.set(i, p, args...);
+    if (i == _freeList)
+      _freeList = _flag.template get<0>(i);
+    else
+      ++_size;
     _flag.set(i, activeFlag);
     _activeCount++;
     return i;
@@ -113,7 +152,7 @@ public:
 
   bool remove(PointId i)
   {
-    return i >= 0 && i < _size ? deactivate(i), true : false;
+    return active(i) ? deactivate(i), true : false;
   }
 
   [[nodiscard]] bool active(PointId i) const
@@ -123,22 +162,21 @@ public:
   }
 
   template <size_t I>
-  [[nodiscard]] const auto& get(PointId i) const
+  [[nodiscard]] auto& get(PointId i)
   {
-    assert(i >= 0 && i < _size);
+    assert(active(i));
     return _data.template get<I>(i);
   }
 
   template <size_t I>
-  [[nodiscard]] auto& get(PointId i)
+  [[nodiscard]] const auto& get(PointId i) const
   {
-    assert(i >= 0 && i < _size);
-    return _data.template get<I>(i);
+    return const_cast<PointArray*>(this)->template get<I>(i);
   }
 
   void set(PointId i, const Vector& p, const Args&... args)
   {
-    assert(i >= 0 && i < _size);
+    assert(active(i));
     _data.set(i, p, args...);
   }
 

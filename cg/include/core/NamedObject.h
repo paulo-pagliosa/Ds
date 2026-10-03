@@ -28,7 +28,7 @@
 // Class definition for named object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 03/10/2026
 
 #ifndef __NamedObject_h
 #define __NamedObject_h
@@ -51,7 +51,7 @@ public:
   virtual ~NamedObject() = default;
 
   /// Returns the name of this object.
-  auto name() const
+  [[nodiscard]] auto name() const
   {
     return _name.c_str();
   }

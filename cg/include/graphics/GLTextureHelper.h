@@ -28,7 +28,7 @@
 // Class definition for OpenGL texture helper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 30/09/2026
+// Last revision: 03/10/2026
 
 #ifndef __GLTextureHelper_h
 #define __GLTextureHelper_h
@@ -49,12 +49,13 @@ inline void
 allocateRGBTexture(GLenum target, int w, int h)
 {
 #ifndef __APPLE__
-  glTexStorage2D(target, 1, GL_RGB8, w, h);
+  glTexStorage2D(target, 1, GL_RGBA8, w, h);
 #else
-  // macOS (OpenGL 4.1 fallback)
+  // macOS: OpenGL 4.1 fallback
+  // Metal has no RGB8 format, so use RGBA8
   glTexImage2D(target,
     0,
-    GL_RGB8,
+    GL_RGBA8,
     w,
     h, 
     0,

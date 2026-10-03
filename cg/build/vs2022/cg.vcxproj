@@ -164,6 +164,7 @@
     <ClInclude Include="..\..\include\graphics\GLRenderWindow2.h" />
     <ClInclude Include="..\..\include\graphics\GLRenderWindow3.h" />
     <ClInclude Include="..\..\include\graphics\GLTextureFramebuffer.h" />
+    <ClInclude Include="..\..\include\graphics\GLTextureHelper.h" />
     <ClInclude Include="..\..\include\graphics\GLWindow.h" />
     <ClInclude Include="..\..\include\graphics\Image.h" />
     <ClInclude Include="..\..\include\graphics\Light.h" />

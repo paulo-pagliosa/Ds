@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2019, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2019, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for structure of arrays.
 //
 // Author: Paulo Pagliosa
-// Last revision: 15/11/2025
+// Last revision: 03/10/2026
 
 #ifndef __SoA_h
 #define __SoA_h
@@ -38,6 +38,7 @@
 #include <concepts>
 #include <cstring>
 #include <tuple>
+#include <utility>
 
 namespace cg
 { // begin namespace cg
@@ -104,16 +105,6 @@ public:
     // do nothing
   }
 
-  void get(index_t, std::tuple<Args...>&) const
-  {
-    // do nothing
-  }
-
-  void set(index_t, const std::tuple<Args...>&)
-  {
-    // do nothing
-  }
-
   void swap(index_t, index_t)
   {
     // do nothing
@@ -131,13 +122,13 @@ public:
 
   T* data;
 
-  HOST DEVICE
+  [[nodiscard]] HOST DEVICE
   const Base& base() const
   {
     return *this;
   }
 
-  HOST DEVICE
+  [[nodiscard]] HOST DEVICE
   Base& base()
   {
     return *this;
@@ -148,7 +139,17 @@ public:
   void allocate(size_t count)
   {
     Base::template allocate<Allocator>(count);
-    data = Allocator::template allocate<T>(count);
+    try
+    {
+      data = Allocator::template allocate<T>(count);
+    }
+    catch (...)
+    {
+      // Release the arrays already allocated by the base,
+      // so that a failed allocation does not leak
+      Base::template free<Allocator>();
+      throw;
+    }
   }
 
   template <typename Allocator>
@@ -156,25 +157,10 @@ public:
   void free()
   {
     Allocator::template free<T>(data);
+    // Reset data, so that a later failed allocation cannot
+    // cause a double free
+    data = nullptr;
     Base::template free<Allocator>();
-  }
-
-  void get(index_t i, std::tuple<T, Args...>& t) const
-  {
-    std::get<0>(t) = data[i];
-    Base::get(i, (std::tuple<Args...>&)t);
-  }
-
-  void set(index_t i, const std::tuple<T, Args...>& t)
-  {
-    Base::set(i, (std::tuple<Args...>&)t);
-    data[i] = std::get<0>(t);
-  }
-
-  void swap(index_t i, index_t j)
-  {
-    std::swap(data[i], data[j]);
-    Base::swap(i, j);
   }
 
 }; // Arrays
@@ -203,17 +189,17 @@ public:
   }
 
   template <size_t I>
-  const auto& get() const
+  [[nodiscard]] const auto& get() const
   {
     return const_cast<SoA*>(_soa)->template get<I>(_index);
   }
 
-  auto tuple() const
+  [[nodiscard]] auto tuple() const
   {
     return _soa->tuple(_index);
   }
 
-  auto index() const
+  [[nodiscard]] auto index() const
   {
     return _index;
   }
@@ -246,12 +232,12 @@ public:
     return temp;
   }
 
-  bool operator ==(const const_iterator& other) const
+  [[nodiscard]] bool operator ==(const const_iterator& other) const
   {
     return _soa == other._soa && _index == other._index;
   }
 
-  bool operator !=(const const_iterator& other) const
+  [[nodiscard]] bool operator !=(const const_iterator& other) const
   {
     return !operator ==(other);
   }
@@ -284,12 +270,12 @@ public:
   }
 
   template <size_t I>
-  auto& get() const
+  [[nodiscard]] auto& get() const
   {
     return this->_soa->template get<I>(this->_index);
   }
 
-  void set(const Args&... args)
+  void set(const Args&... args) const
   {
     return this->_soa->set(this->_index, args...);
   }
@@ -343,14 +329,14 @@ public:
   using index_type = index_t;
   using tuple_type = std::tuple<Args...>;
 
-  HOST DEVICE
+  [[nodiscard]] HOST DEVICE
   auto size() const
   {
     return _size;
   }
 
   template <size_t I>
-  HOST DEVICE
+  [[nodiscard]] HOST DEVICE
   auto data()
   {
     using dt = soa::Data<I, index_t, soa::Arrays<index_t, Args...>>;
@@ -358,58 +344,71 @@ public:
   }
 
   template <size_t I>
-  HOST DEVICE
-  const auto data() const
+  [[nodiscard]] HOST DEVICE
+  const auto* data() const
   {
     return const_cast<SoABase*>(this)->template data<I>();
   }
 
   template <size_t I>
-  HOST DEVICE
+  [[nodiscard]] HOST DEVICE
   auto& get(index_t i)
   {
-#ifndef __NVCC__
-    assert(i < _size);
-#endif // __NVCC__
+#ifndef __CUDA_ARCH__
+    assert(i >= 0 && i < _size);
+#endif // __CUDA_ARCH__
     return this->template data<I>()[i];
   }
 
   template <size_t I>
-  HOST DEVICE
+  [[nodiscard]] HOST DEVICE
   const auto& get(index_t i) const
   {
     return const_cast<SoABase*>(this)->template get<I>(i);
   }
 
-  void set(index_t i, const Args&... args)
+  [[nodiscard]] tuple_type tuple(index_t i) const
   {
-    setTuple(i, tuple_type(args...));
-  }
-
-  tuple_type tuple(index_t i) const
-  {
-    tuple_type t;
-
-    _arrays.get(i, t);
-    return t;
+    assert(i >= 0 && i < _size);
+    return fields(i, Indices{});
   }
 
   void setTuple(index_t i, const tuple_type& t)
   {
-    assert(i < _size);
-    _arrays.set(i, t);
+    assert(i >= 0 && i < _size);
+    setFields(i, t, Indices{});
+  }
+
+  void set(index_t i, const Args&... args)
+  {
+    setTuple(i, std::forward_as_tuple(args...));
   }
 
   void swap(index_t i, index_t j)
   {
-    assert(i < _size && j < _size);
+    assert(i >= 0 && i < _size && j >= 0 && j < _size);
     _arrays.swap(i, j);
   }
 
 protected:
+  using Indices = std::index_sequence_for<Args...>;
+
   soa::Arrays<index_t, Args...> _arrays;
   index_t _size;
 
+private:
+  template <size_t... I>
+  tuple_type fields(index_t i, std::index_sequence<I...>) const
+  {
+    return tuple_type{this->template get<I>(i)...};
+  }
+ 
+  template <typename Tuple, size_t... I>
+  void setFields(index_t i, const Tuple& t, std::index_sequence<I...>)
+  {
+    ((this->template data<I>()[i] = std::get<I>(t)), ...);
+  }
+ 
 }; // SoABase
 
 
@@ -428,19 +427,22 @@ public:
 
   ~SoA()
   {
-    if (this->_size > 0)
-      this->_arrays.template free<Allocator>();
+    release();
   }
 
   SoA()
   {
+    this->_arrays = {};
     this->_size = 0;
   }
 
-  SoA(index_t size)
+  SoA(index_t size):
+    SoA{}
   {
-    if ((this->_size = size) > 0)
+    assert(size >= 0);
+    if (size > 0)
       this->_arrays.template allocate<Allocator>((size_t)size);
+    this->_size = size;
   }
 
   SoA(const SoA&) = delete;
@@ -448,30 +450,37 @@ public:
 
   SoA(SoA&& other) noexcept
   {
-    this->_size = other._size;
-    this->_arrays = other._arrays;
-    other._size = 0;
+    this->_arrays = std::exchange(other._arrays, {});
+    this->_size = std::exchange(other._size, 0);
   }
 
   SoA& operator =(SoA&& other) noexcept
   {
     if (this != &other)
     {
-      this->~SoA();
-      this->_size = other._size;
-      this->_arrays = other._arrays;
-      other._size = 0;
+      release();
+      this->_arrays = std::exchange(other._arrays, {});
+      this->_size = std::exchange(other._size, 0);
     }
     return *this;
   }
 
   bool reallocate(index_t size)
   {
+    assert(size >= 0);
     if (size == this->_size)
       return false;
-    this->~SoA();
-    if ((this->_size = size) > 0)
-      this->_arrays.template allocate<Allocator>((size_t)size);
+    release();
+    this->_size = 0;
+ 
+    soa::Arrays<index_t, Args...> arrays{};
+ 
+    if (size > 0)
+    {
+      arrays.template allocate<Allocator>((size_t)size);
+      this->_size = size;
+    }
+    this->_arrays = arrays;
     return true;
   }
 
@@ -480,7 +489,7 @@ public:
     if (this != &other)
     {
       reallocate(other._size);
-      this->template copyArrays<0, sizeof...(Args)>(other);
+      copyArrays(other, typename Base::Indices{});
     }
     return *this;
   }
@@ -490,58 +499,67 @@ public:
   void copyArray(const SoA& other)
   {
     assert(this != &other && this->_size == other._size);
-    this->template copyArrays<I>(other);
+    copyArrayData<I>(other);
   }
 
-  auto cbegin() const
+  [[nodiscard]] auto cbegin() const
   {
     return const_iterator{this, 0};
   }
 
-  auto cend() const
+  [[nodiscard]] auto cend() const
   {
     return const_iterator{this, this->_size};
   }
 
-  auto begin() const
+  [[nodiscard]] auto begin() const
   {
     return cbegin();
   }
 
-  auto end() const
+  [[nodiscard]] auto end() const
   {
     return cend();
   }
 
-  auto begin()
+  [[nodiscard]] auto begin()
   {
     return iterator{this, 0};
   }
 
-  auto end()
+  [[nodiscard]] auto end()
   {
     return iterator{this, this->_size};
   }
 
 private:
-  template <size_t I, size_t N = I + 1>
-    requires (N <= sizeof...(Args))
-  void copyArrays(const SoA& other)
+  void release() noexcept
   {
-    if constexpr (I < N)
-    {
-      auto dst = this->template data<I>();
-      auto src = other.template data<I>();
+    this->_arrays.template free<Allocator>();
+  }
 
-      using D = std::remove_cvref_t<decltype(*dst)>;
-
-      if constexpr (std::is_trivially_copyable_v<D>)
-        memcpy(dst, src, this->_size * sizeof(D));
-      else
-        for (size_t i = 0; i < this->_size; ++i)
-          dst[i] = src[i];
-      this->template copyArrays<I + 1, N>(other);
-    }
+  template <size_t I>
+  void copyArrayData(const SoA& other)
+  {
+    if (this->_size <= 0)
+      return;
+ 
+    auto dst = this->template data<I>();
+    auto src = other.template data<I>();
+ 
+    using D = std::remove_cvref_t<decltype(*dst)>;
+ 
+    if constexpr (std::is_trivially_copyable_v<D>)
+      std::memcpy(dst, src, (size_t)this->_size * sizeof(D));
+    else
+      for (index_t i = 0; i < this->_size; ++i)
+        dst[i] = src[i];
+  }
+ 
+  template <size_t... I>
+  void copyArrays(const SoA& other, std::index_sequence<I...>)
+  {
+    (copyArrayData<I>(other), ...);
   }
 
 }; // SoA
@@ -550,7 +568,7 @@ namespace soa
 { // begin namespace soa
 
 template <size_t I, typename SoA>
-HOST DEVICE
+[[nodiscard]] HOST DEVICE
 inline const auto&
 get(const SoA& soa, typename SoA::index_type i)
 {
@@ -558,7 +576,7 @@ get(const SoA& soa, typename SoA::index_type i)
 }
 
 template <size_t I, typename SoA>
-HOST DEVICE
+[[nodiscard]] HOST DEVICE
 inline auto&
 get(SoA& soa, typename SoA::index_type i)
 {
@@ -566,7 +584,7 @@ get(SoA& soa, typename SoA::index_type i)
 }
 
 template <typename SoA>
-inline auto
+[[nodiscard]] inline auto
 tuple(const SoA& soa, typename SoA::index_type i)
 {
   return soa.tuple(i);
@@ -576,14 +594,16 @@ template <typename index_t, typename... Args>
 inline void
 set(SoABase<index_t, Args...>& soa, index_t i, const Args&... args)
 {
-  return soa.set(i, args...);
+  soa.set(i, args...);
 }
 
 template <typename SoA>
-inline auto
-setTuple(SoA& soa, typename SoA::index_type i, typename SoA::tuple_type& t)
+inline void
+setTuple(SoA& soa,
+  typename SoA::index_type i,
+  const typename SoA::tuple_type& t)
 {
-  return soa.setTuple(i, t);
+  soa.setTuple(i, t);
 }
 
 template <typename SoA>

@@ -28,7 +28,7 @@
 // Source file for OpenGL window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 30/09/2026
+// Last revision: 03/10/2026
 
 #include "core/Exception.h"
 #include "graphics/Application.h"
@@ -231,13 +231,15 @@ createGlfwWindow(const char* title, int width, int height)
 void
 GLWindow::show(int argc, char** argv)
 {
+  constexpr auto samples = 4;
+
   // Create the GLFW window.
   glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-  glfwWindowHint(GLFW_SAMPLES, 8);
+  glfwWindowHint(GLFW_SAMPLES, samples);
 #ifdef __APPLE__
   glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
 #endif

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2021, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2021, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,17 +28,23 @@
 // Class for generic array.
 //
 // Author: Paulo Pagliosa
-// Last revision: 15/11/2025
+// Last revision: 03/10/2026
 
 #ifndef __Array_h
 #define __Array_h
 
 #include <algorithm>
 #include <concepts>
+#include <cstring>
+#include <iterator>
 #include <stdexcept>
+#include <utility>
 
 namespace cg
 { // begin namespace cg
+
+template <typename I>
+concept IsArrayIndex = std::integral<I> && !std::same_as<I, bool>;
 
 
 /////////////////////////////////////////////////////////////////////
@@ -51,6 +57,12 @@ class ArrayIterator
 public:
   using value_type = Array::value_type;
   using iterator = ArrayIterator<Array>;
+  using iterator_category = std::bidirectional_iterator_tag;
+  using difference_type = std::ptrdiff_t;
+  using pointer = const value_type*;
+  using reference = const value_type&;
+
+  ArrayIterator() = default;
 
   ArrayIterator(const Array* array, size_t index):
     _array{array},
@@ -59,12 +71,12 @@ public:
     // do nothing
   }
 
-  bool operator ==(const iterator& other) const
+  [[nodiscard]] bool operator ==(const iterator& other) const
   {
     return _index == other._index && _array == other._array;
   }
 
-  bool operator !=(const iterator& other) const
+  [[nodiscard]] bool operator !=(const iterator& other) const
   {
     return !operator ==(other);
   }
@@ -72,7 +84,7 @@ public:
   auto& operator ++()
   {
 #ifdef _DEBUG
-    if (_index >= _array->size())
+    if (!_array || _index >= _array->size())
       throw std::logic_error{"Array iterator not incrementable"};
 #endif // _DEBUG
     ++_index;
@@ -90,7 +102,7 @@ public:
   auto& operator --()
   {
 #ifdef _DEBUG
-    if (_index == 0)
+    if (!_array || _index == 0)
       throw std::logic_error{"Array iterator not decrementable"};
 #endif // _DEBUG
     --_index;
@@ -105,28 +117,28 @@ public:
     return temp;
   }
 
-  const auto& operator *() const
+  [[nodiscard]] reference operator *() const
   {
 #ifdef _DEBUG
-    if (_index >= _array->size())
+    if (!_array || _index >= _array->size())
       throw std::logic_error{"Array iterator not dereferencable"};
 #endif // _DEBUG
     return (*_array)[_index];
   }
 
-  auto operator ->() const
+  [[nodiscard]] auto operator ->() const
   {
     return &(operator *());
   }
 
-  auto index() const
+  [[nodiscard]] auto index() const
   {
     return _index;
   }
 
 private:
-  const Array* _array;
-  size_t _index;
+  const Array* _array{};
+  size_t _index{};
 
 }; // ArrayIterator
 
@@ -141,7 +153,7 @@ class ArrayBase
 public:
   ~ArrayBase()
   {
-    Allocator::template free<T>(_data);
+    release();
   }
 
   ArrayBase() = default;
@@ -153,48 +165,38 @@ public:
     // do nothing
   }
 
+  ArrayBase(const ArrayBase&) = delete;
+  ArrayBase& operator =(const ArrayBase&) = delete;
+
   ArrayBase(ArrayBase&& other) noexcept:
-    _data{other._data},
-    _size{other._size}
+    _data{std::exchange(other._data, nullptr)},
+    _size{std::exchange(other._size, 0)}
   {
-    other._data = nullptr;
-    other._size = 0;
+    // do nothing
   }
 
   auto& operator =(ArrayBase&& other) noexcept
   {
     if (this != &other)
     {
-      this->~ArrayBase();
-      _data = other._data;
-      _size = other._size;
-      other._data = nullptr;
-      other._size = 0;
+      release();
+      _data = std::exchange(other._data, nullptr);
+      _size = std::exchange(other._size, 0);
     }
     return *this;
   }
 
-  auto size() const
+  [[nodiscard]] auto size() const
   {
     return _size;
   }
 
-  auto data() const
+  [[nodiscard]] const T* data() const
   {
     return _data;
   }
 
-  auto data()
-  {
-    return _data;
-  }
-
-  operator const T*() const
-  {
-    return _data;
-  }
-
-  operator T*()
+  [[nodiscard]] T* data()
   {
     return _data;
   }
@@ -203,8 +205,11 @@ protected:
   T* _data{};
   size_t _size{};
 
-  ArrayBase(const ArrayBase&) = delete;
-  ArrayBase& operator =(const ArrayBase&) = delete;
+private:
+  void release() noexcept
+  {
+    Allocator::template free<T>(_data);
+  }
 
 }; // ArrayBase
 
@@ -217,7 +222,7 @@ class ArrayAllocator
 {
 public:
   template <typename T>
-  static T* allocate(size_t count)
+  [[nodiscard]] static T* allocate(size_t count)
   {
     return new T[count];
   }
@@ -240,22 +245,22 @@ class Array: public ArrayBase<T, Allocator>
 {
 public:
   using value_type = T;
-  using array_type = Array<T>;
+  using array_type = Array<T, Allocator>;
+
   using ArrayBase<T, Allocator>::ArrayBase;
 
   auto& copy(const Array& other)
   {
     if (this != &other)
     {
-#ifdef _DEBUG
       if (this->_size != other._size)
         throw std::logic_error{"Bad array size"};
-#endif // _DEBUG
-      if constexpr (std::is_trivially_copyable_v<T>)
-        memcpy(this->_data, other._data, this->_size * sizeof(T));
-      else
-        for (size_t i = 0; i < this->_size; ++i)
-          this->_data[i] = other._data[i];
+      if (this->_size)
+        if constexpr (std::is_trivially_copyable_v<T>)
+          std::memcpy(this->_data, other._data, this->_size * sizeof(T));
+        else
+          for (size_t i = 0; i < this->_size; ++i)
+            this->_data[i] = other._data[i];
     }
     return *this;
   }
@@ -263,36 +268,47 @@ public:
   auto& zero()
   {
     static_assert(std::is_trivially_copyable_v<T>);
-    memset(this->_data, 0, this->_size * sizeof(T));
+    if (this->_size)
+      std::memset(this->_data, 0, this->_size * sizeof(T));
     return *this;
   }
 
-  const auto& operator [](size_t index) const
+  template <IsArrayIndex I>
+  [[nodiscard]] const auto& operator [](I index) const
   {
-#ifdef _DEBUG
-    if (index >= this->_size)
-      throw std::logic_error{"Array index out of bounds"};
-#endif // _DEBUG
+    checkIndex(index);
+    return this->_data[index];
+  }
+ 
+  template <IsArrayIndex I>
+  [[nodiscard]] auto& operator [](I index)
+  {
+    checkIndex(index);
     return this->_data[index];
   }
 
-  auto& operator [](size_t index)
-  {
-#ifdef _DEBUG
-    if (index >= this->_size)
-      throw std::logic_error{"Array index out of bounds"};
-#endif // _DEBUG
-    return this->_data[index];
-  }
-
-  auto begin() const
+  [[nodiscard]] auto begin() const
   {
     return ArrayIterator<Array>{this, 0};
   }
 
-  auto end() const
+  [[nodiscard]] auto end() const
   {
     return ArrayIterator<Array>{this, this->_size};
+  }
+
+private:
+  template <IsArrayIndex I>
+  void checkIndex(I index) const
+  {
+#ifdef _DEBUG
+    if (static_cast<size_t>(index) < this->_size)
+      if constexpr (!std::is_signed_v<I>)
+        return;
+      else if (index >= 0)
+        return;
+    throw std::logic_error{"Array index out of bounds"};
+#endif // _DEBUG
   }
 
 }; // Array
