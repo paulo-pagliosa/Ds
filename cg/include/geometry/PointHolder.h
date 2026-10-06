@@ -28,7 +28,7 @@
 // Class definition for point holder.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 06/10/2026
 
 #ifndef __PointHolder_h
 #define __PointHolder_h
@@ -38,9 +38,9 @@
 namespace cg
 { // begin namespace cg
 
-template <typename index_t, typename PA>
+template <typename I, typename PA>
 [[nodiscard]] constexpr auto
-activePointFlag(const PA&, index_t)
+isPointActive(const PA&, I)
 {
   return true;
 }
@@ -58,12 +58,6 @@ private:
 
 public:
   using Bounds = cg::Bounds<R, D>;
-
-  template <typename index_t>
-  [[nodiscard]] auto activePoint(index_t index) const
-  {
-    return activePointFlag(*_points, index);
-  }
 
   [[nodiscard]] const auto& points() const
   {
@@ -110,7 +104,8 @@ PointHolder<D, R, PA>::computeBounds(const PA& points, bool squared) -> Bounds
   Bounds bounds;
 
   for (psize_t n = points.size(), i = 0; i < n; ++i)
-    bounds.extend(points[i]);
+    if (isPointActive(points, i))
+      bounds.extend(points[i]);
   if (squared)
   {
     auto s = Vector<R, D>{bounds.maxExtent() * R(0.5)};

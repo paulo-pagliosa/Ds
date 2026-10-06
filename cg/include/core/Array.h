@@ -28,7 +28,7 @@
 // Class for generic array.
 //
 // Author: Paulo Pagliosa
-// Last revision: 03/10/2026
+// Last revision: 06/10/2026
 
 #ifndef __Array_h
 #define __Array_h
@@ -175,7 +175,7 @@ public:
     // do nothing
   }
 
-  auto& operator =(ArrayBase&& other) noexcept
+  ArrayBase& operator =(ArrayBase&& other) noexcept
   {
     if (this != &other)
     {

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for generic list.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/07/2025
+// Last revision: 06/10/2026
 
 #ifndef __List_h
 #define __List_h
@@ -58,7 +58,7 @@ public:
     // do nothing
   }
 
-  auto& operator *()
+  [[nodiscard]] auto& operator *()
   {
     return _value;
   }
@@ -102,7 +102,7 @@ public:
     add(T(std::forward<Args>(args)...));
   }
 
-  bool contains(const T& value) const
+  [[nodiscard]] bool contains(const T& value) const
   {
     return find(value) != this->end();
   }
@@ -148,9 +148,8 @@ template <typename T, unsigned size>
 void
 List<T, size>::clear()
 {
-  auto node = Base::nextNode(this->head());
-
-  while (node != this->head())
+  for (auto node = Base::nextNode(this->head());
+    node != this->head();)
   {
     auto temp = node;
 
@@ -214,12 +213,12 @@ public:
     return ListConstIterator{(*(RefListConstIteratorBase*)this)--};
   }
 
-  const T* operator *() const
+  [[nodiscard]] const T* operator *() const
   {
     return (T*)RefListConstIteratorBase::operator *().get();
   }
 
-  auto operator ->() const
+  [[nodiscard]] auto operator ->() const
   {
     return operator *();
   }
@@ -252,12 +251,12 @@ public:
     return ListIterator{(*(RefListIteratorBase*)this)--};
   }
 
-  T* operator *()
+  [[nodiscard]] T* operator *()
   {
     return (T*)RefListIteratorBase::operator *().get();
   }
 
-  auto operator ->()
+  [[nodiscard]] auto operator ->()
   {
     return operator *();
   }
@@ -277,7 +276,7 @@ public:
     RefListBase::add(value.get());
   }
 
-  bool contains(const value_type& value) const
+  [[nodiscard]] bool contains(const value_type& value) const
   {
     return RefListBase::contains(value.get());
   }
@@ -292,32 +291,32 @@ public:
     return RefListBase::remove(value.get());
   }
 
-  const_iterator begin() const
+  [[nodiscard]] const_iterator begin() const
   {
     return const_iterator{RefListBase::begin()};
   }
 
-  auto cbegin() const
+  [[nodiscard]] auto cbegin() const
   {
     return begin();
   }
 
-  iterator begin()
+  [[nodiscard]] iterator begin()
   {
     return iterator{RefListBase::begin()};
   }
 
-  const_iterator end() const
+  [[nodiscard]] const_iterator end() const
   {
     return const_iterator{RefListBase::end()};
   }
 
-  iterator end()
+  [[nodiscard]] iterator end()
   {
     return iterator{RefListBase::end()};
   }
 
-  auto cend() const
+  [[nodiscard]] auto cend() const
   {
     return end();
   }

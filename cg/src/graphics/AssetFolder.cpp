@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2022, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for asset folder.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/07/2023
+// Last revision: 06/10/2026
 
 #include "core/Exception.h"
 #include "graphics/Application.h"
@@ -87,7 +87,7 @@ namespace
 inline auto
 filter(const fs::path& path, const char* ext)
 {
-  return ext == nullptr? true : path.extension() == ext;
+  return !ext ? true : path.extension() == ext;
 }
 
 } // emd namespace

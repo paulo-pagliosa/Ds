@@ -28,7 +28,7 @@
 // Class definition for point array.
 //
 // Author: Paulo Pagliosa
-// Last revision: 03/10/2026
+// Last revision: 06/10/2026
 
 #ifndef __PointArray_h
 #define __PointArray_h
@@ -45,15 +45,15 @@ namespace cg
 //
 // PointArray: point array class
 // ==========
-template <class Allocator, class index_t, class Vector, class... Args>
+template <typename Allocator, typename index_t, typename V, typename... Args>
 class PointArray
 {
 public:
   ASSERT_SIGNED(index_t, "PointArray: signed integral type expected");
 
   using PointId = index_t;
-  using Data = SoA<Allocator, index_t, Vector, Args...>;
-  using type = PointArray<Allocator, index_t, Vector, Args...>;
+  using Data = SoA<Allocator, index_t, V, Args...>;
+  using type = PointArray<Allocator, index_t, V, Args...>;
 
   PointArray() = default;
 
@@ -128,7 +128,7 @@ public:
     _freeList = eol;
   }
 
-  PointId add(const Vector& p, const Args&... args)
+  PointId add(const V& p, const Args&... args)
   {
     PointId i;
 
@@ -152,10 +152,10 @@ public:
 
   bool remove(PointId i)
   {
-    return active(i) ? deactivate(i), true : false;
+    return isActive(i) ? deactivate(i), true : false;
   }
 
-  [[nodiscard]] bool active(PointId i) const
+  [[nodiscard]] bool isActive(PointId i) const
   {
     assert(i >= 0 && i < _size);
     return _flag.template get<0>(i) == activeFlag;
@@ -164,7 +164,7 @@ public:
   template <size_t I>
   [[nodiscard]] auto& get(PointId i)
   {
-    assert(active(i));
+    assert(isActive(i));
     return _data.template get<I>(i);
   }
 
@@ -174,9 +174,9 @@ public:
     return const_cast<PointArray*>(this)->template get<I>(i);
   }
 
-  void set(PointId i, const Vector& p, const Args&... args)
+  void set(PointId i, const V& p, const Args&... args)
   {
-    assert(active(i));
+    assert(isActive(i));
     _data.set(i, p, args...);
   }
 
@@ -190,7 +190,7 @@ public:
     return this->template get<0>(i);
   }
 
-  void setPosition(PointId i, const Vector& p)
+  void setPosition(PointId i, const V& p)
   {
     position(i) = p;
   }
@@ -239,7 +239,7 @@ protected:
 
   void deactivate(PointId i)
   {
-    if (!active(i))
+    if (!isActive(i))
       return;
     if (--_activeCount == 0)
     {
@@ -254,6 +254,17 @@ protected:
   }
 
 }; // PointArray
+
+template <typename I,
+  typename Allocator,
+  typename index_t,
+  typename V,
+  typename... Args>
+[[nodiscard]] inline bool
+isPointActive(const PointArray<Allocator, index_t, V, Args...>& points, I i)
+{
+  return points.isActive(index_t(i));
+}
 
 } // end namespace cg
 

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for graphics application.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/12/2022
+// Last revision: 06/10/2026
 
 #include "core/Exception.h"
 #include "graphics/Application.h"
@@ -125,13 +125,13 @@ Application::run(int argc, char** argv)
   {
     namespace fs = std::filesystem;
 
-    if (_mainWindow == nullptr)
+    if (!_mainWindow)
       runtimeError("Undefined main window");
     if (_count == 1)
     {
       if (!internal::app::initializeGlfw())
         runtimeError("Unable to initialize GLFW");
-      if (glfwGetPrimaryMonitor() == nullptr)
+      if (!glfwGetPrimaryMonitor())
         runtimeError("No monitors found");
     }
     if (_assetsPath.empty())

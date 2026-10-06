@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for flags.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/07/2025
+// Last revision: 06/10/2026
 
 #ifndef __Flags_h
 #define __Flags_h
@@ -40,8 +40,8 @@ namespace cg
 { // begin namespace cg
 
 template <typename Bits>
-HOST DEVICE
-inline constexpr auto
+[[nodiscard]] HOST DEVICE
+constexpr auto
 operator |(Bits a, Bits b)
 {
   return Bits((uint32_t)a | (uint32_t)b);
@@ -58,7 +58,7 @@ class Flags
 public:
   /// Constructs a Flags object initialized with mask.
   HOST DEVICE
-  Flags(Bits mask):
+  constexpr Flags(Bits mask):
     _bits{(uint32_t)mask}
   {
     // do nothing
@@ -66,7 +66,7 @@ public:
 
   /// Contructs a Flags object with default mask.
   HOST DEVICE
-  Flags():
+  constexpr Flags():
     Flags{Bits{}}
   {
     // do nothing
@@ -74,33 +74,33 @@ public:
 
   /// \brief Assigns mask to the bits of this object.
   HOST DEVICE
-  auto& operator =(Bits mask)
+  constexpr auto& operator =(Bits mask)
   {
     _bits = (uint32_t)mask;
     return *this;
   }
 
-  HOST DEVICE
-  Flags operator |(Bits mask) const
+  [[nodiscard]] HOST DEVICE
+  constexpr Flags operator |(Bits mask) const
   {
     return {_bits | (uint32_t)mask};
   }
 
-  HOST DEVICE
-  Flags operator |(Flags flags) const
+  [[nodiscard]] HOST DEVICE
+  constexpr Flags operator |(Flags flags) const
   {
     return {_bits | flags._bits};
   }
 
   HOST DEVICE
-  auto& operator |=(Bits mask)
+  constexpr auto& operator |=(Bits mask)
   {
     _bits |= (uint32_t)mask;
     return *this;
   }
 
   HOST DEVICE
-  auto& operator |=(Flags flags)
+  constexpr auto& operator |=(Flags flags)
   {
     _bits |= flags._bits;
     return *this;
@@ -108,56 +108,56 @@ public:
 
   /// Sets the bits of this object, given by mask, to 1.
   HOST DEVICE
-  void set(Bits mask)
+  constexpr void set(Bits mask)
   {
     _bits |= (uint32_t)mask;
   }
 
   /// Sets the bits of this object, given by mask, to 0.
   HOST DEVICE
-  void reset(Bits mask)
+  constexpr void reset(Bits mask)
   {
     _bits &= ~(uint32_t)mask;
   }
 
   /// Sets all bits of this object to 0.
   HOST DEVICE
-  void clear()
+  constexpr void clear()
   {
     _bits = 0;
   }
 
   /// Sets the bits of this object, given by mask, to state.
   HOST DEVICE
-  void enable(Bits mask, bool state)
+  constexpr void enable(Bits mask, bool state)
   {
     state ? set(mask) : reset(mask);
   }
 
   /// Converts this object to int.
-  HOST DEVICE
-  explicit operator uint32_t() const
+  [[nodiscard]] HOST DEVICE
+  constexpr explicit operator uint32_t() const
   {
     return _bits;
   }
 
   /// Converts this object to Bits.
-  HOST DEVICE
-  operator Bits() const
+  [[nodiscard]] HOST DEVICE
+  constexpr operator Bits() const
   {
     return static_cast<Bits>(_bits);
   }
 
   /// Returns true if all bits of this object, given by mask, are set.
-  HOST DEVICE
-  bool isSet(Bits mask) const
+  [[nodiscard]] HOST DEVICE
+  constexpr bool isSet(Bits mask) const
   {
     return (_bits & (uint32_t)mask) == (uint32_t)mask;
   }
 
   /// Returns true if any bits of this object, given by mask, are set.
-  HOST DEVICE
-  bool test(Bits mask) const
+  [[nodiscard]] HOST DEVICE
+  constexpr bool test(Bits mask) const
   {
     return (_bits & (uint32_t)mask) != 0;
   }

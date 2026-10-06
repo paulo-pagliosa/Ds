@@ -28,7 +28,7 @@
 // Source file for OpenGL 3D graphics.
 //
 // Author: Paulo Pagliosa
-// Last revision: 09/09/2026
+// Last revision: 06/10/2026
 
 #include "geometry/MeshSweeper.h"
 #include "graphics/GLGraphics3.h"
@@ -154,7 +154,7 @@ GLGraphics3::circle()
 {
   static Reference<TriangleMesh> _circle;
 
-  if (_circle == nullptr)
+  if (!_circle)
     _circle = makeCircle();
   return _circle;
 }
@@ -164,7 +164,7 @@ GLGraphics3::quad()
 {
   static Reference<TriangleMesh> _quad;
 
-  if (_quad == nullptr)
+  if (!_quad)
     _quad = makeQuad();
   return _quad;
 }
@@ -174,7 +174,7 @@ GLGraphics3::cone()
 {
   static Reference<TriangleMesh> _cone;
 
-  if (_cone == nullptr)
+  if (!_cone)
     _cone = MeshSweeper::makeCone();
   return _cone;
 }
@@ -184,7 +184,7 @@ GLGraphics3::box()
 {
   static Reference<TriangleMesh> _box;
 
-  if (_box == nullptr)
+  if (!_box)
     _box = MeshSweeper::makeBox();
   return _box;
 }
@@ -194,7 +194,7 @@ GLGraphics3::sphere()
 {
   static Reference<TriangleMesh> _sphere;
 
-  if (_sphere == nullptr)
+  if (!_sphere)
     _sphere = MeshSweeper::makeSphere();
   return _sphere;
 }
@@ -204,7 +204,7 @@ GLGraphics3::cylinder()
 {
   static Reference<TriangleMesh> _cylinder;
 
-  if (_cylinder == nullptr)
+  if (!_cylinder)
     _cylinder = MeshSweeper::makeCylinder();
   return _cylinder;
 }
@@ -480,7 +480,7 @@ GLGraphics3::drawNormals(const TriangleMesh& mesh,
 {
   const auto& data = mesh.data();
 
-  if (data.vertexNormals == nullptr)
+  if (!data.vertexNormals)
     return;
 
   auto& glyph = *cone();

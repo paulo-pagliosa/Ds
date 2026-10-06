@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2018 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for mesh reader.
 //
 // Author: Paulo Pagliosa
-// Last revision: 15/09/2018
+// Last revision: 06/10/2026
 
 #ifndef __MeshReader_h
 #define __MeshReader_h
@@ -46,7 +46,7 @@ namespace cg
 class MeshReader
 {
 public:
-  static TriangleMesh* readOBJ(const char* filename);
+  [[nodiscard]] static TriangleMesh* readOBJ(const char* filename);
 
 }; // MeshReader
 

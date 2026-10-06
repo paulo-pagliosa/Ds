@@ -28,7 +28,7 @@
 // Class definition for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 09/09/2026
+// Last revision: 06/10/2026
 
 #ifndef __SceneWindowBase_h
 #define __SceneWindowBase_h
@@ -56,7 +56,7 @@ protected:
   Color _selectedWireframeColor[2]
   {
     Color{255, 102, 0}, // parent
-    Color{98, 119, 155, 64} // children
+    Color{98, 119, 155} // children
   };
   bool _showEditorView{true};
   bool _showPreview{true};

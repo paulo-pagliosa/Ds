@@ -28,7 +28,7 @@
 // Class definition for material.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2026
+// Last revision: 06/10/2026
 
 #ifndef __Material_h
 #define __Material_h
@@ -86,7 +86,7 @@ Material::defaultMaterial()
 {
   static const Material* dm{};
 
-  if (dm == nullptr)
+  if (!dm)
     dm = Material::makeUse(new Material);
   return dm;
 }

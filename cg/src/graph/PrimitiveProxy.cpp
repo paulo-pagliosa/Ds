@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2022, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for primitive proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/11/2025
+// Last revision: 06/10/2026
 
 #include "graph/PrimitiveProxy.h"
 #include "graph/Scene.h"
@@ -44,7 +44,7 @@ namespace cg::graph
 void
 PrimitiveProxy::afterAdded()
 {
-  assert(sceneObject() != nullptr);
+  assert(sceneObject());
   _actor = new Actor{*_object};
   sceneObject()->scene()->addActor(_actor);
 }
@@ -52,9 +52,9 @@ PrimitiveProxy::afterAdded()
 void
 PrimitiveProxy::beforeRemoved()
 {
-  if (_actor != nullptr)
+  if (_actor)
   {
-    assert(sceneObject() != nullptr);
+    assert(sceneObject());
     sceneObject()->scene()->removeActor(_actor);
     _actor = nullptr;
   }
@@ -73,7 +73,7 @@ PrimitiveProxy::transformChanged()
 void
 PrimitiveProxy::setVisible(bool value)
 {
-  if (_actor != nullptr)
+  if (_actor)
     _actor->visible = value;
 }
 

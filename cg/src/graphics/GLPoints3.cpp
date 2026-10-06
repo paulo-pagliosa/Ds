@@ -28,7 +28,7 @@
 // Source file for OpenGL 3D point buffer object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2026
+// Last revision: 06/10/2026
 
 #include "graphics/GLPoints3.h"
 #include <cassert>
@@ -66,7 +66,7 @@ GLPoints3::GLPoints3(const PointArray& points):
 void
 GLPoints3::setColors(GLColorBuffer* colors)
 {
-  if (colors != nullptr)
+  if (colors)
   {
     assert(colors->size() == _size);
     bind();

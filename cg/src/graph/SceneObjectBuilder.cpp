@@ -39,7 +39,7 @@ namespace cg::graph
 static inline auto
 empty(const char* s)
 {
-  return s == nullptr || *s == 0;
+  return !s || !*s;
 }
 
 

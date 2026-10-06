@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for block allocator.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/12/2025
+// Last revision: 06/10/2026
 
 #ifndef __BlockAllocator_h
 #define __BlockAllocator_h
@@ -42,7 +42,7 @@ namespace cg
 namespace internal
 { // begin namespace internal
 
-inline constexpr size_t
+[[nodiscard]] constexpr size_t
 roundupVoidPtr(size_t size)
 {
   return (size + sizeof(void*) - 1) & ~(sizeof(void*) - 1);
@@ -78,7 +78,7 @@ public:
   /**
    * \brief Allocates a chunk of memory.
    */
-  void* allocate();
+  [[nodiscard]] void* allocate();
 
   /**
    * \brief Deallocates the chunk of memory pointed by
@@ -90,7 +90,7 @@ public:
     _freeList = ptr;
   }
 
-  int blockCount() const
+  [[nodiscard]] auto blockCount() const
   {
     return _blockCount;
   }
@@ -163,7 +163,7 @@ template <typename T, unsigned size>
 class SingletonBlockStorage
 {
 public:
-  static T* allocate()
+  [[nodiscard]] static T* allocate()
   {
     storage_type& s = storage();
 
@@ -177,7 +177,7 @@ public:
 
   static void free(T* ptr)
   {
-    if (ptr != nullptr)
+    if (ptr)
     {
       storage_type& s = storage();
 
@@ -187,7 +187,7 @@ public:
     }
   }
 
-  static int blockCount()
+  static auto blockCount()
   {
     storage_type& s = storage();
 
@@ -216,7 +216,7 @@ private:
   {
     static storage_type* s;
 
-    if (s == nullptr)
+    if (!s)
       s = new storage_type();
     // The following line does nothing else than force the
     // instantiation of SingletonBlockStorage<T, size>::creator,
@@ -263,7 +263,7 @@ public:
   /**
    * \brif Allocates memory for an object of type T.
    */
-  static value_type* allocate()
+  [[nodiscard]] static T* allocate()
   {
     return SingletonBlockStorage<T, size>::allocate();
   }
@@ -277,7 +277,7 @@ public:
    * call to \ref destroy().
    */
   template <typename... Args>
-  static value_type* construct(Args&&... args)
+  [[nodiscard]] static T* construct(Args&&... args)
   {
     auto ptr = allocate();
 
@@ -297,7 +297,7 @@ public:
    * \brif Deallocates the memory previously allocated for the
    * object pointed by \p ptr.
    */
-  static void free(value_type* ptr)
+  static void free(T* ptr)
   {
     SingletonBlockStorage<T, size>::free(ptr);
   }
@@ -305,7 +305,7 @@ public:
   /**
    * \brief Destroys the object pointed by \p ptr.
    */
-  static void destroy(value_type* ptr)
+  static void destroy(T* ptr)
   {
     ptr->~T();
     free(ptr);

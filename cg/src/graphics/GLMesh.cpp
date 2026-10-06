@@ -28,7 +28,7 @@
 // Source file for OpenGL mesh array object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2026
+// Last revision: 06/10/2026
 
 #include "graphics/GLMesh.h"
 
@@ -87,7 +87,7 @@ GLMesh::GLMesh(const TriangleMesh& mesh)
 void
 GLMesh::setColors(GLColorBuffer* colors)
 {
-  if (colors != nullptr)
+  if (colors)
   {
     assert(colors->size() == _vertexCount);
     bind();

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for allocable object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 30/07/2023
+// Last revision: 06/10/2026
 
 #ifndef __AllocableObject_h
 #define __AllocableObject_h
@@ -45,7 +45,7 @@ namespace cg
 
 #ifdef _DEBUG
 template <typename T, typename Allocator>
-inline constexpr bool
+constexpr bool
 isStandardAllocator()
 {
   return std::is_assignable_v<StandardAllocator<T>, Allocator>;
@@ -63,7 +63,7 @@ class AllocableObject
 public:
   using allocator = Allocator;
 
-  static T* allocate()
+  [[nodiscard]] static T* allocate()
   {
     return allocator::allocate();
   }

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for content holder.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/08/2023
+// Last revision: 06/10/2026
 
 #ifndef __ContentHolder_h
 #define __ContentHolder_h
@@ -39,7 +39,7 @@ namespace cg
 { // begin namespace cg
 
 template <typename T>
-inline constexpr bool
+[[nodiscard]] constexpr bool
 isNotVoid()
 {
   return !std::is_void_v<T>;
@@ -72,12 +72,12 @@ public:
     // do nothing
   }
 
-  const auto& data() const
+  [[nodiscard]] const auto& data() const
   {
     return _data;
   }
 
-  auto& data()
+  [[nodiscard]] auto& data()
   {
     return _data;
   }

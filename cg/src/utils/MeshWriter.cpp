@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2023 Paulo Pagliosa.                              |
+//| Copyright (C) 2023, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for mesh writer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2023
+// Last revision: 06/10/2026
 
 #include "utils/MeshWriter.h"
 #include <filesystem>
@@ -44,9 +44,9 @@ namespace cg
 bool
 MeshWriter::writeOBJ(const TriangleMesh& mesh, const char* filename)
 {
-  FILE* file = fopen(filename, "w");
+  auto file = fopen(filename, "w");
 
-  if (file == nullptr)
+  if (!file)
     return false;
   printf("Writing Wavefront OBJ file %s...\n", filename);
 

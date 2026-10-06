@@ -28,7 +28,7 @@
 // Class definition for scene base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/09/2026
+// Last revision: 06/10/2026
 
 #ifndef __SceneBase_h
 #define __SceneBase_h
@@ -83,7 +83,7 @@ public:
 
   auto addActor(Actor* actor)
   {
-    if (actor != nullptr)
+    if (actor)
       _actors.add(actor);
     return actor;
   }
@@ -100,7 +100,7 @@ public:
 
   auto addLight(Light* light)
   {
-    if (light != nullptr)
+    if (light)
       _lights.add(light);
     return light;
   }

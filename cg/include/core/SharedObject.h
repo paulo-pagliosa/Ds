@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for shared object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 15/11/2025
+// Last revision: 06/10/2026
 
 #ifndef __SharedObject_h
 #define __SharedObject_h
@@ -47,7 +47,7 @@ template <typename T>
 concept SharedObjectType = std::derived_from<T, SharedObject>;
 
 template <typename T>
-inline constexpr bool
+[[nodiscard]] constexpr bool
 isSharedObject()
 {
   return SharedObjectType<T>;
@@ -67,7 +67,7 @@ public:
   static auto makeUse(const T* ptr)
   {
     ASSERT_SHARED(T, "Pointer to shared object expected");
-    if (ptr != nullptr)
+    if (ptr)
       ++ptr->_referenceCount;
     return (T*)ptr;
   }
@@ -76,7 +76,7 @@ public:
   static void release(T* ptr)
   {
     ASSERT_SHARED(T, "Pointer to shared object expected");
-    if (ptr != nullptr && --ptr->_referenceCount <= 0)
+    if (ptr && --ptr->_referenceCount <= 0)
       delete ptr;
   }
 
@@ -86,7 +86,7 @@ public:
   SharedObject& operator =(const SharedObject&) = delete;
 
   /// Returns the number of references of this object.
-  auto referenceCount() const
+  [[nodiscard]] auto referenceCount() const
   {
     return _referenceCount;
   }
@@ -117,7 +117,7 @@ public:
   using value_type = T;
 
   Reference():
-    _ptr{nullptr}
+    _ptr{}
   {
     // do nothing
   }
@@ -163,42 +163,42 @@ public:
     return *this;
   }
 
-  bool operator ==(const Reference& other) const
+  [[nodiscard]] bool operator ==(const Reference& other) const
   {
     return operator ==(other._ptr);
   }
 
-  bool operator ==(const T* ptr) const
+  [[nodiscard]] bool operator ==(const T* ptr) const
   {
     return _ptr == ptr;
   }
 
-  bool operator !=(const Reference& other) const
+  [[nodiscard]] bool operator !=(const Reference& other) const
   {
     return !operator ==(other);
   }
 
-  bool operator !=(const T* ptr) const
+  [[nodiscard]] bool operator !=(const T* ptr) const
   {
     return !operator ==(ptr);
   }
 
-  operator T*() const
+  [[nodiscard]] operator T*() const
   {
     return _ptr;
   }
 
-  auto operator->() const
+  [[nodiscard]] auto operator->() const
   {
     return _ptr;
   }
 
-  auto get() const
+  [[nodiscard]] auto get() const
   {
     return _ptr;
   }
 
-  auto& operator *() const
+  [[nodiscard]] auto& operator *() const
   {
     return *_ptr;
   }

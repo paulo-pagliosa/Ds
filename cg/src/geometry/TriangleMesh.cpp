@@ -28,7 +28,7 @@
 // Source file for simple triangle mesh.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 06/10/2026
 
 #include "geometry/MeshSweeper.h"
 #include <cstring>
@@ -72,7 +72,7 @@ TriangleMesh::computeNormals()
 {
   auto nv = _data.vertexCount;
 
-  if (_data.vertexNormals == nullptr)
+  if (!_data.vertexNormals)
     _data.vertexNormals = new vec3f[nv];
 
   auto t = _data.triangles;
@@ -101,7 +101,7 @@ TriangleMesh::TRS(const mat4f& trs)
   for (int i = 0; i < nv; ++i)
     _data.vertices[i] = trs.transform3x4(_data.vertices[i]);
   _bounds.setEmpty();
-  if (_data.vertexNormals == nullptr)
+  if (!_data.vertexNormals)
     return;
 
   auto r = normalTRS(trs);
@@ -146,12 +146,12 @@ TriangleMesh::print(const char* s, FILE* f) const
   {
     fprintf(f, "    %d ", i);
     printv(_data.vertices[i], f);
-    if (_data.vertexNormals != nullptr)
+    if (_data.vertexNormals)
     {
       fputc('/', f);
       printv(_data.vertexNormals[i], f);
     }
-    if (_data.uv != nullptr)
+    if (_data.uv)
     {
       fputc('/', f);
       printv(_data.uv[i], f);

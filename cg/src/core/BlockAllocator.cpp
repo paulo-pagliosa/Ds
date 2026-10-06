@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018 Paulo Pagliosa.                              |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for block allocator.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/98/2019
+// Last revision: 06/10/2016
 
 #include "core/BlockAllocator.h"
 #include <iostream>
@@ -46,7 +46,7 @@ namespace cg
 inline void
 BlockStorage::Block::insert(Block*& front, Block* block)
 {
-  if (front == nullptr || front > block)
+  if (!front || front > block)
   {
     block->_next = front;
     front = block;
@@ -55,7 +55,7 @@ BlockStorage::Block::insert(Block*& front, Block* block)
 
   Block* b = front;
 
-  while (b->_next != nullptr && b->_next < block)
+  while (b->_next && b->_next < block)
     b = b->_next;
   block->_next = b->_next;
   b->_next = block;
@@ -66,7 +66,7 @@ BlockStorage::allocateBlock()
 {
   auto block = new(_blockSize) Block;
 
-  if (block == nullptr)
+  if (!block)
     return nullptr;
   Block::insert(_headBlock, block);
 #if _DEBUG && _DEBUG_BLOCKS > 0
@@ -96,7 +96,7 @@ BlockStorage::~BlockStorage()
 void*
 BlockStorage::allocate()
 {
-  if (_freeList != nullptr)
+  if (_freeList)
   {
     void* ptr = _freeList;
 
@@ -104,7 +104,7 @@ BlockStorage::allocate()
     return ptr;
   }
   if (_chunkSize > _blockSize - _nextChunk)
-    if (allocateBlock() == nullptr)
+    if (!allocateBlock())
       return nullptr;
 
   void* ptr = ((char*)(_lastBlock + 1)) + _nextChunk;
@@ -119,14 +119,14 @@ BlockStorage::sort(void*& head)
   void* a{head};
   void* b;
 
-  if (a == nullptr || (b = nextOf(a)) == nullptr)
+  if (!a || !(b = nextOf(a)))
     return;
   {
     void* s{a};
     void* f{b};
 
-    while (f != nullptr)
-      if ((f = nextOf(f)) != nullptr)
+    while (f)
+      if ((f = nextOf(f)))
       {
         s = nextOf(s);
         f = nextOf(f);
@@ -142,9 +142,9 @@ BlockStorage::sort(void*& head)
 void*
 BlockStorage::merge(void* a, void* b)
 {
-  if (a == nullptr)
+  if (!a)
     return b;
-  if (b == nullptr)
+  if (!b)
     return a;
 
   void* r;

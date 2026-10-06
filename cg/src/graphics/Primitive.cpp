@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022 Paulo Pagliosa.                              |
+//| Copyright (C) 2022, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for primitive.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/03/2022
+// Last revision: 06/10/2026
 
 #include "graphics/Primitive.h"
 
@@ -108,7 +108,7 @@ Primitive::material() const
 void
 Primitive::setMaterial(Material* m)
 {
-  _material = m == nullptr ? Material::defaultMaterial() : m;
+  _material = m ? m : Material::defaultMaterial();
 }
 
 void

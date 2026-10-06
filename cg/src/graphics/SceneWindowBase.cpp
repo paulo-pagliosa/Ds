@@ -28,7 +28,7 @@
 // Source file for scene window base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/09/2026
+// Last revision: 06/10/2026
 
 #include "graphics/Assets.h"
 #include "graphics/Renderer.h"
@@ -262,7 +262,7 @@ SceneWindowBase::preview(Camera& camera)
 
   ImGui::SetNextWindowPos({((float)wv - wt) / 2, (float)hv - (ht + 2)});
   ImGui::SetNextWindowSize({wt, ht});
-  if (!_fbo )
+  if (!_fbo)
     _fbo = new GLTextureFramebuffer{wv, hv};
   _fbo->use();
   {

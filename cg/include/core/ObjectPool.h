@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018 Paulo Pagliosa.                              |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for object pool.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/09/2018
+// Last revision: 06/10/2026
 
 #ifndef __ObjectPool_h
 #define __ObjectPool_h
@@ -65,7 +65,7 @@ public:
 
   }; // Stats
 
-  static const unsigned defaultSize = 64;
+  static constexpr unsigned defaultSize = 64;
 
   /**
    * \brief Constructs an object pool for objects of
@@ -82,7 +82,7 @@ public:
   /**
    * \brief Allocates memory for an object of type T.
    */
-  value_type* allocate()
+  [[nodiscard]] T* allocate()
   {
     std::lock_guard<std::mutex> lock{*this};
 
@@ -104,7 +104,7 @@ public:
   * a call to \ref destroy().
   */
   template <typename... Args>
-  value_type* construct(Args&&... args)
+  [[nodiscard]] T* construct(Args&&... args)
   {
     auto ptr = allocate();
 
@@ -124,7 +124,7 @@ public:
   * \brif Deallocates the memory previously allocated for the
   * object pointed by \p ptr.
   */
-  void free(value_type* ptr)
+  void free(T* ptr)
   {
     std::lock_guard<std::mutex> lock{*this};
 
@@ -136,7 +136,7 @@ public:
   /**
   * \brief Destroys the object pointed by \p ptr.
   */
-  void destroy(value_type* ptr)
+  void destroy(T* ptr)
   {
     ptr->~T();
     free(ptr);
@@ -155,10 +155,10 @@ private:
 template <typename T>
 ObjectPool<T>::~ObjectPool()
 {
-  if (_freeList == nullptr)
+  if (!_freeList)
     return;
   sortFreeList();
-  for (auto b = _headBlock; b != nullptr; b = b->_next)
+  for (auto b = _headBlock; b; b = b->_next)
   {
     auto s = b == _lastBlock ? _nextChunk : _blockSize;
     auto i = (char*)(b + 1);

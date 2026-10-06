@@ -28,7 +28,7 @@
 // Source file for generic reader base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 06/10/2026
 
 #include "math/Matrix3x3.h"
 #include "ReaderBase.h"
@@ -650,6 +650,7 @@ Reader::Parser::factor()
       match(',');
       c.b = math::clamp<float>(matchFloat(), 0, 1);
       match(')');
+      c.a = 1.0f;
       e = c;
       break;
     }

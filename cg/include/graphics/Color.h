@@ -28,7 +28,7 @@
 // Class definition for RGB color.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2063
+// Last revision: 06/10/2026
 
 #ifndef __Color_h
 #define __Color_h
@@ -84,7 +84,7 @@ public:
   }
 
   /// Constructs a Color object from v.
-  template <typename V>
+  template <IsVec4 V>
   HOST DEVICE
   explicit constexpr Color(const V& v)
   {
@@ -120,7 +120,7 @@ public:
   }
 
   /// Sets this object from v.
-  template <typename V>
+  template <IsVec4 V>
   HOST DEVICE
   constexpr void setRGB(const V& v)
   {

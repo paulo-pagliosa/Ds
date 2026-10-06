@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2020 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for generic object list.
 //
 // Author: Paulo Pagliosa
-// Last revision: 26/08/2020
+// Last revision: 06/10/2026
 
 #ifndef __ObjectList_h
 #define __ObjectList_h
@@ -67,7 +67,7 @@ public:
     return insert(new Node(std::forward<Args>(args)...));
   }
 
-  bool contains(const Node*) const;
+  [[nodiscard]] bool contains(const Node*) const;
 
   bool remove(Node* const node);
   void clear();
@@ -103,11 +103,11 @@ public:
 
   ~ObjectListNode()
   {
-    if (_container != nullptr)
+    if (_container)
       _container->remove(static_cast<node_type*>(this));
   }
 
-  const list_type* container() const
+  [[nodiscard]] const auto* container() const
   {
     return _container;
   }
@@ -128,7 +128,7 @@ template <typename Node>
 Node*
 ObjectList<Node>::insert(Node* node)
 {
-  if (node == nullptr)
+  if (!node)
     return nullptr;
   // If the node already belongs to this container,
   // then we return true.
@@ -136,7 +136,7 @@ ObjectList<Node>::insert(Node* node)
     return node;
   // If the node belongs to another container, then
   // we remove it from its owner.
-  if (node->_container != nullptr)
+  if (node->_container)
     node->_container->Base::remove(node);
   // Next, we insert the node in this container and
   // set this as its owner.
@@ -159,14 +159,14 @@ template<typename Node>
 inline bool
 ObjectList<Node>::contains(const Node* node) const
 {
-  return node != nullptr && node->_container == this;
+  return node && node->_container == this;
 }
 
 template<typename Node>
 bool
 ObjectList<Node>::remove(Node* const node)
 {
-  if (node == nullptr || node->_container != this)
+  if (!node || node->_container != this)
     return false;
   Base::remove(node);
   node->_container = nullptr;

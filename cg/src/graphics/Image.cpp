@@ -28,10 +28,11 @@
 // Source file for generic image.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/09/2026
+// Last revision: 06/10/2026
 
 #include "graphics/Image.h"
 #include <algorithm>
+#include <utility>
 
 namespace cg
 { // begin namespace cg
@@ -50,23 +51,23 @@ ImageBuffer::ImageBuffer(int w, int h)
 }
 
 ImageBuffer::ImageBuffer(ImageBuffer&& other) noexcept:
-  _W{other._W},
-  _H{other._H},
-  _data{other._data}
+  _W{std::exchange(other._W, 0)},
+  _H{std::exchange(other._H, 0)},
+  _data{std::exchange(other._data, nullptr)}
 {
-  other._W = other._H = 0;
-  other._data = nullptr;
+  // so nothing
 }
 
 ImageBuffer&
 ImageBuffer::operator =(ImageBuffer&& other) noexcept
 {
-  delete []_data;
-  _W = other._W;
-  _H = other._H;
-  _data = other._data;
-  other._W = other._H = 0;
-  other._data = nullptr;
+  if (this != &other)
+  {
+    delete []_data;
+    _W = std::exchange(other._W, 0);
+    _H = std::exchange(other._H, 0);
+    _data = std::exchange(other._data, nullptr);
+  }
   return *this;
 }
 

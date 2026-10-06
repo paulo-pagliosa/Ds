@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2020 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for standard allocator.
 //
 // Author: Paulo Pagliosa
-// Last revision: 28/01/2020
+// Last revision: 06/10/2026
 
 #ifndef __StandardAllocator_h
 #define __StandardAllocator_h
@@ -54,7 +54,7 @@ public:
   /**
    * \brif Allocates memory for an object of type T.
    */
-  static value_type* allocate()
+  [[nodiscard]] static T* allocate()
   {
     return static_cast<T*>(::operator new(sizeof(T)));
   }
@@ -68,7 +68,7 @@ public:
    * a call to \ref destroy().
    */
   template <typename... Args>
-  static value_type* construct(Args&&... args)
+  [[nodiscard]] static T* construct(Args&&... args)
   {
     auto ptr = allocate();
 
@@ -88,7 +88,7 @@ public:
    * \brif Deallocates the memory previously allocated for the
    * object pointed by \p ptr.
    */
-  static void free(value_type* ptr)
+  static void free(T* ptr)
   {
     ::operator delete(ptr);
   }

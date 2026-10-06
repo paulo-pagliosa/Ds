@@ -28,12 +28,12 @@
 // Class definition for quaternion.
 //
 // Author: Paulo Pagliosa
-// Last revision: 19/08/2026
+// Last revision: 06/10/2026
 
 #ifndef __Quaternion_h
 #define __Quaternion_h
 
-#include "math/Vector3.h"
+#include "math/Vector4.h"
 
 namespace cg
 { // begin namespace cg
@@ -126,6 +126,7 @@ public:
 
   /// Constructs a Quaternion from v.
   template <typename T>
+    requires std::is_arithmetic_v<T> || IsVec4<T>
   HOST DEVICE
   explicit constexpr Quaternion(const T& v)
   {

@@ -28,7 +28,7 @@
 // Class definition for 2D vector.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 06/10/2026
 
 #ifndef __Vector2_h
 #define __Vector2_h
@@ -41,6 +41,13 @@ namespace cg
 { // begin namespace cg
 
 template <IsReal R, int N> class Vector;
+
+template <typename T>
+concept IsVec2 = requires (const T& v)
+{
+  v.x;
+  v.y;
+};
 
 
 /////////////////////////////////////////////////////////////////////
@@ -69,6 +76,7 @@ public:
 
   /// Constructs a Vector2 from v.
   template <typename T>
+    requires std::is_arithmetic_v<T> || IsVec2<T>
   HOST DEVICE
   explicit constexpr Vector(const T& v)
   {

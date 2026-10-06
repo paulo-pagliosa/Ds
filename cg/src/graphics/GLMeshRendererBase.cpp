@@ -28,7 +28,7 @@
 // Source file for OpenGL mesh renderer base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 09/09/2026
+// Last revision: 06/10/2026
 
 #include "graphics/GLMeshRendererBase.h"
 
@@ -58,7 +58,7 @@ static const char* vertexShader = R"glsl(
   {
     gl_Position = mvpMatrix * position;
     v_position = vec3(mvMatrix * position);
-    v_normal = normalize(normalMatrix * normal);
+    v_normal = normalMatrix * normal;
     v_color = color;
     v_uv = uv;
   }

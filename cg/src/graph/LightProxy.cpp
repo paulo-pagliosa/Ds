@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2022, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for light proxy.
 //
 // Author: Paulo Pagliosa
-// Last revision: 17/11/2025
+// Last revision: 06/10/2026
 
 #include "graph/LightProxy.h"
 #include "graph/Scene.h"
@@ -50,14 +50,14 @@ LightProxy::duplicate(const SceneObject*) const
 void
 LightProxy::afterAdded()
 {
-  assert(sceneObject() != nullptr);
+  assert(sceneObject());
   sceneObject()->scene()->addLight(_object);
 }
 
 void
 LightProxy::beforeRemoved()
 {
-  assert(sceneObject() != nullptr);
+  assert(sceneObject());
   sceneObject()->scene()->removeLight(_object);
 }
 

@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2023, 2025 Paulo Pagliosa.                        |
+//| Copyright (C) 2023, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for scene writer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 01/1/2025
+// Last revision: 06/10/2026
 
 #ifndef __SceneWriter_h
 #define __SceneWriter_h
@@ -57,7 +57,7 @@ public:
   template <typename C>
   static void registerWriteFunction(WriteFunction<C> function)
   {
-    assert(function != nullptr);
+    assert(function);
     _writeFunctionMap.add(function);
   }
 

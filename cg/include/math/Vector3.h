@@ -28,7 +28,7 @@
 // Class definition for 3D vector.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 06/10/2026
 
 #ifndef __Vector3_h
 #define __Vector3_h
@@ -37,6 +37,14 @@
 
 namespace cg
 { // begin namespace cg
+
+template <typename T>
+concept IsVec3 = requires (const T& v)
+{
+  v.x;
+  v.y;
+  v.z;
+};
 
 
 /////////////////////////////////////////////////////////////////////
@@ -74,6 +82,7 @@ public:
 
   /// Constructs a Vector3 from v.
   template <typename T>
+    requires std::is_arithmetic_v<T> || IsVec3<T>
   HOST DEVICE
   explicit constexpr Vector(const T& v)
   {

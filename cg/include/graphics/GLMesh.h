@@ -28,7 +28,7 @@
 // Class definition for OpenGL mesh array object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2026
+// Last revision: 06/10/2026
 
 #ifndef __GLMesh_h
 #define __GLMesh_h
@@ -90,12 +90,12 @@ asGLMesh(SharedObject* object)
 [[nodiscard]] inline GLMesh*
 glMesh(const TriangleMesh* mesh)
 {
-  if (nullptr == mesh)
+  if (!mesh)
     return nullptr;
 
   auto ma = asGLMesh(mesh->userData);
 
-  if (nullptr == ma)
+  if (!ma)
   {
     ma = new GLMesh{*mesh};
     mesh->userData = ma;

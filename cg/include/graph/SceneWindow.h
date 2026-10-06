@@ -28,7 +28,7 @@
 // Class definition for generic graph scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/09/2026
+// Last revision: 06/10/2026
 
 #ifndef __GraphSceneWindow_h
 #define __GraphSceneWindow_h
@@ -83,7 +83,7 @@ protected:
   template <typename W, typename C>
   void registerInspectFunction(InspectFunction<W, C> function)
   {
-    assert(function != nullptr);
+    assert(function);
     _inspectFunctions[typeid(C).hash_code()] = (InspectFunction<>)function;
   }
 

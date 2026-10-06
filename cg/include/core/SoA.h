@@ -28,7 +28,7 @@
 // Class definition for structure of arrays.
 //
 // Author: Paulo Pagliosa
-// Last revision: 03/10/2026
+// Last revision: 06/10/2026
 
 #ifndef __SoA_h
 #define __SoA_h
@@ -46,7 +46,7 @@ namespace cg
 #define ASSERT_IS_NOT_VOID(T, msg) static_assert(!std::is_void_v<T>, msg)
 
 template <typename A, typename T>
-concept IsAllocator = requires (size_t n, T * ptr)
+concept IsAllocator = requires (size_t n, T* ptr)
 {
   { A::template allocate<T>(n) } -> std::same_as<T*>;
   { A::template free<T>(ptr) };
@@ -373,15 +373,16 @@ public:
     return fields(i, Indices{});
   }
 
+  void set(index_t i, const Args&... args)
+  {
+    assert(i >= 0 && i < _size);
+    setFields(i, std::forward_as_tuple(args...), Indices{});
+  }
+
   void setTuple(index_t i, const tuple_type& t)
   {
     assert(i >= 0 && i < _size);
     setFields(i, t, Indices{});
-  }
-
-  void set(index_t i, const Args&... args)
-  {
-    setTuple(i, std::forward_as_tuple(args...));
   }
 
   void swap(index_t i, index_t j)

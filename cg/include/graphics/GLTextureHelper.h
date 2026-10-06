@@ -28,7 +28,7 @@
 // Class definition for OpenGL texture helper.
 //
 // Author: Paulo Pagliosa
-// Last revision: 03/10/2026
+// Last revision: 06/10/2026
 
 #ifndef __GLTextureHelper_h
 #define __GLTextureHelper_h
@@ -59,7 +59,7 @@ allocateRGBTexture(GLenum target, int w, int h)
     w,
     h, 
     0,
-    GL_RGB,
+    GL_RGBA,
     GL_UNSIGNED_BYTE,
     nullptr
   );

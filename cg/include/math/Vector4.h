@@ -28,7 +28,7 @@
 // Class definition for 4D vector.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 06/10/2026
 
 #ifndef __Vector4_h
 #define __Vector4_h
@@ -37,6 +37,15 @@
 
 namespace cg
 { // begin namespace cg
+
+template <typename T>
+concept IsVec4 = requires (const T& v)
+{
+  v.x;
+  v.y;
+  v.z;
+  v.w;
+};
 
 
 /////////////////////////////////////////////////////////////////////
@@ -75,6 +84,7 @@ public:
 
   /// Constructs a Vector4 from v.
   template <typename T>
+    requires std::is_arithmetic_v<T> || IsVec4<T>
   HOST DEVICE
   explicit constexpr Vector(const T& v)
   {

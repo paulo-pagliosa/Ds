@@ -28,7 +28,7 @@
 // Source file for OpenGL window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 03/10/2026
+// Last revision: 06/10/2026
 
 #include "core/Exception.h"
 #include "graphics/Application.h"
@@ -163,7 +163,7 @@ GLWindow::centerWindow()
 {
   auto monitor = glfwGetWindowMonitor(_window);
 
-  if (monitor == nullptr)
+  if (!monitor)
     monitor = glfwGetPrimaryMonitor();
   glfwGetWindowSize(_window, &_width, &_height);
   // Wayland does not support glfwSetWindowPos()

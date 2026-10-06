@@ -28,7 +28,7 @@
 // Class definition for scene object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/09/2026
+// Last revision: 06/10/2026
 
 #ifndef __SceneObject_h
 #define __SceneObject_h
@@ -100,7 +100,7 @@ public:
 
   auto makeChild(const char* name)
   {
-    assert(name != nullptr);
+    assert(name);
     return addChild(New(*_scene, name));
   }
 

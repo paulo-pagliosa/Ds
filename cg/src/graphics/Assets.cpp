@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Source file for assets.
 //
 // Author: Paulo Pagliosa
-// Last revision: 03/02/2022
+// Last revision: 06/10/2026
 
 #include "graphics/Application.h"
 #include "graphics/Assets.h"
@@ -62,7 +62,7 @@ unmapUnusedMeshes(MeshMap& meshes)
   size_t ms{};
 
   for (auto& [name, mesh] : meshes)
-    if (mesh != nullptr)
+    if (mesh)
       if (mesh->referenceCount() > 1)
         ms += meshSize(mesh);
       else
@@ -107,7 +107,7 @@ Assets::loadMesh(MeshMapIterator mit)
 
   TriangleMesh* m{mit->second};
 
-  if (m == nullptr)
+  if (!m)
   {
     auto filename = "meshes/" + mit->first;
 

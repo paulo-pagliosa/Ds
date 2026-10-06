@@ -28,7 +28,7 @@
 // Source file for simple ray tracer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 30/09/2026
+// Last revision: 06/10/2026
 
 #include "graphics/Camera.h"
 #include "utils/Stopwatch.h"
@@ -80,7 +80,7 @@ RayTracer::update()
     {
       auto p = actor->mapper()->primitive();
 
-      assert(p != nullptr);
+      assert(p);
       if (p->canIntersect())
       {
         primitives.push_back(p);
@@ -364,7 +364,7 @@ RayTracer::shade(const Ray3f& ray,
 {
   auto primitive = (Primitive*)hit.object;
 
-  assert(nullptr != primitive);
+  assert(primitive);
 
   auto N = primitive->normal(hit);
   const auto& V = ray.direction;

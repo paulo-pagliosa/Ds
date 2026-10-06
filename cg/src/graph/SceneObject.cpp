@@ -28,7 +28,7 @@
 // Source file for scene object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2026
+// Last revision: 06/10/2026
 
 #include "graph/Scene.h"
 
@@ -80,7 +80,7 @@ SceneObject::setParent(SceneObject* object)
 {
   const auto root = _scene->root();
 
-  if (object == nullptr)
+  if (!object)
     object = root;
   else if (object->_scene != _scene)
   {
@@ -108,7 +108,7 @@ SceneObject::setParent(SceneObject* object)
 SceneObject*
 SceneObject::duplicate(SceneObject* parent) const
 {
-  assert(parent != nullptr);
+  assert(parent);
 
   Reference<SceneObject> object{new SceneObject{*this}};
 
@@ -124,8 +124,8 @@ SceneObject::duplicate(SceneObject* parent) const
 SceneObject*
 SceneObject::addChild(SceneObject* child)
 {
-  assert(child != nullptr);
-  if (child->_parent == nullptr && _children.insert(child))
+  assert(child);
+  if (!child->_parent && _children.insert(child))
   {
     child->_parent = this;
     return makeUse(child);
@@ -137,7 +137,7 @@ SceneObject::addChild(SceneObject* child)
 bool
 SceneObject::removeChild(SceneObject* child)
 {
-  assert(child != nullptr);
+  assert(child);
   if (child->_parent == this && _children.remove(child))
   {
     child->_parent = nullptr;
@@ -172,7 +172,7 @@ SceneObject::makeComponentAttachments(Component* component)
 Component*
 SceneObject::insertComponent(Component* component, bool force)
 {
-  if (component == nullptr)
+  if (!component)
     return nullptr;
 
   // If the component cannot be added, then it must be deleted,

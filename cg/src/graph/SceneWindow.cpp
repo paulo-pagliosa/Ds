@@ -28,7 +28,7 @@
 // Source file for generic graph scene window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 09/09/2026
+// Last revision: 06/10/2026
 
 #include "graph/SceneWindow.h"
 #include "graphics/Assets.h"
@@ -82,7 +82,7 @@ SceneWindow::drawSelectedPrimitive(const PrimitiveMapper& mapper,
 {
   auto p = mapper.primitive();
 
-  assert(p != nullptr);
+  assert(p);
   if (auto mesh = p->tesselate())
   {
     auto editor = this->editor();
@@ -206,7 +206,7 @@ SceneWindow::deleteSceneObject(SceneObject& object)
 
   auto parent = object.parent();
 
-  if (parent->parent() == nullptr)
+  if (!parent->parent())
     _currentNode = parent->scene();
   else
     _currentNode = parent;
@@ -294,7 +294,7 @@ SceneWindow::hierarchyWindow(const char* title)
 {
   if (!_showHierarchy)
     return;
-  assert(title != nullptr);
+  assert(title);
   ImGui::Begin(title);
   ImGui::BeginDisabled(!editHierarchy());
   createObjectButton();
@@ -439,7 +439,7 @@ SceneWindow::inspectMaterial(Primitive& primitive) const
     {
       auto mit = *(MaterialMapIterator*)payload->Data;
 
-      assert(mit->second != nullptr);
+      assert(mit->second);
       primitive.setMaterial(material = mit->second);
     }
     ImGui::EndDragDropTarget();
@@ -468,7 +468,7 @@ SceneWindow::addComponentButton(SceneObject& object)
       component = LightProxy::New();
     if (ImGui::MenuItem("Camera"))
       component = CameraProxy::New();
-    if (nullptr != component)
+    if (component)
       ok = object.addComponent(component);
     ImGui::EndPopup();
   }
@@ -520,12 +520,11 @@ SceneWindow::inspectScene()
 inline void
 SceneWindow::inspectCurrentNode()
 {
-  if (_currentNode == nullptr)
-    return;
-  if (_currentNode.as<Scene>())
-    inspectScene();
-  else if (auto sceneObject = _currentNode.as<SceneObject>())
-    inspectSceneObject(*sceneObject);
+  if (_currentNode)
+    if (_currentNode.as<Scene>())
+      inspectScene();
+    else if (auto object = _currentNode.as<SceneObject>())
+      inspectSceneObject(*object);
 }
 
 bool
@@ -539,7 +538,7 @@ SceneWindow::inspectorWindow(const char* title)
 {
   if (!_showInspector)
     return;
-  assert(title != nullptr);
+  assert(title);
   ImGui::Begin(title);
   if (!inspectCurrentCommand())
     inspectCurrentNode();

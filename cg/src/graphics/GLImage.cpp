@@ -28,7 +28,7 @@
 // Source file for OpenGL image.
 //
 // Author: Paulo Pagliosa
-// Last revision: 30/09/2026
+// Last revision: 06/10/2026
 
 #include "graphics/GLImage.h"
 #include "graphics/GLTextureHelper.h"
@@ -195,7 +195,7 @@ GLImage::drawer()
 {
   static Drawer* instance;
 
-  if (instance == nullptr)
+  if (!instance)
     instance = new Drawer{};
   return instance;
 }
