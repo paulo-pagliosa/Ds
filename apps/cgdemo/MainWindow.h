@@ -28,7 +28,7 @@
 // Class definition for cg demo main window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/19/2026
+// Last revision: 07/10/2026
 
 #ifndef __MainWindow_h
 #define __MainWindow_h
@@ -58,7 +58,7 @@ class MainWindow final: public SceneWindow
 {
 public:
   MainWindow(int width, int height):
-    SceneWindow{"Ds Demo Version 1.5", width, height}
+    SceneWindow{"Ds Demo Version 1.51", width, height}
   {
     // do nothing
   }

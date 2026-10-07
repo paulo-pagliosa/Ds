@@ -28,7 +28,7 @@
 // Class definition for graphics application.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2026
+// Last revision: 07/10/2026
 
 #ifndef __Application_h
 #define __Application_h
@@ -63,7 +63,7 @@ public:
   int run(int argc, char** argv);
 
   /// Returns the application base directory.
-  static const auto& baseDirectory()
+  [[nodiscard]] static const auto& baseDirectory()
   {
     return _baseDirectory;
   }

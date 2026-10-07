@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2022, 2023 Paulo Pagliosa.                        |
+//| Copyright (C) 2022, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,13 +28,14 @@
 // Source file for cg demo main window.
 //
 // Author: Paulo Pagliosa
-// Last revision: 04/09/2026
+// Last revision: 07/10/2026
 
 #include "graphics/Application.h"
 #include "graphics/AssetFolder.h"
 #include "reader/SceneReader.h"
 #include "SceneWriter.h"
 #include "MainWindow.h"
+#include "IconsFontAwesome7.h"
 
 
 /////////////////////////////////////////////////////////////////////
@@ -65,13 +66,32 @@ MainWindow::initializeScene()
   createDefaultPrimitiveObject("Box");
 }
 
+inline void
+initializeFonts()
+{
+  auto fonts = ImGui::GetIO().Fonts;
+  constexpr auto alpha = "fonts/Roboto-Regular.ttf";
+  
+  fonts->AddFontFromFileTTF(Application::assetFilePath(alpha).c_str(), 16);
+
+  constexpr ImWchar iconRanges[]{ICON_MIN_FA, ICON_MAX_FA, 0};
+  constexpr auto icons = "fonts/fa-solid-900.ttf";
+  ImFontConfig fc;
+  
+  fc.MergeMode = fc.PixelSnapH = true;
+  fc.GlyphMinAdvanceX = 16.0f;
+
+  fonts->AddFontFromFileTTF(Application::assetFilePath(icons).c_str(),
+    14,
+    &fc,
+    iconRanges);
+  fonts->Build();
+}
+
 void
 MainWindow::beginInitialize()
 {
-  constexpr auto ffn = "fonts/Roboto-Regular.ttf";
-  auto fonts = ImGui::GetIO().Fonts;
-
-  fonts->AddFontFromFileTTF(Application::assetFilePath(ffn).c_str(), 16);
+  initializeFonts();
   buildDefaultMeshes();
   Assets::initialize();
   Assets::meshes().insert(_defaultMeshes.begin(), _defaultMeshes.end());
@@ -213,19 +233,6 @@ MainWindow::viewMenu()
 {
   if (ImGui::BeginMenu("View"))
   {
-    static const char* viewLabels[]{"Editor", "Ray Tracer"};
-
-    if (ImGui::BeginCombo("View", viewLabels[(int)_viewMode]))
-    {
-      for (auto i = 0; i < IM_ARRAYSIZE(viewLabels); ++i)
-        if (ImGui::Selectable(viewLabels[i], _viewMode == (ViewMode)i))
-          _viewMode = (ViewMode)i;
-      ImGui::EndCombo();
-      // TODO: change mode only if scene has changed
-      if (_viewMode == ViewMode::Editor)
-        _image = nullptr;
-    }
-    ImGui::Separator();
     ImGui::MenuItem("Hierarchy Window", nullptr, &_showHierarchy);
     ImGui::MenuItem("Inspector Window", nullptr, &_showInspector);
     ImGui::MenuItem("Camera Preview", nullptr, &_showPreview);
@@ -281,6 +288,27 @@ MainWindow::mainMenu()
         RayTracer::minMinWeight,
         1.0f);
       ImGui::EndMenu();
+    }
+    if (_viewMode == ViewMode::Editor)
+    {
+      ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 1, 0, 1));
+      if (ImGui::MenuItem(ICON_FA_PLAY))
+        _viewMode = ViewMode::Renderer;
+      ImGui::PopStyleColor();
+      if (ImGui::IsItemHovered())
+        ImGui::SetTooltip("Run ray tracer");
+    }
+    else
+    {
+      ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
+      if (ImGui::MenuItem(ICON_FA_BACKWARD))
+      {
+        _viewMode = ViewMode::Editor;
+        _image = nullptr;
+      }
+      ImGui::PopStyleColor();
+      if (ImGui::IsItemHovered())
+        ImGui::SetTooltip("Back to editor");
     }
     if (ImGui::BeginMenu("Tools"))
     {
@@ -361,6 +389,7 @@ MainWindow::renderScene()
 bool
 MainWindow::onResize(int width, int height)
 {
+
   _viewMode = ViewMode::Editor;
   _image = nullptr;
   return true;
