@@ -28,7 +28,7 @@
 // Class definition for point quadtree/octree base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 07/10/2026
 
 #ifndef __PointTreeBase_h
 #define __PointTreeBase_h
@@ -246,7 +246,7 @@ PointTree<D, R, PA, IL>::build(bool fullTree)
   const auto& points = this->points();
 
   for (point_id n = points.size(), i = 0; i < n; ++i)
-    if (this->activePoint(i))
+    if (this->isPointActive(i))
       addPoint(points[i], i);
   if (_splitTest != nullptr)
     splitChildren(this->root(), fullTree);

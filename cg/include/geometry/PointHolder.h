@@ -28,7 +28,7 @@
 // Class definition for point holder.
 //
 // Author: Paulo Pagliosa
-// Last revision: 06/10/2026
+// Last revision: 07/10/2026
 
 #ifndef __PointHolder_h
 #define __PointHolder_h
@@ -67,6 +67,12 @@ public:
   [[nodiscard]] auto& points()
   {
     return *_points;
+  }
+
+  template <typename I>
+  [[nodiscard]] auto isPointActive(I index) const
+  {
+    return cg::isPointActive(*_points, index);
   }
 
   [[nodiscard]] static Bounds computeBounds(const PA&, bool = false);

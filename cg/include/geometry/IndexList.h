@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2014, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2014, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,7 +28,7 @@
 // Class definition for index list.
 //
 // Author: Paulo Pagliosa
-// Last revision: 31/12/2022
+// Last revision: 07/10/2026
 
 #ifndef __IndexList_h
 #define __IndexList_h
@@ -43,7 +43,7 @@ template <typename T> class IndexList;
 template <typename T> class IndexListIterator;
 
 template <typename T>
-inline constexpr bool
+[[nodiscard]] constexpr bool
 isSignedInt()
 {
   return std::is_integral_v<T> && std::is_signed_v<T>;
@@ -100,13 +100,14 @@ class IndexListIterator
 {
 public:
   using value_type = T;
-  using list = IndexList<T>;
+  using List = IndexList<T>;
   using iterator = IndexListIterator<T>;
+  using reference = const T&;
 
-  const value_type& operator *() const
+  [[nodiscard]] reference operator *() const
   {
 #ifdef _DEBUG
-    if (_list == nullptr || *_node == IndexListNode<T>::null)
+    if (!_list || *_node == IndexListNode<T>::null)
       throw std::logic_error("IndexList: iterator not dereferencable");
 #endif // _DEBUG
     return (*_node)->_index;
@@ -115,7 +116,7 @@ public:
   iterator& operator ++()
   {
 #ifdef _DEBUG
-    if (_list == nullptr || *_node == IndexListNode<T>::null)
+    if (!_list || *_node == IndexListNode<T>::null)
       throw std::logic_error("IndexList: iterator not incrementable");
 #endif // _DEBUG
     _node = &(*_node)->_next;
@@ -130,7 +131,7 @@ public:
     return temp;
   }
 
-  bool operator ==(const iterator& other) const
+  [[nodiscard]] bool operator ==(const iterator& other) const
   {
 #ifdef _DEBUG
     if (_list != other._list)
@@ -139,7 +140,7 @@ public:
     return *_node == *other._node;
   }
 
-  bool operator !=(const iterator& other) const
+  [[nodiscard]] bool operator !=(const iterator& other) const
   {
     return !operator ==(other);
   }
@@ -147,10 +148,10 @@ public:
 private:
   IndexListNode<T>** _node;
 #ifdef _DEBUG
-  const list* _list;
+  const List* _list;
 #endif // _DEBUG
 
-  IndexListIterator(IndexListNode<T>*& node, const list& list):
+  IndexListIterator(IndexListNode<T>*& node, const List& list):
 #ifdef _DEBUG
     _list{&list},
 #endif // _DEBUG
@@ -159,7 +160,7 @@ private:
     (void)list;
   }
 
-  friend list;
+  friend List;
 
 }; // IndexListIterator
 
@@ -182,39 +183,40 @@ public:
   ASSERT_SIGNED(T, "IndexList: signed integral type expected");
 
   using value_type = T;
-  using list = IndexList<T>;
+  using List = IndexList<T>;
   using iterator = IndexListIterator<T>;
-
-  IndexList():
-    _head{IndexListNode<T>::null},
-    _size{0}
-  {
-    // do nothing
-  }
-
-  IndexList(list&& other) noexcept:
-    _head{other._head},
-    _size{other._size}
-  {
-    other._head = IndexListNode<T>::null;
-    other._size = 0;
-  }
 
   ~IndexList()
   {
     clear();
   }
 
-  list& operator =(list&& other) noexcept
+  IndexList():
+    _head{IndexListNode<T>::null},
+    _size{}
   {
-    clear();
-    _head = other._head;
-    other._head = IndexListNode<T>::null;
-    other._size = 0;
+    // do nothing
+  }
+
+  IndexList(IndexList&& other) noexcept:
+    _head{std::exchange(other._head, IndexListNode<T>::null)},
+    _size{std::exchange(other._size, 0)}
+  {
+    // do nothing
+  }
+
+  IndexList& operator =(IndexList&& other) noexcept
+  {
+    if (this != &other)
+    {
+      clear();
+      _head = std::exchange(other._head, IndexListNode<T>::null);
+      _size = std::exchange(other._size, 0);
+    }
     return *this;
   }
 
-  auto add(value_type index)
+  auto add(T index)
   {
     _head = new IndexListNode<T>{index, _head};
     return ++_size;
@@ -222,22 +224,22 @@ public:
 
   void clear();
 
-  auto size() const
+  [[nodiscard]] auto size() const
   {
     return _size;
   }
 
-  bool empty() const
+  [[nodiscard]] bool empty() const
   {
     return _size == 0;
   }
 
-  iterator begin() const
+  [[nodiscard]] iterator begin() const
   {
-    return iterator{const_cast<list*>(this)->_head, *this};
+    return iterator{const_cast<List*>(this)->_head, *this};
   }
 
-  iterator end() const
+  [[nodiscard]] iterator end() const
   {
     return iterator{IndexListNode<T>::null, *this};
   }
@@ -291,7 +293,7 @@ IndexList<T>::remove(iterator i)
 }
 
 template <typename T>
-inline constexpr bool
+[[nodiscard]] constexpr bool
 isIndexList()
 {
   return std::is_assignable_v<IndexListBase, T>;

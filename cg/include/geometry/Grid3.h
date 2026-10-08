@@ -28,7 +28,7 @@
 // Class definition for 3D grid.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 07/10/2026
 
 #ifndef __Grid3_h
 #define __Grid3_h
@@ -70,12 +70,12 @@ public:
     _size_xy = size.x * size.y;
   }
 
-  auto id(const index_type& index) const
+  [[nodiscard]] auto id(const index_type& index) const
   {
     return index.x + index.y * this->_size.x + index.z * _size_xy;
   }
 
-  auto index(id_type id) const
+  [[nodiscard]] auto index(id_type id) const
   {
     index_type i;
 
