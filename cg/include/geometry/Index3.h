@@ -28,7 +28,7 @@
 // Class definition for 3D index.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 08/10/2026
 
 #ifndef __Index3_h
 #define __Index3_h
@@ -170,7 +170,7 @@ struct Index<3, T>
 
 }; // Index3
 
-template <typename T = int64_t> using Index3 = Index<3, T>;
+template <typename T = int32_t> using Index3 = Index<3, T>;
 
 } // end namespace cg
 

@@ -28,7 +28,7 @@
 // Class definition for 2D index.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 08/10/2026
 
 #ifndef __Index2_h
 #define __Index2_h
@@ -174,7 +174,7 @@ struct Index<2, T>
 
 }; // Index2
 
-template <typename T = int64_t> using Index2 = Index<2, T>;
+template <typename T = int32_t> using Index2 = Index<2, T>;
 
 } // end namespace cg
 

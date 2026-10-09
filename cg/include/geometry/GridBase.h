@@ -28,7 +28,7 @@
 // Class definition for grid base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 07/10/2026
 
 #ifndef __GridBase_h
 #define __GridBase_h
@@ -38,10 +38,15 @@
 #include "geometry/Bounds3.h"
 #include "geometry/Index3.h"
 #include <cassert>
+#include <iterator>
+#include <limits>
 #include <stdexcept>
 
 namespace cg
 { // begin namespace cg
+
+template <typename T>
+constexpr auto max_v = std::numeric_limits<T>::max();
 
 //
 // Forward definitions
@@ -61,9 +66,11 @@ public:
   using grid_type = Grid<D, T>;
   using id_type = typename grid_type::id_type;
   using const_iterator = GridConstIterator<D, T>;
-  using value_type = const T;
-  using pointer = value_type*;
-  using reference = value_type&;
+  using iterator_category = std::bidirectional_iterator_tag;
+  using difference_type = std::ptrdiff_t;
+  using value_type = T;
+  using pointer = const T*;
+  using reference = const T&;
 
   GridConstIterator() = default;
 
@@ -72,11 +79,6 @@ public:
     _id{id}
   {
     // do nothing
-  }
-
-  reference operator *() const
-  {
-    return (*_grid)[_id];
   }
 
   const_iterator& operator ++()
@@ -107,27 +109,33 @@ public:
     return temp;
   }
 
-  pointer operator ->() const
+  [[nodiscard]] bool operator ==(const const_iterator& other) const
   {
-    return &(operator *());
+    assert(_grid == other._grid);
+    return _id == other._id;
   }
 
-  bool operator ==(const const_iterator& other) const
-  {
-    return _grid == other._grid && _id == other._id;
-  }
-
-  bool operator !=(const const_iterator& other) const
+  [[nodiscard]] bool operator !=(const const_iterator& other) const
   {
     return !operator ==(other);
   }
 
-  auto index() const
+  [[nodiscard]] reference operator *() const
   {
-    return _grid->index(_id);
+    return (*_grid)[_id];
   }
 
-  auto id() const
+  [[nodiscard]] pointer operator ->() const
+  {
+    return &(operator *());
+  }
+
+  [[nodiscard]] auto index() const
+  {
+    return _grid->cellIndex(_id);
+  }
+
+  [[nodiscard]] auto id() const
   {
     return _id;
   }
@@ -147,24 +155,27 @@ template <int D, typename T>
 class GridIterator: public GridConstIterator<D, T>
 {
 public:
+  using Base = GridConstIterator<D, T>;
   using grid_type = Grid<D, T>;
   using id_type = typename grid_type::id_type;
-  using const_iterator = GridConstIterator<D, T>;
   using iterator = GridIterator<D, T>;
+  using iterator_category = std::bidirectional_iterator_tag;
+  using difference_type = std::ptrdiff_t;
   using value_type = T;
-  using pointer = value_type*;
-  using reference = value_type&;
+  using pointer = T*;
+  using reference = T&;
 
-  using const_iterator::GridConstIterator;
+  GridIterator() = default;
 
-  reference operator *()
+  GridIterator(id_type id, grid_type* grid):
+    Base{id, grid}
   {
-    return (reference)**((const_iterator*)this);
+    // do nothing
   }
 
   iterator& operator ++()
   {
-    ++*((const_iterator*)this);
+    Base::operator ++();
     return *this;
   }
 
@@ -172,13 +183,13 @@ public:
   {
     iterator temp{*this};
 
-    ++*this;
+    Base::operator ++();
     return temp;
   }
 
   iterator& operator --()
   {
-    --*((const_iterator*)this);
+    Base::operator --();
     return *this;
   }
 
@@ -186,11 +197,16 @@ public:
   {
     iterator temp{*this};
 
-    --*this;
+    Base::operator --();
     return temp;
   }
 
-  pointer operator ->()
+  [[nodiscard]] reference operator *() const
+  {
+    return const_cast<reference>(Base::operator *());
+  }
+
+  [[nodiscard]] pointer operator ->() const
   {
     return &(operator *());
   }
@@ -209,13 +225,13 @@ public:
   static_assert(D == 2 || D == 3, "Grid: bad dimension");
 
   using grid_type = Grid<D, T>;
-  using id_type = int64_t;
+  using id_type = int32_t;
   using index_type = Index<D, id_type>;
   using const_iterator = GridConstIterator<D, T>;
   using iterator = GridIterator<D, T>;
   using value_type = T;
 
-  static constexpr auto dim()
+  [[nodiscard]] static constexpr auto dim()
   {
     return D;
   }
@@ -241,68 +257,89 @@ public:
     // do nothing
   }
 
-  const auto& size() const
+  [[nodiscard]] const auto& size() const
   {
     return _data.size();
   }
 
-  auto length() const
+  [[nodiscard]] auto length() const
   {
     return _data.length();
   }
 
-  auto id(const index_type& index) const
+  [[nodiscard]] auto cellId(const index_type& index) const
   {
-    return _data.id(index);
+    return _data.cellId(index);
   }
 
-  auto index(id_type id) const
+  [[nodiscard]] auto cellIndex(id_type id) const
   {
-    return _data.index(id);
+    return _data.cellIndex(id);
   }
 
-  const auto& operator [](id_type id) const
+  [[nodiscard]] const auto& operator [](id_type id) const
   {
     return _data[id];
   }
 
-  auto& operator [](id_type id)
+  [[nodiscard]] auto& operator [](id_type id)
   {
     return _data[id];
   }
 
-  const auto& operator [](const index_type& index) const
+  [[nodiscard]] const auto& operator [](const index_type& index) const
   {
-    return (*this)[id(index)];
+    return (*this)[cellId(index)];
   }
 
-  auto& operator [](const index_type& index)
+  [[nodiscard]] auto& operator [](const index_type& index)
   {
-    return (*this)[id(index)];
+    return (*this)[cellId(index)];
   }
 
   /// Returns a const iterator to the beginning of this object.
-  const_iterator cbegin() const
+  [[nodiscard]] const_iterator cbegin() const
   {
-    return const_iterator(0, this);
+    return const_iterator{0, this};
+  }
+
+  [[nodiscard]] const_iterator begin() const
+  {
+    return cbegin();
   }
 
   /// Returns a const iterator to the end of this object.
-  const_iterator cend() const
+  [[nodiscard]] const_iterator cend() const
   {
-    return const_iterator(length(), this);
+    return const_iterator{length(), this};
+  }
+
+  [[nodiscard]] const_iterator end() const
+  {
+    return cend();
   }
 
   /// Returns an iterator to the beginning of this object.
-  iterator begin() const
+  [[nodiscard]] iterator begin()
   {
-    return iterator(0, this);
+    return iterator{0, this};
   }
 
   /// Returns an iterator to the end of this object.
-  iterator end() const
+  [[nodiscard]] iterator end()
   {
-    return iterator(length(), this);
+    return iterator{length(), this};
+  }
+
+  /// Returns a pointer to the cell array of this object.
+  [[nodiscard]] const T* cells() const
+  {
+    return _data.cells();
+  }
+
+  [[nodiscard]] T* cells()
+  {
+    return _data.cells();
   }
 
 protected:
@@ -344,24 +381,14 @@ public:
   using bounds_type = Bounds<R, D>;
   using vec_type = Vector<R, D>;
 
-  using Base::index;
-  using Base::id;
+  using Base::cellId;
+  using Base::cellIndex;
   using Base::operator [];
 
-  static constexpr auto dflFatFactor = (R)1.01;
-
-  static auto fatFactor()
-  {
-    return _fatFactor;
-  }
-
-  static void setFatFactor(R s)
-  {
-    if (s >= 1)
-      _fatFactor = s;
-  }
-
+  /// Constructs a grid with cells of size h covering bounds.
   RegionGrid(const bounds_type& bounds, R h);
+
+  /// Constructs a grid with size cells covering bounds.
   RegionGrid(const bounds_type& bounds, const index_type& size);
 
   RegionGrid(const bounds_type& bounds, id_type size):
@@ -379,70 +406,115 @@ public:
     // do nothing
   }
 
-  const auto& bounds() const
+  [[nodiscard]] const auto& bounds() const
   {
     return _bounds;
   }
 
-  auto cellSize() const
+  [[nodiscard]] auto cellSize() const
   {
     return _cellSize;
   }
 
-  auto floatIndex(const vec_type& p) const
+  [[nodiscard]] auto floatIndex(const vec_type& p) const
   {
     return (p - _bounds[0]) * _inverseCellSize;
   }
 
-  auto index(const vec_type& p) const
+  /// Bound for converting a float index to id_type.
+  static constexpr auto maxIndex = R(max_v<id_type>);
+
+  /// Returns the index of the cell containing p, which must satisfy
+  /// contains(p) (asserted in debug). Any point of the bounds given
+  /// to the constructor is valid.
+  [[nodiscard]] auto cellIndex(const vec_type& p) const
   {
-    return index_type{floatIndex(p)};
+    index_type i{floatIndex(p)};
+
+#ifndef _DEBUG
+    for (int k = 0; k < D; ++k)
+      assert(i[k] >= 0 && i[k] < this->size()[k]);
+#endif // _DEBUG
+    return i;
   }
 
-  auto id(const vec_type& p) const
+  /// Returns the index of the cell containing p clamped to the grid.
+  /// Points outside the bounds map to the nearest border cell.
+  [[nodiscard]] auto clampedCellIndex(const vec_type& p) const
   {
-    return Base::id(index(p));
+    const auto f = floatIndex(p);
+    const auto& n = this->size();
+    index_type i;
+
+    for (int k = 0; k < D; ++k)
+    {
+      const auto v = f[k] > 0 ? f[k] : R(0);
+      const auto c = v < maxIndex ? id_type(v) : n[k] - 1;
+
+      i[k] = math::min(c, n[k] - 1);
+    }
+    return i;
   }
 
-  const auto& operator [](const vec_type& p) const
+  [[nodiscard]] auto cellId(const vec_type& p) const
   {
-    return (*this)[id(p)];
+    return Base::cellId(cellIndex(p));
   }
 
-  auto& operator [](const vec_type& p)
+  [[nodiscard]] auto clampedCellId(const vec_type& p) const
   {
-    return (*this)[id(p)];
+    return Base::cellId(clampedCellIndex(p));
   }
 
-  bool contains(const vec_type& p) const
+  [[nodiscard]] const auto& operator [](const vec_type& p) const
   {
-    return _bounds.contains(p);
+    return (*this)[cellId(p)];
   }
 
-  bool intersect(const Ray<R, D>& ray, R& tMin, R& tMax) const
+  [[nodiscard]] auto& operator [](const vec_type& p)
+  {
+    return (*this)[cellId(p)];
+  }
+
+  /// Returns true if p maps to a valid cell, i.e., if cellIndex(p)
+  /// can be used. Equivalent to _bounds.min() <= p < _bounds.max()
+  /// on every axis, but tested on floatIndex(p) itself, so that it
+  /// agrees exactly with index(p) despite rounding.
+  [[nodiscard]] bool contains(const vec_type& p) const
+  {
+    const auto f = floatIndex(p);
+    const auto& n = this->size();
+
+    for (int k = 0; k < D; ++k)
+      if (!(f[k] >= 0 && f[k] < maxIndex) || id_type(f[k]) >= n[k])
+        return false;
+    return true;
+  }
+
+  [[nodiscard]] bool intersect(const Ray<R, D>& ray, R& tMin, R& tMax) const
   {
     return _bounds.intersect(ray, tMin, tMax);
   }
 
-  auto basePoint(const index_type& index) const
+  [[nodiscard]] auto basePoint(const index_type& index) const
   {
     return _bounds[0] + vec_type{index} * _cellSize;
   }
 
-  auto basePoint(id_type id) const
+  [[nodiscard]] auto basePoint(id_type id) const
   {
-    return basePoint(Base::index(id));
+    return basePoint(Base::cellIndex(id));
   }
 
-  auto bounds(const index_type& index) const
+  [[nodiscard]] auto bounds(const index_type& index) const
   {
     auto p = basePoint(index);
     return bounds_type{p, p + _cellSize};
   }
 
-  auto bounds(id_type id) const
+  [[nodiscard]] auto bounds(id_type id) const
   {
-    return bounds(Base::index(id));
+    return bounds(Base::cellIndex(id));
   }
 
 protected:
@@ -450,13 +522,7 @@ protected:
   vec_type _cellSize;
   vec_type _inverseCellSize;
 
-private:
-  static R _fatFactor;
-
 }; // RegionGrid
-
-template <int D, IsReal R, typename T>
-inline R RegionGrid<D, R, T>::_fatFactor = dflFatFactor;
 
 namespace internal::rg
 { // begin namespace internal::rg
@@ -468,7 +534,7 @@ boundsSize(const Bounds<R, D>& bounds)
   auto s = bounds.size();
 
   for (int i = 0; i < D; i++)
-    if (s[i] <= 0)
+    if (!(s[i] > 0)) // also rejects NaN
       throw std::runtime_error("RegionGrid: bad bounds");
   return s;
 }
@@ -479,18 +545,23 @@ template <int D, IsReal R, typename T>
 RegionGrid<D, R, T>::RegionGrid(const bounds_type& bounds, R h):
   _bounds{bounds}
 {
-  if (h <= 0)
+  if (!(h > 0)) // also rejects NaN
     throw std::runtime_error("RegionGrid: bad cell size");
-  _bounds.scale(_fatFactor);
 
   const auto s = internal::rg::boundsSize(_bounds);
   const auto invH = math::inverse(h);
   index_type size;
 
   for (int i = 0; i < D; ++i)
-    size[i] = id_type(ceil(s[i] * invH));
-  _bounds.extend(_bounds.min() + vec_type{size} * h);
+  {
+    const auto f = s[i] * invH;
+
+    if (!(f < maxIndex))
+      throw std::runtime_error("RegionGrid: too many cells");
+    size[i] = id_type(f) + 1;
+  }
   Base::resize(size);
+  _bounds.extend(_bounds.min() + vec_type{size} * h);
   _inverseCellSize.set(invH);
   _cellSize.set(h);
 }
@@ -500,13 +571,19 @@ RegionGrid<D, R, T>::RegionGrid(const bounds_type& bounds,
   const index_type& size):
   _bounds{bounds}
 {
-  _bounds.scale(_fatFactor);
+  Base::resize(size);
 
   auto s = internal::rg::boundsSize(_bounds);
 
-  Base::resize(size);
   for (int i = 0; i < D; ++i)
-    _inverseCellSize[i] = R(size[i] / s[i]);
+  {
+    const auto n = R(size[i]);
+    auto d = n / s[i];
+
+    while (!(s[i] * d < n))
+      d = std::nextafter(d, R(0));
+    _inverseCellSize[i] = d;
+  }
   _cellSize = _inverseCellSize.inverse();
 }
 
@@ -524,58 +601,67 @@ public:
   using id_type = typename Grid<D, T>::id_type;
   using index_type = typename Grid<D, T>::index_type;
 
-  GridDataBase():
-    _size{0}
-  {
-    // do nothing
-  }
+  GridDataBase() = default;
 
   GridDataBase(const index_type& size)
   {
     resize(size);
   }
 
-  GridDataBase(GridDataBase<D, T>&& other)
+  GridDataBase(const GridDataBase&) = delete;
+  GridDataBase& operator =(const GridDataBase&) = delete;
+
+  GridDataBase(GridDataBase&& other) noexcept:
+    _cells{std::exchange(other._cells, nullptr)},
+    _length{std::exchange(other._length, 0)},
+    _size{std::exchange(other._size, index_type{0})}
   {
-    _data = other._data;
-    _length = other._length;
-    _size = other._size;
-    other._data = nullptr;
+    // do nothing
   }
 
   ~GridDataBase()
   {
-    delete []_data;
+    delete []_cells;
   }
 
   void resize(const index_type& size);
 
-  const auto& size() const
+  [[nodiscard]] const auto& size() const
   {
     return _size;
   }
 
-  auto length() const
+  [[nodiscard]] auto length() const
   {
     return _length;
   }
 
-  const auto& operator [](id_type id) const
+  [[nodiscard]] const T* cells() const
   {
-    assert(id >= 0 && id < _length);
-    return _data[id];
+    return _cells;
   }
 
-  auto& operator [](id_type id)
+  [[nodiscard]] T* cells()
+  {
+    return _cells;
+  }
+
+  [[nodiscard]] const auto& operator [](id_type id) const
   {
     assert(id >= 0 && id < _length);
-    return _data[id];
+    return _cells[id];
+  }
+
+  [[nodiscard]] auto& operator [](id_type id)
+  {
+    assert(id >= 0 && id < _length);
+    return _cells[id];
   }
 
 protected:
-  T* _data{};
+  T* _cells{};
   id_type _length{};
-  index_type _size;
+  index_type _size{};
 
 }; // GridDataBase
 
@@ -583,14 +669,33 @@ template <int D, typename T>
 void
 GridDataBase<D, T>::resize(const index_type& size)
 {
-  auto length = size.prod();
+  constexpr auto maxLength = math::min<int64_t>(max_v<id_type>,
+    max_v<ptrdiff_t> / sizeof(T));
+  id_type length{1};
 
-  if (length <= 0)
-    throw std::runtime_error("GridData: bad size");
+  for (int i = 0; i < D; ++i)
+  {
+    if (size[i] <= 0)
+      throw std::runtime_error("GridData: bad size");
+    if (length > id_type(maxLength) / size[i])
+      throw std::length_error("GridData: size too large");
+    length *= size[i];
+  }
   if (length != _length)
   {
-    delete []_data;
-    _data = new T[_length = length];
+    delete []_cells;
+    try
+    {
+      _cells = new T[length];
+      _length = length;
+    }
+    catch (...)
+    {
+      _cells = nullptr;
+      _length = 0;
+      _size = index_type{0};
+      throw;
+    }
   }
   _size = size;
 }
