@@ -28,7 +28,7 @@
 // Class definition for grid base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 07/10/2026
+// Last revision: 09/10/2026
 
 #ifndef __GridBase_h
 #define __GridBase_h
@@ -385,10 +385,12 @@ public:
   using Base::cellIndex;
   using Base::operator [];
 
-  /// Constructs a grid with cells of size h covering bounds.
+  /// Constructs a grid with cells of size h covering bounds, so
+  /// that every point of bounds maps to a valid cell.
   RegionGrid(const bounds_type& bounds, R h);
 
-  /// Constructs a grid with size cells covering bounds.
+  /// Constructs a grid with size cells covering bounds, so that
+  /// every point of bounds maps to a valid cell.
   RegionGrid(const bounds_type& bounds, const index_type& size);
 
   RegionGrid(const bounds_type& bounds, id_type size):
@@ -406,6 +408,14 @@ public:
     // do nothing
   }
 
+  /// Returns the region covered by the cells of this grid. It is the
+  /// bounds given to the constructor -- every point of which maps to
+  /// a valid cell -- with the max corner extended so that the bounds
+  /// of every individual cell are fully contained within it.
+  ///
+  /// @note Cells are half-open, meaning the max faces of bounds() do
+  /// not belong to any cell (contains(p) returns false for a point p
+  /// on those faces, although bounds().contains(p) returns true).
   [[nodiscard]] const auto& bounds() const
   {
     return _bounds;
@@ -522,6 +532,9 @@ protected:
   vec_type _cellSize;
   vec_type _inverseCellSize;
 
+private:
+  void fitCells();
+
 }; // RegionGrid
 
 namespace internal::rg
@@ -561,9 +574,9 @@ RegionGrid<D, R, T>::RegionGrid(const bounds_type& bounds, R h):
     size[i] = id_type(f) + 1;
   }
   Base::resize(size);
-  _bounds.extend(_bounds.min() + vec_type{size} * h);
   _inverseCellSize.set(invH);
   _cellSize.set(h);
+  fitCells();
 }
 
 template <int D, IsReal R, typename T>
@@ -585,6 +598,19 @@ RegionGrid<D, R, T>::RegionGrid(const bounds_type& bounds,
     _inverseCellSize[i] = d;
   }
   _cellSize = _inverseCellSize.inverse();
+  fitCells();
+}
+
+template <int D, IsReal R, typename T>
+void
+RegionGrid<D, R, T>::fitCells()
+{
+  const auto& n = this->size();
+  index_type last;
+
+  for (int i = 0; i < D; ++i)
+    last[i] = n[i] - 1;
+  _bounds.extend(bounds(last).max());
 }
 
 
@@ -670,7 +696,7 @@ void
 GridDataBase<D, T>::resize(const index_type& size)
 {
   constexpr auto maxLength = math::min<int64_t>(max_v<id_type>,
-    max_v<ptrdiff_t> / sizeof(T));
+    max_v<std::ptrdiff_t> / sizeof(T));
   id_type length{1};
 
   for (int i = 0; i < D; ++i)

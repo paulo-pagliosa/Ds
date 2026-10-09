@@ -28,7 +28,7 @@
 // Class definition for OpenGL graphics base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 09/09/2026
+// Last revision: 09/10/2026
 
 #ifndef __GLGraphicsBase_h
 #define __GLGraphicsBase_h
@@ -134,7 +134,7 @@ public:
   /// Sets the triangle color.
   void setTriangleColor(const Color& color)
   {
-    std::fill_n(_triangleColors, 2, color);
+    std::fill_n(_triangleColors, 3, color);
   }
 
   /// Sets the triangle vertex colors.

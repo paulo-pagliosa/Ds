@@ -28,7 +28,7 @@
 // Class definition for point array.
 //
 // Author: Paulo Pagliosa
-// Last revision: 06/10/2026
+// Last revision: 09/10/2026
 
 #ifndef __PointArray_h
 #define __PointArray_h
@@ -49,7 +49,7 @@ template <typename Allocator, typename index_t, typename V, typename... Args>
 class PointArray
 {
 public:
-  ASSERT_SIGNED(index_t, "PointArray: signed integral type expected");
+  ASSERT_SIGNED(index_t, "PointArray: signed int point id type expected");
 
   using PointId = index_t;
   using Data = SoA<Allocator, index_t, V, Args...>;

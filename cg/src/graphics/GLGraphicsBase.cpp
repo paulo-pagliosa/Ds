@@ -28,7 +28,7 @@
 // Source file for OpenGL graphics base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 09/09/2026
+// Last revision: 09/10/2026
 
 #include "graphics/GLGraphicsBase.h"
 
@@ -127,6 +127,7 @@ GLGraphicsBase::GLGraphicsBase():
   glGenVertexArrays(1, &_vao);
   setPointColor(Color::red);
   setLineColor(Color::white);
+  setTriangleColor(Color::white);
   setQuadColor(Color::white);
   setPointSize(4);
   setLineWidth(1);

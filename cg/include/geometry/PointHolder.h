@@ -28,7 +28,7 @@
 // Class definition for point holder.
 //
 // Author: Paulo Pagliosa
-// Last revision: 07/10/2026
+// Last revision: 09/10/2026
 
 #ifndef __PointHolder_h
 #define __PointHolder_h
@@ -53,9 +53,6 @@ isPointActive(const PA&, I)
 template <int D, IsReal R, typename PA>
 class PointHolder
 {
-private:
-  PA* _points;
-
 public:
   using Bounds = cg::Bounds<R, D>;
 
@@ -99,6 +96,9 @@ protected:
     _points = &points;
   }
 
+private:
+  PA* _points;
+
 }; // PointHolder
 
 template <int D, IsReal R, typename PA>
@@ -110,7 +110,7 @@ PointHolder<D, R, PA>::computeBounds(const PA& points, bool squared) -> Bounds
   Bounds bounds;
 
   for (psize_t n = points.size(), i = 0; i < n; ++i)
-    if (isPointActive(points, i))
+    if (cg::isPointActive(points, i))
       bounds.extend(points[i]);
   if (squared)
   {
