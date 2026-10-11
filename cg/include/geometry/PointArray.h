@@ -28,7 +28,7 @@
 // Class definition for point array.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/10/2026
+// Last revision: 11/10/2026
 
 #ifndef __PointArray_h
 #define __PointArray_h
@@ -325,7 +325,7 @@ template <IsIntegral I,
   typename index_t,
   typename P,
   typename... Args>
-[[nodiscard]] inline void
+[[nodiscard]] inline bool
 isPointActive(const PointArray<Allocator, index_t, P, Args...>& points, I i)
 {
   return points.isActive(index_t(i));

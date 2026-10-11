@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2022 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,13 +28,13 @@
 // Class definition for point locator.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/09/2022
+// Last revision: 11/10/2022
 
 #ifndef __PointLocator_h
 #define __PointLocator_h
 
 #include "geometry/Grid3.h"
-#include "geometry/IndexList.h"
+#include <algorithm>
 #include <vector>
 
 namespace cg
@@ -50,8 +50,9 @@ class PointLocator: public SharedObject
 {
 public:
   using PointSet = std::vector<Point>;
-  using Grid = RegionGrid3<real, IndexList<>>;
+  using Grid = RegionGrid3<real, int>;
   using id_type = typename Grid::id_type;
+  using vec_type = Vector3<real>;
 
   static constexpr auto eps = (real)1e-5;
 
@@ -66,32 +67,33 @@ public:
 
   void clear();
 
-  auto& point(int i) const
+  [[nodiscard]] auto& point(int i) const
   {
     return (*_points)[i];
   }
 
-  auto index(const Point& p) const
+  /// Returns the id of a point within eps of p, or -1 if none.
+  [[nodiscard]] int index(const Point& p) const
   {
-    return const_cast<PointLocator<Point, real>*>(this)->test(p);
+    return find(p);
   }
 
-  int add(const Point& p)
-  {
-    return test(p, true);
-  }
+  /// Returns the id of a point within eps of p, adding p if none.
+  int add(const Point& p);
 
 private:
+  static constexpr int eol = -1;
+
   Grid _grid;
   PointSet* _points;
+  std::vector<int> _next; // next point of the same cell, or eol
 
-  int test(const Point&, bool = false);
-  int test(id_type, const Point&, bool = false);
+  int find(const Point&) const;
 
 }; // PointLocator
 
 template <typename Point, typename real>
-void
+inline void
 PointLocator<Point, real>::setPointBuffer(PointSet& buffer)
 {
   if (&buffer != _points)
@@ -106,101 +108,58 @@ void
 PointLocator<Point, real>::clear()
 {
   _points->clear();
-  for (auto e = _grid.end(), i = _grid.begin(); i != e;)
-    i++->clear();
+  _next.clear();
+  std::fill_n(_grid.cells(), _grid.length(), eol);
 }
-
-namespace internal
-{ // begin namespace internal
-
-template <typename Point, typename real>
-inline bool
-gt(const Point& p, real a)
-{
-  return p.x > a && p.y > a && p.z > a;
-}
-
-template <typename Point, typename real>
-inline bool
-lt(const Point& p, real a)
-{
-  return p.x < a&& p.y < a&& p.z < a;
-}
-
-} // end namespace internal
 
 template <typename Point, typename real>
 int
-PointLocator<Point, real>::test(const Point& p, bool insert)
+PointLocator<Point, real>::find(const Point& p) const
 {
-  using vec3 = Vector3<real>;
-  using index_type = Index3<id_type>;
-
-  const auto o = _grid.floatIndex(p);
-  const auto s = index_type{o};
-  const vec3 d{real(o.x - s.x), real(o.y - s.y), real(o.z - s.z)};
-
-  if (internal::gt(d, eps) && internal::lt(d, 1 - eps))
-    return test(_grid.id(s), p, insert);
-
+  constexpr auto eps2 = eps * eps;
+  const vec_type q{p};
+  const vec_type e{eps};
+  const auto lo = _grid.clampedCellIndex(q - e);
+  const auto hi = _grid.clampedCellIndex(q + e);
   const auto& n = _grid.size();
+  const auto cells = _grid.cells();
+  const auto next = _next.data();
+  const auto& points = *_points;
 
-  for (id_type k = -1; k <= 1; k++)
-  {
-    auto z = s.z + k;
-
-    if (z < 0 || z >= n.z)
-      continue;
-    for (id_type j = -1; j <= 1; j++)
+  for (auto z = lo.z; z <= hi.z; ++z)
+    for (auto y = lo.y; y <= hi.y; ++y)
     {
-      auto y = s.y + j;
+      const auto row = (z * n.y + y) * n.x;
 
-      if (y < 0 || y >= n.y)
-        continue;
-      for (id_type i = -1; i <= 1; i++)
-      {
-        auto x = s.x + i;
-
-        if (x < 0 || x >= n.x)
-          continue;
-
-        auto id = test(_grid.id(index_type{x, y, z}), p, insert);
-
-        if (id != -1)
-          return id;
-      }
+      for (auto x = lo.x; x <= hi.x; ++x)
+        for (auto id = cells[row + x]; id != eol; id = next[id])
+          if ((p - points[id]).squaredNorm() <= eps2)
+            return id;
     }
-  }
-  return -1;
+  return eol;
 }
 
 template <typename Point, typename real>
 int
-PointLocator<Point, real>::test(id_type cid, const Point& p, bool insert)
+PointLocator<Point, real>::add(const Point& p)
 {
-  /*
-  if (cid >= _grid.length() || cid < 0)
+  if (auto id = find(p); id != eol)
+    return id;
+
+  auto& head = _grid[_grid.clampedCellId(vec_type{p})];
+  const auto id = int(_points->size());
+
+  _next.push_back(head);
+  try
   {
-    if (!insert)
-      return -1;
     _points->push_back(p);
-    return (int)_points->size() - 1;
   }
-  */
-
-  auto& list = _grid[cid];
-
-  for (auto id : list)
-    if ((p - point(id)).squaredNorm() <= (eps * eps))
-      return id;
-  if (!insert)
-    return -1;
-  _points->push_back(p);
-
-  auto id = (int)_points->size() - 1;
-
-  list.add(id);
-  return id;
+  catch (...)
+  {
+    _next.pop_back();
+    throw;
+  }
+  return head = id;
 }
 
 } // end namespace cg
