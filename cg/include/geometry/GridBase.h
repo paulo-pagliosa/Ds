@@ -28,7 +28,7 @@
 // Class definition for grid base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 09/10/2026
+// Last revision: 11/10/2026
 
 #ifndef __GridBase_h
 #define __GridBase_h
@@ -46,7 +46,7 @@ namespace cg
 { // begin namespace cg
 
 template <typename T>
-constexpr auto max_v = std::numeric_limits<T>::max();
+constexpr auto maxOf = std::numeric_limits<T>::max();
 
 //
 // Forward definitions
@@ -432,7 +432,7 @@ public:
   }
 
   /// Bound for converting a float index to id_type.
-  static constexpr auto maxIndex = R(max_v<id_type>);
+  static constexpr auto maxIndex = R(maxOf<id_type>);
 
   /// Returns the index of the cell containing p, which must satisfy
   /// contains(p) (asserted in debug). Any point of the bounds given
@@ -695,8 +695,8 @@ template <int D, typename T>
 void
 GridDataBase<D, T>::resize(const index_type& size)
 {
-  constexpr auto maxLength = math::min<int64_t>(max_v<id_type>,
-    max_v<std::ptrdiff_t> / sizeof(T));
+  constexpr auto maxLength = math::min<int64_t>(maxOf<id_type>,
+    maxOf<std::ptrdiff_t> / sizeof(T));
   id_type length{1};
 
   for (int i = 0; i < D; ++i)

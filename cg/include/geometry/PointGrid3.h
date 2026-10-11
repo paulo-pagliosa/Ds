@@ -28,7 +28,7 @@
 // Class definition for generic 3D point grid.
 //
 // Author: Paulo Pagliosa
-// Last revision: 24/08/2026
+// Last revision: 09/10/2026
 
 #ifndef __PointGrid3_h
 #define __PointGrid3_h
@@ -44,62 +44,8 @@ namespace cg
 //
 // PointGrid3: generic 3D point grid class
 // ==========
-template <IsReal R, typename PA, typename IL>
-class PointGridSearcher<3, R, PA, IL>
-{
-public:
-  using Grid = PointGrid<3, R, PA, IL>;
-  using vec_type = typename Grid::vec_type;
-  using pid_list = typename Grid::pid_list;
-
-  static size_t findNeighbors(const Grid& grid,
-    const vec_type& point,
-    pid_list& nids);
-
-}; // PointGridSearcher
-
-template <IsReal R, typename PA, typename IL>
-size_t
-PointGridSearcher<3, R, PA, IL>::findNeighbors(const Grid& grid,
-  const vec_type& point,
-  pid_list& nids)
-{
-  auto s = grid.index(point);
-  const auto& n = grid.size();
-  auto h = math::sqr(grid.cellSize().min());
-  Index<3> c;
-
-  nids.clear();
-  for (int k = -1; k <= 1; k++)
-  {
-    c.z = s.z + k;
-    if (c.z < 0 || c.z >= n.z)
-      continue;
-    for (int j = -1; j <= 1; j++)
-    {
-      c.y = s.y + j;
-      if (c.y < 0 || c.y >= n.y)
-        continue;
-      for (int i = -1; i <= 1; i++)
-      {
-        c.x = s.x + i;
-        if (c.x < 0 || c.x >= n.x)
-          continue;
-        for (auto id : grid[c])
-        {
-          auto d2 = (point - grid.points()[id]).squaredNorm();
-
-          if (d2 != 0 && d2 <= h)
-            nids.add(id);
-        }
-      }
-    }
-  }
-  return nids.size();
-}
-
-template <IsReal R, typename PA, typename IL = IndexList<>>
-using PointGrid3 = PointGrid<3, R, PA, IL>;
+template <IsReal R, typename PA, typename I = int, bool cache = true>
+using PointGrid3 = PointGrid<3, R, PA, I, cache>;
 
 } // namespace cg
 

@@ -28,12 +28,13 @@
 // Class definition for point array.
 //
 // Author: Paulo Pagliosa
-// Last revision: 09/10/2026
+// Last revision: 10/10/2026
 
 #ifndef __PointArray_h
 #define __PointArray_h
 
 #include "core/Array.h"
+#include "core/Rearrange.h"
 #include "core/SoA.h"
 #include "geometry/IndexList.h"
 
@@ -45,15 +46,15 @@ namespace cg
 //
 // PointArray: point array class
 // ==========
-template <typename Allocator, typename index_t, typename V, typename... Args>
+template <typename Allocator, typename index_t, typename P, typename... Args>
 class PointArray
 {
 public:
-  ASSERT_SIGNED(index_t, "PointArray: signed int point id type expected");
+  ASSERT_SIGNED(index_t, "PointArray: signed integral type expected");
 
+  using type = PointArray<Allocator, index_t, P, Args...>;
+  using Data = SoA<Allocator, index_t, P, Args...>;
   using PointId = index_t;
-  using Data = SoA<Allocator, index_t, V, Args...>;
-  using type = PointArray<Allocator, index_t, V, Args...>;
 
   PointArray() = default;
 
@@ -128,26 +129,12 @@ public:
     _freeList = eol;
   }
 
-  PointId add(const V& p, const Args&... args)
-  {
-    PointId i;
+  PointId add(const P& p, const Args&... args);
 
-    if (_freeList != eol)
-      i = _freeList;
-    else if (_size < capacity())
-      i = _size;
-    else
-      return eol;
-    // Store the point before changing any state: if an assignment
-    // throws, the array is left unchanged
-    _data.set(i, p, args...);
-    if (i == _freeList)
-      _freeList = _flag.template get<0>(i);
-    else
-      ++_size;
-    _flag.set(i, activeFlag);
-    _activeCount++;
-    return i;
+  [[nodiscard]] bool isActive(PointId i) const
+  {
+    assert(i >= 0 && i < _size);
+    return _flag.template get<0>(i) == activeFlag;
   }
 
   bool remove(PointId i)
@@ -155,11 +142,24 @@ public:
     return isActive(i) ? deactivate(i), true : false;
   }
 
-  [[nodiscard]] bool isActive(PointId i) const
+  /// Rearranges the points according to the given order and then
+  /// compacts this array. Afterwards, the active point with id k
+  /// is the one whose original id was order[k], and the inactive
+  /// points are discarded.
+  template <IsIntegral I>
+  void rearrange(std::span<I> order)
   {
-    assert(i >= 0 && i < _size);
-    return _flag.template get<0>(i) == activeFlag;
+    assert(order.size() == size_t(size()));
+    rearrangeBySwap(order, [&](I i, I j)
+    {
+      swap(index_t(i), index_t(j));
+    });
+    compact();
   }
+
+  /// Discards the inactive points, which MUST BE after the active
+  /// ones: the size becomes activeCount() and the free list empty.
+  index_t compact();
 
   template <size_t I>
   [[nodiscard]] auto& get(PointId i)
@@ -174,7 +174,7 @@ public:
     return const_cast<PointArray*>(this)->template get<I>(i);
   }
 
-  void set(PointId i, const V& p, const Args&... args)
+  void set(PointId i, const P& p, const Args&... args)
   {
     assert(isActive(i));
     _data.set(i, p, args...);
@@ -190,7 +190,7 @@ public:
     return this->template get<0>(i);
   }
 
-  void setPosition(PointId i, const V& p)
+  void setPosition(PointId i, const P& p)
   {
     position(i) = p;
   }
@@ -226,17 +226,6 @@ public:
   }
 
 protected:
-  using Flag = SoA<Allocator, index_t, index_t>;
-
-  static constexpr index_t eol{-1};
-  static constexpr index_t activeFlag{-2};
-
-  Data _data;
-  Flag _flag;
-  index_t _size{};
-  index_t _activeCount{};
-  index_t _freeList{eol};
-
   void deactivate(PointId i)
   {
     if (!isActive(i))
@@ -253,15 +242,91 @@ protected:
     }
   }
 
+private:
+  using Flag = SoA<Allocator, index_t, index_t>;
+
+  static constexpr index_t eol{-1};
+  static constexpr index_t activeFlag{-2};
+
+  Data _data;
+  Flag _flag;
+  index_t _size{};
+  index_t _activeCount{};
+  index_t _freeList{eol};
+
+  // Exchanges the points i and j (either may be inactive).
+  // The free list is not updated: used only by compact()
+  // and rearrange(), which rebuild it.
+  void swap(PointId i, PointId j)
+  {
+    _data.swap(i, j);
+    _flag.swap(i, j);
+  }
+
 }; // PointArray
 
-template <typename I,
+template <typename Allocator, typename index_t, typename P, typename... Args>
+auto
+PointArray<Allocator, index_t, P, Args...>::add(const P& p,
+  const Args&... args) -> PointId
+{
+  PointId i;
+
+  if (_freeList != eol)
+    i = _freeList;
+  else if (_size < capacity())
+    i = _size;
+  else
+    return eol;
+  // Store the point before changing any state: if an assignment
+  // throws, the array is left unchanged
+  _data.set(i, p, args...);
+  if (i == _freeList)
+    _freeList = _flag.template get<0>(i);
+  else
+    ++_size;
+  _flag.set(i, activeFlag);
+  _activeCount++;
+  return i;
+}
+
+template <typename Allocator, typename index_t, typename P, typename... Args>
+index_t
+PointArray<Allocator, index_t, P, Args...>::compact()
+{
+  index_t c{};
+
+  for (index_t i = 0; i < _size && c < _activeCount; ++i)
+    if (isActive(i))
+    {
+      if (i != c)
+        swap(c, i); // c is a hole: the active point moves down
+      ++c;
+    }
+  _size = _activeCount;
+  _freeList = eol;
+  return c;
+}
+
+template <IsIntegral I,
   typename Allocator,
   typename index_t,
-  typename V,
+  typename P,
   typename... Args>
-[[nodiscard]] inline bool
-isPointActive(const PointArray<Allocator, index_t, V, Args...>& points, I i)
+inline void
+rearrange(PointArray<Allocator, index_t, P, Args...>& points,
+  std::span<I> order)
+{
+  points.rearrange(order);
+}
+
+template <IsIntegral I,
+  typename Allocator,
+  typename index_t,
+  typename P,
+  typename... Args>
+[[nodiscard]] inline void
+isPointActive(const PointArray<Allocator, index_t, P, Args...>& points, I i)
 {
   return points.isActive(index_t(i));
 }

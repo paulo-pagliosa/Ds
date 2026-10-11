@@ -28,17 +28,18 @@
 // Class definition for point holder.
 //
 // Author: Paulo Pagliosa
-// Last revision: 09/10/2026
+// Last revision: 10/10/2026
 
 #ifndef __PointHolder_h
 #define __PointHolder_h
 
+#include "core/Rearrange.h"
 #include "geometry/Bounds3.h"
 
 namespace cg
 { // begin namespace cg
 
-template <typename I, typename PA>
+template <IsIntegral I, typename PA>
 [[nodiscard]] constexpr auto
 isPointActive(const PA&, I)
 {
@@ -66,7 +67,7 @@ public:
     return *_points;
   }
 
-  template <typename I>
+  template <IsIntegral I>
   [[nodiscard]] auto isPointActive(I index) const
   {
     return cg::isPointActive(*_points, index);

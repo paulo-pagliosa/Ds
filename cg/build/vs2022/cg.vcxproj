@@ -104,6 +104,7 @@
     <ClInclude Include="..\..\include\core\Globals.h" />
     <ClInclude Include="..\..\include\core\ListBase.h" />
     <ClInclude Include="..\..\include\core\ObjectPool.h" />
+    <ClInclude Include="..\..\include\core\Rearrange.h" />
     <ClInclude Include="..\..\include\core\SharedObject.h" />
     <ClInclude Include="..\..\include\core\SoA.h" />
     <ClInclude Include="..\..\include\core\StandardAllocator.h" />

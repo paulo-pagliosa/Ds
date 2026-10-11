@@ -28,7 +28,7 @@
 // Class definition for structure of arrays.
 //
 // Author: Paulo Pagliosa
-// Last revision: 06/10/2026
+// Last revision: 10/10/2026
 
 #ifndef __SoA_h
 #define __SoA_h
@@ -161,6 +161,16 @@ public:
     // cause a double free
     data = nullptr;
     Base::template free<Allocator>();
+  }
+
+  HOST DEVICE
+  void swap(index_t i, index_t j)
+  {
+    T t{static_cast<T&&>(data[i])};
+
+    data[i] = static_cast<T&&>(data[j]);
+    data[j] = static_cast<T&&>(t);
+    Base::swap(i, j);
   }
 
 }; // Arrays
