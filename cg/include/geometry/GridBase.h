@@ -441,10 +441,8 @@ public:
   {
     index_type i{floatIndex(p)};
 
-#ifndef _DEBUG
     for (int k = 0; k < D; ++k)
       assert(i[k] >= 0 && i[k] < this->size()[k]);
-#endif // _DEBUG
     return i;
   }
 

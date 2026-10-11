@@ -60,7 +60,7 @@ public:
     _grid{bounds, n},
     _points{&points}
   {
-    points.clear();
+    clear();
   }
 
   void setPointBuffer(PointSet&);
