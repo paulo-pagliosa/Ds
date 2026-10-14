@@ -119,9 +119,10 @@
     <ClInclude Include="..\..\include\geometry\Index3.h" />
     <ClInclude Include="..\..\include\geometry\IndexList.h" />
     <ClInclude Include="..\..\include\geometry\Intersection.h" />
-    <ClInclude Include="..\..\include\geometry\KNNHelper.h" />
+    <ClInclude Include="..\..\include\geometry\KNNResult.h" />
     <ClInclude Include="..\..\include\geometry\Line.h" />
     <ClInclude Include="..\..\include\geometry\MeshSweeper.h" />
+    <ClInclude Include="..\..\include\geometry\NeighborHelper.h" />
     <ClInclude Include="..\..\include\geometry\Octree.h" />
     <ClInclude Include="..\..\include\geometry\PointArray.h" />
     <ClInclude Include="..\..\include\geometry\Quad.h" />

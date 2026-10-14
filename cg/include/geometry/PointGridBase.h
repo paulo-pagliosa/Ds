@@ -28,16 +28,16 @@
 // Class definition for point grid base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 12/10/2026
+// Last revision: 14/10/2026
 
 #ifndef __PointGridBase_h
 #define __PointGridBase_h
 
 #include "geometry/GridBase.h"
 #include "geometry/IndexList.h"
-#include "geometry/KNNHelper.h"
+#include "geometry/KNNResult.h"
+#include "geometry/NeighborHelper.h"
 #include "geometry/PointHolder.h"
-#include "geometry/KNearest.h"
 
 namespace cg
 { // begin namespace cg
@@ -88,104 +88,10 @@ public:
   using PointSet = PointHolder<D, R, PA>;
   using PointId = I;
 
-  /// Result type of findNearestNeighbors(): KNearest<PointId, R, K>
-  /// with K = 0 (k given at run time) or K > 0 (fixed, no allocation).
-  template <int K = 0>
-  using knn_type = KNearest<PointId, R, K>;
-
-  /// Argument of the functor of forEachNeighbor().
-  struct Neighbor
-  {
-    PointId id; ///< id of the neighbor (point q)
-    R d2; ///< squared distance between p and q
-    vec_type d; ///< p - q
-
-  }; // Neighbor
-
-  /// Default norm of the kNN search (squared Euclidean distance).
-  struct SquaredNorm
-  {
-    R operator ()(const vec_type& v) const
-    {
-      return v.squaredNorm();
-    }
-
-  }; // SquaredNorm
-
-  /// Range of slots [first, last) of one cell. A slot is a position in
-  /// the arrays sorted by cell, sortedIds() and sortedPositions(): the
-  /// same slot k gives the id and the cached position of a point, and
-  /// the points of a cell occupy consecutive slots. Unlike pointers,
-  /// the same range is valid on the host and on a device copy of the
-  /// arrays. Iterating it yields the slots (not the point ids):
-  ///
-  ///   for (auto k : grid.cell(c))
-  ///     use(grid.sortedIds()[k], grid.sortedPositions()[k]);
-  struct SlotRange
-  {
-    PointId first;
-    PointId last;
-
-    /// Iterator over the slots of a range (a plain counter).
-    struct iterator
-    {
-      using iterator_category = std::forward_iterator_tag;
-      using value_type = PointId;
-      using difference_type = std::ptrdiff_t;
-      using pointer = void;
-      using reference = PointId;
-
-      PointId k{};
-
-      PointId operator *() const
-      {
-        return k;
-      }
-
-      iterator& operator ++()
-      {
-        ++k;
-        return *this;
-      }
-
-      iterator operator ++(int)
-      {
-        auto temp = *this;
-
-        ++k;
-        return temp;
-      }
-
-      bool operator ==(const iterator&) const = default;
-
-    }; // iterator
-
-    iterator begin() const
-    {
-      return {first};
-    }
-
-    iterator end() const
-    {
-      return {last};
-    }
-
-    auto size() const
-    {
-      return size_t(last - first);
-    }
-
-    bool empty() const
-    {
-      return first == last;
-    }
-
-  }; // SlotRange
-
-  static constexpr bool cachesPositions()
-  {
-    return cachePositions;
-  }
+  template <int K = 0> using KNNResult = cg::KNNResult<PointId, R, K>;
+  using Neighbor = cg::Neighbor<PointId, vec_type>;
+  using SquaredNorm = cg::SquaredNorm<vec_type>;
+  using SlotRange = cg::SlotRange<PointId>;
 
   /// Constructs a grid with cells of size h over domain (see
   /// RegionGrid) for points, and calls update().
@@ -258,20 +164,20 @@ public:
 
   /// Returns the number of points stored in the grid (the active
   /// points at the last update()).
-  auto pointCount() const
+  [[nodiscard]] auto pointCount() const
   {
     return _count;
   }
 
   /// Returns the number of points outside bounds() at the last
   /// update() (stored in the nearest border cells; see the overview).
-  auto outsideCount() const
+  [[nodiscard]] auto outsideCount() const
   {
     return _outside;
   }
 
   /// Returns the approximate memory used by the grid, in bytes.
-  size_t memoryUsage() const
+  [[nodiscard]] auto memoryUsage() const
   {
     auto s = size_t(this->length() + _capacity) * sizeof(PointId);
 
@@ -295,7 +201,7 @@ public:
 
     CellIterator() = default;
 
-    SlotRange operator *() const
+    [[nodiscard]] SlotRange operator *() const
     {
       return _grid->cell(_id);
     }
@@ -314,18 +220,18 @@ public:
       return temp;
     }
 
-    bool operator ==(const CellIterator& other) const
+    [[nodiscard]] bool operator ==(const CellIterator& other) const
     {
       assert(_grid == other._grid);
       return _id == other._id;
     }
 
-    auto id() const
+    [[nodiscard]] auto id() const
     {
       return _id;
     }
 
-    auto index() const
+    [[nodiscard]] auto index() const
     {
       return _grid->cellIndex(_id);
     }
@@ -352,70 +258,70 @@ public:
   /// a container of cells: operator [] is a synonym. Note: the argument
   /// is a cell id (or index, or a point of the domain), not a point id;
   /// since both are integers, passing a point id compiles silently.
-  SlotRange cell(id_type id) const
+  [[nodiscard]] auto cell(id_type id) const
   {
-    return {cellBegin(id), cellEnd(id)};
+    return SlotRange{cellBegin(id), cellEnd(id)};
   }
 
-  SlotRange cell(const index_type& index) const
+  [[nodiscard]] auto cell(const index_type& index) const
   {
     return cell(Base::cellId(index));
   }
 
   /// Cell containing p, which must be in the domain (see cellIndex(p)).
-  SlotRange cell(const vec_type& p) const
+  [[nodiscard]] auto cell(const vec_type& p) const
   {
     return cell(Base::cellId(p));
   }
 
-  SlotRange operator [](id_type id) const
+  [[nodiscard]] auto operator [](id_type id) const
   {
     return cell(id);
   }
 
-  SlotRange operator [](const index_type& index) const
+  [[nodiscard]] auto operator [](const index_type& index) const
   {
     return cell(index);
   }
 
-  SlotRange operator [](const vec_type& p) const
+  [[nodiscard]] auto operator [](const vec_type& p) const
   {
     return cell(p);
   }
 
   /// Iteration over the cells (see CellIterator).
-  CellIterator begin() const
+  [[nodiscard]] auto begin() const
   {
-    return {this, 0};
+    return CellIterator{this, 0};
   }
 
-  CellIterator end() const
+  [[nodiscard]] auto end() const
   {
-    return {this, this->length()};
+    return CellIterator{this, this->length()};
   }
 
-  CellIterator cbegin() const
+  [[nodiscard]] auto cbegin() const
   {
     return begin();
   }
 
-  CellIterator cend() const
+  [[nodiscard]] auto cend() const
   {
     return end();
   }
 
   /// Raw arrays (e.g., to upload to the GPU).
-  const PointId* cellStart() const
+  [[nodiscard]] const auto* cellStart() const
   {
     return Base::cells();
   }
 
-  const PointId* sortedIds() const
+  [[nodiscard]] const auto* sortedIds() const
   {
     return _ids;
   }
 
-  const vec_type* sortedPositions() const
+  [[nodiscard]] const auto* sortedPositions() const
     requires cachePositions
   {
     return _positions;
@@ -483,7 +389,7 @@ public:
   /// distance. No memory is allocated.
   template <int K, typename N = SquaredNorm>
   int findNearestNeighbors(const vec_type& p,
-    knn_type<K>& knn,
+    KNNResult<K>& knn,
     N norm = N{}) const
   {
     return nearestSearch(p, PointId(-1), knn, norm);
@@ -492,7 +398,7 @@ public:
   /// Same as above, for point i and excluding i itself (by id).
   template <int K, typename N = SquaredNorm>
   int findNearestNeighbors(PointId i,
-    knn_type<K>& knn,
+    KNNResult<K>& knn,
     N norm = N{}) const
   {
     assert(i >= 0 && size_t(i) < size_t(this->points().size()));
@@ -545,10 +451,7 @@ private:
   template <typename F>
   bool visitRow(index_type c, id_type x0, id_type x1, F& f) const
   {
-    c.x = x0;
-
-    const auto id = Base::cellId(c);
-
+    const auto id = (c.x = x0, Base::cellId(c));
     return f(cellBegin(id), cellEnd(id + (x1 - x0)));
   }
 
@@ -576,7 +479,7 @@ private:
   template <int K, typename N>
   int nearestSearch(const vec_type& p,
     PointId self,
-    knn_type<K>& knn,
+    KNNResult<K>& knn,
     N& norm) const;
 
 }; // PointGrid
@@ -585,7 +488,7 @@ template <int D, IsReal R, typename PA, typename I, bool C>
 void
 PointGrid<D, R, PA, I, C>::allocate(size_t capacity)
 {
-  if (capacity > size_t(std::numeric_limits<PointId>::max()))
+  if (capacity > size_t(maxOf<PointId>))
     throw std::length_error("PointGrid: too many points");
   delete []_ids;
   delete []_positions;
@@ -822,15 +725,6 @@ PointGrid<D, R, PA, I, C>::visitShell(const index_type& c,
   return true;
 }
 
-namespace internal::pg
-{ // begin namespace internal::pg
-
-template <typename F, typename Neighbor>
-concept NeighborFunctor = std::is_invocable_v<F&, const Neighbor&>&&
-std::is_same_v<std::invoke_result_t<F&, const Neighbor&>, bool>;
-
-} // end namespace internal::pg
-
 template <int D, IsReal R, typename PA, typename I, bool C>
 template <typename F>
 size_t
@@ -839,9 +733,10 @@ PointGrid<D, R, PA, I, C>::radiusSearch(const vec_type& p,
   PointId self,
   F& f) const
 {
-  static_assert(internal::pg::NeighborFunctor<F, Neighbor>,
+  static_assert(internal::nh::IsNeighborFunctor<F, Neighbor>,
     "PointGrid: functor must be bool(const Neighbor&) "
     "(return true to continue the search, false to stop it)");
+
   if (!(radius >= 0) || _count == 0) // also rejects NaN
     return 0;
 
@@ -874,18 +769,6 @@ PointGrid<D, R, PA, I, C>::radiusSearch(const vec_type& p,
   return calls;
 }
 
-namespace internal::pg
-{ // begin namespace internal::pg
-
-template <typename B, typename I>
-concept IndexBuffer = requires (B & b, size_t i)
-{
-  { b.size() } -> std::convertible_to<size_t>;
-  { b[i] } -> std::same_as<I&>;
-};
-
-} // end namespace internal::pg
-
 template <int D, IsReal R, typename PA, typename I, bool C>
 template <typename B>
 size_t
@@ -894,9 +777,10 @@ PointGrid<D, R, PA, I, C>::collect(const vec_type& p,
   PointId self,
   B& out) const
 {
-  static_assert(internal::pg::IndexBuffer<B, PointId>,
+  static_assert(internal::nh::IsIndexBuffer<B, PointId>,
     "PointGrid: buffer must have size() and operator[] returning "
     "PointId&");
+
   if (!(radius >= 0) || _count == 0) // also rejects NaN
     return 0;
 
@@ -934,11 +818,12 @@ template <int K, typename N>
 int
 PointGrid<D, R, PA, I, C>::nearestSearch(const vec_type& p,
   PointId self,
-  knn_type<K>& knn,
+  KNNResult<K>& knn,
   N& norm) const
 {
   static_assert(std::is_invocable_r_v<R, N&, const vec_type&>,
     "PointGrid: norm must be callable as R(const vec_type&)");
+
   knn.reset();
   if (_count == 0)
     return 0;
@@ -971,7 +856,7 @@ PointGrid<D, R, PA, I, C>::nearestSearch(const vec_type& p,
     // gap away from p along the axis a of some face of the box that
     // is not on the border. By the monotonicity of the norm, its
     // distance is at least norm(gap * e_a).
-    auto bound = knn_type<K>::infinity();
+    auto bound = KNNResult<K>::infinity();
     auto faceBound = [&](int a, R gap)
     {
       vec_type g{R(0)};

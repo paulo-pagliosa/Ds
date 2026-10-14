@@ -23,36 +23,15 @@
 //|                                                                 |
 //[]---------------------------------------------------------------[]
 //
-// OVERVIEW: KNearest.h
+// OVERVIEW: KNNResult.h
 // ========
 // Class definition for k-nearest neighbors result.
 //
 // Author: Paulo Pagliosa
-// Last revision: 07/10/2026
-//
-// REVIEW-PUSH: new file (review, 07/10/2026). Result of a k-nearest
-// neighbors search. It owns its storage, so the caller cannot pass a
-// buffer of the wrong size, and it is reused across queries (no
-// allocation per query):
-//
-//   KNearest<int, float> knn{16};   // k given at run time (one alloc)
-//   KNearest<int, float, 16> knn;   // k fixed at compile time (no allocation)
-//
-//   grid.findNearestNeighbors(p, knn);
-//   for (auto [id, d] : knn) ...     // ascending distance
-//
-// "Distance" means the value of the norm used in the search: with the
-// default norm of the containers, it is the SQUARED Euclidean
-// distance.
-//
-// Storage (09/10/2026): no std::unique_ptr (not available on GPUs).
-// KNearest<I, R, K> with K > 0 embeds its entries: trivially copyable,
-// no allocation, usable on a device. With K == 0, it owns a block
-// allocated on the host: move-only; a moved-from object can only be
-// destroyed or assigned to.
+// Last revision: 14/10/2026
 
-#ifndef __KNearest_h
-#define __KNearest_h
+#ifndef __KNNResult_h
+#define __KNNResult_h
 
 #include <algorithm>
 #include <cassert>
@@ -68,14 +47,14 @@ namespace internal::knn
 { // begin namespace internal::knn
 
 //
-// Storage of the entries of a KNearest
+// Storage of the entries of a KNNResult
 //
 template <typename E, int K>
 struct Storage // K > 0: embedded, trivially copyable, no allocation
 {
   E data[K];
 
-  static constexpr int capacity()
+  [[nodiscard]] static constexpr auto capacity()
   {
     return K;
   }
@@ -89,7 +68,7 @@ struct Storage<E, 0> // K == 0: owns a block allocated on the host
   int k{};
 
   explicit Storage(int k):
-    data{alloc(k)},
+    data{allocate(k)},
     k{k}
   {
     // do nothing
@@ -118,19 +97,19 @@ struct Storage<E, 0> // K == 0: owns a block allocated on the host
 
   ~Storage()
   {
-    delete[]data;
+    delete []data;
   }
 
-  int capacity() const
+  [[nodiscard]] auto capacity() const
   {
     return k;
   }
 
 private:
-  static E* alloc(int k)
+  static E* allocate(int k)
   {
     if (k < 1)
-      throw std::invalid_argument("KNearest: k must be positive");
+      throw std::invalid_argument("KNNResult: k must be positive");
     return new E[k]; // default-initialized (not zeroed)
   }
 
@@ -141,13 +120,13 @@ private:
 
 /////////////////////////////////////////////////////////////////////
 //
-// KNearest: k-nearest neighbors result class
-// ========
+// KNNResult: k-nearest neighbors result class
+// =========
 template <typename I, typename R, int K = 0>
-class KNearest
+class KNNResult
 {
 public:
-  static_assert(K >= 0, "KNearest: bad capacity");
+  static_assert(K >= 0, "KNNResult: bad capacity");
 
   using id_type = I;
   using value_type = R;
@@ -159,14 +138,13 @@ public:
 
   }; // Entry
 
-  static constexpr R infinity()
+  [[nodiscard]] static constexpr R infinity()
   {
     return std::numeric_limits<R>::infinity();
   }
 
-  /// Constructs an object for (at most) k neighbors (allocated on the
-  /// host; throws std::invalid_argument if k < 1).
-  explicit KNearest(int k)
+  /// Constructs an object for (at most) k neighbors.
+  explicit KNNResult(int k)
     requires (K == 0) :
     _storage{k}
   {
@@ -174,63 +152,63 @@ public:
   }
 
   /// Constructs an object for (at most) K neighbors.
-  KNearest()
+  KNNResult()
     requires (K > 0) = default;
 
   /// Returns the maximum number of neighbors.
-  int k() const
+  [[nodiscard]] auto k() const
   {
     return _storage.capacity();
   }
 
-  /// Returns the number of neighbors found by the last search (less
-  /// than k() if there were not enough points).
-  int size() const
+  /// Returns the number of neighbors found by the last search
+  /// (less than k() if there were not enough points).
+  [[nodiscard]] auto size() const
   {
     return _size;
   }
 
-  bool empty() const
+  [[nodiscard]] bool empty() const
   {
     return _size == 0;
   }
 
-  bool full() const
+  [[nodiscard]] bool full() const
   {
     return _size == k();
   }
 
   /// Returns the i-th nearest neighbor (ascending distance).
-  const Entry& operator [](int i) const
+  [[nodiscard]] const auto& operator [](int i) const
   {
     assert(i >= 0 && i < _size);
     return data()[i];
   }
 
-  I id(int i) const
+  [[nodiscard]] auto id(int i) const
   {
     return (*this)[i].id;
   }
 
-  R distance(int i) const
+  [[nodiscard]] auto distance(int i) const
   {
     return (*this)[i].distance;
   }
 
-  const Entry* begin() const
+  [[nodiscard]] const auto* begin() const
   {
     return data();
   }
 
-  const Entry* end() const
+  [[nodiscard]] const auto* end() const
   {
     return data() + _size;
   }
 
   /// Returns the maximum distance (in norm units) of a neighbor;
-  /// infinity by default. Searches find the k nearest points with
-  /// distance <= maxDistance().
-  R maxDistance() const
+  /// infinity by default. Searches find the k nearest points
+  /// with distance <= maxDistance().
+  [[nodiscard]] auto maxDistance() const
   {
     return _maxDistance;
   }
@@ -241,10 +219,6 @@ public:
     _maxDistance = d >= 0 ? d : R(0); // NaN -> 0
   }
 
-  //
-  // Search interface (used by the spatial containers)
-  //
-
   /// Starts a new search (keeps k and the maximum distance).
   void reset()
   {
@@ -253,27 +227,26 @@ public:
   }
 
   /// Returns a bound for a quick rejection: a point at distance
-  /// d > limit() cannot be kept (cheap test for the inner loops; the
-  /// exact test is accepts()).
-  R limit() const
+  /// d > limit() cannot be kept (cheap test for the inner loops;
+  /// the exact test is accepts()).
+  [[nodiscard]] auto limit() const
   {
     return _limit;
   }
 
-  /// Returns true if a point at distance d would be kept: while not
-  /// full, d <= maxDistance(); after, d < distance of the farthest.
-  bool accepts(R d) const
+  /// Returns true if a point at distance d would be kept: while
+  /// not full, d <= maxDistance(); after, d < distance of the
+  /// farthest.
+  [[nodiscard]] bool accepts(R d) const
   {
     return d < _limit || (d == _limit && !full());
   }
 
   /// Offers a candidate; returns true if it was kept.
-  bool insert(I id, R d);
+  [[nodiscard]] bool insert(I id, R d);
 
-  /// Finishes the search. Nothing to do: the neighbors are kept sorted
-  /// by insertion (measured faster than a heap even for k = 256, since
-  /// the containers visit the candidates roughly by distance, so most
-  /// insertions shift few entries).
+  /// Finishes the search. Nothing to do: the neighbors are kept
+  /// sorted by insertion.
   void finish()
   {
     // do nothing
@@ -285,21 +258,21 @@ private:
   R _maxDistance{infinity()};
   R _limit{infinity()}; // maxDistance or, if full, the farthest distance
 
-  const Entry* data() const
+  const auto* data() const
   {
     return _storage.data;
   }
 
-  Entry* data()
+  auto* data()
   {
     return _storage.data;
   }
 
-}; // KNearest
+}; // KNNResult
 
 template <typename I, typename R, int K>
 inline bool
-KNearest<I, R, K>::insert(I id, R d)
+KNNResult<I, R, K>::insert(I id, R d)
 {
   if (!accepts(d))
     return false;
@@ -318,4 +291,4 @@ KNearest<I, R, K>::insert(I id, R d)
 
 } // end namespace cg
 
-#endif // __KNearest_h
+#endif // __KNNResult_h
