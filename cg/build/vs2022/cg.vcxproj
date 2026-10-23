@@ -95,6 +95,7 @@
     <ClInclude Include="..\..\include\core\Array.h" />
     <ClInclude Include="..\..\include\core\BlockAllocable.h" />
     <ClInclude Include="..\..\include\core\BlockAllocator.h" />
+    <ClInclude Include="..\..\include\core\DynamicArray.h" />
     <ClInclude Include="..\..\include\core\Exception.h" />
     <ClInclude Include="..\..\include\core\Flags.h" />
     <ClInclude Include="..\..\include\core\List.h" />
@@ -137,6 +138,7 @@
     <ClInclude Include="..\..\include\geometry\PointTreeBase.h" />
     <ClInclude Include="..\..\include\geometry\Quadtree.h" />
     <ClInclude Include="..\..\include\geometry\Ray.h" />
+    <ClInclude Include="..\..\include\geometry\SlottedPointHolder.h" />
     <ClInclude Include="..\..\include\geometry\TreeBase.h" />
     <ClInclude Include="..\..\include\geometry\Triangle.h" />
     <ClInclude Include="..\..\include\geometry\TriangleMesh.h" />

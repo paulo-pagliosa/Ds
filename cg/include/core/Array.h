@@ -28,15 +28,17 @@
 // Class for generic array.
 //
 // Author: Paulo Pagliosa
-// Last revision: 06/10/2026
+// Last revision: 23/10/2026
 
 #ifndef __Array_h
 #define __Array_h
 
 #include <algorithm>
 #include <concepts>
+#include <cstddef>
 #include <cstring>
 #include <iterator>
+#include <limits>
 #include <stdexcept>
 #include <utility>
 
@@ -142,6 +144,9 @@ private:
 
 }; // ArrayIterator
 
+template <typename T>
+inline constexpr auto maxOf = std::numeric_limits<T>::max();
+
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -159,7 +164,7 @@ public:
   ArrayBase() = default;
 
   ArrayBase(size_t size):
-    _data{Allocator::template allocate<T>(size)},
+    _data{allocate(size)},
     _size{size}
   {
     // do nothing
@@ -204,6 +209,20 @@ public:
 protected:
   T* _data{};
   size_t _size{};
+
+  /// Returns the max number of elements of an array.
+  [[nodiscard]] static constexpr size_t maxSize()
+  {
+    return size_t(maxOf<std::ptrdiff_t>) / sizeof(T);
+  }
+
+  /// Allocates count elements with Allocator.
+  [[nodiscard]] static T* allocate(size_t count)
+  {
+    if (count > maxSize())
+      throw std::length_error{"Array: too many elements"};
+    return Allocator::template allocate<T>(count);
+  }
 
 private:
   void free() noexcept

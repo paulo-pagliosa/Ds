@@ -28,49 +28,45 @@
 // Class definition for grid base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/10/2026
+// Last revision: 23/10/2026
 
 #ifndef __GridBase_h
 #define __GridBase_h
 
+#include "core/Array.h"
 #include "core/ContentHolder.h"
 #include "core/SharedObject.h"
 #include "geometry/Bounds3.h"
 #include "geometry/Index3.h"
 #include <cassert>
 #include <iterator>
-#include <limits>
-#include <stdexcept>
 
 namespace cg
 { // begin namespace cg
 
-template <typename T>
-constexpr auto maxOf = std::numeric_limits<T>::max();
-
 //
 // Forward definitions
 //
-template <int D, typename T> class Grid;
-template <int D, typename T> class GridData;
+template <int D> class GridShape;
+template <int D, typename T, typename Allocator> class Grid;
 
 
 /////////////////////////////////////////////////////////////////////
 //
 // GridConstIterator: grid const iterator class
 // =================
-template <int D, typename T>
+template <typename Grid>
 class GridConstIterator
 {
 public:
-  using grid_type = Grid<D, T>;
+  using grid_type = Grid;
   using id_type = typename grid_type::id_type;
-  using const_iterator = GridConstIterator<D, T>;
+  using const_iterator = GridConstIterator<Grid>;
   using iterator_category = std::bidirectional_iterator_tag;
   using difference_type = std::ptrdiff_t;
-  using value_type = T;
-  using pointer = const T*;
-  using reference = const T&;
+  using value_type = typename grid_type::value_type;
+  using pointer = const value_type*;
+  using reference = const value_type&;
 
   GridConstIterator() = default;
 
@@ -151,19 +147,19 @@ private:
 //
 // GridIterator: grid iterator class
 // ============
-template <int D, typename T>
-class GridIterator: public GridConstIterator<D, T>
+template <typename Grid>
+class GridIterator: public GridConstIterator<Grid>
 {
 public:
-  using Base = GridConstIterator<D, T>;
-  using grid_type = Grid<D, T>;
+  using Base = GridConstIterator<Grid>;
+  using grid_type = Grid;
   using id_type = typename grid_type::id_type;
-  using iterator = GridIterator<D, T>;
+  using iterator = GridIterator<Grid>;
   using iterator_category = std::bidirectional_iterator_tag;
   using difference_type = std::ptrdiff_t;
-  using value_type = T;
-  using pointer = T*;
-  using reference = T&;
+  using value_type = typename grid_type::value_type;
+  using pointer = value_type*;
+  using reference = value_type&;
 
   GridIterator() = default;
 
@@ -218,73 +214,83 @@ public:
 //
 // Grid: generic grid class
 // ====
-template <int D, typename T>
+template <int D, typename T, typename Allocator>
 class Grid: public SharedObject
 {
 public:
   static_assert(D == 2 || D == 3, "Grid: bad dimension");
+  ASSERT_NOT_VOID(T, "Grid data type cannot be void");
 
-  using grid_type = Grid<D, T>;
-  using id_type = int32_t;
-  using index_type = Index<D, id_type>;
-  using const_iterator = GridConstIterator<D, T>;
-  using iterator = GridIterator<D, T>;
+  using grid_type = Grid<D, T, Allocator>;
+  using shape_type = GridShape<D>;
+  using id_type = typename shape_type::id_type;
+  using index_type = typename shape_type::index_type;
+  using const_iterator = GridConstIterator<grid_type>;
+  using iterator = GridIterator<grid_type>;
   using value_type = T;
+  using allocator_type = Allocator;
 
   [[nodiscard]] static constexpr auto dim()
   {
     return D;
   }
 
-  Grid(const index_type& size):
-    _data{size}
+  Grid(const index_type& size)
   {
-    // do nothing
+    resize(size);
   }
 
-  explicit Grid(id_type n):
-    _data{index_type{n}}
+  explicit Grid(id_type n)
   {
-    // do nothing
+    resize(index_type{n});
   }
 
   Grid(const grid_type&) = delete;
   grid_type& operator =(const grid_type&) = delete;
 
-  Grid(grid_type&& other):
-    _data{std::move(other._data)}
+  Grid(grid_type&& other) noexcept:
+    _shape{std::exchange(other._shape, shape_type{})},
+    _cells{std::move(other._cells)}
   {
     // do nothing
   }
 
+  /// Returns the shape of this grid.
+  [[nodiscard]] const auto& shape() const
+  {
+    return _shape;
+  }
+
   [[nodiscard]] const auto& size() const
   {
-    return _data.size();
+    return _shape.size();
   }
 
   [[nodiscard]] auto length() const
   {
-    return _data.length();
+    return _shape.length();
   }
 
   [[nodiscard]] auto cellId(const index_type& index) const
   {
-    return _data.cellId(index);
+    return _shape.cellId(index);
   }
 
   [[nodiscard]] auto cellIndex(id_type id) const
   {
-    return _data.cellIndex(id);
+    return _shape.cellIndex(id);
   }
 
   [[nodiscard]] const auto& operator [](id_type id) const
   {
-    return _data[id];
+    assert(id >= 0 && id < length());
+    return _cells.data()[id];
   }
 
   [[nodiscard]] auto& operator [](id_type id)
   {
-    return _data[id];
+    assert(id >= 0 && id < length());
+    return _cells.data()[id];
   }
 
   [[nodiscard]] const auto& operator [](const index_type& index) const
@@ -334,50 +340,67 @@ public:
   /// Returns a pointer to the cell array of this object.
   [[nodiscard]] const T* cells() const
   {
-    return _data.cells();
+    return _cells.data();
   }
 
   [[nodiscard]] T* cells()
   {
-    return _data.cells();
+    return _cells.data();
   }
 
 protected:
   Grid() = default;
 
-  const auto& data() const
-  {
-    return _data;
-  }
-
-  auto& data()
-  {
-    return _data;
-  }
-
-  void resize(const index_type& size)
-  {
-    _data.resize(size);
-  }
+  /// Sets the number of cells per axis. The cells are reallocated
+  /// (old ones freed first) only if their number changes.
+  void resize(const index_type& size);
 
 private:
-  GridData<D, T> _data;
+  shape_type _shape;
+  Array<T, Allocator> _cells;
 
 }; // Grid
+
+template <int D, typename T, typename A>
+void
+Grid<D, T, A>::resize(const index_type& size)
+{
+  constexpr auto maxLength = std::min<int64_t>(maxOf<id_type>,
+    maxOf<std::ptrdiff_t> / sizeof(T));
+  id_type length{1};
+
+  for (int i = 0; i < D; ++i)
+  {
+    if (size[i] <= 0)
+      throw std::runtime_error("Grid: bad size");
+    if (length > id_type(maxLength) / size[i])
+      throw std::length_error("Grid: size too large");
+    length *= size[i];
+  }
+  if (size_t(length) != _cells.size())
+  {
+    // Free first: no peak of memory; if the allocation fails, the
+    // grid is left empty
+    _shape = shape_type{};
+    _cells = {};
+    _cells = Array<T, A>{size_t(length)};
+  }
+  _shape = shape_type{size};
+}
 
 
 /////////////////////////////////////////////////////////////////////
 //
 // RegionGrid: region grid class
 // ==========
-template <int D, IsReal R, typename T>
-class RegionGrid: public Grid<D, T>
+template <int D, IsReal R, typename T, typename Allocator = ArrayAllocator>
+class RegionGrid: public Grid<D, T, Allocator>
 {
 public:
-  using Base = Grid<D, T>;
+  using Base = Grid<D, T, Allocator>;
   using id_type = typename Base::id_type;
   using index_type = typename Base::index_type;
-  using grid_type = RegionGrid<D, R, T>;
+  using grid_type = RegionGrid<D, R, T, Allocator>;
   using bounds_type = Bounds<R, D>;
   using vec_type = Vector<R, D>;
 
@@ -506,7 +529,7 @@ public:
 
   [[nodiscard]] auto basePoint(const index_type& index) const
   {
-    return _bounds[0] + vec_type{index} * _cellSize;
+    return _bounds[0] + vec_type{index} *_cellSize;
   }
 
   [[nodiscard]] auto basePoint(id_type id) const
@@ -552,8 +575,8 @@ boundsSize(const Bounds<R, D>& bounds)
 
 } // end namespace internal::rg
 
-template <int D, IsReal R, typename T>
-RegionGrid<D, R, T>::RegionGrid(const bounds_type& bounds, R h):
+template <int D, IsReal R, typename T, typename A>
+RegionGrid<D, R, T, A>::RegionGrid(const bounds_type& bounds, R h):
   _bounds{bounds}
 {
   if (!(h > 0)) // also rejects NaN
@@ -577,8 +600,8 @@ RegionGrid<D, R, T>::RegionGrid(const bounds_type& bounds, R h):
   fitCells();
 }
 
-template <int D, IsReal R, typename T>
-RegionGrid<D, R, T>::RegionGrid(const bounds_type& bounds,
+template <int D, IsReal R, typename T, typename A>
+RegionGrid<D, R, T, A>::RegionGrid(const bounds_type& bounds,
   const index_type& size):
   _bounds{bounds}
 {
@@ -599,9 +622,9 @@ RegionGrid<D, R, T>::RegionGrid(const bounds_type& bounds,
   fitCells();
 }
 
-template <int D, IsReal R, typename T>
+template <int D, IsReal R, typename T, typename A>
 void
-RegionGrid<D, R, T>::fitCells()
+RegionGrid<D, R, T, A>::fitCells()
 {
   const auto& n = this->size();
   index_type last;
@@ -611,118 +634,6 @@ RegionGrid<D, R, T>::fitCells()
   _bounds.extend(bounds(last).max());
 }
 
-
-/////////////////////////////////////////////////////////////////////
-//
-// GridDataBase: region grid class
-// ============
-template <int D, typename T>
-class GridDataBase
-{
-public:
-  ASSERT_NOT_VOID(T, "Grid data type cannot be void");
-
-  using id_type = typename Grid<D, T>::id_type;
-  using index_type = typename Grid<D, T>::index_type;
-
-  GridDataBase() = default;
-
-  GridDataBase(const index_type& size)
-  {
-    resize(size);
-  }
-
-  GridDataBase(const GridDataBase&) = delete;
-  GridDataBase& operator =(const GridDataBase&) = delete;
-
-  GridDataBase(GridDataBase&& other) noexcept:
-    _cells{std::exchange(other._cells, nullptr)},
-    _length{std::exchange(other._length, 0)},
-    _size{std::exchange(other._size, index_type{0})}
-  {
-    // do nothing
-  }
-
-  ~GridDataBase()
-  {
-    delete []_cells;
-  }
-
-  void resize(const index_type& size);
-
-  [[nodiscard]] const auto& size() const
-  {
-    return _size;
-  }
-
-  [[nodiscard]] auto length() const
-  {
-    return _length;
-  }
-
-  [[nodiscard]] const T* cells() const
-  {
-    return _cells;
-  }
-
-  [[nodiscard]] T* cells()
-  {
-    return _cells;
-  }
-
-  [[nodiscard]] const auto& operator [](id_type id) const
-  {
-    assert(id >= 0 && id < _length);
-    return _cells[id];
-  }
-
-  [[nodiscard]] auto& operator [](id_type id)
-  {
-    assert(id >= 0 && id < _length);
-    return _cells[id];
-  }
-
-protected:
-  T* _cells{};
-  id_type _length{};
-  index_type _size{};
-
-}; // GridDataBase
-
-template <int D, typename T>
-void
-GridDataBase<D, T>::resize(const index_type& size)
-{
-  constexpr auto maxLength = math::min<int64_t>(maxOf<id_type>,
-    maxOf<std::ptrdiff_t> / sizeof(T));
-  id_type length{1};
-
-  for (int i = 0; i < D; ++i)
-  {
-    if (size[i] <= 0)
-      throw std::runtime_error("GridData: bad size");
-    if (length > id_type(maxLength) / size[i])
-      throw std::length_error("GridData: size too large");
-    length *= size[i];
-  }
-  if (length != _length)
-  {
-    delete []_cells;
-    try
-    {
-      _cells = new T[length];
-      _length = length;
-    }
-    catch (...)
-    {
-      _cells = nullptr;
-      _length = 0;
-      _size = index_type{0};
-      throw;
-    }
-  }
-  _size = size;
-}
 
 } // end namespace cg
 

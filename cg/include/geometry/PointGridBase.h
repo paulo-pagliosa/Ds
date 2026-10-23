@@ -28,40 +28,16 @@
 // Class definition for point grid base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/10/2026
+// Last revision: 23/10/2026
 
 #ifndef __PointGridBase_h
 #define __PointGridBase_h
 
 #include "geometry/GridBase.h"
-#include "geometry/IndexList.h"
-#include "geometry/KNNResult.h"
-#include "geometry/NeighborHelper.h"
-#include "geometry/PointHolder.h"
+#include "geometry/SlottedPointHolder.h"
 
 namespace cg
 { // begin namespace cg
-
-namespace internal::pg
-{ // begin namespace internal::pg
-
-template <typename PA>
-concept hasCapacity = requires (const PA& points)
-{
-  points.capacity();
-};
-
-template <typename PA>
-[[nodiscard]] inline auto
-pointCapacity(const PA& points)
-{
-  if constexpr (hasCapacity<PA>)
-    return size_t(points.capacity());
-  else
-    return size_t(points.size());
-}
-
-} // end namespace internal::pg
 
 
 /////////////////////////////////////////////////////////////////////
@@ -72,32 +48,33 @@ template <int D,
   IsReal R,
   typename PA,
   typename I = int,
-  bool cachePositions = true>
-class PointGrid: public RegionGrid<D, R, I>,
-  public PointHolder<D, R, PA>
+  bool cachePositions = true,
+  typename Allocator = ArrayAllocator>
+class PointGrid: public RegionGrid<D, R, I, Allocator>,
+  public SlottedPointHolder<D, R, PA, I, cachePositions, Allocator>
 {
 public:
-  ASSERT_SIGNED(I, "PointGrid: signed int point id type expected");
-
-  using Base = RegionGrid<D, R, I>;
-  using grid_type = PointGrid<D, R, PA, I, cachePositions>;
+  using Base = RegionGrid<D, R, I, Allocator>;
+  using Holder = SlottedPointHolder<D, R, PA, I, cachePositions, Allocator>;
+  using grid_type = PointGrid<D, R, PA, I, cachePositions, Allocator>;
   using vec_type = typename Base::vec_type;
   using bounds_type = typename Base::bounds_type;
   using index_type = typename Base::index_type;
   using id_type = typename Base::id_type;
-  using PointSet = PointHolder<D, R, PA>;
+  using allocator_type = Allocator;
+  using PointSet = typename Holder::Base;
   using PointId = I;
 
-  template <int K = 0> using KNNResult = cg::KNNResult<PointId, R, K>;
-  using Neighbor = cg::Neighbor<PointId, vec_type>;
-  using SquaredNorm = cg::SquaredNorm<vec_type>;
-  using SlotRange = cg::SlotRange<PointId>;
+  template <int K = 0> using KNNResult = typename Holder::template KNNResult<K>;
+  using Neighbor = typename Holder::Neighbor;
+  using SquaredNorm = typename Holder::SquaredNorm;
+  using SlotRange = typename Holder::SlotRange;
 
   /// Constructs a grid with cells of size h over domain (see
   /// RegionGrid) for points, and calls update().
   PointGrid(const bounds_type& domain, PA& points, R h):
     Base{domain, h},
-    PointSet{points}
+    Holder{points}
   {
     update();
   }
@@ -106,7 +83,7 @@ public:
   /// for points, and calls update().
   PointGrid(const bounds_type& domain, PA& points, const index_type& size):
     Base{domain, size},
-    PointSet{points}
+    Holder{points}
   {
     update();
   }
@@ -122,22 +99,12 @@ public:
   PointGrid(const PointGrid&) = delete;
   PointGrid& operator =(const PointGrid&) = delete;
 
+  /// A moved-from grid can only be destroyed or assigned to.
   PointGrid(PointGrid&& other) noexcept:
     Base{std::move(other)},
-    PointSet{other.points()},
-    _ids{std::exchange(other._ids, nullptr)},
-    _positions{std::exchange(other._positions, nullptr)},
-    _capacity{std::exchange(other._capacity, 0)},
-    _count{std::exchange(other._count, 0)},
-    _outside{std::exchange(other._outside, 0)}
+    Holder{std::move(other)}
   {
     // do nothing
-  }
-
-  ~PointGrid()
-  {
-    delete []_ids;
-    delete []_positions;
   }
 
   /// Notifies the grid that the point set changed (points moved,
@@ -160,30 +127,21 @@ public:
     requires requires (PA& pa, std::span<PointId> order)
   {
     rearrange(pa, order);
-  };
-
-  /// Returns the number of points stored in the grid (the active
-  /// points at the last update()).
-  [[nodiscard]] auto pointCount() const
+  }
   {
-    return _count;
+    assert(isConsistent());
+    return Holder::reorder();
   }
 
-  /// Returns the number of points outside bounds() at the last
-  /// update() (stored in the nearest border cells; see the overview).
-  [[nodiscard]] auto outsideCount() const
-  {
-    return _outside;
-  }
+  // pointCount(), outsideCount() (points outside bounds(), stored in
+  // the nearest border cells; see the overview), sortedIds() and
+  // sortedPositions() are inherited from SlottedPointHolder.
 
   /// Returns the approximate memory used by the grid, in bytes.
   [[nodiscard]] auto memoryUsage() const
   {
-    auto s = size_t(this->length() + _capacity) * sizeof(PointId);
-
-    if constexpr (cachePositions)
-      s += _capacity * sizeof(vec_type);
-    return s;
+    return size_t(this->length()) * sizeof(PointId) +
+      this->slotMemoryUsage();
   }
 
   /// Iterator over the cells of the grid (in cell id order), whose
@@ -316,17 +274,6 @@ public:
     return Base::cells();
   }
 
-  [[nodiscard]] const auto* sortedIds() const
-  {
-    return _ids;
-  }
-
-  [[nodiscard]] const auto* sortedPositions() const
-    requires cachePositions
-  {
-    return _positions;
-  }
-
   /// Calls f(const Neighbor&) for every point q with |p - q| <= radius,
   /// in no particular order. f returns true to continue the search or
   /// false to stop it. Returns the number of calls to f. No memory is
@@ -349,7 +296,7 @@ public:
   size_t forEachNeighbor(PointId i, R radius, F&& f) const
   {
     assert(i >= 0 && size_t(i) < size_t(this->points().size()));
-    return radiusSearch(position(i), radius, i, f);
+    return radiusSearch(this->position(i), radius, i, f);
   }
 
   /// Collects the ids of the points q with |p - q| <= radius, in no
@@ -378,7 +325,7 @@ public:
   [[nodiscard]] size_t collectNeighbors(PointId i, R radius, B& out) const
   {
     assert(i >= 0 && size_t(i) < size_t(this->points().size()));
-    return collect(position(i), radius, i, out);
+    return collect(this->position(i), radius, i, out);
   }
 
   /// Finds the knn.k() nearest points to p with distance (norm value)
@@ -402,38 +349,17 @@ public:
     N norm = N{}) const
   {
     assert(i >= 0 && size_t(i) < size_t(this->points().size()));
-    return nearestSearch(position(i), i, knn, norm);
+    return nearestSearch(this->position(i), i, knn, norm);
   }
 
 private:
-  PointId* _ids{}; // point ids sorted by cell
-  vec_type* _positions{}; // their positions (if cachePositions)
-  size_t _capacity{}; // size of _ids and _positions
-  PointId _count{}; // points stored at the last update()
-  PointId _outside{}; // of which outside bounds()
-
-  // Allocates the arrays for capacity points (frees the old ones
-  // first: no peak of memory; contents are not kept).
-  void allocate(size_t capacity);
-
+  // Checks the sorted arrays (see SlottedPointHolder::isConsistent())
+  // and that every point is in the slots of its cell (for debugging).
   bool isConsistent() const;
 
   // Cell of p, clamped to the grid; inside is set to contains(p)
   // (computed together, on the same floatIndex(p)).
   id_type bucket(const vec_type& p, bool& inside) const;
-
-  auto position(PointId i) const
-  {
-    return vec_type{this->points()[i]};
-  }
-
-  auto slotPosition(PointId k) const
-  {
-    if constexpr (cachePositions)
-      return _positions[k];
-    else
-      return position(_ids[k]);
-  }
 
   auto cellBegin(id_type id) const
   {
@@ -442,7 +368,7 @@ private:
 
   auto cellEnd(id_type id) const
   {
-    return id + 1 < this->length() ? Base::cells()[id + 1] : _count;
+    return id + 1 < this->length() ? Base::cells()[id + 1] : this->pointCount();
   }
 
   // Calls f(first, last) with the slot range of the cells of the row
@@ -484,42 +410,9 @@ private:
 
 }; // PointGrid
 
-template <int D, IsReal R, typename PA, typename I, bool C>
-void
-PointGrid<D, R, PA, I, C>::allocate(size_t capacity)
-{
-  if (capacity > size_t(maxOf<PointId>))
-    throw std::length_error("PointGrid: too many points");
-  delete []_ids;
-  delete []_positions;
-  _ids = nullptr;
-  _positions = nullptr;
-  _capacity = 0;
-  _count = _outside = 0;
-  if (capacity == 0)
-    return;
-  _ids = new PointId[capacity];
-  if constexpr (C)
-  {
-    try
-    {
-      _positions = new vec_type[capacity];
-    }
-    catch (...)
-    {
-      // Also called by the constructors (via update()), whose failure
-      // does not run the destructor
-      delete []_ids;
-      _ids = nullptr;
-      throw;
-    }
-  }
-  _capacity = capacity;
-}
-
-template <int D, IsReal R, typename PA, typename I, bool C>
+template <int D, IsReal R, typename PA, typename I, bool C, typename A>
 inline auto
-PointGrid<D, R, PA, I, C>::bucket(const vec_type& p, bool& inside) const
+PointGrid<D, R, PA, I, C, A>::bucket(const vec_type& p, bool& inside) const
 -> id_type
 {
   // Same as clampedCellIndex(p) and contains(p), on one floatIndex(p)
@@ -540,20 +433,18 @@ PointGrid<D, R, PA, I, C>::bucket(const vec_type& p, bool& inside) const
   return Base::cellId(c);
 }
 
-template <int D, IsReal R, typename PA, typename I, bool C>
+template <int D, IsReal R, typename PA, typename I, bool C, typename A>
 void
-PointGrid<D, R, PA, I, C>::update()
+PointGrid<D, R, PA, I, C, A>::update()
 {
   const auto& points = this->points();
 
-  if (const auto capacity = internal::pg::pointCapacity(points);
-    capacity > _capacity)
-    allocate(capacity);
+  this->fitCapacity();
 
   const auto n = points.size();
   using psize_t = std::remove_const_t<decltype(n)>;
 
-  assert(size_t(n) <= _capacity);
+  assert(size_t(n) <= this->slotCapacity());
 
   const auto start = Base::cells();
   const auto length = this->length();
@@ -588,75 +479,39 @@ PointGrid<D, R, PA, I, C>::update()
       // Same cell as bucket(p) in pass 1 (same computation)
       const auto k = --start[this->clampedCellId(p)];
 
-      _ids[k] = PointId(i);
-      if constexpr (C)
-        _positions[k] = p;
+      this->setSlot(k, PointId(i), p);
     }
-  _count = count;
-  _outside = outside;
+  this->setCounts(count, outside);
 }
 
-template <int D, IsReal R, typename PA, typename I, bool C>
+template <int D, IsReal R, typename PA, typename I, bool C, typename A>
 bool
-PointGrid<D, R, PA, I, C>::isConsistent() const
+PointGrid<D, R, PA, I, C, A>::isConsistent() const
 {
-  const auto& points = this->points();
-  const auto n = points.size();
-  using psize_t = std::remove_const_t<decltype(n)>;
-  PointId active{0};
-
-  for (psize_t i = 0; i < n; ++i)
-    active += this->isPointActive(i) ? 1 : 0;
-  if (active != _count)
+  if (!Holder::isConsistent())
     return false;
+
+  const auto ids = this->sortedIds();
+  PointId end{0};
+
+  // The cells cover the slots [0, pointCount()) in order, and every
+  // point is in the slots of its cell
   for (id_type c = 0, length = this->length(); c < length; ++c)
+  {
+    if (cellBegin(c) != end || cellEnd(c) < end)
+      return false;
     for (auto k = cellBegin(c), e = cellEnd(c); k < e; ++k)
-    {
-      const auto i = _ids[k];
-
-      if (i < 0 || psize_t(i) >= n || !this->isPointActive(i))
+      if (this->clampedCellId(this->position(ids[k])) != c)
         return false;
-
-      const auto p = position(i);
-
-      if (this->clampedCellId(p) != c)
-        return false;
-      if constexpr (C)
-        if (!(_positions[k] == p))
-          return false;
-    }
-  return true;
+    end = cellEnd(c);
+  }
+  return end == this->pointCount();
 }
 
-template <int D, IsReal R, typename PA, typename I, bool C>
-auto
-PointGrid<D, R, PA, I, C>::reorder() -> PointId
-  requires requires (PA& pa, std::span<PointId> order)
-{
-  rearrange(pa, order);
-}
-{
-  assert(isConsistent());
-
-  auto& points = this->points();
-  const auto n = PointId(points.size());
-
-  if (n == 0)
-    return 0;
-  assert(size_t(n) <= _capacity);
-  // order[k] = id of the point that goes to slot (new id) k: the
-  // sorted ids, then the inactive points
-  for (PointId i = 0, k = _count; i < n; ++i)
-    if (!this->isPointActive(i))
-      _ids[k++] = i;
-  rearrange(points, std::span<PointId>{_ids, size_t(n)});
-  return _count;
-}
-
-template <int D, IsReal R, typename PA, typename I, bool C>
+template <int D, IsReal R, typename PA, typename I, bool C, typename A>
 template <typename F>
 inline bool
-PointGrid<D, R, PA, I, C>::visitBox(const index_type& lo,
+PointGrid<D, R, PA, I, C, A>::visitBox(const index_type& lo,
   const index_type& hi,
   F& f) const
 {
@@ -678,10 +533,10 @@ PointGrid<D, R, PA, I, C>::visitBox(const index_type& lo,
   return true;
 }
 
-template <int D, IsReal R, typename PA, typename I, bool C>
+template <int D, IsReal R, typename PA, typename I, bool C, typename A>
 template <typename F>
 bool
-PointGrid<D, R, PA, I, C>::visitShell(const index_type& c,
+PointGrid<D, R, PA, I, C, A>::visitShell(const index_type& c,
   id_type ring,
   F& f) const
 {
@@ -725,10 +580,10 @@ PointGrid<D, R, PA, I, C>::visitShell(const index_type& c,
   return true;
 }
 
-template <int D, IsReal R, typename PA, typename I, bool C>
+template <int D, IsReal R, typename PA, typename I, bool C, typename A>
 template <typename F>
 size_t
-PointGrid<D, R, PA, I, C>::radiusSearch(const vec_type& p,
+PointGrid<D, R, PA, I, C, A>::radiusSearch(const vec_type& p,
   R radius,
   PointId self,
   F& f) const
@@ -737,11 +592,11 @@ PointGrid<D, R, PA, I, C>::radiusSearch(const vec_type& p,
     "PointGrid: functor must be bool(const Neighbor&) "
     "(return true to continue the search, false to stop it)");
 
-  if (!(radius >= 0) || _count == 0) // also rejects NaN
+  if (!(radius >= 0) || this->pointCount() == 0) // also rejects NaN
     return 0;
 
   const auto r2 = radius * radius;
-  const auto ids = _ids;
+  const auto ids = this->sortedIds();
   const vec_type r{radius};
   size_t calls = 0;
   auto test = [&](PointId first, PointId last)
@@ -750,7 +605,7 @@ PointGrid<D, R, PA, I, C>::radiusSearch(const vec_type& p,
     {
       Neighbor nb;
 
-      nb.d = p - slotPosition(k);
+      nb.d = p - this->slotPosition(k);
       nb.d2 = nb.d.squaredNorm();
       if (nb.d2 <= r2)
       {
@@ -769,10 +624,10 @@ PointGrid<D, R, PA, I, C>::radiusSearch(const vec_type& p,
   return calls;
 }
 
-template <int D, IsReal R, typename PA, typename I, bool C>
+template <int D, IsReal R, typename PA, typename I, bool C, typename A>
 template <typename B>
 size_t
-PointGrid<D, R, PA, I, C>::collect(const vec_type& p,
+PointGrid<D, R, PA, I, C, A>::collect(const vec_type& p,
   R radius,
   PointId self,
   B& out) const
@@ -781,11 +636,11 @@ PointGrid<D, R, PA, I, C>::collect(const vec_type& p,
     "PointGrid: buffer must have size() and operator[] returning "
     "PointId&");
 
-  if (!(radius >= 0) || _count == 0) // also rejects NaN
+  if (!(radius >= 0) || this->pointCount() == 0) // also rejects NaN
     return 0;
 
   const auto r2 = radius * radius;
-  const auto ids = _ids;
+  const auto ids = this->sortedIds();
   const auto capacity = size_t(out.size());
   const vec_type r{radius};
   size_t n = 0; // neighbors found (written while n < capacity)
@@ -800,11 +655,11 @@ PointGrid<D, R, PA, I, C>::collect(const vec_type& p,
       const auto id = ids[k];
 
       out[n] = id;
-      n += size_t(((p - slotPosition(k)).squaredNorm() <= r2) & (id != self));
+      n += size_t(((p - this->slotPosition(k)).squaredNorm() <= r2) & (id != self));
     }
     // Buffer full: only counts
     for (; k < last; ++k)
-      n += size_t(((p - slotPosition(k)).squaredNorm() <= r2) &
+      n += size_t(((p - this->slotPosition(k)).squaredNorm() <= r2) &
         (ids[k] != self));
     return true;
   };
@@ -813,10 +668,10 @@ PointGrid<D, R, PA, I, C>::collect(const vec_type& p,
   return n;
 }
 
-template <int D, IsReal R, typename PA, typename I, bool C>
+template <int D, IsReal R, typename PA, typename I, bool C, typename A>
 template <int K, typename N>
 int
-PointGrid<D, R, PA, I, C>::nearestSearch(const vec_type& p,
+PointGrid<D, R, PA, I, C, A>::nearestSearch(const vec_type& p,
   PointId self,
   KNNResult<K>& knn,
   N& norm) const
@@ -825,14 +680,14 @@ PointGrid<D, R, PA, I, C>::nearestSearch(const vec_type& p,
     "PointGrid: norm must be callable as R(const vec_type&)");
 
   knn.reset();
-  if (_count == 0)
+  if (this->pointCount() == 0)
     return 0;
 
-  const auto ids = _ids;
+  const auto ids = this->sortedIds();
   auto test = [&](PointId first, PointId last)
   {
     for (auto s = first; s < last; ++s)
-      if (const auto d = R(norm(p - slotPosition(s))); d <= knn.limit())
+      if (const auto d = R(norm(p - this->slotPosition(s))); d <= knn.limit())
         if (const auto id = ids[s]; id != self)
           knn.insert(id, d);
     return true;

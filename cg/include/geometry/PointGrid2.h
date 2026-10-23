@@ -28,7 +28,7 @@
 // Class definition for generic 2D point grid.
 //
 // Author: Paulo Pagliosa
-// Last revision: 09/10/2026
+// Last revision: 23/10/2026
 
 #ifndef __PointGrid2_h
 #define __PointGrid2_h
@@ -44,8 +44,12 @@ namespace cg
 //
 // PointGrid2: generic 2D point grid class
 // ==========
-template <IsReal R, typename PA, typename I = int, bool cache = true>
-using PointGrid2 = PointGrid<2, R, PA, I, cache>;
+template <IsReal R,
+  typename PA,
+  typename I = int,
+  bool cachePositions = true,
+  typename Allocator = ArrayAllocator>
+using PointGrid2 = PointGrid<2, R, PA, I, cachePositions, Allocator>;
 
 } // namespace cg
 

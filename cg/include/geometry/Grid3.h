@@ -28,7 +28,7 @@
 // Class definition for 3D grid.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/10/2026
+// Last revision: 23/10/2026
 
 #ifndef __Grid3_h
 #define __Grid3_h
@@ -41,66 +41,79 @@ namespace cg
 
 /////////////////////////////////////////////////////////////////////
 //
-// Grid3: generic 3D grid class
-// =====
-template <typename T>
-class GridData<3, T> final: public GridDataBase<3, T>
+// GridShape3: 3D grid shape class
+// ==========
+template <>
+class GridShape<3>
 {
 public:
-  using Base = GridDataBase<3, T>;
-  using id_type = typename Base::id_type;
-  using index_type = typename Base::index_type;
+  using id_type = int32_t;
+  using index_type = Index<3, id_type>;
 
-  GridData() = default;
+  GridShape() = default;
 
-  GridData(const index_type& size)
+  /// Constructs the shape of a grid with size cells per axis.
+  HOST DEVICE
+  explicit GridShape(const index_type& size):
+    _size{size},
+    _sizeXY{size.x * size.y},
+    _length{_sizeXY * size.z}
   {
-    resize(size);
+    // do nothing
   }
 
-  GridData(GridData<3, T>&& other):
-    Base{std::move(other)}
+  [[nodiscard]] HOST DEVICE
+  const auto& size() const
   {
-    _size_xy = other._size_xy;
+    return _size;
   }
 
-  void resize(const index_type& size)
+  [[nodiscard]] HOST DEVICE
+  auto length() const
   {
-    Base::resize(size);
-    _size_xy = size.x * size.y;
+    return _length;
   }
 
-  [[nodiscard]] auto cellId(const index_type& index) const
+  [[nodiscard]] HOST DEVICE
+  id_type cellId(const index_type& index) const
   {
-    return index.x + index.y * this->_size.x + index.z * _size_xy;
+    return index.x + index.y * _size.x + index.z * _sizeXY;
   }
 
-  [[nodiscard]] auto cellIndex(id_type id) const
+  [[nodiscard]] HOST DEVICE
+  index_type cellIndex(id_type id) const
   {
     index_type i;
 
-    i.z = id / _size_xy;
-    id -= _size_xy * i.z;
-    i.y = id / this->_size.x;
-    i.x = id - this->_size.x * i.y;
+    i.z = id / _sizeXY;
+    id -= _sizeXY * i.z;
+    i.y = id / _size.x;
+    i.x = id - _size.x * i.y;
     return i;
   }
 
 private:
-  id_type _size_xy{};
+  index_type _size{0};
+  id_type _sizeXY{}; // cells per xy-slice
+  id_type _length{};
 
-}; // GridData
+}; // GridShape
 
-template <typename T>
-using Grid3 = Grid<3, T>;
+
+/////////////////////////////////////////////////////////////////////
+//
+// Grid3: generic 3D grid class
+// =====
+template <typename T, typename Allocator = ArrayAllocator>
+using Grid3 = Grid<3, T, Allocator>;
 
 
 /////////////////////////////////////////////////////////////////////
 //
 // RegionGrid3: 3D region grid class
 // ===========
-template <IsReal R, typename T>
-using RegionGrid3 = RegionGrid<3, R, T>;
+template <IsReal R, typename T, typename Allocator = ArrayAllocator>
+using RegionGrid3 = RegionGrid<3, R, T, Allocator>;
 
 } // end namespace cg
 

@@ -28,7 +28,7 @@
 // Class definition for point holder.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/10/2026
+// Last revision: 23/10/2026
 
 #ifndef __PointHolder_h
 #define __PointHolder_h
@@ -45,6 +45,27 @@ isPointActive(const PA&, I)
 {
   return true;
 }
+
+namespace internal::ph
+{ // begin namespace internal::ph
+
+template <typename PA>
+concept HasCapacity = requires (const PA& points)
+{
+  points.capacity();
+};
+
+template <typename PA>
+[[nodiscard]] inline auto
+pointCapacity(const PA& points)
+{
+  if constexpr (HasCapacity<PA>)
+    return size_t(points.capacity());
+  else
+    return size_t(points.size());
+}
+
+} // end namespace internal::ph
 
 
 /////////////////////////////////////////////////////////////////////

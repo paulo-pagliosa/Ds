@@ -28,7 +28,7 @@
 // Functions for rearrangement of collections in a given order.
 //
 // Author: Paulo Pagliosa
-// Last revision: 10/10/2026
+// Last revision: 23/10/2026
 
 #ifndef __Rearrange_h
 #define __Rearrange_h
@@ -109,7 +109,7 @@ concept HasIndexSwap = requires (C& c, I i)
   c.size();
 };
 
-/// Rearranges a collection with swap(i, j) and size() (e.g, SoA).
+/// Rearranges a collection with swap() and size() (e.g., SoA).
 template <typename C, std::integral I>
   requires HasIndexSwap<C, I>
 void
@@ -122,8 +122,8 @@ rearrange(C& c, std::span<I> order)
   });
 }
 
-/// Rearranges an indexable collection with swappable elements and
-/// size() (e.g., std::vector).
+/// Rearranges an indexable collection with swappable elements
+/// and size() (e.g., std::vector).
 template <typename C, IsIntegral I>
   requires (!HasIndexSwap<C, I>) && requires (C& c, I i)
   {

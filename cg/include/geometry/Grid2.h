@@ -28,7 +28,7 @@
 // Class definition for 2D grid.
 //
 // Author: Paulo Pagliosa
-// Last revision: 08/10/2026
+// Last revision: 23/10/2026
 
 #ifndef __Grid2_h
 #define __Grid2_h
@@ -41,44 +41,75 @@ namespace cg
 
 /////////////////////////////////////////////////////////////////////
 //
-// Grid2: generic 2D grid class
-// =====
-template <typename T>
-class GridData<2, T> final: public GridDataBase<2, T>
+// GridShape2: 2D grid shape class
+// ==========
+template <>
+class GridShape<2>
 {
 public:
-  using Base = GridDataBase<2, T>;
-  using id_type = typename Base::id_type;
-  using index_type = typename Base::index_type;
+  using id_type = int32_t;
+  using index_type = Index<2, id_type>;
 
-  using Base::Base;
+  GridShape() = default;
 
-  [[nodiscard]] auto cellId(const index_type& index) const
+  /// Constructs the shape of a grid with size cells per axis.
+  HOST DEVICE
+  explicit GridShape(const index_type& size):
+    _size{size},
+    _length{size.x * size.y}
   {
-    return index.x + index.y * this->_size.x;
+    // do nothing
   }
 
-  [[nodiscard]] auto cellIndex(id_type id) const
+  [[nodiscard]] HOST DEVICE
+  const auto& size() const
+  {
+    return _size;
+  }
+
+  [[nodiscard]] HOST DEVICE
+  auto length() const
+  {
+    return _length;
+  }
+
+  [[nodiscard]] HOST DEVICE
+  id_type cellId(const index_type& index) const
+  {
+    return index.x + index.y * _size.x;
+  }
+
+  [[nodiscard]] HOST DEVICE
+  index_type cellIndex(id_type id) const
   {
     index_type i;
 
-    i.y = id / this->_size.x;
-    i.x = id - this->_size.x * i.y;
+    i.y = id / _size.x;
+    i.x = id - _size.x * i.y;
     return i;
   }
 
-}; // GridData
+private:
+  index_type _size{0};
+  id_type _length{};
 
-template <typename T>
-using Grid2 = Grid<2, T>;
+}; // GridShape
+
+
+/////////////////////////////////////////////////////////////////////
+//
+// Grid2: generic 2D grid class
+// =====
+template <typename T, typename Allocator = ArrayAllocator>
+using Grid2 = Grid<2, T, Allocator>;
 
 
 /////////////////////////////////////////////////////////////////////
 //
 // RegionGrid2: 2D region grid class
 // ===========
-template <IsReal R, typename T>
-using RegionGrid2 = RegionGrid<2, R, T>;
+template <IsReal R, typename T, typename Allocator = ArrayAllocator>
+using RegionGrid2 = RegionGrid<2, R, T, Allocator>;
 
 } // end namespace cg
 
