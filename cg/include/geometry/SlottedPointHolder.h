@@ -215,12 +215,13 @@ public:
   /// active points get the ids [0, pointCount()), in slot order,
   /// and the inactive, removed points get the ids [pointCount(),
   /// points().size()), by calling rearrange(points(), order),
-  /// where order[k] is the id of the point that goes into slot k.
+  /// where order[k] is the id of the point that goes into slot k,
+  /// and then compacts itself, discarding the removed points.
   /// All data the owner maintains per point must be stored in the
   /// point set, which must not have changed since the last update
   /// (asserted in debug builds). No memory is allocated: order is
   /// the array of sorted ids, which ends up as the identity
-  /// permutation. The container remains valid.
+  /// permutation. Returns pointCount().
   PointId reorder()
     requires requires (PA& pa, std::span<PointId> order)
   {

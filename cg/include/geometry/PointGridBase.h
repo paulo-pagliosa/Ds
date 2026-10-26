@@ -114,15 +114,8 @@ public:
   /// the last call.
   void update();
 
-  /// Rearranges the points so that each id matches its slot: the
-  /// active points get the ids [0, pointCount()), in the order of
-  /// sortedIds() (by cell), and the inactive, removed points get
-  /// the ids [pointCount(), points().size()), by rearrange(points(),
-  /// order), with order[k] the id of the point that goes into slot
-  /// k, and then compacts itself, discarding the removed points.
-  /// Everything the owner keeps per point must be in the point set.
-  /// No memory is allocated: order is the array of sorted ids, which
-  /// ends up as the identity permutation.
+  /// Rearranges the points so that each id matches its slot (see
+  /// Points::reorder()).
   PointId reorder()
     requires requires (PA& pa, std::span<PointId> order)
   {
