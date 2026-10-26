@@ -28,13 +28,14 @@
 // Class definition for point holder.
 //
 // Author: Paulo Pagliosa
-// Last revision: 23/10/2026
+// Last revision: 26/10/2026
 
 #ifndef __PointHolder_h
 #define __PointHolder_h
 
 #include "core/Rearrange.h"
 #include "geometry/Bounds3.h"
+#include "geometry/PointIndexTraits.h"
 
 namespace cg
 { // begin namespace cg
@@ -45,27 +46,6 @@ isPointActive(const PA&, I)
 {
   return true;
 }
-
-namespace internal::ph
-{ // begin namespace internal::ph
-
-template <typename PA>
-concept HasCapacity = requires (const PA& points)
-{
-  points.capacity();
-};
-
-template <typename PA>
-[[nodiscard]] inline auto
-pointCapacity(const PA& points)
-{
-  if constexpr (HasCapacity<PA>)
-    return size_t(points.capacity());
-  else
-    return size_t(points.size());
-}
-
-} // end namespace internal::ph
 
 
 /////////////////////////////////////////////////////////////////////
@@ -95,7 +75,12 @@ public:
     return isPointActive(*_points, index);
   }
 
-  [[nodiscard]] static Bounds computeBounds(const PA&, bool = false);
+  /// Returns the bounds of the active points (a cube, if squared),
+  /// read by the position accessor (see PointIndexTraits.h).
+  template <typename Position = pa::DefaultPosition>
+  [[nodiscard]] static Bounds computeBounds(const PA&,
+    bool squared = false,
+    const Position& position = {});
 
 protected:
   PointHolder(PA& points):
@@ -104,14 +89,14 @@ protected:
     // do nothing
   }
 
-  template <typename P>
-  void setPositions(const P& points)
+  template <typename P, typename Position = pa::DefaultPosition>
+  void setPositions(const P& points, Position position = {})
   {
     const auto n = _points->size();
 
     assert(n == points.size());
     for (decltype(n) i = 0; i < n; ++i)
-      (*_points)[i].set(points[i]);
+      position(*_points, i).set(points[i]);
   }
 
   void setPoints(PA& points)
@@ -125,16 +110,20 @@ private:
 }; // PointHolder
 
 template <int D, IsReal R, typename PA>
+template <typename Position>
 auto
-PointHolder<D, R, PA>::computeBounds(const PA& points, bool squared) -> Bounds
+PointHolder<D, R, PA>::computeBounds(const PA& points,
+  bool squared,
+  const Position& position) -> Bounds
 {
+  using cg::isPointActive;
   using psize_t = decltype(points.size());
 
   Bounds bounds;
 
   for (psize_t n = points.size(), i = 0; i < n; ++i)
-    if (cg::isPointActive(points, i))
-      bounds.extend(points[i]);
+    if (isPointActive(points, i))
+      bounds.extend(Vector<R, D>{position(points, i)});
   if (squared)
   {
     auto s = Vector<R, D>{bounds.maxExtent() * R(0.5)};

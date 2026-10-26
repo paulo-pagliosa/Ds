@@ -28,7 +28,7 @@
 // Class for generic array.
 //
 // Author: Paulo Pagliosa
-// Last revision: 23/10/2026
+// Last revision: 25/10/2026
 
 #ifndef __Array_h
 #define __Array_h
@@ -318,15 +318,19 @@ public:
 
 private:
   template <IsArrayIndex I>
-  void checkIndex(I index) const
+  void checkIndex([[maybe_unused]] I index) const
   {
 #ifdef _DEBUG
-    if (static_cast<size_t>(index) < this->_size)
-      if constexpr (!std::is_signed_v<I>)
-        return;
-      else if (index >= 0)
-        return;
-    throw std::logic_error{"Array index out of bounds"};
+    auto outOfBounds = [this](I index)
+    {
+      if constexpr (std::is_signed_v<I>)
+        if (index < 0)
+          return true;
+      return static_cast<size_t>(index) >= this->_size;
+    };
+
+    if (outOfBounds(index))
+      throw std::logic_error{"Array index out of bounds"};
 #endif // _DEBUG
   }
 

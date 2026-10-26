@@ -28,7 +28,7 @@
 // Class definition for grid base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 23/10/2026
+// Last revision: 26/10/2026
 
 #ifndef __GridBase_h
 #define __GridBase_h
@@ -38,8 +38,6 @@
 #include "core/SharedObject.h"
 #include "geometry/Bounds3.h"
 #include "geometry/Index3.h"
-#include <cassert>
-#include <iterator>
 
 namespace cg
 { // begin namespace cg
@@ -380,7 +378,7 @@ Grid<D, T, A>::resize(const index_type& size)
   if (size_t(length) != _cells.size())
   {
     // Free first: no peak of memory; if the allocation fails, the
-    // grid is left empty
+    // grid is left empty.
     _shape = shape_type{};
     _cells = {};
     _cells = Array<T, A>{size_t(length)};
@@ -398,9 +396,9 @@ class RegionGrid: public Grid<D, T, Allocator>
 {
 public:
   using Base = Grid<D, T, Allocator>;
+  using grid_type = RegionGrid<D, R, T, Allocator>;
   using id_type = typename Base::id_type;
   using index_type = typename Base::index_type;
-  using grid_type = RegionGrid<D, R, T, Allocator>;
   using bounds_type = Bounds<R, D>;
   using vec_type = Vector<R, D>;
 
@@ -435,7 +433,6 @@ public:
   /// bounds given to the constructor -- every point of which maps to
   /// a valid cell -- with the max corner extended so that the bounds
   /// of every individual cell are fully contained within it.
-  ///
   /// @note Cells are half-open, meaning the max faces of bounds() do
   /// not belong to any cell (contains(p) returns false for a point p
   /// on those faces, although bounds().contains(p) returns true).
@@ -633,7 +630,6 @@ RegionGrid<D, R, T, A>::fitCells()
     last[i] = n[i] - 1;
   _bounds.extend(bounds(last).max());
 }
-
 
 } // end namespace cg
 

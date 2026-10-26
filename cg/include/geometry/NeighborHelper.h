@@ -28,7 +28,7 @@
 // Types shared by the neighbor queries of point containers.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/10/2026
+// Last revision: 23/10/2026
 
 #ifndef __NeighborHelper_h
 #define __NeighborHelper_h
@@ -42,10 +42,10 @@ namespace cg
 { // begin namespace cg
 
 /// Range of slots [first, last) of a cell (grid) or node (tree).
-/// A slot is a position in the arrays sorted by cell/node,
-/// sortedIds() and sortedPositions(): the same slot gives the id
-/// and the cached position of a point, and the points of a
-/// cell/node occupy consecutive slots.
+/// A slot is a position in the arrays sorted by cell/node:
+/// the ids, sortedIds(), and the attributes cached by the traits.
+/// The same slot gives the id and the cached attributes of a
+/// point, and the points of a cell/node occupy consecutive slots.
 template <typename I>
 struct SlotRange
 {
@@ -112,11 +112,25 @@ struct SlotRange
 template <typename I, typename V>
 struct Neighbor
 {
-  I id; ///< id of the neighbor (point q)
-  typename V::value_type d2; ///< squared distance between p and q
-  V d; ///< p - q
+  I id; // id of the neighbor (point q)
+  I slot; // slot of q
+  typename V::value_type d2; // squared distance between p and q
+  V d; // p - q
 
 }; // Neighbor
+
+/// Slot k as the center of a query (to distinguish it from a point
+/// id: the center is the position of the point of slot k, which is
+/// excluded from the result.
+template <typename I>
+struct Slot
+{
+  I k;
+
+}; // Slot
+
+template <typename I>
+Slot(I) -> Slot<I>;
 
 /// Default norm of the kNN searches.
 template <typename V>
@@ -138,7 +152,7 @@ concept IsNeighborFunctor = std::is_invocable_v<F&, const Neighbor&> &&
 std::is_same_v<std::invoke_result_t<F&, const Neighbor&>, bool>;
 
 template <typename B, typename I>
-concept IsIndexBuffer = requires (B & b, size_t i)
+concept IsIndexBuffer = requires (B& b, size_t i)
 {
   { b.size() } -> std::convertible_to<size_t>;
   { b[i] } -> std::same_as<I&>;

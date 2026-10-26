@@ -28,21 +28,71 @@
 // Class definition for slotted point holder.
 //
 // Author: Paulo Pagliosa
-// Last revision: 23/10/2026
+// Last revision: 26/10/2026
 
 #ifndef __SlottedPointHolder_h
 #define __SlottedPointHolder_h
 
-#include "core/Array.h"
+#include "core/SoA.h"
 #include "geometry/IndexList.h"
 #include "geometry/KNNResult.h"
 #include "geometry/NeighborHelper.h"
 #include "geometry/PointHolder.h"
-#include <limits>
-#include <stdexcept>
+#include "geometry/PointIndexTraits.h"
 
 namespace cg
 { // begin namespace cg
+
+namespace pa::internal
+{ // begin namespace pa::internal
+
+template <typename PA>
+concept HasCapacity = requires (const PA & points)
+{
+  points.capacity();
+};
+
+template <typename PA>
+[[nodiscard]] inline auto
+pointCapacity(const PA& points)
+{
+  if constexpr (HasCapacity<PA>)
+    return size_t(points.capacity());
+  else
+    return size_t(points.size());
+}
+
+// SoA of the slots: ids, then the cached attributes
+template <typename A, // allocator
+  typename I, // point index
+  typename V, // vector 
+  typename PA, // point array
+  typename P, // position accessor
+  typename C> // accessors of cached attributes
+struct SlotStorage;
+
+template <typename A,
+  typename I,
+  typename V,
+  typename PA,
+  typename P,
+  typename... Accessors>
+struct SlotStorage<A, I, V, PA, P, SlotCache<Accessors...>>
+{
+  template <typename Accessor>
+    requires cg::has<Accessor, Accessors...>
+  using cached_type = std::conditional_t<std::is_same_v<Accessor, P>,
+    V,
+    attribute_type<Accessor, PA, I>>;
+
+  using type = SoA<A, I, I, cached_type<Accessors>...>;
+
+  static constexpr size_t bytesPerSlot = (sizeof(I) + ... +
+    sizeof(cached_type<Accessors>));
+
+}; // SlotStorage
+
+} // end namespace pa::internal
 
 
 /////////////////////////////////////////////////////////////////////
@@ -52,39 +102,44 @@ namespace cg
 template <int D,
   IsReal R,
   typename PA,
-  typename I = int32_t,
-  bool cachePositions = true,
+  typename Traits = PointIndexTraits<>,
   typename Allocator = ArrayAllocator>
 class SlottedPointHolder: public PointHolder<D, R, PA>
 {
 public:
-  ASSERT_SIGNED(I, "PointHolder: signed int point id type expected");
+  using PointId = typename Traits::PointId;
+
+  ASSERT_SIGNED(PointId, "PointHolder: signed int point id type expected");
 
   using Base = PointHolder<D, R, PA>;
-  using PointId = I;
-  using vec_type = Vector<R, D>;
   using allocator_type = Allocator;
+  using Position = typename Traits::Position;
+  using Cache = typename Traits::Cache;
+  using vec_type = Vector<R, D>;
 
-  template <int K = 0> using KNNResult = cg::KNNResult<PointId, R, K>;
+  template <int K = 0, KNNKey key = KNNKey::Id>
+  using KNNResult = cg::KNNResult<PointId, R, K, key>;
+
   using Neighbor = cg::Neighbor<PointId, vec_type>;
   using SquaredNorm = cg::SquaredNorm<vec_type>;
   using SlotRange = cg::SlotRange<PointId>;
+  /// A slot as the center of a query (see NeighborHelper.h).
+  using Slot = cg::Slot<PointId>;
 
-  /// Raw view of the sorted arrays. A slot is a position in the
-  /// sorted arrays: slot k holds the id of a point (ids[k]) and,
-  /// if cached, a copy of its position (positions[k]).
-  struct SlotArrays
-  {
-    const PointId* ids;
-    const vec_type* positions; // nullptr if not cached
-    PointId count;
+  /// True if the positions are cached in the slots.
+  static constexpr bool cachesPositions = Cache::template has<Position>;
 
-  }; // SlotArrays
+  /// Number of cached attributes (including the position).
+  static constexpr auto attributeCount = Cache::size;
 
-  ~SlottedPointHolder()
-  {
-    free();
-  }
+  /// Type of the cached attribute J (the position is vec_type).
+  template <size_t J>
+  using attribute_type = typename pa::internal::SlotStorage<Allocator,
+    PointId,
+    vec_type,
+    PA,
+    Position,
+    Cache>::template cached_type<typename Cache::template Accessor<J>>;
 
   /// Returns the number of points stored at the last update (the
   /// active points then).
@@ -103,30 +158,69 @@ public:
 
   [[nodiscard]] const auto* sortedIds() const
   {
-    return _ids;
+    return _slots.template data<0>();
+  }
+
+  /// Returns the array of the cached attribute J (J-th accessor
+  /// of the cache), in slot order.
+  template <size_t J>
+    requires (J < attributeCount)
+  [[nodiscard]] const auto* sortedAttribute() const
+  {
+    return _slots.template data<J + 1>();
+  }
+
+  /// Returns the array of the cached attribute read by Accessor,
+  /// in slot order.
+  template <typename Accessor>
+    requires Cache::template has<Accessor>
+  [[nodiscard]] const auto* sortedAttribute() const
+  {
+    return sortedAttribute<Cache::template indexOf<Accessor>>();
+  }
+
+  /// Returns the cached attribute J of the point of slot k.
+  template <size_t J>
+    requires (J < attributeCount)
+  [[nodiscard]] const auto& slotAttribute(PointId k) const
+  {
+    assert(k >= 0 && k < _count);
+    return sortedAttribute<J>()[k];
+  }
+
+  /// Returns the cached attribute read by Accessor of the point
+  /// of slot k.
+  template <typename Accessor>
+    requires Cache::template has<Accessor>
+  [[nodiscard]] const auto& slotAttribute(PointId k) const
+  {
+    return slotAttribute<Cache::template indexOf<Accessor>>(k);
   }
 
   [[nodiscard]] const auto* sortedPositions() const
-    requires cachePositions
+    requires cachesPositions
   {
-    return _positions;
+    return sortedAttribute<Position>();
   }
 
-  [[nodiscard]] SlotArrays slotArrays() const
+  /// Returns the bounds (a cube, if squared)of the active points
+  /// of a point set, read with the position accessor.
+  [[nodiscard]] static auto computeBounds(const PA& points,
+    bool squared = false)
   {
-    return {_ids, _positions, _count};
+    return Base::computeBounds(points, squared, Position{});
   }
 
-  /// Rearranges the points so that each id becomes its slot: the
+  /// Rearranges the points so that each id matches its slot: the
   /// active points get the ids [0, pointCount()), in slot order,
-  /// and the inactive ones (removed points) the ids [pointCount(),
-  /// points().size()), by rearrange(points(), order), with
-  /// order[k] the id of the point that goes to k. Everything the
-  /// owner keeps per point must be in the point set. The point set
-  /// must not have changed since the last update (asserted in debug).
-  /// No memory is allocated: order is the array of sorted ids,
-  /// which ends as the identity; the container remains valid.
-  /// Returns pointCount().
+  /// and the inactive, removed points get the ids [pointCount(),
+  /// points().size()), by calling rearrange(points(), order),
+  /// where order[k] is the id of the point that goes into slot k.
+  /// All data the owner maintains per point must be stored in the
+  /// point set, which must not have changed since the last update
+  /// (asserted in debug builds). No memory is allocated: order is
+  /// the array of sorted ids, which ends up as the identity
+  /// permutation. The container remains valid.
   PointId reorder()
     requires requires (PA& pa, std::span<PointId> order)
   {
@@ -146,9 +240,7 @@ protected:
   /// A moved-from object can only be destroyed or assigned to.
   SlottedPointHolder(SlottedPointHolder&& other) noexcept:
     Base{other},
-    _ids{std::exchange(other._ids, nullptr)},
-    _positions{std::exchange(other._positions, nullptr)},
-    _capacity{std::exchange(other._capacity, 0)},
+    _slots{std::move(other._slots)},
     _count{std::exchange(other._count, 0)},
     _outside{std::exchange(other._outside, 0)}
   {
@@ -159,11 +251,8 @@ protected:
   {
     if (this != &other)
     {
-      free();
       Base::operator =(other);
-      _ids = std::exchange(other._ids, nullptr);
-      _positions = std::exchange(other._positions, nullptr);
-      _capacity = std::exchange(other._capacity, 0);
+      _slots = std::move(other._slots);
       _count = std::exchange(other._count, 0);
       _outside = std::exchange(other._outside, 0);
     }
@@ -173,61 +262,53 @@ protected:
   /// Returns the number of slots allocated.
   [[nodiscard]] auto slotCapacity() const
   {
-    return _capacity;
+    return size_t(_slots.size());
   }
 
-  /// Ensures the arrays have a slot for each point the point set can
-  /// hold (its capacity(), or size() if it has none). If they must
-  /// grow, the old arrays are freed before the new ones are allocated
-  /// (no peak of memory), their contents are lost and the counts are
-  /// reset. Returns true if the arrays were reallocated. Throws
-  /// std::length_error if the capacity does not fit in PointId.
+  /// Ensures the arrays have a slot for each point the point set
+  /// can hold. Returns true if the arrays were reallocated.
   bool fitCapacity();
 
-  /// Mutable access to the sorted arrays (for the update of the derived
-  /// class).
+  /// Mutable access to the sorted ids (for derived classes).
   [[nodiscard]] PointId* ids()
   {
-    return _ids;
+    return _slots.template data<0>();
   }
 
-  [[nodiscard]] vec_type* positions()
-    requires cachePositions
-  {
-    return _positions;
-  }
-
-  /// Stores point i at slot k (and its position p, if cached).
+  /// Stores point i at slot k and copies its cached attributes; p
+  /// is its position (computed by the caller).
   void setSlot(PointId k, PointId i, const vec_type& p)
   {
-    assert(k >= 0 && size_t(k) < _capacity);
-    _ids[k] = i;
-    if constexpr (cachePositions)
-      _positions[k] = p;
-    else
-      (void)p;
+    assert(k >= 0 && size_t(k) < slotCapacity());
+    ids()[k] = i;
+    gather(k, i, &p, Indices{});
   }
 
+  /// Stores point i at slot k and copies its cached attributes.
   void setSlot(PointId k, PointId i)
   {
-    setSlot(k, i, position(i));
+    assert(k >= 0 && size_t(k) < slotCapacity());
+    ids()[k] = i;
+    gather(k, i, nullptr, Indices{});
   }
 
   /// Exchanges the contents of two slots.
   void swapSlots(PointId a, PointId b)
   {
-    std::swap(_ids[a], _ids[b]);
-    if constexpr (cachePositions)
-      std::swap(_positions[a], _positions[b]);
+    _slots.swap(a, b);
   }
 
-  /// Copies the positions of the points of the slots [first, last) to
-  /// the cache (nothing if positions are not cached).
-  void cacheSlotPositions(PointId first, PointId last)
+  /// Copies the cached attributes of the points of the slots
+  /// [first, last), whose ids are set, from the point set.
+  void gatherSlots(PointId first, PointId last)
   {
-    if constexpr (cachePositions)
+    if constexpr (attributeCount > 0)
+    {
+      const auto ids = sortedIds();
+
       for (auto k = first; k < last; ++k)
-        _positions[k] = position(_ids[k]);
+        gather(k, ids[k], nullptr, Indices{});
+    }
     else
       (void)first, (void)last;
   }
@@ -235,7 +316,7 @@ protected:
   /// Sets the counts at the end of an update.
   void setCounts(PointId count, PointId outside)
   {
-    assert(count >= 0 && size_t(count) <= _capacity);
+    assert(count >= 0 && size_t(count) <= slotCapacity());
     assert(outside >= 0 && outside <= count);
     _count = count;
     _outside = outside;
@@ -244,31 +325,31 @@ protected:
   /// Position of point i (from the point set).
   [[nodiscard]] auto position(PointId i) const
   {
-    return vec_type{this->points()[i]};
+    return vec_type{Position{}(this->points(), i)};
   }
 
   /// Position of the point of slot k (from the cache, if any).
   [[nodiscard]] auto slotPosition(PointId k) const
   {
-    if constexpr (cachePositions)
-      return _positions[k];
+    if constexpr (cachesPositions)
+      return sortedPositions()[k];
     else
-      return position(_ids[k]);
+      return position(sortedIds()[k]);
   }
 
-  /// Returns a callable pos(k) -> position of the point of slot k, to be
-  /// passed to the searches.
+  /// Returns a callable pos(k) -> position of the point of slot
+  /// k, to be passed to a search method.
   [[nodiscard]] auto slotPositionOf() const
   {
-    if constexpr (cachePositions)
-      return [p = _positions](PointId k) -> const vec_type&
+    if constexpr (cachesPositions)
+      return [p = sortedPositions()](PointId k) -> const vec_type&
     {
       return p[k];
     };
     else
       return [this](PointId k)
     {
-      return position(_ids[k]);
+      return position(sortedIds()[k]);
     };
   }
 
@@ -278,72 +359,97 @@ protected:
   /// Returns the memory allocated by the sorted arrays, in bytes.
   [[nodiscard]] size_t slotMemoryUsage() const
   {
-    return _capacity * (sizeof(PointId) + (cachePositions ? sizeof(vec_type) : 0));
+    return slotCapacity() * Storage::bytesPerSlot;
   }
 
-  /// Returns true if the slots [0, pointCount()) hold each active point
-  /// exactly once, with its current position (if cached), and if
-  /// slotOk(k, i) is true for every slot k and its point i (the check of
-  /// the derived class, e.g., that the point is in the cell of the
-  /// slot). For debugging: allocates and costs O(n).
+  /// Returns true if the slots [0, pointCount()) hold each active
+  /// point exactly once, and if f(k, i) is true for every slot k
+  /// and its point i. For debugging: allocates and costs O(n).
   template <typename F>
-  [[nodiscard]] bool isConsistent(F&& slotOk) const;
+  [[nodiscard]] bool isConsistent(F&& f) const;
 
   [[nodiscard]] bool isConsistent() const
   {
-    return isConsistent([](PointId, PointId) { return true; });
+    return isConsistent([](PointId, PointId)
+    {
+      return true;
+    });
   }
 
 private:
-  PointId* _ids{}; // sorted point ids
-  vec_type* _positions{}; // sorted point positions (if cached)
-  size_t _capacity{}; // number of slots allocated
+  using Storage = pa::internal::SlotStorage<Allocator,
+    PointId,
+    vec_type,
+    PA,
+    Position,
+    Cache>;
+  using Indices = std::make_index_sequence<attributeCount>;
+
+  typename Storage::type _slots; // ids and cached attributes
   PointId _count{}; // points stored at the last update
   PointId _outside{}; // points outside the domain
 
-  void free() noexcept
+  // Value of the cached attribute J of point i (p: its position,
+  // if known).
+  template <size_t J>
+  auto attribute(PointId i, const vec_type* p) const
   {
-    Allocator::free(_ids);
-    Allocator::free(_positions);
-    _ids = nullptr;
-    _positions = nullptr;
+    using Accessor = typename Cache::template Accessor<J>;
+
+    if constexpr (std::is_same_v<Accessor, Position>)
+      return p ? *p : position(i);
+    else
+      return attribute_type<J>(Accessor{}(this->points(), i));
+  }
+
+  template <size_t... J>
+  void gather(PointId k, PointId i,
+    const vec_type* p,
+    std::index_sequence<J...>)
+  {
+    ((_slots.template data<J + 1>()[k] = attribute<J>(i, p)), ...);
+    (void)i, (void)p;
+  }
+
+  template <size_t... J>
+  bool sameAttributes(PointId k, PointId i, std::index_sequence<J...>) const
+  {
+    auto same = [&]<size_t L>(std::integral_constant<size_t, L>)
+    {
+      using T = attribute_type<L>;
+
+      if constexpr (std::equality_comparable<T>)
+        return bool(sortedAttribute<L>()[k] == attribute<L>(i, nullptr));
+      else
+        return true;
+    };
+
+    (void)k, (void)i;
+    return (same(std::integral_constant<size_t, J>{}) && ...);
   }
 
 }; // SlottedPointHolder
 
-template <int D, IsReal R, typename PA, typename I, bool C, typename A>
+template <int D, IsReal R, typename PA, typename T, typename A>
 bool
-SlottedPointHolder<D, R, PA, I, C, A>::fitCapacity()
+SlottedPointHolder<D, R, PA, T, A>::fitCapacity()
 {
-  const auto capacity = internal::ph::pointCapacity(this->points());
+  const auto capacity = pa::internal::pointCapacity(this->points());
 
-  if (capacity <= _capacity)
+  if (capacity <= slotCapacity())
     return false;
   if (capacity > size_t(std::numeric_limits<PointId>::max()))
-    throw std::length_error("SlottedPointHolder: too many points");
-  // Free first: no peak of memory
-  free();
-  _capacity = 0;
+    throw std::length_error("PointHolder: too many points");
   _count = _outside = 0;
-  try
-  {
-    _ids = A::template allocate<PointId>(capacity);
-    if constexpr (C)
-      _positions = A::template allocate<vec_type>(capacity);
-  }
-  catch (...)
-  {
-    // Keep both arrays empty, so that the next call retries
-    free();
-    throw;
-  }
-  _capacity = capacity;
+  // SoA::reallocate() frees first (no peak of memory) and leaves
+  // the arrays empty if the allocation fails.
+  _slots.reallocate(PointId(capacity));
   return true;
 }
 
-template <int D, IsReal R, typename PA, typename I, bool C, typename A>
+template <int D, IsReal R, typename PA, typename T, typename A>
 auto
-SlottedPointHolder<D, R, PA, I, C, A>::activePointCount() const -> PointId
+SlottedPointHolder<D, R, PA, T, A>::activePointCount() const -> PointId
 {
   const auto& points = this->points();
   const auto n = points.size();
@@ -355,37 +461,37 @@ SlottedPointHolder<D, R, PA, I, C, A>::activePointCount() const -> PointId
   return active;
 }
 
-template <int D, IsReal R, typename PA, typename I, bool C, typename A>
+template <int D, IsReal R, typename PA, typename T, typename A>
 template <typename F>
 bool
-SlottedPointHolder<D, R, PA, I, C, A>::isConsistent(F&& slotOk) const
+SlottedPointHolder<D, R, PA, T, A>::isConsistent(F&& slotOk) const
 {
   const auto n = size_t(this->points().size());
 
-  if (activePointCount() != _count || size_t(_count) > _capacity)
+  if (activePointCount() != _count || size_t(_count) > slotCapacity())
     return false;
 
+  const auto ids = sortedIds();
   std::vector<bool> seen(n);
 
   for (PointId k = 0; k < _count; ++k)
   {
-    const auto i = _ids[k];
+    const auto i = ids[k];
 
     if (i < 0 || size_t(i) >= n || seen[size_t(i)] || !this->isPointActive(i))
       return false;
     seen[size_t(i)] = true;
-    if constexpr (C)
-      if (!(_positions[k] == position(i)))
-        return false;
+    if (!sameAttributes(k, i, Indices{}))
+      return false;
     if (!slotOk(k, i))
       return false;
   }
   return true;
 }
 
-template <int D, IsReal R, typename PA, typename I, bool C, typename A>
+template <int D, IsReal R, typename PA, typename T, typename A>
 auto
-SlottedPointHolder<D, R, PA, I, C, A>::reorder()->PointId
+SlottedPointHolder<D, R, PA, T, A>::reorder()->PointId
   requires requires (PA& pa, std::span<PointId> order)
 {
   rearrange(pa, order);
@@ -396,14 +502,17 @@ SlottedPointHolder<D, R, PA, I, C, A>::reorder()->PointId
 
   if (n == 0)
     return 0;
-  assert(size_t(n) <= _capacity);
+  assert(size_t(n) <= slotCapacity());
   assert(activePointCount() == _count);
+
+  const auto ids = this->ids();
+
   // order[k] = id of the point that goes to slot (new id) k: the
-  // sorted ids, then the inactive points
+  // sorted ids, then the inactive points.
   for (PointId i = 0, k = _count; i < n; ++i)
     if (!this->isPointActive(i))
-      _ids[k++] = i;
-  rearrange(points, std::span<PointId>{_ids, size_t(n)});
+      ids[k++] = i;
+  rearrange(points, std::span<PointId>{ids, size_t(n)});
   return _count;
 }
 

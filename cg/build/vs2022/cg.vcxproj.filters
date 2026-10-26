@@ -209,9 +209,6 @@
     <ClInclude Include="..\..\include\geometry\PointGridBase.h">
       <Filter>Header Files\geometry</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\geometry\PointHolder.h">
-      <Filter>Header Files\geometry</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\geometry\PointGrid2.h">
       <Filter>Header Files\geometry</Filter>
     </ClInclude>
@@ -403,6 +400,12 @@
     </ClInclude>
     <ClInclude Include="..\..\include\core\DynamicArray.h">
       <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\geometry\PointHolder.h">
+      <Filter>Header Files\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\geometry\PointIndexTraits.h">
+      <Filter>Header Files\geometry</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

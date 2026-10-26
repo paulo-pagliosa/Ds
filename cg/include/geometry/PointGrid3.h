@@ -49,7 +49,11 @@ template <IsReal R,
   typename I = int,
   bool cachePositions = true,
   typename Allocator = ArrayAllocator>
-using PointGrid3 = PointGrid<3, R, PA, I, cachePositions, Allocator>;
+using PointGrid3 = PointGrid<3,
+  R,
+  PA,
+  DefaultPointIndexTraits<I, cachePositions>,
+  Allocator>;
 
 } // namespace cg
 

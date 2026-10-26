@@ -28,7 +28,7 @@
 // Class definition for k-nearest neighbors result.
 //
 // Author: Paulo Pagliosa
-// Last revision: 14/10/2026
+// Last revision: 23/10/2026
 
 #ifndef __KNNResult_h
 #define __KNNResult_h
@@ -43,8 +43,67 @@
 namespace cg
 { // begin namespace cg
 
+/// What the entries of a KNNResult keep of each neighbor: its point
+/// id, its slot in the sorted arrays of the container, or both.
+enum class KNNKey
+{
+  Id,
+  Slot,
+  IdAndSlot
+
+}; // KNNKey
+
 namespace internal::knn
 { // begin namespace internal::knn
+
+//
+// Entry of a KNNResult
+//
+template <typename I, typename R, KNNKey key> struct Entry;
+
+template <typename I, typename R>
+struct Entry<I, R, KNNKey::Id>
+{
+  I id;
+  R distance;
+
+  void set(I i, I, R d)
+  {
+    id = i;
+    distance = d;
+  }
+
+}; // Entry
+
+template <typename I, typename R>
+struct Entry<I, R, KNNKey::Slot>
+{
+  I slot;
+  R distance;
+
+  void set(I, I k, R d)
+  {
+    slot = k;
+    distance = d;
+  }
+
+}; // Entry
+
+template <typename I, typename R>
+struct Entry<I, R, KNNKey::IdAndSlot>
+{
+  I id;
+  I slot;
+  R distance;
+
+  void set(I i, I k, R d)
+  {
+    id = i;
+    slot = k;
+    distance = d;
+  }
+
+}; // Entry
 
 //
 // Storage of the entries of a KNNResult
@@ -88,7 +147,7 @@ struct Storage<E, 0> // K == 0: owns a block allocated on the host
   {
     if (this != &other)
     {
-      delete[]data;
+      delete []data;
       data = std::exchange(other.data, nullptr);
       k = std::exchange(other.k, 0);
     }
@@ -97,7 +156,7 @@ struct Storage<E, 0> // K == 0: owns a block allocated on the host
 
   ~Storage()
   {
-    delete []data;
+    delete[]data;
   }
 
   [[nodiscard]] auto capacity() const
@@ -122,7 +181,7 @@ private:
 //
 // KNNResult: k-nearest neighbors result class
 // =========
-template <typename I, typename R, int K = 0>
+template <typename I, typename R, int K = 0, KNNKey key = KNNKey::Id>
 class KNNResult
 {
 public:
@@ -130,13 +189,10 @@ public:
 
   using id_type = I;
   using value_type = R;
+  using Entry = internal::knn::Entry<I, R, key>;
 
-  struct Entry
-  {
-    I id;
-    R distance;
-
-  }; // Entry
+  static constexpr bool keepsIds = key != KNNKey::slot;
+  static constexpr bool keepsSlots = key != KNNKey::id;
 
   [[nodiscard]] static constexpr R infinity()
   {
@@ -185,9 +241,18 @@ public:
     return data()[i];
   }
 
+  /// Returns the point id of the i-th nearest neighbor.
   [[nodiscard]] auto id(int i) const
+    requires keepsIds
   {
     return (*this)[i].id;
+  }
+
+  /// Returns the slot of the i-th nearest neighbor.
+  [[nodiscard]] auto slot(int i) const
+    requires keepsSlots
+  {
+    return (*this)[i].slot;
   }
 
   [[nodiscard]] auto distance(int i) const
@@ -205,15 +270,14 @@ public:
     return data() + _size;
   }
 
-  /// Returns the maximum distance (in norm units) of a neighbor;
-  /// infinity by default. Searches find the k nearest points
-  /// with distance <= maxDistance().
+  /// Returns the maximum distance of a neighbor. Searches find
+  /// the k nearest points with with distance <= maxDistance().
   [[nodiscard]] auto maxDistance() const
   {
     return _maxDistance;
   }
 
-  /// Sets the maximum distance (takes effect on the next search).
+  /// Sets the maximum distance (for the next search).
   void setMaxDistance(R d)
   {
     _maxDistance = d >= 0 ? d : R(0); // NaN -> 0
@@ -242,8 +306,16 @@ public:
     return d < _limit || (d == _limit && !full());
   }
 
-  /// Offers a candidate; returns true if it was kept.
-  [[nodiscard]] bool insert(I id, R d);
+  /// Offers a candidate (point id, slot and distance); returns
+  /// true if it was kept. The entries keep what key says.
+  bool insert(I id, I slot, R d);
+
+  /// Offers a candidate (point id and distance).
+  bool insert(I id, R d)
+    requires (key == KNNKey::id)
+  {
+    return insert(id, I{}, d);
+  }
 
   /// Finishes the search. Nothing to do: the neighbors are kept
   /// sorted by insertion.
@@ -255,8 +327,8 @@ public:
 private:
   internal::knn::Storage<Entry, K> _storage;
   int _size{};
+  R _limit{infinity()};
   R _maxDistance{infinity()};
-  R _limit{infinity()}; // maxDistance or, if full, the farthest distance
 
   const auto* data() const
   {
@@ -270,9 +342,9 @@ private:
 
 }; // KNNResult
 
-template <typename I, typename R, int K>
+template <typename I, typename R, int K, KNNKey key>
 inline bool
-KNNResult<I, R, K>::insert(I id, R d)
+KNNResult<I, R, K, key>::insert(I id, I slot, R d)
 {
   if (!accepts(d))
     return false;
@@ -283,7 +355,7 @@ KNNResult<I, R, K>::insert(I id, R d)
 
   for (; j > 0 && e[j - 1].distance > d; --j)
     e[j] = e[j - 1];
-  e[j] = {id, d};
+  e[j].set(id, slot, d);
   if (full())
     _limit = e[_size - 1].distance;
   return true;

@@ -142,7 +142,7 @@ private:
 
   static size_t checkedSum(size_t a, size_t b)
   {
-    if (b > Base::maxSize)() - a)
+    if (b > Base::maxSize() - a)
       throw std::length_error{"Array: too many elements"};
     return a + b;
   }
@@ -162,7 +162,7 @@ private:
   {
     const auto c = _capacity;
     constexpr auto maxSize = Base::maxSize();
-    const auto g = c <= maxSize() / 2 ? c * 2 : maxSize();
+    const auto g = c <= maxSize / 2 ? c * 2 : maxSize;
 
     reallocate(std::max({n, g, size_t(8)}));
   }

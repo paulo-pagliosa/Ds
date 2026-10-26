@@ -126,13 +126,14 @@
     <ClInclude Include="..\..\include\geometry\NeighborHelper.h" />
     <ClInclude Include="..\..\include\geometry\Octree.h" />
     <ClInclude Include="..\..\include\geometry\PointArray.h" />
+    <ClInclude Include="..\..\include\geometry\PointHolder.h" />
+    <ClInclude Include="..\..\include\geometry\PointIndexTraits.h" />
     <ClInclude Include="..\..\include\geometry\Quad.h" />
     <ClInclude Include="..\..\include\geometry\Point2.h" />
     <ClInclude Include="..\..\include\geometry\Point3.h" />
     <ClInclude Include="..\..\include\geometry\PointGrid2.h" />
     <ClInclude Include="..\..\include\geometry\PointGrid3.h" />
     <ClInclude Include="..\..\include\geometry\PointGridBase.h" />
-    <ClInclude Include="..\..\include\geometry\PointHolder.h" />
     <ClInclude Include="..\..\include\geometry\PointOctree.h" />
     <ClInclude Include="..\..\include\geometry\PointQuadtree.h" />
     <ClInclude Include="..\..\include\geometry\PointTreeBase.h" />
