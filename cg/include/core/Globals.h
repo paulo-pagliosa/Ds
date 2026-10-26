@@ -1,6 +1,6 @@
 //[]---------------------------------------------------------------[]
 //|                                                                 |
-//| Copyright (C) 2018, 2019 Paulo Pagliosa.                        |
+//| Copyright (C) 2018, 2026 Paulo Pagliosa.                        |
 //|                                                                 |
 //| This software is provided 'as-is', without any express or       |
 //| implied warranty. In no event will the authors be held liable   |
@@ -28,12 +28,12 @@
 // Global typedefs and utilities.
 //
 // Author: Paulo Pagliosa
-// Last revision: 11/03/2019
+// Last revision: 26/10/2026
 
 #ifndef __Globals_h
 #define __Globals_h
 
-#ifdef _USE_CUDA
+#if defined(_USE_CUDA) || defined(__CUDACC__)
 #include <cuda_runtime.h>
 #else
 #define __host__
