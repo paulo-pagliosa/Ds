@@ -28,7 +28,7 @@
 // Class definition for k-nearest neighbors result.
 //
 // Author: Paulo Pagliosa
-// Last revision: 23/10/2026
+// Last revision: 26/10/2026
 
 #ifndef __KNNResult_h
 #define __KNNResult_h
@@ -191,8 +191,8 @@ public:
   using value_type = R;
   using Entry = internal::knn::Entry<I, R, key>;
 
-  static constexpr bool keepsIds = key != KNNKey::slot;
-  static constexpr bool keepsSlots = key != KNNKey::id;
+  static constexpr bool keepsIds = key != KNNKey::Slot;
+  static constexpr bool keepsSlots = key != KNNKey::Id;
 
   [[nodiscard]] static constexpr R infinity()
   {
@@ -312,7 +312,7 @@ public:
 
   /// Offers a candidate (point id and distance).
   bool insert(I id, R d)
-    requires (key == KNNKey::id)
+    requires (key == KNNKey::Id)
   {
     return insert(id, I{}, d);
   }
