@@ -85,7 +85,6 @@ private:
   }
 
   friend GLLines3Renderer;
-  friend GLRenderer;
 
 }; // GLLines3
 
