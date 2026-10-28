@@ -28,7 +28,7 @@
 // Class definition for OpenGL 3D point buffer object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2026
+// Last revision: 28/10/2026
 
 #ifndef __GLPoints3_h
 #define __GLPoints3_h
@@ -36,13 +36,16 @@
 #include "graphics/Color.h"
 #include "graphics/GLBuffer.h"
 #include "math/Vector3.h"
-#include <vector>
 
 namespace cg
 { // begin namespace cg
 
-class GLPoints3Renderer;
-class GLRenderer;
+template <typename PA>
+concept IsVec3Array = requires (const PA& a)
+{
+  { a.size() } -> std::convertible_to<size_t>;
+  { a.data() } -> std::same_as<const vec3f*>;
+};
 
 using GLColorBuffer = GLBuffer<Color>;
 
@@ -54,9 +57,15 @@ using GLColorBuffer = GLBuffer<Color>;
 class GLPoints3: public SharedObject
 {
 public:
-  using PointArray = std::vector<vec3f>;
+  template <IsVec3Array PA>
+  GLPoints3(const PA& points):
+    GLPoints3{points.data(), points.size()}
+  {
+    // do nothing
+  }
 
-  GLPoints3(const PointArray& points);
+  GLPoints3(const GLPoints3&) = delete;
+  GLPoints3& operator =(const GLPoints3&) = delete;
 
   ~GLPoints3()
   {
@@ -76,15 +85,15 @@ public:
 
   void setColors(GLColorBuffer* colors);
 
+protected:
+  GLPoints3(const vec3f* data, size_t size);
+
 private:
   constexpr static auto colorLoc = 1;
 
   GLuint _vao;
   GLuint _buffer;
   uint32_t _size;
-
-  friend GLPoints3Renderer;
-  friend GLRenderer;
 
 }; // GLPoints3
 

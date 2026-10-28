@@ -28,7 +28,7 @@
 // Source file for OpenGL 3D point buffer object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 06/10/2026
+// Last revision: 28/10/2026
 
 #include "graphics/GLPoints3.h"
 #include <cassert>
@@ -36,33 +36,26 @@
 namespace cg
 { // begin namespace cg
 
-template <typename T>
-constexpr auto bufferSize(size_t n)
-{
-  return sizeof(T) * n;
-}
-
 
 /////////////////////////////////////////////////////////////////////
 //
 // GLPoints3 implementation
 // =========
-GLPoints3::GLPoints3(const PointArray& points):
-  _size{uint32_t(points.size())}
+GLPoints3::GLPoints3(const vec3f* data, size_t size):
+  _size{uint32_t(size)}
 {
   glGenVertexArrays(1, &_vao);
   glBindVertexArray(_vao);
   glGenBuffers(1, &_buffer);
-  if (auto s = bufferSize<vec3f>(_size))
+  if (auto s = sizeof(vec3f) * _size)
   {
     // location 0: position
     glBindBuffer(GL_ARRAY_BUFFER, _buffer);
-    glBufferData(GL_ARRAY_BUFFER, s, points.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, s, data, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
   }
 }
-
 void
 GLPoints3::setColors(GLColorBuffer* colors)
 {

@@ -43,7 +43,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{3FD1D91D-19DF-4C23-AD3C-02A6ECF35FE3}</ProjectGuid>
-    <RootNamespace>p3</RootNamespace>
+    <RootNamespace>cgdemo</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>cgdemo</ProjectName>
   </PropertyGroup>

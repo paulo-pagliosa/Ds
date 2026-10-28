@@ -28,7 +28,7 @@
 // Class definition for OpenGL 3D line buffer object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2026
+// Last revision: 28/10/2026
 
 #ifndef __GLLines3_h
 #define __GLLines3_h
@@ -36,6 +36,7 @@
 #include "geometry/Index2.h"
 #include "graphics/GLPoints3.h"
 #include <cassert>
+#include <vector>
 
 namespace cg
 { // begin namespace cg
@@ -52,9 +53,15 @@ class GLLines3: public GLPoints3
 public:
   using IndexArray = std::vector<uint32_t>;
 
-  GLLines3(const PointArray& points, IndexArray&& lineSizes);
+  template <IsVec3Array PA>
+  GLLines3(const PA& points, IndexArray&& lineSizes):
+    GLLines3{points.data(), points.size(), std::move(lineSizes)}
+  {
+    // do nothing
+  }
 
-  GLLines3(const PointArray& points, uint32_t lineCount, uint32_t lineSize):
+  template <IsVec3Array PA>
+  GLLines3(const PA& points, uint32_t lineCount, uint32_t lineSize):
     GLLines3{points, IndexArray(lineCount, lineSize)}
   {
     // do nothing
@@ -68,7 +75,9 @@ public:
 private:
   IndexArray _lineEnds;
 
-  /// Returns the point indices (start,end+1) of the ith line.
+  GLLines3(const vec3f*, size_t, IndexArray&&);
+
+  // Returns the point indices (start, end + 1) of the ith line.
   auto lineIndices(uint32_t i) const
   {
     assert(i < _lineEnds.size());

@@ -28,7 +28,7 @@
 // Source file for OpenGL 3D line buffer object.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2023
+// Last revision: 28/10/2023
 
 #include "graphics/GLLines3.h"
 
@@ -40,8 +40,8 @@ namespace cg
 //
 // GLLines3 implementation
 // ========
-GLLines3::GLLines3(const PointArray& points, IndexArray&& lineSizes):
-  GLPoints3{points},
+GLLines3::GLLines3(const vec3f* data, size_t size, IndexArray&& lineSizes):
+  GLPoints3{data, size},
   _lineEnds(std::move(lineSizes))
 {
   for (size_t n = _lineEnds.size(), i = 1; i < n; ++i)

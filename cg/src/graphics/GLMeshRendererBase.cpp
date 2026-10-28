@@ -28,7 +28,7 @@
 // Source file for OpenGL mesh renderer base.
 //
 // Author: Paulo Pagliosa
-// Last revision: 06/10/2026
+// Last revision: 28/10/2026
 
 #include "graphics/GLMeshRendererBase.h"
 
@@ -354,15 +354,15 @@ GLMeshRendererBase::GLProgram::initProgram()
 }
 
 inline void
-GLMeshRendererBase::GLProgram::setLineColor(const Color& c)
+GLMeshRendererBase::GLProgram::setAmbientLight(const Color& color)
 {
-  setUniformVec4(lineColorLoc, c);
+  setUniformVec4(ambientLightLoc, color);
 }
 
 inline void
-GLMeshRendererBase::GLProgram::setAmbientLight(const Color& c)
+GLMeshRendererBase::GLProgram::setLineColor(const Color& color)
 {
-  setUniformVec4(ambientLightLoc, c);
+  setUniformVec4(lineColorLoc, color);
 }
 
 GLMeshRendererBase::GLProgram::GLProgram(GLMeshRendererBase& parent):
@@ -402,21 +402,21 @@ namespace
 { // begin namespace
 
 inline mat4f
-mvpMatrix(const mat4f& mvm, const Camera& c)
+mvpMatrix(const mat4f& mvm, const Camera& camera)
 {
-  return c.projectionMatrix() * mvm;
+  return camera.projectionMatrix() * mvm;
 }
 
 inline mat4f
-mvMatrix(const mat4f& t, const Camera& c)
+mvMatrix(const mat4f& t, const Camera& camera)
 {
-  return c.worldToCameraMatrix() * t;
+  return camera.worldToCameraMatrix() * t;
 }
 
 inline auto
-normalMatrix(const mat3f& n, const Camera& c)
+normalMatrix(const mat3f& n, const Camera& camera)
 {
-  return mat3f{c.worldToCameraMatrix()} * n;
+  return mat3f{camera.worldToCameraMatrix()} * n;
 }
 
 } // end namesspace
@@ -532,7 +532,7 @@ GLMeshRendererBase::setAmbientLight(const Color& color)
 }
 
 void
-GLMeshRendererBase::setMaterial(const Material& material, void* texture)
+GLMeshRendererBase::setMaterial(const Material& material, TextureId texture)
 {
   _program->assertInUse();
   _program->setMaterial(material);

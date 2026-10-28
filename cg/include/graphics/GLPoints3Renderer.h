@@ -28,7 +28,7 @@
 // Class definition for OpenGL 3D points renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2026
+// Last revision: 28/10/2026
 
 #ifndef __GLPoints3Renderer_h
 #define __GLPoints3Renderer_h
@@ -57,11 +57,7 @@ public:
   }
 
   void begin();
-
-  void setPointColor(const Color& color)
-  {
-    _program.setUniformVec4(_program.pointColorLoc, color);
-  }
+  void setPointColor(const Color& color);
 
   void setPointSize(float size)
   {
@@ -80,7 +76,6 @@ public:
 
   void render(const GLPoints3&, const vec3f&, const mat3f&, const vec3f&);
   void render(const GLPoints3&, int, const mat4f&);
-
   void end();
 
 private:
@@ -102,6 +97,12 @@ private:
   private:
     void initProgram();
     void initUniformLocations();
+
+    void setPointColor(const Color&);
+    void setMVP(const mat4f&, const Camera&);
+    void setUsePointColors(bool);
+
+    friend GLPoints3Renderer;
 
   }; // GLProgram
 

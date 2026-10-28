@@ -28,7 +28,7 @@
 // Source file for OpenGL 3D points renderer.
 //
 // Author: Paulo Pagliosa
-// Last revision: 29/08/2026
+// Last revision: 28/10/2026
 
 #include "graphics/GLPoints3Renderer.h"
 #include <cassert>
@@ -43,23 +43,23 @@ static const char* vertexShader = R"glsl(
   uniform mat4 mvpMatrix;
   uniform int usePointColors;
   uniform vec4 pointColor;
-  out vec4 vertexColor;
+  out vec4 v_Color;
 
   void main()
   {
     gl_Position = mvpMatrix * position;
-    vertexColor = usePointColors != 0 ? color : pointColor;
+    v_Color = usePointColors != 0 ? color : pointColor;
   }
 )glsl";
 
 static const char* fragmentShader = R"glsl(
   #version 400
-  in vec4 vertexColor;
+  in vec4 v_Color;
   out vec4 fragmentColor;
 
   void main()
   {
-    fragmentColor = vertexColor;
+    fragmentColor = v_Color;
   }
 )glsl";
 
@@ -67,7 +67,7 @@ static const char* fragmentShader = R"glsl(
 /////////////////////////////////////////////////////////////////////
 //
 // GLPoints3Renderer implementation
-// ================
+// =================
 inline void
 GLPoints3Renderer::GLProgram::initUniformLocations()
 {
@@ -83,14 +83,43 @@ GLPoints3Renderer::GLProgram::initProgram()
   initUniformLocations();
 }
 
+inline void
+GLPoints3Renderer::GLProgram::setPointColor(const Color& color)
+{
+  setUniformVec4(pointColorLoc, color);
+}
+
 GLPoints3Renderer::GLProgram::GLProgram():
   GLSL::Program{"Point Renderer"}
 {
   auto cp = GLSL::Program::current();
 
   initProgram();
-  setUniformVec4(pointColorLoc, Color::black);
+  setPointColor(Color::black);
   GLSL::Program::setCurrent(cp);
+}
+
+namespace
+{ // begin namespace
+
+inline mat4f
+mvpMatrix(const mat4f& t, const Camera& c)
+{
+  return c.projectionMatrix() * c.worldToCameraMatrix() * t;
+}
+
+} // end namespace
+
+inline void
+GLPoints3Renderer::GLProgram::setMVP(const mat4f& t, const Camera& camera)
+{
+  setUniformMat4(mvpMatrixLoc, mvpMatrix(t, camera));
+}
+
+inline void
+GLPoints3Renderer::GLProgram::setUsePointColors(bool flag)
+{
+  setUniform(usePointColorsLoc, (int)flag);
 }
 
 inline void
@@ -109,9 +138,16 @@ GLPoints3Renderer::begin()
     glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &_lastState.vao);
     glPointSize(_pointSize);
     _program.use();
-    _program.setUniform(_program.usePointColorsLoc, int(usePointColors));
+    _program.setUsePointColors(usePointColors);
     updateView();
   }
+}
+
+void
+GLPoints3Renderer::setPointColor(const Color& color)
+{
+  _program.assertInUse();
+  _program.setPointColor( color);
 }
 
 void
@@ -125,24 +161,13 @@ GLPoints3Renderer::end()
   }
 }
 
-namespace
-{ // begin namespace
-
-inline mat4f
-mvpMatrix(const mat4f& t, const Camera& c)
-{
-  return c.projectionMatrix() * c.worldToCameraMatrix() * t;
-}
-
-} // end namespace
-
 void
 GLPoints3Renderer::drawPoints(const GLPoints3& points,
   const mat4f& t,
   int count,
   int offset)
 {
-  _program.setUniformMat4(_program.mvpMatrixLoc, mvpMatrix(t, *camera()));
+  _program.setMVP(t, *camera());
   points.bind();
   glDrawArrays(GL_POINTS, offset, count);
 }
